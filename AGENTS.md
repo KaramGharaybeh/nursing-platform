@@ -2,15 +2,116 @@
 
 ## Purpose
 
-This document defines how AI coding agents (OpenCode, BigPickle, GPT, Claude, or any future coding assistant) must operate while contributing to the Nursing Platform project.
+This document defines the mandatory operating rules for all AI coding agents contributing to the Nursing Platform project.
 
-The objective is to ensure every contribution is production-ready, consistent with the project architecture, and aligned with long-term maintainability.
+These instructions apply to OpenCode, BigPickle, ChatGPT, Claude, Gemini, Codex, and any future AI coding assistant.
+
+The objective is to ensure every contribution is:
+
+- Production-ready
+- Architecturally correct
+- Fully testable
+- Maintainable
+- Secure
+- Scalable
+- Consistent across the entire codebase
+
+These project instructions take precedence over convenience. Prototype implementations, shortcuts, and temporary solutions are not acceptable.
 
 ---
 
+# Mandatory AI Workflow
+
+This project adopts the Superpowers workflow for structured software development.
+
+Before performing any task, the AI agent must first determine which development skills are applicable.
+
+Implementation must never begin immediately.
+
+The agent must first:
+
+1. Load the `using-superpowers` skill.
+2. Determine which additional skills apply.
+3. Load those skills.
+4. Read the required project documentation.
+5. Produce an implementation plan.
+6. Implement incrementally.
+7. Verify the implementation.
+8. Update documentation if necessary.
+
+The AI must never skip applicable skills.
+
+---
+
+# Required Skills
+
+The following Superpowers skills are mandatory whenever their triggering conditions apply.
+
+| Situation | Required Skill |
+|------------|----------------|
+| Every new conversation | using-superpowers |
+| New features or architecture discussions | brainstorming |
+| Multi-step implementations | writing-plans |
+| Executing an approved implementation plan | subagent-driven-development (preferred) or executing-plans |
+| Independent parallel tasks | dispatching-parallel-agents |
+| New feature implementation | test-driven-development |
+| Debugging unexpected behavior | systematic-debugging |
+| Before requesting merge approval | requesting-code-review |
+| After receiving review feedback | receiving-code-review |
+| Isolated feature development | using-git-worktrees |
+| Before declaring work complete | verification-before-completion |
+| Finishing implementation | finishing-a-development-branch |
+
+Not every task requires every skill.
+
+However, the AI must always evaluate whether a skill applies before proceeding.
+---
+# Skill Selection Rules
+
+Before starting any task, the AI must determine which Superpowers skills apply.
+
+The following order must always be respected:
+
+1. using-superpowers
+2. Process skills
+   - brainstorming
+   - systematic-debugging
+3. Planning skills
+   - writing-plans
+4. Execution skills
+   - subagent-driven-development
+   - executing-plans
+5. Quality skills
+   - requesting-code-review
+   - receiving-code-review
+   - verification-before-completion
+6. Branch management
+   - finishing-a-development-branch
+
+The AI must never begin implementation before selecting the applicable skills.
+---
+# Repository Context
+
+This repository contains project documentation, backend code, frontend code, scripts, and infrastructure.
+
+The AI must always treat the repository documentation as the primary source of truth.
+
+When multiple documents exist:
+
+- docs/* defines architecture and implementation rules.
+- PROJECT_RULES.md defines repository-wide constraints.
+- CURRENT_TASK.md defines the active milestone.
+- TASKS.md defines the long-term roadmap.
+- README.md provides project overview.
+- AGENTS.md defines AI behavior.
+
+Never duplicate documentation.
+
+Always update the authoritative document instead.
+---
 # Project Overview
 
-Nursing Platform is a production-ready SaaS application built using:
+Nursing Platform is a production-ready SaaS platform built using modern engineering practices.
 
 ## Backend
 
@@ -43,13 +144,13 @@ Every implementation must be:
 - Secure
 - Scalable
 
-Prototype implementations, shortcuts, and temporary solutions are not acceptable.
+Never optimize for development speed at the expense of architecture or maintainability.
 
 ---
 
 # Required Reading Order
 
-Before implementing any feature, always review the following documents in order:
+Before implementing any feature, the AI must review the following documents in order.
 
 1. docs/product/vision.md
 2. docs/architecture/system-architecture.md
@@ -69,15 +170,25 @@ Implementation must not begin until these documents are understood.
 
 For every task:
 
-1. Read CURRENT_TASK.md.
-2. Identify the affected modules.
-3. Review the relevant documentation.
-4. Explain the implementation plan.
-5. Request approval if architectural changes are required.
-6. Implement incrementally.
-7. Verify the solution builds successfully.
-8. Run applicable tests.
-9. Update documentation if implementation changes behavior or architecture.
+1. Determine the applicable Superpowers skills.
+2. Read CURRENT_TASK.md.
+3. Identify the affected modules.
+4. Review all relevant documentation.
+5. Produce an implementation plan.
+6. Request approval if architectural changes are required.
+7. Implement incrementally.
+8. Build the solution.
+9. Run all applicable tests.
+10. Update documentation when implementation changes behavior or architecture.
+11. Perform final verification before declaring completion.
+
+If requirements are unclear:
+
+- Stop implementation.
+- Explain the ambiguity.
+- Request clarification.
+
+Never invent requirements.
 
 ---
 
@@ -101,13 +212,16 @@ Application
 Domain
 ```
 
-Rules:
+Mandatory rules:
 
 - Domain must never depend on Infrastructure.
 - Domain must never depend on WebApi.
-- Business logic belongs in the Application and Domain layers.
 - Infrastructure implements interfaces defined by the Application layer.
+- Business logic belongs only in Application and Domain.
 - Presentation must remain thin.
+- Keep dependencies flowing inward.
+
+Never violate dependency direction.
 
 ---
 
@@ -123,14 +237,22 @@ Generated code must be:
 - Easy to test
 - Easy to maintain
 
+Prefer:
+
+- Composition over inheritance
+- Explicit code over clever code
+- Dependency injection
+- Immutable objects where practical
+
 Avoid:
 
 - God classes
 - Duplicate code
-- Magic strings
-- Static mutable state
 - Tight coupling
+- Static mutable state
+- Magic strings
 - Premature optimization
+- Hidden side effects
 
 ---
 
@@ -144,9 +266,10 @@ Always use:
 
 Never:
 
-- Modify the database schema manually.
+- Modify the schema manually.
 - Bypass DbContext.
-- Execute ad-hoc schema changes in production.
+- Execute ad-hoc schema changes.
+- Couple business logic to persistence details.
 
 ---
 
@@ -164,65 +287,91 @@ Never expose:
 
 - Domain entities
 - Database entities
+- Internal implementation details
 
 ---
 
-# Testing
+# Testing Policy
 
-Every significant feature should include appropriate tests.
+Testing is mandatory.
+
+Every significant feature should include appropriate automated tests.
 
 Business-critical logic must always be testable.
 
-Particular attention should be given to:
+Pay particular attention to:
 
 - Business workflows
-- Financial calculations
+- Validation rules
+- Authorization
 - Examination scoring
-- Validation logic
+- Financial calculations
+- Edge cases
 
-Do not leave failing tests.
+Whenever practical, follow Test-Driven Development:
+
+1. Write a failing test.
+2. Implement the smallest possible solution.
+3. Refactor while keeping tests green.
+
+Never leave failing tests.
 
 ---
 
-# Documentation
+# Verification Policy
+
+Never claim work is complete without verification.
+
+Before declaring completion, the AI must:
+
+- Build the solution.
+- Run all relevant tests.
+- Review generated changes.
+- Verify documentation.
+- Confirm no unrelated files were modified.
+
+Never assume success.
+
+Always verify.
+
+---
+
+# Documentation Policy
 
 Documentation is part of the implementation.
 
-Whenever behavior or architecture changes:
+Whenever behavior, architecture, APIs, workflows, or design changes:
 
 - Update the relevant documentation.
-- Keep markdown files synchronized with the implementation.
+- Keep markdown files synchronized with implementation.
 
-Never allow documentation to become outdated.
+Documentation must never become outdated.
 
 ---
 
-# Communication
+# Communication Guidelines
 
 When presenting work:
 
 - Explain assumptions.
-- Mention important trade-offs.
-- Highlight risks when applicable.
+- Describe important trade-offs.
+- Mention risks when applicable.
+- Distinguish facts from assumptions.
 - Keep explanations concise.
 
-If requirements are unclear:
+Never fabricate requirements.
 
-- Stop implementation.
-- Explain the ambiguity.
-- Request clarification.
-
-Never invent requirements.
+Never guess business rules.
 
 ---
 
 # Git Rules
 
-Every commit should:
+Every commit must:
 
 - Represent one logical change.
 - Build successfully.
-- Avoid unrelated modifications.
+- Keep documentation synchronized.
 - Use meaningful commit messages.
 
 Never commit:
@@ -230,7 +379,9 @@ Never commit:
 - Secrets
 - Credentials
 - Temporary code
-- Generated build artifacts
+- Generated artifacts
+- Experimental code
+- Debug-only changes
 
 ---
 
@@ -238,12 +389,14 @@ Never commit:
 
 A task is complete only when:
 
-- The solution builds successfully.
-- Applicable tests pass.
+- The implementation is production-ready.
 - Clean Architecture is respected.
 - Engineering standards are followed.
-- Documentation is updated when necessary.
-- The implementation is production-ready.
+- The solution builds successfully.
+- Applicable tests pass.
+- Documentation has been updated.
+- Final verification has been completed.
+- All applicable Superpowers skills have been followed.
 
 ---
 
@@ -257,3 +410,5 @@ Every contribution should move the Nursing Platform closer to a production-ready
 - Scalability
 - Security
 - Developer experience
+
+When in doubt, prioritize correctness, maintainability, and long-term quality over implementation speed.

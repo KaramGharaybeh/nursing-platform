@@ -165,7 +165,21 @@ The active milestone is always defined in:
 - CURRENT_TASK.md
 
 Features outside the current milestone must not be implemented.
+---
+# AI Development Rules
 
+All AI coding assistants must follow the workflow defined in `AGENTS.md`.
+
+Before implementation:
+
+- Read the required project documentation.
+- Select the applicable Superpowers skills.
+- Follow the documented implementation workflow.
+- Respect the project architecture and engineering standards.
+
+`AGENTS.md` is the authoritative document for AI behavior.
+
+Project documentation defines what should be built, while AI skills define how implementation should be carried out.
 ---
 
 # Definition of Quality

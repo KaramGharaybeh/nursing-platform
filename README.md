@@ -195,3 +195,32 @@ Before submitting changes:
 # License
 
 This project is licensed under a private license.
+---
+
+# AI Development Workflow
+
+This project is designed to be developed with AI coding assistants such as OpenCode, BigPickle, Claude, and GPT.
+
+Before implementing any feature, AI agents must follow the workflow defined in:
+
+- AGENTS.md
+- PROJECT_RULES.md
+- CURRENT_TASK.md
+
+## Superpowers
+
+The development workflow integrates the Superpowers skill system.
+
+Available skills are loaded from the global Superpowers installation and are used automatically by compatible AI agents.
+
+Typical workflow:
+
+1. Select applicable skills.
+2. Review project documentation.
+3. Create or review the implementation plan.
+4. Implement incrementally.
+5. Verify the implementation.
+6. Perform code review.
+7. Complete the development branch.
+
+The project documentation remains the single source of truth. Superpowers skills define *how* implementation is performed, while the project documentation defines *what* should be built.

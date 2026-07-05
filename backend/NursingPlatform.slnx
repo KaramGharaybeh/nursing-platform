@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NursingPlatform.Application/NursingPlatform.Application.csproj" />
+    <Project Path="src/NursingPlatform.Domain/NursingPlatform.Domain.csproj" />
+    <Project Path="src/NursingPlatform.Infrastructure/NursingPlatform.Infrastructure.csproj" />
+    <Project Path="src/NursingPlatform.WebApi/NursingPlatform.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NursingPlatform.Application.Tests/NursingPlatform.Application.Tests.csproj" />
+    <Project Path="tests/NursingPlatform.Domain.Tests/NursingPlatform.Domain.Tests.csproj" />
+  </Folder>
+</Solution>

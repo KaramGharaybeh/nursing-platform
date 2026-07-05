@@ -1,0 +1,216 @@
+# Nursing Platform Roadmap
+
+This document defines the implementation roadmap for the Nursing Platform.
+
+Development must follow the phases in order.
+
+Do not start work on a later phase until the current phase is complete.
+
+---
+
+# Phase 1 — Project Foundation ✅
+
+## Documentation
+
+- [x] Product vision
+- [x] System architecture
+- [x] Backend architecture
+- [x] Frontend architecture
+- [x] Database design
+- [x] API design
+- [x] Engineering standards
+- [x] Development guide
+- [x] Deployment guide
+
+## Repository
+
+- [x] Git repository
+- [x] Project standards
+- [x] AI agent instructions
+- [x] Project roadmap
+
+## Backend
+
+- [x] .NET solution
+- [x] Clean Architecture projects
+- [x] Project references
+- [x] Initial Web API
+
+## Infrastructure
+
+- [x] Docker Compose
+- [x] PostgreSQL
+- [x] Redis
+- [x] MailPit
+
+---
+
+# Phase 2 — Platform Foundation
+
+## API
+
+- [ ] Global exception handling
+- [ ] Problem Details (RFC 7807)
+- [ ] Health checks
+- [ ] API versioning
+- [ ] Swagger / OpenAPI
+
+## Configuration
+
+- [ ] Configuration management
+- [ ] Options pattern
+- [ ] Environment configuration
+- [ ] Secret management
+
+## Dependency Injection
+
+- [ ] Application registration
+- [ ] Infrastructure registration
+- [ ] Presentation registration
+
+## Logging
+
+- [ ] Serilog
+- [ ] Structured logging
+- [ ] Request correlation
+
+---
+
+# Phase 3 — Data Layer
+
+## Entity Framework Core
+
+- [ ] ApplicationDbContext
+- [ ] Initial migration
+- [ ] Database initialization
+- [ ] Repository implementations
+- [ ] Unit of Work (if adopted)
+
+## Reference Data
+
+- [ ] Countries
+- [ ] Languages
+- [ ] Roles
+- [ ] Permissions
+
+---
+
+# Phase 4 — Identity & Security
+
+- [ ] User management
+- [ ] Authentication
+- [ ] Authorization
+- [ ] JWT
+- [ ] Refresh tokens
+- [ ] Email verification
+- [ ] Password reset
+- [ ] Role management
+- [ ] Permission management
+
+---
+
+# Phase 5 — Nurse Module
+
+- [ ] Nurse profile
+- [ ] Experience
+- [ ] Education
+- [ ] Certificates
+- [ ] Skills
+- [ ] Languages
+- [ ] CV upload
+
+---
+
+# Phase 6 — Employer Module
+
+- [ ] Employer profile
+- [ ] Organization management
+- [ ] Candidate search
+- [ ] Candidate filtering
+- [ ] Contact requests
+
+---
+
+# Phase 7 — Examination Module
+
+- [ ] Countries
+- [ ] Categories
+- [ ] Question bank
+- [ ] Mock exams
+- [ ] Exam sessions
+- [ ] Timer
+- [ ] Auto scoring
+- [ ] Results
+- [ ] Analytics
+
+---
+
+# Phase 8 — Payments
+
+- [ ] Products
+- [ ] Orders
+- [ ] Checkout
+- [ ] Payment providers
+- [ ] Webhooks
+
+---
+
+# Phase 9 — Administration
+
+- [ ] Dashboard
+- [ ] User management
+- [ ] Question management
+- [ ] Category management
+- [ ] Reports
+- [ ] Audit logs
+- [ ] System settings
+
+---
+
+# Phase 10 — Frontend
+
+- [ ] Angular application
+- [ ] Authentication
+- [ ] Dashboard
+- [ ] Nurse portal
+- [ ] Employer portal
+- [ ] Administration portal
+- [ ] Shared component library
+
+---
+
+# Phase 11 — Production Readiness
+
+## Quality
+
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] End-to-end tests
+
+## DevOps
+
+- [ ] CI/CD pipeline
+- [ ] Docker production images
+- [ ] Monitoring
+- [ ] Health monitoring
+- [ ] Backup strategy
+- [ ] Security hardening
+
+## Deployment
+
+- [ ] Production deployment
+- [ ] Performance testing
+- [ ] Load testing
+- [ ] Disaster recovery validation
+
+---
+
+# Development Rules
+
+- Complete phases sequentially.
+- Do not implement features outside the current phase.
+- Keep documentation synchronized with implementation.
+- Every completed feature must compile successfully.
+- Run applicable tests before marking work as complete.
+- No task is considered complete until its documentation is updated.
+- Production quality is required for every implementation.

@@ -17,3 +17,30 @@ TestResults/
 
 *.user
 *.suo
+# .NET
+**/bin/
+**/obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/
+dist/
+
+# Tests
+TestResults/
+coverage/
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db

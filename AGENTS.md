@@ -41,6 +41,15 @@ The agent must first:
 
 The AI must never skip applicable skills.
 
+Before implementation, the AI must explicitly report:
+
+- Which Superpowers skills were loaded.
+- Why each selected skill applies.
+- Which project documents were reviewed.
+- Which project constraints affect the current task.
+
+Implementation must not begin until this report is complete.
+
 ---
 
 # Required Skills

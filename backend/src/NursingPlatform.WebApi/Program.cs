@@ -1,21 +1,40 @@
 using NursingPlatform.WebApi.Extensions;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-builder.Services.AddApplicationServices();
-
-var app = builder.Build();
-
-app.UseApplicationPipeline();
-
-app.MapGet("/", () =>
+try
 {
-    return Results.Ok(new
-    {
-        Application = "Nursing Platform API",
-        Version = "v1",
-        Status = "Running"
-    });
-});
+    var builder = WebApplication.CreateBuilder(args);
 
-app.Run();
+    builder.Host.UseSerilog((context, config) =>
+        config.ReadFrom.Configuration(context.Configuration));
+
+    builder.Services.AddApplicationServices(builder.Configuration);
+
+    var app = builder.Build();
+
+    app.UseApplicationPipeline();
+
+    app.MapGet("/", () =>
+    {
+        return Results.Ok(new
+        {
+            Application = "Nursing Platform API",
+            Version = "v1",
+            Status = "Running"
+        });
+    });
+
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

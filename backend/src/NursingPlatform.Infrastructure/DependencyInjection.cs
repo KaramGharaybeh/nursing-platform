@@ -59,6 +59,8 @@ public static class DependencyInjection
                     typeof(DependencyInjection).Assembly.FullName));
         });
 
+        services.AddScoped<DatabaseInitializer>();
+
         return services;
     }
 }

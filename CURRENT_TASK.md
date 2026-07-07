@@ -2,31 +2,26 @@
 
 ## Current Milestone
 
-Project Foundation
+Data Layer
 
 Status:
-In Progress
+Complete
 
 ---
 
 ## Objective
 
-Complete the production-ready platform foundation before implementing any business modules.
+Set up the EF Core data layer with initial migration and reference data entities.
 
 ---
 
 ## Current Focus
 
-- Finalize project documentation
-- Complete backend infrastructure
-- Configure Dependency Injection
-- Configure EF Core
-- Configure PostgreSQL
-- Configure Redis
-- Configure Health Checks
-- Configure Logging
-- Configure Configuration System
-- Prepare CI/CD foundation
+- [x] Create initial EF Core migration
+- [x] Implement ApplicationDbContext with audit fields
+- [x] Add reference data entities (Countries, Languages, Roles, Permissions)
+- [x] Seed reference data
+- [x] Implement database initialization logic
 
 ---
 
@@ -49,16 +44,12 @@ Do NOT implement:
 
 This milestone is complete when:
 
-- Documentation is finalized
+- Initial migration creates all reference data tables
+- ApplicationDbContext audit fields work correctly
+- Reference data entities match the database design
+- Seed data is available for Countries, Languages, Roles, Permissions
+- Database initialization runs on application startup
 - Solution builds successfully
-- Docker services are operational
-- PostgreSQL connectivity is verified
-- Redis connectivity is verified
-- Health endpoint is available
-- Dependency Injection is configured
-- Logging is configured
-- Configuration system is production-ready
-- CI successfully builds the solution
 
 ---
 
@@ -69,3 +60,4 @@ Before implementing anything, read:
 - PROJECT_RULES.md
 - AGENTS.md
 - docs/standards/engineering-standards.md
+- docs/database/database-design.md

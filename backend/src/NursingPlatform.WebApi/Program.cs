@@ -18,6 +18,8 @@ try
 
     app.UseApplicationPipeline();
 
+    await app.InitializeDatabaseAsync();
+
     app.MapGet("/", () =>
     {
         return Results.Ok(new
@@ -27,6 +29,8 @@ try
             Status = "Running"
         });
     });
+
+    app.MapApiEndpoints();
 
     app.Run();
 }

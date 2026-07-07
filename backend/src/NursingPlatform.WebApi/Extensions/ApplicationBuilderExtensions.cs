@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using NursingPlatform.Infrastructure.Persistence;
 using NursingPlatform.WebApi.Middleware;
 using Serilog;
 
@@ -39,6 +40,23 @@ public static class ApplicationBuilderExtensions
         });
 
         return app;
+    }
+
+    public static WebApplication MapApiEndpoints(
+        this WebApplication app)
+    {
+        var api = app.MapGroup("/api/v1");
+        // Future API endpoints will be mapped on `api`
+
+        return app;
+    }
+
+    public static async Task InitializeDatabaseAsync(
+        this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        var initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
+        await initializer.InitializeAsync();
     }
 
     private static Task HealthCheckResponseWriter(

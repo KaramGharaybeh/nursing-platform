@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NursingPlatform.Application.Abstractions.Auth;
 using NursingPlatform.Application.Abstractions.Caching;
+using NursingPlatform.Application.Abstractions.Data;
+using NursingPlatform.Infrastructure.Authentication;
 using NursingPlatform.Infrastructure.Caching;
 using NursingPlatform.Infrastructure.Configuration;
 using NursingPlatform.Infrastructure.Persistence;
@@ -28,6 +31,10 @@ public static class DependencyInjection
 
         services.AddOptions<EmailSettings>()
             .Bind(configuration.GetSection(EmailSettings.SectionName))
+            .ValidateDataAnnotations();
+
+        services.AddOptions<AdminSettings>()
+            .Bind(configuration.GetSection(AdminSettings.SectionName))
             .ValidateDataAnnotations();
 
         var redisConnectionString = configuration
@@ -59,7 +66,13 @@ public static class DependencyInjection
                     typeof(DependencyInjection).Assembly.FullName));
         });
 
+        services.AddScoped<IApplicationDbContext>(sp =>
+            sp.GetRequiredService<ApplicationDbContext>());
+
         services.AddScoped<DatabaseInitializer>();
+        services.AddScoped<BootstrapAdminService>();
+        services.AddScoped<IPasswordHashingService, PasswordHashingService>();
+        services.AddScoped<IJwtService, JwtService>();
 
         return services;
     }

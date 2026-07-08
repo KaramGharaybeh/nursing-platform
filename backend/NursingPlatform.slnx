@@ -8,5 +8,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/NursingPlatform.Application.Tests/NursingPlatform.Application.Tests.csproj" />
     <Project Path="tests/NursingPlatform.Domain.Tests/NursingPlatform.Domain.Tests.csproj" />
+    <Project Path="tests/NursingPlatform.Infrastructure.Tests/NursingPlatform.Infrastructure.Tests.csproj" />
+    <Project Path="tests/NursingPlatform.WebApi.Tests/NursingPlatform.WebApi.Tests.csproj" />
   </Folder>
 </Solution>

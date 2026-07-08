@@ -2,7 +2,7 @@
 
 ## Current Milestone
 
-Data Layer
+Phase 4A — Core Identity
 
 Status:
 Complete
@@ -11,17 +11,22 @@ Complete
 
 ## Objective
 
-Set up the EF Core data layer with initial migration and reference data entities.
+Implement the core identity and authentication layer: domain entities, CQRS commands, infrastructure services, WebApi auth pipeline, and integration tests.
 
 ---
 
 ## Current Focus
 
-- [x] Create initial EF Core migration
-- [x] Implement ApplicationDbContext with audit fields
-- [x] Add reference data entities (Countries, Languages, Roles, Permissions)
-- [x] Seed reference data
-- [x] Implement database initialization logic
+- [x] Domain entities (User, UserRole, RefreshToken)
+- [x] EF Core configurations + migration (AddIdentityTables)
+- [x] Application interfaces (IJwtService, IPasswordHashingService, IApplicationDbContext)
+- [x] RegisterUserCommand + handler + validator
+- [x] LoginCommand + RotateRefreshTokenCommand + handlers + validators
+- [x] Infrastructure services (JwtService, PasswordHashingService)
+- [x] Bootstrap admin settings + DatabaseInitializer integration
+- [x] WebApi auth pipeline (ExceptionMiddleware, JWT auth, OpenAPI scheme, /auth endpoints)
+- [x] Integration tests (WebApi auth endpoint tests)
+- [x] Final build, warnings cleanup, documentation
 
 ---
 
@@ -29,7 +34,9 @@ Set up the EF Core data layer with initial migration and reference data entities
 
 Do NOT implement:
 
-- Identity module
+- Authorization policies (Phase 4B)
+- Email verification (Phase 4C)
+- Password reset (Phase 4C)
 - Nurse module
 - Employer module
 - Examination module
@@ -44,12 +51,14 @@ Do NOT implement:
 
 This milestone is complete when:
 
-- Initial migration creates all reference data tables
-- ApplicationDbContext audit fields work correctly
-- Reference data entities match the database design
-- Seed data is available for Countries, Languages, Roles, Permissions
-- Database initialization runs on application startup
-- Solution builds successfully
+- Identity entities exist and are mapped correctly
+- Login, refresh token, and user registration commands work end-to-end
+- JWT and password services are implemented and tested
+- Bootstrap admin creates admin user/role on startup
+- Auth endpoints return correct HTTP status codes and response shapes
+- Integration tests cover login (valid, invalid, validation error) and refresh (valid, invalid)
+- Solution builds with zero warnings
+- All 60 tests pass (12 Domain + 18 Application + 24 Infrastructure + 6 WebApi)
 
 ---
 

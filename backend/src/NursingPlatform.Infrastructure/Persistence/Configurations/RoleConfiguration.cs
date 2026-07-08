@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.ReferenceData;
 
 namespace NursingPlatform.Infrastructure.Persistence.Configurations;
@@ -18,5 +19,10 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.Property(r => r.Description)
             .HasMaxLength(500);
+
+        builder.HasMany(r => r.UserRoles)
+            .WithOne(ur => ur.Role)
+            .HasForeignKey(ur => ur.RoleId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

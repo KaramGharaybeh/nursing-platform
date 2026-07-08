@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Domain.Common;
+using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.ReferenceData;
 
 namespace NursingPlatform.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -16,6 +18,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<Permission> Permissions => Set<Permission>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

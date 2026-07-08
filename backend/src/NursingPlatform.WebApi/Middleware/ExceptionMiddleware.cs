@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -33,24 +34,39 @@ public class ExceptionMiddleware
     {
         var (statusCode, title) = exception switch
         {
+            ValidationException => (StatusCodes.Status400BadRequest, "Validation failed"),
             KeyNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
+            UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
             _ => (StatusCodes.Status500InternalServerError, "Internal server error")
         };
 
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = statusCode;
 
-        var problemDetails = new
+        var detail = statusCode is 500
+            ? "An unexpected error occurred."
+            : exception.Message;
+
+        var problem = new Dictionary<string, object?>
         {
-            type = $"https://httpstatuses.com/{statusCode}",
-            title,
-            status = statusCode,
-            detail = exception.Message,
-            traceId = context.TraceIdentifier
+            ["type"] = $"https://httpstatuses.com/{statusCode}",
+            ["title"] = title,
+            ["status"] = statusCode,
+            ["detail"] = detail,
+            ["traceId"] = context.TraceIdentifier
         };
 
-        var json = JsonSerializer.Serialize(problemDetails);
+        if (exception is ValidationException validationException)
+        {
+            problem["errors"] = validationException.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(e => e.ErrorMessage).ToArray());
+        }
+
+        var json = JsonSerializer.Serialize(problem);
         await context.Response.WriteAsync(json);
     }
 }

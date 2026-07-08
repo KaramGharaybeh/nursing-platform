@@ -17,7 +17,7 @@ public class DatabaseInitializer
         _logger = logger;
     }
 
-    public async Task InitializeAsync()
+    public virtual async Task InitializeAsync()
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -32,6 +32,10 @@ public class DatabaseInitializer
             }
 
             await Seed.ReferenceDataSeeder.SeedAsync(context);
+
+            var bootstrapAdmin = scope.ServiceProvider.GetRequiredService<BootstrapAdminService>();
+            await bootstrapAdmin.BootstrapAsync();
+
             _logger.LogInformation("Database initialization completed successfully");
         }
         catch (Exception ex)

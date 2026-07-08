@@ -1,4 +1,7 @@
+using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using NursingPlatform.Application.Identity.Commands.Login;
+using NursingPlatform.Application.Identity.Commands.RotateRefreshToken;
 using NursingPlatform.Infrastructure.Persistence;
 using NursingPlatform.WebApi.Middleware;
 using Serilog;
@@ -20,6 +23,9 @@ public static class ApplicationBuilderExtensions
         }
 
         app.UseHttpsRedirection();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.MapHealthChecks("/health", new HealthCheckOptions
         {
@@ -46,7 +52,22 @@ public static class ApplicationBuilderExtensions
         this WebApplication app)
     {
         var api = app.MapGroup("/api/v1");
-        // Future API endpoints will be mapped on `api`
+
+        api.MapPost("/auth/login", async (LoginCommand command, ISender sender) =>
+        {
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("Login")
+        .AllowAnonymous();
+
+        api.MapPost("/auth/refresh", async (RotateRefreshTokenCommand command, ISender sender) =>
+        {
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("RefreshToken")
+        .AllowAnonymous();
 
         return app;
     }

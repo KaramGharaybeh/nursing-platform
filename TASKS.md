@@ -97,14 +97,16 @@ Do not start work on a later phase until the current phase is complete.
 
 # Phase 4 — Identity & Security
 
-- [ ] User management
-- [ ] Authentication
-- [ ] Authorization
-- [ ] JWT
-- [ ] Refresh tokens
-- [ ] Email verification
-- [ ] Password reset
-- [ ] Role management
+## Phase 4A — Core Identity ✅
+
+- [ ] User management (admin create done, rest deferred)
+- [x] Authentication (login, JWT pipeline)
+- [ ] Authorization (deferred to 4B)
+- [x] JWT (issuance, validation, services)
+- [x] Refresh tokens (rotation, revocation detection)
+- [ ] Email verification (deferred to 4C)
+- [ ] Password reset (deferred to 4C)
+- [ ] Role management (admin bootstrap done, full CRUD deferred)
 - [ ] Permission management
 
 ---

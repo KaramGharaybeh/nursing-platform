@@ -1,5 +1,10 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using NursingPlatform.Application;
 using NursingPlatform.Infrastructure;
+using NursingPlatform.Infrastructure.Configuration;
 
 namespace NursingPlatform.WebApi.Extensions;
 
@@ -37,7 +42,56 @@ public static class ServiceCollectionExtensions
                 tags: ["ready"]);
         }
 
-        services.AddOpenApi();
+        var jwtSettings = configuration
+            .GetSection(JwtSettings.SectionName)
+            .Get<JwtSettings>();
+
+        if (jwtSettings is null ||
+            string.IsNullOrWhiteSpace(jwtSettings.Secret) ||
+            string.IsNullOrWhiteSpace(jwtSettings.Issuer) ||
+            string.IsNullOrWhiteSpace(jwtSettings.Audience))
+        {
+            throw new InvalidOperationException(
+                "JWT authentication is not configured. Ensure 'Jwt:Secret', 'Jwt:Issuer', and 'Jwt:Audience' are set.");
+        }
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings.Secret))
+                };
+            });
+
+        services.AddAuthorization();
+
+        services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer((document, context, cancellationToken) =>
+            {
+                var securityScheme = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "JWT Authorization header using the Bearer scheme."
+                };
+
+                var components = document.Components ??= new OpenApiComponents();
+                components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                components.SecuritySchemes["Bearer"] = securityScheme;
+
+                return Task.CompletedTask;
+            });
+        });
 
         return services;
     }

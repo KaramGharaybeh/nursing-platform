@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using NursingPlatform.Application.Authorization;
 using NursingPlatform.Application.Identity.Commands.Login;
+using NursingPlatform.Application.Identity.Commands.Register;
 using NursingPlatform.Application.Identity.Commands.RotateRefreshToken;
 using NursingPlatform.Infrastructure.Persistence;
 using NursingPlatform.WebApi.Middleware;
@@ -68,6 +70,24 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("RefreshToken")
         .AllowAnonymous();
+
+        api.MapPost("/auth/register", async (RegisterUserRequest request, ISender sender) =>
+        {
+            var command = new RegisterUserCommand
+            {
+                Email = request.Email,
+                Password = request.Password,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                RoleIds = request.RoleIds
+            };
+
+            var userId = await sender.Send(command);
+
+            return Results.Ok(new RegisterUserResponse { UserId = userId });
+        })
+        .WithName("RegisterUser")
+        .RequirePermission(Permissions.Users.Create);
 
         return app;
     }

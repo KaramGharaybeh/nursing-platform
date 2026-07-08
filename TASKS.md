@@ -99,15 +99,30 @@ Do not start work on a later phase until the current phase is complete.
 
 ## Phase 4A — Core Identity ✅
 
-- [ ] User management (admin create done, rest deferred)
+- [x] User management (admin create + register done, full CRUD deferred)
 - [x] Authentication (login, JWT pipeline)
-- [ ] Authorization (deferred to 4B)
+- [x] Authorization (completed in 4B)
 - [x] JWT (issuance, validation, services)
 - [x] Refresh tokens (rotation, revocation detection)
 - [ ] Email verification (deferred to 4C)
 - [ ] Password reset (deferred to 4C)
-- [ ] Role management (admin bootstrap done, full CRUD deferred)
-- [ ] Permission management
+- [x] Role management (admin bootstrap + seed done, full CRUD deferred)
+- [x] Permission management (seed done, full CRUD deferred)
+
+## Phase 4B — Authorization ✅
+
+- [x] Permission authorization handler and requirement
+- [x] Permission service
+- [x] Current user service
+- [x] Reference data entities (Permission, Role, RolePermission)
+- [x] EF Core configurations for reference data
+- [x] Reference data seeder (idempotent, testable)
+- [x] RequirePermission extension method for Minimal API
+- [x] Register endpoint protected with Users.Create permission
+- [x] IPermissionService mocked in WebApi tests
+- [x] JWT KeyId fix for JsonWebTokenHandler compatibility
+- [x] Integration tests (register 401/403/200, login/refresh no-auth)
+- [x] Unit tests (handler, requirement, service, permissions)
 
 ---
 

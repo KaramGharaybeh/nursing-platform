@@ -55,9 +55,17 @@ public static class ServiceCollectionExtensions
                 "JWT authentication is not configured. Ensure 'Jwt:Secret', 'Jwt:Issuer', and 'Jwt:Audience' are set.");
         }
 
+        var signingKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtSettings.Secret))
+        {
+            KeyId = jwtSettings.KeyId
+        };
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                options.MapInboundClaims = false;
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -66,8 +74,7 @@ public static class ServiceCollectionExtensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtSettings.Secret))
+                    IssuerSigningKey = signingKey
                 };
             });
 

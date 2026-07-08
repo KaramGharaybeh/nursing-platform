@@ -86,6 +86,50 @@ public class JwtServiceTests
     }
 
     [Fact]
+    public void GenerateAccessToken_HasKidHeader()
+    {
+        var result = _sut.GenerateAccessToken(_user, _roles);
+        var handler = new JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(result.Token);
+
+        var kid = token.Header.Kid;
+        Assert.NotNull(kid);
+        Assert.Equal(_settings.KeyId, kid);
+    }
+
+    [Fact]
+    public void GenerateAccessToken_ValidatesAgainstConfiguredKey()
+    {
+        var result = _sut.GenerateAccessToken(_user, _roles);
+
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(_settings.Secret))
+        {
+            KeyId = _settings.KeyId
+        };
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = _settings.Issuer,
+            ValidAudience = _settings.Audience,
+            IssuerSigningKey = key
+        };
+
+        var handler = new JwtSecurityTokenHandler();
+        var principal = handler.ValidateToken(
+            result.Token, validationParameters, out var validatedToken);
+
+        Assert.NotNull(principal);
+        Assert.NotNull(validatedToken);
+        Assert.Equal(_user.Id.ToString(),
+            principal.FindFirstValue(ClaimTypes.NameIdentifier));
+    }
+
+    [Fact]
     public void GenerateRefreshToken_ReturnsNonEmptyString()
     {
         var token = _sut.GenerateRefreshToken();

@@ -22,7 +22,10 @@ public sealed class JwtService : IJwtService
     public AccessTokenResult GenerateAccessToken(User user, IList<string> roles)
     {
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_settings.Secret));
+            Encoding.UTF8.GetBytes(_settings.Secret))
+        {
+            KeyId = _settings.KeyId
+        };
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
@@ -73,7 +76,10 @@ public sealed class JwtService : IJwtService
     public ClaimsPrincipal? GetPrincipalFromExpiredToken(string accessToken)
     {
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_settings.Secret));
+            Encoding.UTF8.GetBytes(_settings.Secret))
+        {
+            KeyId = _settings.KeyId
+        };
 
         var tokenValidationParameters = new TokenValidationParameters
         {

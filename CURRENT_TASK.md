@@ -2,7 +2,7 @@
 
 ## Current Milestone
 
-Phase 4A — Core Identity
+Phase 4B — Authorization
 
 Status:
 Complete
@@ -11,22 +11,25 @@ Complete
 
 ## Objective
 
-Implement the core identity and authentication layer: domain entities, CQRS commands, infrastructure services, WebApi auth pipeline, and integration tests.
+Implement the authorization layer: permission-based authorization pipeline, current user context, reference data seeding, and protected API endpoints.
 
 ---
 
 ## Current Focus
 
-- [x] Domain entities (User, UserRole, RefreshToken)
-- [x] EF Core configurations + migration (AddIdentityTables)
-- [x] Application interfaces (IJwtService, IPasswordHashingService, IApplicationDbContext)
-- [x] RegisterUserCommand + handler + validator
-- [x] LoginCommand + RotateRefreshTokenCommand + handlers + validators
-- [x] Infrastructure services (JwtService, PasswordHashingService)
-- [x] Bootstrap admin settings + DatabaseInitializer integration
-- [x] WebApi auth pipeline (ExceptionMiddleware, JWT auth, OpenAPI scheme, /auth endpoints)
-- [x] Integration tests (WebApi auth endpoint tests)
-- [x] Final build, warnings cleanup, documentation
+- [x] Permission authorization handler and requirement
+- [x] Permission service
+- [x] Current user service
+- [x] Reference data entities (Permission, Role, RolePermission)
+- [x] EF Core configurations for reference data
+- [x] Reference data seeder (idempotent, testable)
+- [x] RequirePermission extension method for Minimal API
+- [x] Register endpoint protected with Users.Create permission
+- [x] IPermissionService mocked in WebApi tests
+- [x] JWT KeyId fix for JsonWebTokenHandler compatibility
+- [x] Integration tests (register 401/403/200, login/refresh no-auth)
+- [x] Unit tests (handler, requirement, service, permissions)
+- [x] Final build, warnings cleanup, verification
 
 ---
 
@@ -34,7 +37,6 @@ Implement the core identity and authentication layer: domain entities, CQRS comm
 
 Do NOT implement:
 
-- Authorization policies (Phase 4B)
 - Email verification (Phase 4C)
 - Password reset (Phase 4C)
 - Nurse module
@@ -51,14 +53,15 @@ Do NOT implement:
 
 This milestone is complete when:
 
-- Identity entities exist and are mapped correctly
-- Login, refresh token, and user registration commands work end-to-end
-- JWT and password services are implemented and tested
-- Bootstrap admin creates admin user/role on startup
-- Auth endpoints return correct HTTP status codes and response shapes
-- Integration tests cover login (valid, invalid, validation error) and refresh (valid, invalid)
+- Permission authorization pipeline exists (handler + requirement + service)
+- Current user service extracts user identity from HTTP context
+- Reference data roles/permissions seed correctly and idempotently
+- Register endpoint is protected with RequirePermission(Permissions.Users.Create)
+- Login and refresh remain AllowAnonymous
+- WebApi integration tests cover register (401 unauthenticated, 403 no permission, 200 with permission)
+- JwtService tokens include kid header matching JWT bearer validation key
 - Solution builds with zero warnings
-- All 60 tests pass (12 Domain + 18 Application + 24 Infrastructure + 6 WebApi)
+- All 104 tests pass (12 Domain + 37 Application + 46 Infrastructure + 9 WebApi)
 
 ---
 

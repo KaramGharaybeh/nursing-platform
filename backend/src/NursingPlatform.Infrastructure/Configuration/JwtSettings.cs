@@ -15,6 +15,8 @@ public class JwtSettings
     [Required(AllowEmptyStrings = false)]
     public string Audience { get; set; } = string.Empty;
 
+    public string KeyId { get; set; } = "nursing-platform-key";
+
     [Range(1, 1440)]
     public int ExpirationInMinutes { get; set; }
 

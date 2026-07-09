@@ -2,7 +2,7 @@
 
 ## Current Milestone
 
-Phase 4C — Account Management Read APIs
+Phase 4D — Identity Account Recovery & Verification
 
 Status:
 Complete
@@ -11,19 +11,32 @@ Complete
 
 ## Objective
 
-Implement read-only account management APIs: current user profile (GET /api/v1/me), paginated user list (GET /api/v1/users), and single user details (GET /api/v1/users/{id}).
+Complete the deferred identity account recovery and verification work before Phase 5 by implementing email verification and password reset APIs.
 
 ---
 
 ## Current Focus
 
-- [x] PaginatedResult, UserDetailDto, UserListItemDto
-- [x] GetCurrentUserQuery + handler + tests
-- [x] GetUserQuery + handler + validator + tests
-- [x] ListUsersQuery + handler + validator + tests
-- [x] GET /api/v1/me endpoint + integration tests
-- [x] GET /api/v1/users and GET /api/v1/users/{id} endpoints + integration tests
-- [x] Final build, test, EF migration verification
+- [x] Email verification tokens and persistence
+- [x] Password reset tokens and persistence
+- [x] Email service / MailKit
+- [x] POST /api/v1/auth/send-verification-email
+- [x] POST /api/v1/auth/verify-email
+- [x] POST /api/v1/auth/forgot-password
+- [x] POST /api/v1/auth/reset-password
+- [x] Application handler tests
+- [x] WebApi integration tests
+- [x] EF migration
+- [x] Final build, test, and EF verification
+
+---
+
+## Final Verification
+
+- build: 0 warnings / 0 errors
+- tests: 219 passed
+- EF pending model check: no pending model changes
+- EF design-time note: `dotnet ef migrations has-pending-model-changes` logs a known non-blocking `HostAbortedException` during design-time host resolution, then reports no pending model changes.
 
 ---
 
@@ -31,8 +44,8 @@ Implement read-only account management APIs: current user profile (GET /api/v1/m
 
 Do NOT implement:
 
-- Email verification
-- Password reset
+- Change password (authenticated, requires old password)
+- Update own profile
 - Activate/deactivate account
 - Role assignment (admin)
 - Nurse module
@@ -49,17 +62,16 @@ Do NOT implement:
 
 This milestone is complete when:
 
-- PaginatedResult&lt;T&gt; shared model exists with computed TotalPages
-- UserDetailDto and UserListItemDto exist with correct field exposure
-- GetCurrentUserQuery returns authenticated user profile with roles and permissions
-- GetUserQuery returns user by ID with roles and permissions
-- ListUsersQuery supports pagination, search, isActive filter, role filter, and sort
-- GET /api/v1/me is protected by RequireAuthorization only
-- GET /api/v1/users and GET /api/v1/users/{id} are protected by RequirePermission(Permissions.Users.View)
-- PasswordHash is never exposed in any response
-- Integration tests cover 401, 403, and 200 for each protected endpoint
+- EmailVerificationToken and PasswordResetToken persistence exists
+- Email service abstraction and MailKit implementation exist
+- Email verification request and verification endpoints are implemented
+- Forgot-password and reset-password endpoints are implemented
+- Tokens are generated securely and only token hashes are stored
+- Password reset revokes active refresh tokens
+- Raw tokens are never returned in API responses
 - Solution builds with zero warnings
-- All 169 tests pass (12 Domain + 89 Application + 46 Infrastructure + 22 WebApi)
+- All 219 tests pass
+- EF pending model check reports no pending model changes
 
 ---
 

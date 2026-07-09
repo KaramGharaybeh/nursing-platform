@@ -9,6 +9,8 @@ public interface IApplicationDbContext
     DbSet<User> Users { get; }
     DbSet<UserRole> UserRoles { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
+    DbSet<EmailVerificationToken> EmailVerificationTokens { get; }
+    DbSet<PasswordResetToken> PasswordResetTokens { get; }
     DbSet<Role> Roles { get; }
     DbSet<Permission> Permissions { get; }
     DbSet<RolePermission> RolePermissions { get; }

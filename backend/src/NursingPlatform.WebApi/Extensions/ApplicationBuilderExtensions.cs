@@ -1,9 +1,13 @@
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NursingPlatform.Application.Authorization;
+using NursingPlatform.Application.Identity.Commands.ForgotPassword;
 using NursingPlatform.Application.Identity.Commands.Login;
 using NursingPlatform.Application.Identity.Commands.Register;
 using NursingPlatform.Application.Identity.Commands.RotateRefreshToken;
+using NursingPlatform.Application.Identity.Commands.ResetPassword;
+using NursingPlatform.Application.Identity.Commands.SendVerificationEmail;
+using NursingPlatform.Application.Identity.Commands.VerifyEmail;
 using NursingPlatform.Application.Identity.Queries.GetCurrentUser;
 using NursingPlatform.Application.Identity.Queries.GetUser;
 using NursingPlatform.Application.Identity.Queries.ListUsers;
@@ -91,6 +95,46 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("RegisterUser")
         .RequirePermission(Permissions.Users.Create);
+
+        api.MapPost("/auth/send-verification-email", async (ISender sender) =>
+        {
+            var result = await sender.Send(new SendVerificationEmailCommand());
+            return Results.Ok(result);
+        })
+        .WithName("SendVerificationEmail")
+        .RequireAuthorization();
+
+        api.MapPost("/auth/verify-email", async (VerifyEmailRequest request, ISender sender) =>
+        {
+            var command = new VerifyEmailCommand { Token = request.Token };
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("VerifyEmail")
+        .AllowAnonymous();
+
+        api.MapPost("/auth/forgot-password", async (ForgotPasswordRequest request, ISender sender) =>
+        {
+            var command = new ForgotPasswordCommand { Email = request.Email };
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("ForgotPassword")
+        .AllowAnonymous();
+
+        api.MapPost("/auth/reset-password", async (ResetPasswordRequest request, ISender sender) =>
+        {
+            var command = new ResetPasswordCommand
+            {
+                Email = request.Email,
+                Token = request.Token,
+                NewPassword = request.NewPassword
+            };
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("ResetPassword")
+        .AllowAnonymous();
 
         api.MapGet("/me", async (ISender sender) =>
         {

@@ -49,6 +49,40 @@ public class IdentityEntitiesTests
     }
 
     [Fact]
+    public void EmailVerificationToken_StoresHashAndUsageState()
+    {
+        var token = new EmailVerificationToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            TokenHash = "hash",
+            ExpiresAt = DateTime.UtcNow.AddHours(24),
+            CreatedAt = DateTime.UtcNow
+        };
+
+        Assert.Equal("hash", token.TokenHash);
+        Assert.Null(token.UsedAt);
+        Assert.False(token.ExpiresAt <= DateTime.UtcNow);
+    }
+
+    [Fact]
+    public void PasswordResetToken_StoresHashAndUsageState()
+    {
+        var token = new PasswordResetToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            TokenHash = "hash",
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            CreatedAt = DateTime.UtcNow
+        };
+
+        Assert.Equal("hash", token.TokenHash);
+        Assert.Null(token.UsedAt);
+        Assert.False(token.ExpiresAt <= DateTime.UtcNow);
+    }
+
+    [Fact]
     public void UserRole_DoesNotInheritAuditableEntity()
     {
         Assert.False(typeof(UserRole).IsSubclassOf(typeof(NursingPlatform.Domain.Common.AuditableEntity)));
@@ -58,6 +92,18 @@ public class IdentityEntitiesTests
     public void RefreshToken_DoesNotInheritAuditableEntity()
     {
         Assert.False(typeof(RefreshToken).IsSubclassOf(typeof(NursingPlatform.Domain.Common.AuditableEntity)));
+    }
+
+    [Fact]
+    public void EmailVerificationToken_DoesNotInheritAuditableEntity()
+    {
+        Assert.False(typeof(EmailVerificationToken).IsSubclassOf(typeof(NursingPlatform.Domain.Common.AuditableEntity)));
+    }
+
+    [Fact]
+    public void PasswordResetToken_DoesNotInheritAuditableEntity()
+    {
+        Assert.False(typeof(PasswordResetToken).IsSubclassOf(typeof(NursingPlatform.Domain.Common.AuditableEntity)));
     }
 
     [Fact]

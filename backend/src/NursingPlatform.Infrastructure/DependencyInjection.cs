@@ -5,9 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using NursingPlatform.Application.Abstractions.Auth;
 using NursingPlatform.Application.Abstractions.Caching;
 using NursingPlatform.Application.Abstractions.Data;
+using NursingPlatform.Application.Abstractions.Notifications;
 using NursingPlatform.Infrastructure.Authentication;
 using NursingPlatform.Infrastructure.Caching;
 using NursingPlatform.Infrastructure.Configuration;
+using NursingPlatform.Infrastructure.Notifications;
 using NursingPlatform.Infrastructure.Persistence;
 
 namespace NursingPlatform.Infrastructure;
@@ -76,6 +78,7 @@ public static class DependencyInjection
         services.AddScoped<BootstrapAdminService>();
         services.AddScoped<IPasswordHashingService, PasswordHashingService>();
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IEmailService, EmailService>();
 
         return services;
     }

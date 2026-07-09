@@ -104,8 +104,8 @@ Do not start work on a later phase until the current phase is complete.
 - [x] Authorization (completed in 4B)
 - [x] JWT (issuance, validation, services)
 - [x] Refresh tokens (rotation, revocation detection)
-- [ ] Email verification (deferred to 4C)
-- [ ] Password reset (deferred to 4C)
+- [x] Email verification
+- [x] Password reset
 - [x] Role management (admin bootstrap + seed done, full CRUD deferred)
 - [x] Permission management (seed done, full CRUD deferred)
 
@@ -133,6 +133,20 @@ Do not start work on a later phase until the current phase is complete.
 - [x] GET /api/v1/me endpoint + integration tests
 - [x] GET /api/v1/users and GET /api/v1/users/{id} endpoints + integration tests
 - [x] Final build, test, EF migration verification
+
+## Phase 4D — Identity Account Recovery & Verification ✅
+
+- [x] Email verification tokens and persistence
+- [x] Password reset tokens and persistence
+- [x] Email service / MailKit
+- [x] POST /api/v1/auth/send-verification-email
+- [x] POST /api/v1/auth/verify-email
+- [x] POST /api/v1/auth/forgot-password
+- [x] POST /api/v1/auth/reset-password
+- [x] Application handler tests
+- [x] WebApi integration tests
+- [x] EF migration
+- [x] Final build, test, and EF verification
 
 ---
 

@@ -124,6 +124,16 @@ Do not start work on a later phase until the current phase is complete.
 - [x] Integration tests (register 401/403/200, login/refresh no-auth)
 - [x] Unit tests (handler, requirement, service, permissions)
 
+## Phase 4C — Account Management Read APIs ✅
+
+- [x] PaginatedResult, UserDetailDto, UserListItemDto
+- [x] GetCurrentUserQuery + handler + tests
+- [x] GetUserQuery + handler + validator + tests
+- [x] ListUsersQuery + handler + validator + tests
+- [x] GET /api/v1/me endpoint + integration tests
+- [x] GET /api/v1/users and GET /api/v1/users/{id} endpoints + integration tests
+- [x] Final build, test, EF migration verification
+
 ---
 
 # Phase 5 — Nurse Module

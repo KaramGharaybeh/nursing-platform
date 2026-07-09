@@ -2,7 +2,7 @@
 
 ## Current Milestone
 
-Phase 4B — Authorization
+Phase 4C — Account Management Read APIs
 
 Status:
 Complete
@@ -11,25 +11,19 @@ Complete
 
 ## Objective
 
-Implement the authorization layer: permission-based authorization pipeline, current user context, reference data seeding, and protected API endpoints.
+Implement read-only account management APIs: current user profile (GET /api/v1/me), paginated user list (GET /api/v1/users), and single user details (GET /api/v1/users/{id}).
 
 ---
 
 ## Current Focus
 
-- [x] Permission authorization handler and requirement
-- [x] Permission service
-- [x] Current user service
-- [x] Reference data entities (Permission, Role, RolePermission)
-- [x] EF Core configurations for reference data
-- [x] Reference data seeder (idempotent, testable)
-- [x] RequirePermission extension method for Minimal API
-- [x] Register endpoint protected with Users.Create permission
-- [x] IPermissionService mocked in WebApi tests
-- [x] JWT KeyId fix for JsonWebTokenHandler compatibility
-- [x] Integration tests (register 401/403/200, login/refresh no-auth)
-- [x] Unit tests (handler, requirement, service, permissions)
-- [x] Final build, warnings cleanup, verification
+- [x] PaginatedResult, UserDetailDto, UserListItemDto
+- [x] GetCurrentUserQuery + handler + tests
+- [x] GetUserQuery + handler + validator + tests
+- [x] ListUsersQuery + handler + validator + tests
+- [x] GET /api/v1/me endpoint + integration tests
+- [x] GET /api/v1/users and GET /api/v1/users/{id} endpoints + integration tests
+- [x] Final build, test, EF migration verification
 
 ---
 
@@ -37,8 +31,10 @@ Implement the authorization layer: permission-based authorization pipeline, curr
 
 Do NOT implement:
 
-- Email verification (Phase 4C)
-- Password reset (Phase 4C)
+- Email verification
+- Password reset
+- Activate/deactivate account
+- Role assignment (admin)
 - Nurse module
 - Employer module
 - Examination module
@@ -53,15 +49,17 @@ Do NOT implement:
 
 This milestone is complete when:
 
-- Permission authorization pipeline exists (handler + requirement + service)
-- Current user service extracts user identity from HTTP context
-- Reference data roles/permissions seed correctly and idempotently
-- Register endpoint is protected with RequirePermission(Permissions.Users.Create)
-- Login and refresh remain AllowAnonymous
-- WebApi integration tests cover register (401 unauthenticated, 403 no permission, 200 with permission)
-- JwtService tokens include kid header matching JWT bearer validation key
+- PaginatedResult&lt;T&gt; shared model exists with computed TotalPages
+- UserDetailDto and UserListItemDto exist with correct field exposure
+- GetCurrentUserQuery returns authenticated user profile with roles and permissions
+- GetUserQuery returns user by ID with roles and permissions
+- ListUsersQuery supports pagination, search, isActive filter, role filter, and sort
+- GET /api/v1/me is protected by RequireAuthorization only
+- GET /api/v1/users and GET /api/v1/users/{id} are protected by RequirePermission(Permissions.Users.View)
+- PasswordHash is never exposed in any response
+- Integration tests cover 401, 403, and 200 for each protected endpoint
 - Solution builds with zero warnings
-- All 104 tests pass (12 Domain + 37 Application + 46 Infrastructure + 9 WebApi)
+- All 169 tests pass (12 Domain + 89 Application + 46 Infrastructure + 22 WebApi)
 
 ---
 

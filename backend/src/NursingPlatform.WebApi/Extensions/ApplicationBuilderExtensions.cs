@@ -4,6 +4,9 @@ using NursingPlatform.Application.Authorization;
 using NursingPlatform.Application.Identity.Commands.Login;
 using NursingPlatform.Application.Identity.Commands.Register;
 using NursingPlatform.Application.Identity.Commands.RotateRefreshToken;
+using NursingPlatform.Application.Identity.Queries.GetCurrentUser;
+using NursingPlatform.Application.Identity.Queries.GetUser;
+using NursingPlatform.Application.Identity.Queries.ListUsers;
 using NursingPlatform.Infrastructure.Persistence;
 using NursingPlatform.WebApi.Middleware;
 using Serilog;
@@ -88,6 +91,46 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("RegisterUser")
         .RequirePermission(Permissions.Users.Create);
+
+        api.MapGet("/me", async (ISender sender) =>
+        {
+            var user = await sender.Send(new GetCurrentUserQuery());
+            return Results.Ok(user);
+        })
+        .WithName("GetCurrentUser")
+        .RequireAuthorization();
+
+        api.MapGet("/users", async (
+            int? page,
+            int? pageSize,
+            string? search,
+            bool? isActive,
+            string? role,
+            string? sort,
+            ISender sender) =>
+        {
+            var query = new ListUsersQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20,
+                Search = search,
+                IsActive = isActive,
+                Role = role,
+                Sort = sort
+            };
+            var result = await sender.Send(query);
+            return Results.Ok(result);
+        })
+        .WithName("ListUsers")
+        .RequirePermission(Permissions.Users.View);
+
+        api.MapGet("/users/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            var user = await sender.Send(new GetUserQuery { UserId = id });
+            return Results.Ok(user);
+        })
+        .WithName("GetUser")
+        .RequirePermission(Permissions.Users.View);
 
         return app;
     }

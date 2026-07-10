@@ -150,15 +150,15 @@ Do not start work on a later phase until the current phase is complete.
 
 ---
 
-# Phase 5 — Nurse Module
+# Phase 5 — Nurse Module ✅
 
-- [ ] Nurse profile
-- [ ] Experience
-- [ ] Education
-- [ ] Certificates
-- [ ] Skills
-- [ ] Languages
-- [ ] CV upload
+- [x] Nurse profile
+- [x] Experience
+- [x] Education
+- [x] Certificates
+- [x] Skills
+- [x] Languages
+- [x] CV upload
 
 ---
 

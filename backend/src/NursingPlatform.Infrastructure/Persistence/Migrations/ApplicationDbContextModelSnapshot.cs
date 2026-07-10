@@ -190,6 +190,360 @@ namespace NursingPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("UserRoles", (string)null);
                 });
 
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseCertificate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CredentialId")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<string>("CredentialUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateOnly?>("ExpirationDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("IssueDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("IssuingOrganization")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("NurseProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NurseProfileId");
+
+                    b.ToTable("NurseCertificates", (string)null);
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseCvDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("NurseProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NurseProfileId")
+                        .IsUnique();
+
+                    b.ToTable("NurseCvDocuments", (string)null);
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseEducation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Degree")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("FieldOfStudy")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<string>("InstitutionName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("NurseProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("NurseProfileId");
+
+                    b.ToTable("NurseEducation", (string)null);
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseExperience", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CountryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("FacilityName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<Guid>("NurseProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CountryId");
+
+                    b.HasIndex("NurseProfileId");
+
+                    b.ToTable("NurseExperiences", (string)null);
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseLanguage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("LanguageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("NurseProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Proficiency")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LanguageId");
+
+                    b.HasIndex("NurseProfileId");
+
+                    b.HasIndex("NurseProfileId", "LanguageId")
+                        .IsUnique();
+
+                    b.ToTable("NurseLanguages", (string)null);
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("CurrentCountryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Headline")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<bool>("IsAvailableForRecruitment")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("LicenseCountryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LicenseNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ProfessionalSummary")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("YearsOfExperience")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CurrentCountryId");
+
+                    b.HasIndex("LicenseCountryId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("NurseProfiles", (string)null);
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseSkill", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("NurseProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NurseProfileId");
+
+                    b.HasIndex("NurseProfileId", "NormalizedName")
+                        .IsUnique();
+
+                    b.ToTable("NurseSkills", (string)null);
+                });
+
             modelBuilder.Entity("NursingPlatform.Domain.ReferenceData.Country", b =>
                 {
                     b.Property<Guid>("Id")
@@ -397,6 +751,119 @@ namespace NursingPlatform.Infrastructure.Persistence.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseCertificate", b =>
+                {
+                    b.HasOne("NursingPlatform.Domain.Nurses.NurseProfile", "NurseProfile")
+                        .WithMany()
+                        .HasForeignKey("NurseProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("NurseProfile");
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseCvDocument", b =>
+                {
+                    b.HasOne("NursingPlatform.Domain.Nurses.NurseProfile", "NurseProfile")
+                        .WithMany()
+                        .HasForeignKey("NurseProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("NurseProfile");
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseEducation", b =>
+                {
+                    b.HasOne("NursingPlatform.Domain.ReferenceData.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NursingPlatform.Domain.Nurses.NurseProfile", "NurseProfile")
+                        .WithMany()
+                        .HasForeignKey("NurseProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Country");
+
+                    b.Navigation("NurseProfile");
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseExperience", b =>
+                {
+                    b.HasOne("NursingPlatform.Domain.ReferenceData.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NursingPlatform.Domain.Nurses.NurseProfile", "NurseProfile")
+                        .WithMany()
+                        .HasForeignKey("NurseProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Country");
+
+                    b.Navigation("NurseProfile");
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseLanguage", b =>
+                {
+                    b.HasOne("NursingPlatform.Domain.ReferenceData.Language", "Language")
+                        .WithMany()
+                        .HasForeignKey("LanguageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NursingPlatform.Domain.Nurses.NurseProfile", "NurseProfile")
+                        .WithMany()
+                        .HasForeignKey("NurseProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Language");
+
+                    b.Navigation("NurseProfile");
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseProfile", b =>
+                {
+                    b.HasOne("NursingPlatform.Domain.ReferenceData.Country", "CurrentCountry")
+                        .WithMany()
+                        .HasForeignKey("CurrentCountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NursingPlatform.Domain.ReferenceData.Country", "LicenseCountry")
+                        .WithMany()
+                        .HasForeignKey("LicenseCountryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NursingPlatform.Domain.Identity.User", "User")
+                        .WithOne()
+                        .HasForeignKey("NursingPlatform.Domain.Nurses.NurseProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CurrentCountry");
+
+                    b.Navigation("LicenseCountry");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NursingPlatform.Domain.Nurses.NurseSkill", b =>
+                {
+                    b.HasOne("NursingPlatform.Domain.Nurses.NurseProfile", "NurseProfile")
+                        .WithMany()
+                        .HasForeignKey("NurseProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("NurseProfile");
                 });
 
             modelBuilder.Entity("NursingPlatform.Domain.ReferenceData.RolePermission", b =>

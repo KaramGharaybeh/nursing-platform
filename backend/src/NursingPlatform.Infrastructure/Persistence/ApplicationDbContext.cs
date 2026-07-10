@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Domain.Common;
 using NursingPlatform.Domain.Identity;
+using NursingPlatform.Domain.Nurses;
 using NursingPlatform.Domain.ReferenceData;
 
 namespace NursingPlatform.Infrastructure.Persistence;
@@ -23,6 +24,13 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+    public DbSet<NurseProfile> NurseProfiles => Set<NurseProfile>();
+    public DbSet<NurseExperience> NurseExperiences => Set<NurseExperience>();
+    public DbSet<NurseEducation> NurseEducation => Set<NurseEducation>();
+    public DbSet<NurseCertificate> NurseCertificates => Set<NurseCertificate>();
+    public DbSet<NurseLanguage> NurseLanguages => Set<NurseLanguage>();
+    public DbSet<NurseSkill> NurseSkills => Set<NurseSkill>();
+    public DbSet<NurseCvDocument> NurseCvDocuments => Set<NurseCvDocument>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

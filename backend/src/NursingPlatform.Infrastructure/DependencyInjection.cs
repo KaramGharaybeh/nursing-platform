@@ -6,11 +6,13 @@ using NursingPlatform.Application.Abstractions.Auth;
 using NursingPlatform.Application.Abstractions.Caching;
 using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Application.Abstractions.Notifications;
+using NursingPlatform.Application.Abstractions.Storage;
 using NursingPlatform.Infrastructure.Authentication;
 using NursingPlatform.Infrastructure.Caching;
 using NursingPlatform.Infrastructure.Configuration;
 using NursingPlatform.Infrastructure.Notifications;
 using NursingPlatform.Infrastructure.Persistence;
+using NursingPlatform.Infrastructure.Storage;
 
 namespace NursingPlatform.Infrastructure;
 
@@ -34,6 +36,10 @@ public static class DependencyInjection
 
         services.AddOptions<EmailSettings>()
             .Bind(configuration.GetSection(EmailSettings.SectionName))
+            .ValidateDataAnnotations();
+
+        services.AddOptions<FileStorageSettings>()
+            .Bind(configuration.GetSection(FileStorageSettings.SectionName))
             .ValidateDataAnnotations();
 
         services.AddOptions<AdminSettings>()
@@ -79,6 +85,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHashingService, PasswordHashingService>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
         return services;
     }

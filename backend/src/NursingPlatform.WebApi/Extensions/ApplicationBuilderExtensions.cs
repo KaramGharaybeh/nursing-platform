@@ -11,6 +11,27 @@ using NursingPlatform.Application.Identity.Commands.VerifyEmail;
 using NursingPlatform.Application.Identity.Queries.GetCurrentUser;
 using NursingPlatform.Application.Identity.Queries.GetUser;
 using NursingPlatform.Application.Identity.Queries.ListUsers;
+using NursingPlatform.Application.Nurses.Commands.CreateNurseCertificate;
+using NursingPlatform.Application.Nurses.Commands.CreateNurseEducation;
+using NursingPlatform.Application.Nurses.Commands.CreateNurseExperience;
+using NursingPlatform.Application.Nurses.Commands.DeleteNurseCertificate;
+using NursingPlatform.Application.Nurses.Commands.DeleteNurseCv;
+using NursingPlatform.Application.Nurses.Commands.DeleteNurseEducation;
+using NursingPlatform.Application.Nurses.Commands.DeleteNurseExperience;
+using NursingPlatform.Application.Nurses.Commands.UpdateNurseCertificate;
+using NursingPlatform.Application.Nurses.Commands.UpdateNurseEducation;
+using NursingPlatform.Application.Nurses.Commands.UpdateNurseExperience;
+using NursingPlatform.Application.Nurses.Commands.UpdateNurseLanguages;
+using NursingPlatform.Application.Nurses.Commands.UpdateNurseSkills;
+using NursingPlatform.Application.Nurses.Commands.UploadNurseCv;
+using NursingPlatform.Application.Nurses.Commands.UpsertNurseProfile;
+using NursingPlatform.Application.Nurses.Queries.GetCurrentNurseCv;
+using NursingPlatform.Application.Nurses.Queries.GetCurrentNurseProfile;
+using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseCertificates;
+using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseEducation;
+using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseExperiences;
+using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseLanguages;
+using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseSkills;
 using NursingPlatform.Infrastructure.Persistence;
 using NursingPlatform.WebApi.Middleware;
 using Serilog;
@@ -175,6 +196,208 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("GetUser")
         .RequirePermission(Permissions.Users.View);
+
+        var nurseProfile = api.MapGroup("/me/nurse-profile")
+            .RequireAuthorization();
+
+        nurseProfile.MapGet("/", async (ISender sender) =>
+        {
+            var result = await sender.Send(new GetCurrentNurseProfileQuery());
+            return Results.Ok(result);
+        })
+        .WithName("GetCurrentNurseProfile");
+
+        nurseProfile.MapPut("/", async (UpsertNurseProfileCommand command, ISender sender) =>
+        {
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("UpsertCurrentNurseProfile");
+
+        nurseProfile.MapGet("/experiences", async (ISender sender) =>
+        {
+            var result = await sender.Send(new ListCurrentNurseExperiencesQuery());
+            return Results.Ok(result);
+        })
+        .WithName("ListCurrentNurseExperiences");
+
+        nurseProfile.MapPost("/experiences", async (CreateNurseExperienceCommand command, ISender sender) =>
+        {
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("CreateNurseExperience");
+
+        nurseProfile.MapPut("/experiences/{id:guid}", async (Guid id, UpdateNurseExperienceCommand request, ISender sender) =>
+        {
+            var command = new UpdateNurseExperienceCommand
+            {
+                Id = id,
+                FacilityName = request.FacilityName,
+                JobTitle = request.JobTitle,
+                CountryId = request.CountryId,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                IsCurrent = request.IsCurrent,
+                Description = request.Description
+            };
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("UpdateNurseExperience");
+
+        nurseProfile.MapDelete("/experiences/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            await sender.Send(new DeleteNurseExperienceCommand(id));
+            return Results.NoContent();
+        })
+        .WithName("DeleteNurseExperience");
+
+        nurseProfile.MapGet("/education", async (ISender sender) =>
+        {
+            var result = await sender.Send(new ListCurrentNurseEducationQuery());
+            return Results.Ok(result);
+        })
+        .WithName("ListCurrentNurseEducation");
+
+        nurseProfile.MapPost("/education", async (CreateNurseEducationCommand command, ISender sender) =>
+        {
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("CreateNurseEducation");
+
+        nurseProfile.MapPut("/education/{id:guid}", async (Guid id, UpdateNurseEducationCommand request, ISender sender) =>
+        {
+            var command = new UpdateNurseEducationCommand
+            {
+                Id = id,
+                InstitutionName = request.InstitutionName,
+                Degree = request.Degree,
+                FieldOfStudy = request.FieldOfStudy,
+                CountryId = request.CountryId,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                Description = request.Description
+            };
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("UpdateNurseEducation");
+
+        nurseProfile.MapDelete("/education/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            await sender.Send(new DeleteNurseEducationCommand(id));
+            return Results.NoContent();
+        })
+        .WithName("DeleteNurseEducation");
+
+        nurseProfile.MapGet("/certificates", async (ISender sender) =>
+        {
+            var result = await sender.Send(new ListCurrentNurseCertificatesQuery());
+            return Results.Ok(result);
+        })
+        .WithName("ListCurrentNurseCertificates");
+
+        nurseProfile.MapPost("/certificates", async (CreateNurseCertificateCommand command, ISender sender) =>
+        {
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("CreateNurseCertificate");
+
+        nurseProfile.MapPut("/certificates/{id:guid}", async (Guid id, UpdateNurseCertificateCommand request, ISender sender) =>
+        {
+            var command = new UpdateNurseCertificateCommand
+            {
+                Id = id,
+                Name = request.Name,
+                IssuingOrganization = request.IssuingOrganization,
+                IssueDate = request.IssueDate,
+                ExpirationDate = request.ExpirationDate,
+                CredentialId = request.CredentialId,
+                CredentialUrl = request.CredentialUrl
+            };
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("UpdateNurseCertificate");
+
+        nurseProfile.MapDelete("/certificates/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            await sender.Send(new DeleteNurseCertificateCommand(id));
+            return Results.NoContent();
+        })
+        .WithName("DeleteNurseCertificate");
+
+        nurseProfile.MapGet("/languages", async (ISender sender) =>
+        {
+            var result = await sender.Send(new ListCurrentNurseLanguagesQuery());
+            return Results.Ok(result);
+        })
+        .WithName("ListCurrentNurseLanguages");
+
+        nurseProfile.MapPut("/languages", async (UpdateNurseLanguagesCommand command, ISender sender) =>
+        {
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("UpdateNurseLanguages");
+
+        nurseProfile.MapGet("/skills", async (ISender sender) =>
+        {
+            var result = await sender.Send(new ListCurrentNurseSkillsQuery());
+            return Results.Ok(result);
+        })
+        .WithName("ListCurrentNurseSkills");
+
+        nurseProfile.MapPut("/skills", async (UpdateNurseSkillsCommand command, ISender sender) =>
+        {
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("UpdateNurseSkills");
+
+        nurseProfile.MapGet("/cv", async (ISender sender) =>
+        {
+            var result = await sender.Send(new GetCurrentNurseCvQuery());
+            return Results.Ok(result);
+        })
+        .WithName("GetCurrentNurseCv");
+
+        nurseProfile.MapPost("/cv", async (HttpRequest request, ISender sender) =>
+        {
+            if (!request.HasFormContentType)
+            {
+                return Results.BadRequest();
+            }
+
+            var form = await request.ReadFormAsync();
+            var file = form.Files.GetFile("file");
+
+            if (file is null)
+            {
+                return Results.BadRequest();
+            }
+
+            var command = new UploadNurseCvCommand
+            {
+                File = file.OpenReadStream(),
+                OriginalFileName = file.FileName,
+                ContentType = file.ContentType,
+                FileSizeBytes = file.Length
+            };
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("UploadNurseCv");
+
+        nurseProfile.MapDelete("/cv", async (ISender sender) =>
+        {
+            await sender.Send(new DeleteNurseCvCommand());
+            return Results.NoContent();
+        })
+        .WithName("DeleteNurseCv");
 
         return app;
     }

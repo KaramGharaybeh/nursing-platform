@@ -3,6 +3,7 @@ using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using NursingPlatform.Application.Common.Exceptions;
 
 namespace NursingPlatform.WebApi.Middleware;
 
@@ -37,6 +38,7 @@ public class ExceptionMiddleware
             ValidationException => (StatusCodes.Status400BadRequest, "Validation failed"),
             KeyNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
+            ForbiddenAccessException => (StatusCodes.Status403Forbidden, "Forbidden"),
             UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
             _ => (StatusCodes.Status500InternalServerError, "Internal server error")
         };

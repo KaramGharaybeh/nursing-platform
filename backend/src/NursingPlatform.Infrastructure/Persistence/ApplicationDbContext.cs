@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Domain.Common;
+using NursingPlatform.Domain.Employers;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
 using NursingPlatform.Domain.ReferenceData;
@@ -31,6 +32,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<NurseLanguage> NurseLanguages => Set<NurseLanguage>();
     public DbSet<NurseSkill> NurseSkills => Set<NurseSkill>();
     public DbSet<NurseCvDocument> NurseCvDocuments => Set<NurseCvDocument>();
+    public DbSet<EmployerProfile> EmployerProfiles => Set<EmployerProfile>();
+    public DbSet<EmployerOrganization> EmployerOrganizations => Set<EmployerOrganization>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -2,7 +2,7 @@
 
 ## Current Milestone
 
-Phase 5 — Nurse Module
+Phase 6A — Employer Profile Foundation
 
 Status:
 Complete — final verification passed.
@@ -11,39 +11,34 @@ Complete — final verification passed.
 
 ## Objective
 
-Complete the Phase 5 Nurse Module profile foundation for authenticated nurse self-service, including nurse profile data, experience, education, certificates, languages, skills, CV upload metadata, storage integration, WebApi endpoints, and verification.
+Complete the Phase 6A Employer Profile Foundation for authenticated employer self-service profile and organization metadata foundation.
 
 ---
 
 ## Completion Summary
 
-- [x] Task 1: Forbidden exception foundation
-- [x] Task 2: Domain entities, EF configurations, DbContext updates, AddNurseModule migration
-- [x] Task 3: File storage abstraction and local storage infrastructure
-- [x] Task 4: Nurse profile self read/upsert Application layer
-- [x] Task 5: Experience CRUD Application layer
-- [x] Task 6: Education and certificate metadata CRUD Application layer
-- [x] Task 7: Languages and skills management Application layer
-- [x] Task 8: CV metadata/upload/delete Application layer
-- [x] Task 9: WebApi endpoints and integration tests
-- [x] Task 10: Final verification and documentation review
+- [x] Task 1: Employer domain entities, EF configurations, DbContext updates, AddEmployerModule migration
+- [x] Task 2: Employer role guard and employer profile Application layer
+- [x] Task 3: Employer organization Application layer
+- [x] Task 4: WebApi endpoints and integration tests
+- [x] Task 5: Final verification and documentation review
 
 ---
 
 ## Final Verification
 
 - `dotnet build backend/NursingPlatform.slnx`: passed, 0 warnings, 0 errors
-- `dotnet test backend/NursingPlatform.slnx`: passed, 307 tests
+- `dotnet test backend/NursingPlatform.slnx`: passed, 356 tests
 - `dotnet ef migrations has-pending-model-changes --project backend/src/NursingPlatform.Infrastructure --startup-project backend/src/NursingPlatform.WebApi --context ApplicationDbContext`: no pending model changes
-- EF design-time note: `dotnet ef migrations has-pending-model-changes` logs a known non-blocking `HostAbortedException` during design-time host resolution, then reports no pending model changes.
+- EF design-time note: `HostAbortedException` is known non-blocking EF design-time host-resolution noise when EF still reports no pending model changes.
 
 ---
 
 ## Current Review State
 
-Phase 5 implementation has passed final verification and review.
+Phase 6A implementation has passed final verification and review.
 
-Do NOT proceed to Phase 6.
+Do NOT proceed to Phase 6B.
 
 Do NOT stage files.
 
@@ -55,7 +50,6 @@ Do NOT commit until explicitly instructed.
 
 Do NOT implement:
 
-- Employer module
 - Employer candidate search
 - Recruitment filtering
 - Contact requests
@@ -73,17 +67,12 @@ Do NOT implement:
 
 This milestone is complete when:
 
-- Nurse profile persistence and self-service Application use cases exist
-- Nurse experience CRUD exists
-- Nurse education CRUD exists
-- Nurse certificate metadata CRUD exists
-- Nurse language management exists
-- Nurse free-text skill management exists
-- CV metadata upload/delete exists through storage abstraction
-- Phase 5 self-service WebApi endpoints exist and require authorization
-- WebApi integration tests cover representative auth, validation, and sensitive-field exposure behavior
+- Employer profile persistence and authenticated self-service Application use cases exist
+- Employer organization metadata persistence and authenticated self-service Application use cases exist
+- Phase 6A self-service WebApi endpoints exist and require authorization
+- WebApi integration tests cover representative auth, validation, forbidden access, and sensitive-field exposure behavior
 - Solution builds with zero warnings and zero errors
-- All 307 tests pass
+- All 356 tests pass
 - EF pending model check reports no pending model changes
 - Implementation is reviewed and explicitly approved before commit
 

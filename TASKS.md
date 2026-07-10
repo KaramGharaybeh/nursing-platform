@@ -164,8 +164,8 @@ Do not start work on a later phase until the current phase is complete.
 
 # Phase 6 — Employer Module
 
-- [ ] Employer profile
-- [ ] Organization management
+- [x] Employer profile
+- [x] Organization management
 - [ ] Candidate search
 - [ ] Candidate filtering
 - [ ] Contact requests

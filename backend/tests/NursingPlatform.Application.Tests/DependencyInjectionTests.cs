@@ -4,6 +4,7 @@ using Moq;
 using NursingPlatform.Application.Abstractions.Auth;
 using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Application.Authorization;
+using NursingPlatform.Application.Employers.Common;
 using NursingPlatform.Application.Nurses.Common;
 
 namespace NursingPlatform.Application.Tests;
@@ -88,6 +89,34 @@ public class DependencyInjectionTests
         var registration = services.FirstOrDefault(s =>
             s.ServiceType == typeof(NurseRoleGuard) &&
             s.ImplementationType == typeof(NurseRoleGuard));
+
+        Assert.NotNull(registration);
+        Assert.Equal(ServiceLifetime.Scoped, registration.Lifetime);
+    }
+
+    [Fact]
+    public void AddApplication_ShouldRegisterEmployerRoleGuard()
+    {
+        var services = new ServiceCollection();
+        services.AddScoped(_ => Mock.Of<IApplicationDbContext>());
+        services.AddScoped(_ => Mock.Of<ICurrentUserService>());
+        services.AddApplication();
+
+        var provider = services.BuildServiceProvider();
+
+        var guard = provider.GetRequiredService<EmployerRoleGuard>();
+        Assert.IsType<EmployerRoleGuard>(guard);
+    }
+
+    [Fact]
+    public void EmployerRoleGuard_ShouldBeScoped()
+    {
+        var services = new ServiceCollection();
+        services.AddApplication();
+
+        var registration = services.FirstOrDefault(s =>
+            s.ServiceType == typeof(EmployerRoleGuard) &&
+            s.ImplementationType == typeof(EmployerRoleGuard));
 
         Assert.NotNull(registration);
         Assert.Equal(ServiceLifetime.Scoped, registration.Lifetime);

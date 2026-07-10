@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NursingPlatform.Domain.Employers;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
 using NursingPlatform.Domain.ReferenceData;
@@ -24,5 +25,7 @@ public interface IApplicationDbContext
     DbSet<NurseLanguage> NurseLanguages { get; }
     DbSet<NurseSkill> NurseSkills { get; }
     DbSet<NurseCvDocument> NurseCvDocuments { get; }
+    DbSet<EmployerProfile> EmployerProfiles { get; }
+    DbSet<EmployerOrganization> EmployerOrganizations { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -1,6 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NursingPlatform.Application.Authorization;
+using NursingPlatform.Application.Employers.Commands.UpsertMyEmployerOrganization;
+using NursingPlatform.Application.Employers.Commands.UpsertMyEmployerProfile;
+using NursingPlatform.Application.Employers.Queries.GetMyEmployerOrganization;
+using NursingPlatform.Application.Employers.Queries.GetMyEmployerProfile;
 using NursingPlatform.Application.Identity.Commands.ForgotPassword;
 using NursingPlatform.Application.Identity.Commands.Login;
 using NursingPlatform.Application.Identity.Commands.Register;
@@ -196,6 +200,54 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("GetUser")
         .RequirePermission(Permissions.Users.View);
+
+        var employerProfile = api.MapGroup("/me/employer-profile")
+            .RequireAuthorization();
+
+        employerProfile.MapGet("/", async (ISender sender) =>
+        {
+            var result = await sender.Send(new GetMyEmployerProfileQuery());
+            return Results.Ok(result);
+        })
+        .WithName("GetMyEmployerProfile");
+
+        employerProfile.MapPut("/", async (UpsertMyEmployerProfileRequest request, ISender sender) =>
+        {
+            var command = new UpsertMyEmployerProfileCommand
+            {
+                JobTitle = request.JobTitle,
+                Department = request.Department
+            };
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("UpsertMyEmployerProfile");
+
+        employerProfile.MapGet("/organization", async (ISender sender) =>
+        {
+            var result = await sender.Send(new GetMyEmployerOrganizationQuery());
+            return Results.Ok(result);
+        })
+        .WithName("GetMyEmployerOrganization");
+
+        employerProfile.MapPut("/organization", async (UpsertMyEmployerOrganizationRequest request, ISender sender) =>
+        {
+            var command = new UpsertMyEmployerOrganizationCommand
+            {
+                Name = request.Name,
+                Type = request.Type,
+                WebsiteUrl = request.WebsiteUrl,
+                CountryId = request.CountryId,
+                City = request.City,
+                AddressLine1 = request.AddressLine1,
+                AddressLine2 = request.AddressLine2,
+                PostalCode = request.PostalCode,
+                Description = request.Description
+            };
+            var result = await sender.Send(command);
+            return Results.Ok(result);
+        })
+        .WithName("UpsertMyEmployerOrganization");
 
         var nurseProfile = api.MapGroup("/me/nurse-profile")
             .RequireAuthorization();

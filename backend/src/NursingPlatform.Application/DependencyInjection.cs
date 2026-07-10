@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using NursingPlatform.Application.Authorization;
+using NursingPlatform.Application.Employers.Common;
 using NursingPlatform.Application.Nurses.Common;
 
 namespace NursingPlatform.Application;
@@ -19,6 +20,7 @@ public static class DependencyInjection
 
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddScoped<EmployerRoleGuard>();
         services.AddScoped<NurseRoleGuard>();
 
         return services;

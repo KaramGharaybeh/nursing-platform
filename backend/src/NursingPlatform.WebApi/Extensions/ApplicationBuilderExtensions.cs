@@ -36,6 +36,7 @@ using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseEducation;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseExperiences;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseLanguages;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseSkills;
+using NursingPlatform.Application.Recruitment.Queries.ListCandidates;
 using NursingPlatform.Infrastructure.Persistence;
 using NursingPlatform.WebApi.Middleware;
 using Serilog;
@@ -200,6 +201,18 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("GetUser")
         .RequirePermission(Permissions.Users.View);
+
+        api.MapGet("/recruitment/candidates", async (int? page, int? pageSize, ISender sender) =>
+        {
+            var result = await sender.Send(new ListCandidatesQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ListRecruitmentCandidates")
+        .RequireAuthorization();
 
         var employerProfile = api.MapGroup("/me/employer-profile")
             .RequireAuthorization();

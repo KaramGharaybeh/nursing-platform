@@ -4,6 +4,7 @@ using NursingPlatform.Domain.Common;
 using NursingPlatform.Domain.Employers;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
+using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Domain.ReferenceData;
 
 namespace NursingPlatform.Infrastructure.Persistence;
@@ -34,6 +35,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<NurseCvDocument> NurseCvDocuments => Set<NurseCvDocument>();
     public DbSet<EmployerProfile> EmployerProfiles => Set<EmployerProfile>();
     public DbSet<EmployerOrganization> EmployerOrganizations => Set<EmployerOrganization>();
+    public DbSet<ContactRequest> ContactRequests => Set<ContactRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -48,6 +50,34 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         UpdateAuditableEntities();
         return base.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task<int> ExecuteContactRequestTransitionAsync(
+        Guid id,
+        Guid ownerProfileId,
+        bool isEmployerOwner,
+        ContactRequestStatus status,
+        DateTime timestamp,
+        CancellationToken cancellationToken = default)
+    {
+        var query = ContactRequests.Where(r => r.Id == id && r.Status == ContactRequestStatus.Pending);
+        query = isEmployerOwner
+            ? query.Where(r => r.EmployerProfileId == ownerProfileId)
+            : query.Where(r => r.NurseProfileId == ownerProfileId);
+
+        return query.ExecuteUpdateAsync(setters =>
+            setters
+                .SetProperty(r => r.Status, status)
+                .SetProperty(r => r.UpdatedAt, timestamp)
+                .SetProperty(r => r.RespondedAt,
+                    status is ContactRequestStatus.Approved or ContactRequestStatus.Rejected
+                        ? timestamp
+                        : (DateTime?)null)
+                .SetProperty(r => r.CancelledAt,
+                    status == ContactRequestStatus.Cancelled
+                        ? timestamp
+                        : (DateTime?)null),
+            cancellationToken);
     }
 
     private void UpdateAuditableEntities()

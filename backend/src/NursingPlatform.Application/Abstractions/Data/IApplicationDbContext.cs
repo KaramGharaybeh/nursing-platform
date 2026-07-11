@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NursingPlatform.Domain.Employers;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
+using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Domain.ReferenceData;
 
 namespace NursingPlatform.Application.Abstractions.Data;
@@ -27,5 +28,13 @@ public interface IApplicationDbContext
     DbSet<NurseCvDocument> NurseCvDocuments { get; }
     DbSet<EmployerProfile> EmployerProfiles { get; }
     DbSet<EmployerOrganization> EmployerOrganizations { get; }
+    DbSet<ContactRequest> ContactRequests { get; }
+    Task<int> ExecuteContactRequestTransitionAsync(
+        Guid id,
+        Guid ownerProfileId,
+        bool isEmployerOwner,
+        ContactRequestStatus status,
+        DateTime timestamp,
+        CancellationToken cancellationToken = default);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

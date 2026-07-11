@@ -36,7 +36,15 @@ using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseEducation;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseExperiences;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseLanguages;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseSkills;
+using NursingPlatform.Application.Recruitment.Commands.ApproveReceivedContactRequest;
+using NursingPlatform.Application.Recruitment.Commands.CancelContactRequest;
+using NursingPlatform.Application.Recruitment.Commands.CreateContactRequest;
+using NursingPlatform.Application.Recruitment.Commands.RejectReceivedContactRequest;
+using NursingPlatform.Application.Recruitment.Queries.GetMyContactRequest;
 using NursingPlatform.Application.Recruitment.Queries.ListCandidates;
+using NursingPlatform.Application.Recruitment.Queries.ListMyContactRequests;
+using NursingPlatform.Application.Recruitment.Queries.ListReceivedContactRequests;
+using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Infrastructure.Persistence;
 using NursingPlatform.WebApi.Middleware;
 using Serilog;
@@ -225,6 +233,50 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListRecruitmentCandidates")
+        .RequireAuthorization();
+
+        api.MapPost("/recruitment/contact-requests", async (CreateContactRequestRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new CreateContactRequestCommand
+            {
+                NurseProfileId = request.NurseProfileId
+            });
+            return Results.Created($"/api/v1/recruitment/contact-requests/{result.Id}", result);
+        })
+        .WithName("CreateRecruitmentContactRequest")
+        .RequireAuthorization();
+
+        api.MapGet("/recruitment/contact-requests", async (
+            int? page,
+            int? pageSize,
+            ContactRequestStatus? status,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListMyContactRequestsQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20,
+                Status = status
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ListMyRecruitmentContactRequests")
+        .RequireAuthorization();
+
+        api.MapGet("/recruitment/contact-requests/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetMyContactRequestQuery { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("GetMyRecruitmentContactRequest")
+        .RequireAuthorization();
+
+        api.MapPost("/recruitment/contact-requests/{id:guid}/cancel", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new CancelContactRequestCommand { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("CancelRecruitmentContactRequest")
         .RequireAuthorization();
 
         var employerProfile = api.MapGroup("/me/employer-profile")
@@ -435,6 +487,36 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("UpdateNurseSkills");
+
+        nurseProfile.MapGet("/contact-requests", async (
+            int? page,
+            int? pageSize,
+            ContactRequestStatus? status,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListReceivedContactRequestsQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20,
+                Status = status
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ListReceivedContactRequests");
+
+        nurseProfile.MapPost("/contact-requests/{id:guid}/approve", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new ApproveReceivedContactRequestCommand { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("ApproveReceivedContactRequest");
+
+        nurseProfile.MapPost("/contact-requests/{id:guid}/reject", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new RejectReceivedContactRequestCommand { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("RejectReceivedContactRequest");
 
         nurseProfile.MapGet("/cv", async (ISender sender) =>
         {

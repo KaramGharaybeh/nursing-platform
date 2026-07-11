@@ -35,6 +35,7 @@ public class ExceptionMiddleware
     {
         var (statusCode, title) = exception switch
         {
+            BadHttpRequestException => (StatusCodes.Status400BadRequest, "Bad request"),
             ValidationException => (StatusCodes.Status400BadRequest, "Validation failed"),
             KeyNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),

@@ -202,12 +202,25 @@ public static class ApplicationBuilderExtensions
         .WithName("GetUser")
         .RequirePermission(Permissions.Users.View);
 
-        api.MapGet("/recruitment/candidates", async (int? page, int? pageSize, ISender sender) =>
+        api.MapGet("/recruitment/candidates", async (
+            int? page,
+            int? pageSize,
+            Guid? licenseCountryId,
+            Guid? currentCountryId,
+            int? minimumYearsOfExperience,
+            string[]? skills,
+            Guid? languageId,
+            ISender sender) =>
         {
             var result = await sender.Send(new ListCandidatesQuery
             {
                 Page = page ?? 1,
-                PageSize = pageSize ?? 20
+                PageSize = pageSize ?? 20,
+                LicenseCountryId = licenseCountryId,
+                CurrentCountryId = currentCountryId,
+                MinimumYearsOfExperience = minimumYearsOfExperience,
+                Skills = skills ?? [],
+                LanguageId = languageId
             });
             return Results.Ok(result);
         })

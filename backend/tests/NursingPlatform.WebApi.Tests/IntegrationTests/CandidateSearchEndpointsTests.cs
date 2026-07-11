@@ -199,6 +199,71 @@ public class CandidateSearchEndpointsTests
     }
 
     [Fact]
+    public async Task ListCandidates_WithFilteredEligibleEmployer_ReturnsPaginatedCandidateResponseWithoutSensitiveFields()
+    {
+        var nurseProfileId = Guid.NewGuid();
+        var licenseCountryId = Guid.NewGuid();
+        var currentCountryId = Guid.NewGuid();
+        var languageId = Guid.NewGuid();
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(
+                It.Is<ListCandidatesQuery>(q =>
+                    q.LicenseCountryId == licenseCountryId
+                    && q.CurrentCountryId == currentCountryId
+                    && q.MinimumYearsOfExperience == 5
+                    && q.LanguageId == languageId
+                    && q.Skills.SequenceEqual(new[] { "ICU", "Triage" })),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaginatedResult<CandidateListItemDto>
+            {
+                Items =
+                [
+                    new CandidateListItemDto
+                    {
+                        NurseProfileId = nurseProfileId,
+                        Headline = "Filtered critical care nurse",
+                        ProfessionalSummary = "Experienced ICU nurse",
+                        LicenseCountryName = "Canada",
+                        CurrentCountryName = "United Kingdom",
+                        YearsOfExperience = 8,
+                        Skills = ["ICU", "Triage"],
+                        Languages =
+                        [
+                            new CandidateLanguageDto
+                            {
+                                Name = "English",
+                                Code = "en",
+                                Proficiency = "Fluent"
+                            }
+                        ],
+                        CertificatesSummary = "2 certificates",
+                        CertificatesCount = 2,
+                        LatestExperienceTitle = "Senior ICU Nurse",
+                        EducationSummary = "Bachelor of Nursing"
+                    }
+                ],
+                Page = 1,
+                PageSize = 20,
+                TotalCount = 1
+            });
+
+        var response = await _client.GetAsync(
+            $"/api/v1/recruitment/candidates?licenseCountryId={licenseCountryId}&currentCountryId={currentCountryId}&minimumYearsOfExperience=5&languageId={languageId}&skills=ICU&skills=Triage");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        AssertDoesNotExposeForbiddenCandidateFields(json);
+
+        var body = JsonSerializer.Deserialize<PaginatedResult<CandidateListItemDto>>(json, NurseEndpointTestAuth.JsonOptions);
+        Assert.NotNull(body);
+        var candidate = Assert.Single(body.Items);
+        Assert.Equal(nurseProfileId, candidate.NurseProfileId);
+        Assert.Equal("Filtered critical care nurse", candidate.Headline);
+        Assert.Equal(["ICU", "Triage"], candidate.Skills);
+    }
+
+    [Fact]
     public async Task ListCandidates_SendsQueryWithDefaultPagination()
     {
         NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
@@ -226,6 +291,111 @@ public class CandidateSearchEndpointsTests
         _senderMock.Verify(s => s.Send(
             It.Is<ListCandidatesQuery>(q => q.Page == 2 && q.PageSize == 10),
             It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ListCandidates_SendsQueryWithProvidedFilters()
+    {
+        var licenseCountryId = Guid.NewGuid();
+        var currentCountryId = Guid.NewGuid();
+        var languageId = Guid.NewGuid();
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<ListCandidatesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaginatedResult<CandidateListItemDto>());
+
+        var response = await _client.GetAsync(
+            $"/api/v1/recruitment/candidates?page=3&pageSize=15&licenseCountryId={licenseCountryId}&currentCountryId={currentCountryId}&minimumYearsOfExperience=6&languageId={languageId}&skills=ICU");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        _senderMock.Verify(s => s.Send(
+            It.Is<ListCandidatesQuery>(q =>
+                q.Page == 3
+                && q.PageSize == 15
+                && q.LicenseCountryId == licenseCountryId
+                && q.CurrentCountryId == currentCountryId
+                && q.MinimumYearsOfExperience == 6
+                && q.LanguageId == languageId
+                && q.Skills.SequenceEqual(new[] { "ICU" })),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ListCandidates_SendsQueryWithRepeatedSkills()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<ListCandidatesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaginatedResult<CandidateListItemDto>());
+
+        var response = await _client.GetAsync("/api/v1/recruitment/candidates?skills=ICU&skills=Triage");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        _senderMock.Verify(s => s.Send(
+            It.Is<ListCandidatesQuery>(q => q.Skills.SequenceEqual(new[] { "ICU", "Triage" })),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ListCandidates_SendsQueryWithCommaSeparatedSkills()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<ListCandidatesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaginatedResult<CandidateListItemDto>());
+
+        var response = await _client.GetAsync("/api/v1/recruitment/candidates?skills=ICU,Triage");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        _senderMock.Verify(s => s.Send(
+            It.Is<ListCandidatesQuery>(q => q.Skills.SequenceEqual(new[] { "ICU,Triage" })),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ListCandidates_WithInvalidFilterValidation_ReturnsValidationProblemDetails()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.Is<ListCandidatesQuery>(q => q.MinimumYearsOfExperience == -1), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ValidationException([new ValidationFailure("MinimumYearsOfExperience", "Minimum years of experience must be at least 0.")]));
+
+        var response = await _client.GetAsync("/api/v1/recruitment/candidates?minimumYearsOfExperience=-1");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Validation failed", body.GetProperty("title").GetString());
+        Assert.Equal(400, body.GetProperty("status").GetInt32());
+        Assert.True(body.GetProperty("errors").TryGetProperty("MinimumYearsOfExperience", out _));
+    }
+
+    [Theory]
+    [InlineData("licenseCountryId")]
+    [InlineData("currentCountryId")]
+    [InlineData("languageId")]
+    public async Task ListCandidates_WithInvalidGuidFilter_ReturnsBadRequest(string parameterName)
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+
+        var response = await _client.GetAsync($"/api/v1/recruitment/candidates?{parameterName}=not-a-guid");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        _senderMock.Verify(s => s.Send(It.IsAny<ListCandidatesQuery>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ListCandidates_UsesRequireAuthorizationOnly_WithoutPermissionSetup()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<ListCandidatesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PaginatedResult<CandidateListItemDto>());
+
+        var response = await _client.GetAsync("/api/v1/recruitment/candidates");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        _senderMock.Verify(s => s.Send(It.IsAny<ListCandidatesQuery>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static void AssertDoesNotExposeForbiddenCandidateFields(string json)

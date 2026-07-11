@@ -45,6 +45,35 @@ public class ListCandidatesQueryHandler : IRequestHandler<ListCandidatesQuery, P
         var eligibleCandidates = _context.NurseProfiles
             .Where(p => p.IsAvailableForRecruitment && p.User.IsActive && p.User.EmailVerified);
 
+        if (request.LicenseCountryId.HasValue)
+        {
+            eligibleCandidates = eligibleCandidates.Where(p => p.LicenseCountryId == request.LicenseCountryId.Value);
+        }
+
+        if (request.CurrentCountryId.HasValue)
+        {
+            eligibleCandidates = eligibleCandidates.Where(p => p.CurrentCountryId == request.CurrentCountryId.Value);
+        }
+
+        if (request.MinimumYearsOfExperience.HasValue)
+        {
+            eligibleCandidates = eligibleCandidates.Where(p => p.YearsOfExperience >= request.MinimumYearsOfExperience.Value);
+        }
+
+        if (request.LanguageId.HasValue)
+        {
+            eligibleCandidates = eligibleCandidates.Where(p =>
+                _context.NurseLanguages.Any(l => l.NurseProfileId == p.Id && l.LanguageId == request.LanguageId.Value));
+        }
+
+        var normalizedSkillNames = CandidateSkillFilterParser.ParseNormalizedNames(request.Skills);
+        foreach (var normalizedSkillName in normalizedSkillNames)
+        {
+            var skillName = normalizedSkillName;
+            eligibleCandidates = eligibleCandidates.Where(p =>
+                _context.NurseSkills.Any(s => s.NurseProfileId == p.Id && s.NormalizedName == skillName));
+        }
+
         var totalCount = await eligibleCandidates.CountAsync(cancellationToken);
         var candidatePage = await eligibleCandidates
             .OrderByDescending(p => p.YearsOfExperience)

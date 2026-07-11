@@ -2,24 +2,24 @@
 
 ## Current Milestone
 
-Phase 6B — Candidate Search Foundation
+Phase 6C — Candidate Filtering
 
 Status:
-Complete — final verification passed.
+Implementation complete — stopped for review before final commit.
 
 ---
 
 ## Objective
 
-Complete the Phase 6B employer-facing candidate search foundation for authenticated employers.
+Complete the Phase 6C employer-facing candidate filtering enhancement for authenticated employers.
 
 ---
 
 ## Completion Summary
 
-- [x] Task 1: Recruitment Application query, DTOs, validator, handler, and Application tests
-- [x] Task 2: WebApi candidate listing endpoint and integration tests
-- [x] Task 3: Final verification and documentation review
+- [x] Task 1: Application candidate filtering query, validation, handler behavior, and Application tests
+- [x] Task 2: WebApi query binding, invalid GUID handling, and integration tests
+- [x] Task 3: Final verification and docs/index review
 - [x] Task 4: Tracking documentation update
 
 ---
@@ -27,7 +27,7 @@ Complete the Phase 6B employer-facing candidate search foundation for authentica
 ## Final Verification
 
 - `dotnet build backend/NursingPlatform.slnx`: passed, 0 warnings, 0 errors
-- `dotnet test backend/NursingPlatform.slnx`: passed, 375 tests
+- `dotnet test backend/NursingPlatform.slnx`: passed, 402 tests
 - `dotnet ef migrations has-pending-model-changes --project backend/src/NursingPlatform.Infrastructure --startup-project backend/src/NursingPlatform.WebApi --context ApplicationDbContext`: no pending model changes
 - EF design-time note: `HostAbortedException` is known non-blocking EF design-time host-resolution noise when EF still reports no pending model changes.
 
@@ -35,9 +35,9 @@ Complete the Phase 6B employer-facing candidate search foundation for authentica
 
 ## Current Review State
 
-Phase 6B Tasks 1-3 have passed final verification and review.
+Phase 6C implementation and final verification are complete.
 
-Do NOT proceed to Task 5 until Task 4 is reviewed and explicitly approved.
+Stopped for review before final commit.
 
 Do NOT stage files.
 
@@ -49,7 +49,6 @@ Do NOT commit until explicitly instructed.
 
 Do NOT implement:
 
-- Recruitment filtering
 - Contact requests
 - CV download endpoint
 - Certificate file attachments
@@ -65,13 +64,14 @@ Do NOT implement:
 
 This milestone is complete when:
 
-- Recruitment Application candidate search query, DTOs, validator, handler, and tests exist
-- `GET /api/v1/recruitment/candidates` exists and requires authorization
-- Candidate search returns only recruitment-visible, active, email-verified nurses
+- Recruitment Application candidate filtering query, validator, handler behavior, and tests exist
+- `GET /api/v1/recruitment/candidates` binds approved Phase 6C filters and requires authorization
+- Candidate listing returns only recruitment-visible, active, email-verified nurses
+- Candidate filtering supports license country, current country, minimum years of experience, skills, and language filters
 - Employer role, employer profile, and employer organization prerequisites are enforced
-- WebApi integration tests cover auth, validation, forbidden access, pagination, response shape, and raw JSON sensitive-field exposure behavior
+- WebApi integration tests cover auth, validation, invalid GUID binding, pagination compatibility, response shape, and raw JSON sensitive-field exposure behavior
 - Solution builds with zero warnings and zero errors
-- All 375 tests pass
+- All 402 tests pass
 - EF pending model check reports no pending model changes
 - Implementation is reviewed and explicitly approved before commit
 

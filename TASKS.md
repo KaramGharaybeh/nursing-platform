@@ -167,7 +167,7 @@ Do not start work on a later phase until the current phase is complete.
 - [x] Employer profile
 - [x] Organization management
 - [x] Candidate search
-- [ ] Candidate filtering
+- [x] Candidate filtering
 - [ ] Contact requests
 
 ---

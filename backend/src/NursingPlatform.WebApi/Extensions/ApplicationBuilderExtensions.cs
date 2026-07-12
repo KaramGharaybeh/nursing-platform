@@ -13,6 +13,11 @@ using NursingPlatform.Application.Exams.Admin.Categories;
 using NursingPlatform.Application.Exams.Admin.Exams;
 using NursingPlatform.Application.Exams.Admin.Questions;
 using NursingPlatform.Application.Exams.Admin.Versions;
+using NursingPlatform.Application.Exams.Analytics.Common;
+using NursingPlatform.Application.Exams.Analytics.Queries.GetMyExamAnalyticsSummary;
+using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsByCategory;
+using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsByExam;
+using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsTrends;
 using NursingPlatform.Application.Exams.Queries.GetExam;
 using NursingPlatform.Application.Exams.Queries.GetExamSession;
 using NursingPlatform.Application.Exams.Queries.GetExamSessionResult;
@@ -891,6 +896,94 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("RejectReceivedContactRequest");
 
+        nurseProfile.MapGet("/exam-analytics/summary", async (
+            DateTime? from,
+            DateTime? to,
+            Guid? countryId,
+            Guid? categoryId,
+            Guid? examId,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new GetMyExamAnalyticsSummaryQuery
+            {
+                From = from,
+                To = to,
+                CountryId = countryId,
+                CategoryId = categoryId,
+                ExamId = examId
+            });
+            return Results.Ok(result);
+        })
+        .WithName("GetMyExamAnalyticsSummary");
+
+        nurseProfile.MapGet("/exam-analytics/by-exam", async (
+            DateTime? from,
+            DateTime? to,
+            Guid? countryId,
+            Guid? categoryId,
+            Guid? examId,
+            int? page,
+            int? pageSize,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListMyExamAnalyticsByExamQuery
+            {
+                From = from,
+                To = to,
+                CountryId = countryId,
+                CategoryId = categoryId,
+                ExamId = examId,
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ListMyExamAnalyticsByExam");
+
+        nurseProfile.MapGet("/exam-analytics/by-category", async (
+            DateTime? from,
+            DateTime? to,
+            Guid? countryId,
+            Guid? categoryId,
+            int? page,
+            int? pageSize,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListMyExamAnalyticsByCategoryQuery
+            {
+                From = from,
+                To = to,
+                CountryId = countryId,
+                CategoryId = categoryId,
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ListMyExamAnalyticsByCategory");
+
+        nurseProfile.MapGet("/exam-analytics/trends", async (
+            DateTime? from,
+            DateTime? to,
+            Guid? countryId,
+            Guid? categoryId,
+            Guid? examId,
+            string? bucket,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListMyExamAnalyticsTrendsQuery
+            {
+                From = from,
+                To = to,
+                CountryId = countryId,
+                CategoryId = categoryId,
+                ExamId = examId,
+                Bucket = ParseExamAnalyticsBucket(bucket)
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ListMyExamAnalyticsTrends");
+
         nurseProfile.MapGet("/exam-attempts", async (
             int? page,
             int? pageSize,
@@ -978,5 +1071,17 @@ public static class ApplicationBuilderExtensions
         };
 
         return context.Response.WriteAsJsonAsync(response);
+    }
+
+    private static ExamAnalyticsBucket ParseExamAnalyticsBucket(string? bucket)
+    {
+        if (string.IsNullOrWhiteSpace(bucket))
+        {
+            return ExamAnalyticsBucket.Month;
+        }
+
+        return Enum.TryParse<ExamAnalyticsBucket>(bucket, ignoreCase: true, out var parsed)
+            ? parsed
+            : (ExamAnalyticsBucket)(-1);
     }
 }

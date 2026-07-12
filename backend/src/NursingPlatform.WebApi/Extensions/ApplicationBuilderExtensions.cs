@@ -5,6 +5,15 @@ using NursingPlatform.Application.Employers.Commands.UpsertMyEmployerOrganizatio
 using NursingPlatform.Application.Employers.Commands.UpsertMyEmployerProfile;
 using NursingPlatform.Application.Employers.Queries.GetMyEmployerOrganization;
 using NursingPlatform.Application.Employers.Queries.GetMyEmployerProfile;
+using NursingPlatform.Application.Exams.Commands.SaveExamSessionAnswers;
+using NursingPlatform.Application.Exams.Commands.StartExamSession;
+using NursingPlatform.Application.Exams.Commands.SubmitExamSession;
+using NursingPlatform.Application.Exams.Queries.GetExam;
+using NursingPlatform.Application.Exams.Queries.GetExamSession;
+using NursingPlatform.Application.Exams.Queries.GetExamSessionResult;
+using NursingPlatform.Application.Exams.Queries.GetExamSessionReview;
+using NursingPlatform.Application.Exams.Queries.ListExams;
+using NursingPlatform.Application.Exams.Queries.ListMyExamAttempts;
 using NursingPlatform.Application.Identity.Commands.ForgotPassword;
 using NursingPlatform.Application.Identity.Commands.Login;
 using NursingPlatform.Application.Identity.Commands.Register;
@@ -44,6 +53,7 @@ using NursingPlatform.Application.Recruitment.Queries.GetMyContactRequest;
 using NursingPlatform.Application.Recruitment.Queries.ListCandidates;
 using NursingPlatform.Application.Recruitment.Queries.ListMyContactRequests;
 using NursingPlatform.Application.Recruitment.Queries.ListReceivedContactRequests;
+using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Infrastructure.Persistence;
 using NursingPlatform.WebApi.Middleware;
@@ -233,6 +243,88 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListRecruitmentCandidates")
+        .RequireAuthorization();
+
+        api.MapGet("/exams", async (
+            int? page,
+            int? pageSize,
+            Guid? countryId,
+            Guid? categoryId,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListExamsQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20,
+                CountryId = countryId,
+                CategoryId = categoryId
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ListExams")
+        .RequireAuthorization();
+
+        api.MapGet("/exams/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetExamQuery { ExamId = id });
+            return Results.Ok(result);
+        })
+        .WithName("GetExam")
+        .RequireAuthorization();
+
+        api.MapPost("/exams/{id:guid}/sessions", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new StartExamSessionCommand { ExamId = id });
+            return Results.Ok(result);
+        })
+        .WithName("StartExamSession")
+        .RequireAuthorization();
+
+        api.MapGet("/exam-sessions/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetExamSessionQuery { ExamSessionId = id });
+            return Results.Ok(result);
+        })
+        .WithName("GetExamSession")
+        .RequireAuthorization();
+
+        api.MapPut("/exam-sessions/{id:guid}/answers", async (
+            Guid id,
+            SaveExamSessionAnswersRequest request,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new SaveExamSessionAnswersCommand
+            {
+                ExamSessionId = id,
+                Request = request
+            });
+            return Results.Ok(result);
+        })
+        .WithName("SaveExamSessionAnswers")
+        .RequireAuthorization();
+
+        api.MapPost("/exam-sessions/{id:guid}/submit", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new SubmitExamSessionCommand { ExamSessionId = id });
+            return Results.Ok(result);
+        })
+        .WithName("SubmitExamSession")
+        .RequireAuthorization();
+
+        api.MapGet("/exam-sessions/{id:guid}/result", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetExamSessionResultQuery { ExamSessionId = id });
+            return Results.Ok(result);
+        })
+        .WithName("GetExamSessionResult")
+        .RequireAuthorization();
+
+        api.MapGet("/exam-sessions/{id:guid}/review", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetExamSessionReviewQuery { ExamSessionId = id });
+            return Results.Ok(result);
+        })
+        .WithName("GetExamSessionReview")
         .RequireAuthorization();
 
         api.MapPost("/recruitment/contact-requests", async (CreateContactRequestRequest request, ISender sender) =>
@@ -517,6 +609,22 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("RejectReceivedContactRequest");
+
+        nurseProfile.MapGet("/exam-attempts", async (
+            int? page,
+            int? pageSize,
+            ExamSessionStatus? status,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListMyExamAttemptsQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20,
+                Status = status
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ListMyExamAttempts");
 
         nurseProfile.MapGet("/cv", async (ISender sender) =>
         {

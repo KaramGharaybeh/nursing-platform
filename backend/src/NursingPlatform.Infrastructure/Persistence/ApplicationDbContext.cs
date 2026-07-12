@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Domain.Common;
 using NursingPlatform.Domain.Employers;
+using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
 using NursingPlatform.Domain.Recruitment;
@@ -36,6 +37,16 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<EmployerProfile> EmployerProfiles => Set<EmployerProfile>();
     public DbSet<EmployerOrganization> EmployerOrganizations => Set<EmployerOrganization>();
     public DbSet<ContactRequest> ContactRequests => Set<ContactRequest>();
+    public DbSet<ExamCategory> ExamCategories => Set<ExamCategory>();
+    public DbSet<Exam> Exams => Set<Exam>();
+    public DbSet<ExamVersion> ExamVersions => Set<ExamVersion>();
+    public DbSet<ExamQuestion> ExamQuestions => Set<ExamQuestion>();
+    public DbSet<ExamAnswerOption> ExamAnswerOptions => Set<ExamAnswerOption>();
+    public DbSet<ExamAccessGrant> ExamAccessGrants => Set<ExamAccessGrant>();
+    public DbSet<ExamSession> ExamSessions => Set<ExamSession>();
+    public DbSet<ExamSessionQuestion> ExamSessionQuestions => Set<ExamSessionQuestion>();
+    public DbSet<ExamSessionAnswerOption> ExamSessionAnswerOptions => Set<ExamSessionAnswerOption>();
+    public DbSet<ExamSessionAnswer> ExamSessionAnswers => Set<ExamSessionAnswer>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -78,6 +89,41 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                         ? timestamp
                         : (DateTime?)null),
             cancellationToken);
+    }
+
+    public Task<int> ExecuteExamSessionFinalizationAsync(
+        Guid id,
+        Guid nurseProfileId,
+        ExamSessionStatus status,
+        int score,
+        int maxScore,
+        decimal percentage,
+        bool passed,
+        int correctCount,
+        int questionCount,
+        DateTime timestamp,
+        CancellationToken cancellationToken = default)
+    {
+        return ExamSessions
+            .Where(s => s.Id == id
+                && s.NurseProfileId == nurseProfileId
+                && s.Status == ExamSessionStatus.InProgress)
+            .ExecuteUpdateAsync(setters =>
+                setters
+                    .SetProperty(s => s.Status, status)
+                    .SetProperty(s => s.Score, score)
+                    .SetProperty(s => s.MaxScore, maxScore)
+                    .SetProperty(s => s.Percentage, percentage)
+                    .SetProperty(s => s.Passed, passed)
+                    .SetProperty(s => s.CorrectCount, correctCount)
+                    .SetProperty(s => s.QuestionCount, questionCount)
+                    .SetProperty(s => s.FinalizedAt, timestamp)
+                    .SetProperty(s => s.SubmittedAt,
+                        status == ExamSessionStatus.Submitted
+                            ? timestamp
+                            : (DateTime?)null)
+                    .SetProperty(s => s.UpdatedAt, timestamp),
+                cancellationToken);
     }
 
     private void UpdateAuditableEntities()

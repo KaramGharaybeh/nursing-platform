@@ -174,14 +174,14 @@ Do not start work on a later phase until the current phase is complete.
 
 # Phase 7 — Examination Module
 
-- [ ] Countries
-- [ ] Categories
-- [ ] Question bank
-- [ ] Mock exams
-- [ ] Exam sessions
-- [ ] Timer
-- [ ] Auto scoring
-- [ ] Results
+- [x] Countries
+- [x] Categories
+- [x] Question bank
+- [x] Mock exams
+- [x] Exam sessions
+- [x] Timer
+- [x] Auto scoring
+- [x] Results
 - [ ] Analytics
 
 ---

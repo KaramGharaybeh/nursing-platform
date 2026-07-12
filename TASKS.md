@@ -182,6 +182,7 @@ Do not start work on a later phase until the current phase is complete.
 - [x] Timer
 - [x] Auto scoring
 - [x] Results
+- [x] Admin content management
 - [ ] Analytics
 
 ---

@@ -8,6 +8,11 @@ using NursingPlatform.Application.Employers.Queries.GetMyEmployerProfile;
 using NursingPlatform.Application.Exams.Commands.SaveExamSessionAnswers;
 using NursingPlatform.Application.Exams.Commands.StartExamSession;
 using NursingPlatform.Application.Exams.Commands.SubmitExamSession;
+using NursingPlatform.Application.Exams.Admin.AnswerOptions;
+using NursingPlatform.Application.Exams.Admin.Categories;
+using NursingPlatform.Application.Exams.Admin.Exams;
+using NursingPlatform.Application.Exams.Admin.Questions;
+using NursingPlatform.Application.Exams.Admin.Versions;
 using NursingPlatform.Application.Exams.Queries.GetExam;
 using NursingPlatform.Application.Exams.Queries.GetExamSession;
 using NursingPlatform.Application.Exams.Queries.GetExamSessionResult;
@@ -326,6 +331,282 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("GetExamSessionReview")
         .RequireAuthorization();
+
+        var admin = api.MapGroup("/admin");
+
+        admin.MapGet("/exam-categories", async (
+            int? page,
+            int? pageSize,
+            Guid? countryId,
+            bool? isActive,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListAdminExamCategoriesQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20,
+                CountryId = countryId,
+                IsActive = isActive
+            });
+            return Results.Ok(result);
+        })
+        .WithName("AdminListExamCategories")
+        .RequirePermission(Permissions.Exams.View);
+
+        admin.MapGet("/exam-categories/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetAdminExamCategoryQuery { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("AdminGetExamCategory")
+        .RequirePermission(Permissions.Exams.View);
+
+        admin.MapPost("/exam-categories", async (CreateAdminExamCategoryRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new CreateAdminExamCategoryCommand { Request = request });
+            return Results.Created($"/api/v1/admin/exam-categories/{result.Id}", result);
+        })
+        .WithName("AdminCreateExamCategory")
+        .RequirePermission(Permissions.Exams.Create);
+
+        admin.MapPut("/exam-categories/{id:guid}", async (Guid id, UpdateAdminExamCategoryRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new UpdateAdminExamCategoryCommand { Id = id, Request = request });
+            return Results.Ok(result);
+        })
+        .WithName("AdminUpdateExamCategory")
+        .RequirePermission(Permissions.Exams.Edit);
+
+        admin.MapPost("/exam-categories/{id:guid}/archive", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new ArchiveAdminExamCategoryCommand { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("AdminArchiveExamCategory")
+        .RequirePermission(Permissions.Exams.Edit);
+
+        admin.MapPost("/exam-categories/{id:guid}/restore", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new RestoreAdminExamCategoryCommand { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("AdminRestoreExamCategory")
+        .RequirePermission(Permissions.Exams.Edit);
+
+        admin.MapDelete("/exam-categories/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            await sender.Send(new DeleteAdminExamCategoryCommand { Id = id });
+            return Results.NoContent();
+        })
+        .WithName("AdminDeleteExamCategory")
+        .RequirePermission(Permissions.Exams.Delete);
+
+        admin.MapGet("/exams", async (
+            int? page,
+            int? pageSize,
+            Guid? countryId,
+            Guid? categoryId,
+            ExamStatus? status,
+            bool? isFree,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListAdminExamsQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20,
+                CountryId = countryId,
+                CategoryId = categoryId,
+                Status = status,
+                IsFree = isFree
+            });
+            return Results.Ok(result);
+        })
+        .WithName("AdminListExams")
+        .RequirePermission(Permissions.Exams.View);
+
+        admin.MapGet("/exams/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetAdminExamQuery { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("AdminGetExam")
+        .RequirePermission(Permissions.Exams.View);
+
+        admin.MapPost("/exams", async (CreateAdminExamRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new CreateAdminExamCommand { Request = request });
+            return Results.Created($"/api/v1/admin/exams/{result.Id}", result);
+        })
+        .WithName("AdminCreateExam")
+        .RequirePermission(Permissions.Exams.Create);
+
+        admin.MapPut("/exams/{id:guid}", async (Guid id, UpdateAdminExamRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new UpdateAdminExamCommand { Id = id, Request = request });
+            return Results.Ok(result);
+        })
+        .WithName("AdminUpdateExam")
+        .RequirePermission(Permissions.Exams.Edit);
+
+        admin.MapPost("/exams/{id:guid}/archive", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new ArchiveAdminExamCommand { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("AdminArchiveExam")
+        .RequirePermission(Permissions.Exams.Edit);
+
+        admin.MapDelete("/exams/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            await sender.Send(new DeleteAdminExamCommand { Id = id });
+            return Results.NoContent();
+        })
+        .WithName("AdminDeleteExam")
+        .RequirePermission(Permissions.Exams.Delete);
+
+        admin.MapGet("/exams/{examId:guid}/versions", async (Guid examId, ISender sender) =>
+        {
+            var result = await sender.Send(new ListAdminExamVersionsQuery { ExamId = examId });
+            return Results.Ok(result);
+        })
+        .WithName("AdminListExamVersions")
+        .RequirePermission(Permissions.Exams.View);
+
+        admin.MapGet("/exams/{examId:guid}/versions/{versionId:guid}", async (Guid examId, Guid versionId, ISender sender) =>
+        {
+            var result = await sender.Send(new GetAdminExamVersionQuery { ExamId = examId, VersionId = versionId });
+            return Results.Ok(result);
+        })
+        .WithName("AdminGetExamVersion")
+        .RequirePermission(Permissions.Exams.View);
+
+        admin.MapPost("/exams/{examId:guid}/versions", async (Guid examId, ISender sender) =>
+        {
+            var result = await sender.Send(new CreateAdminDraftExamVersionCommand { ExamId = examId });
+            return Results.Created($"/api/v1/admin/exams/{examId}/versions/{result.Id}", result);
+        })
+        .WithName("AdminCreateDraftExamVersion")
+        .RequirePermission(Permissions.Exams.Edit);
+
+        admin.MapPost("/exams/{examId:guid}/versions/{versionId:guid}/validate", async (Guid examId, Guid versionId, ISender sender) =>
+        {
+            var result = await sender.Send(new ValidateAdminDraftExamVersionCommand { ExamId = examId, VersionId = versionId });
+            return Results.Ok(result);
+        })
+        .WithName("AdminValidateDraftExamVersion")
+        .RequirePermission(Permissions.Questions.View);
+
+        admin.MapPost("/exams/{examId:guid}/versions/{versionId:guid}/publish", async (Guid examId, Guid versionId, ISender sender) =>
+        {
+            var result = await sender.Send(new PublishAdminDraftExamVersionCommand { ExamId = examId, VersionId = versionId });
+            return Results.Ok(result);
+        })
+        .WithName("AdminPublishDraftExamVersion")
+        .RequirePermission(Permissions.Questions.Manage);
+
+        admin.MapPost("/exams/{examId:guid}/versions/{versionId:guid}/retire", async (Guid examId, Guid versionId, ISender sender) =>
+        {
+            var result = await sender.Send(new RetireAdminExamVersionCommand { ExamId = examId, VersionId = versionId });
+            return Results.Ok(result);
+        })
+        .WithName("AdminRetireExamVersion")
+        .RequirePermission(Permissions.Exams.Edit);
+
+        admin.MapDelete("/exams/{examId:guid}/versions/{versionId:guid}", async (Guid examId, Guid versionId, ISender sender) =>
+        {
+            await sender.Send(new DeleteAdminDraftExamVersionCommand { ExamId = examId, VersionId = versionId });
+            return Results.NoContent();
+        })
+        .WithName("AdminDeleteDraftExamVersion")
+        .RequirePermission(Permissions.Exams.Delete);
+
+        admin.MapGet("/exams/{examId:guid}/versions/{versionId:guid}/questions", async (Guid examId, Guid versionId, ISender sender) =>
+        {
+            var result = await sender.Send(new ListAdminExamQuestionsQuery { ExamId = examId, VersionId = versionId });
+            return Results.Ok(result);
+        })
+        .WithName("AdminListExamQuestions")
+        .RequirePermission(Permissions.Questions.View);
+
+        admin.MapGet("/exams/{examId:guid}/versions/{versionId:guid}/questions/{questionId:guid}", async (Guid examId, Guid versionId, Guid questionId, ISender sender) =>
+        {
+            var result = await sender.Send(new GetAdminExamQuestionQuery { ExamId = examId, VersionId = versionId, QuestionId = questionId });
+            return Results.Ok(result);
+        })
+        .WithName("AdminGetExamQuestion")
+        .RequirePermission(Permissions.Questions.View);
+
+        admin.MapPost("/exams/{examId:guid}/versions/{versionId:guid}/questions", async (Guid examId, Guid versionId, UpsertAdminExamQuestionRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new CreateAdminExamQuestionCommand { ExamId = examId, VersionId = versionId, Request = request });
+            return Results.Created($"/api/v1/admin/exams/{examId}/versions/{versionId}/questions/{result.Id}", result);
+        })
+        .WithName("AdminCreateExamQuestion")
+        .RequirePermission(Permissions.Questions.Manage);
+
+        admin.MapPut("/exams/{examId:guid}/versions/{versionId:guid}/questions/{questionId:guid}", async (Guid examId, Guid versionId, Guid questionId, UpsertAdminExamQuestionRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new UpdateAdminExamQuestionCommand { ExamId = examId, VersionId = versionId, QuestionId = questionId, Request = request });
+            return Results.Ok(result);
+        })
+        .WithName("AdminUpdateExamQuestion")
+        .RequirePermission(Permissions.Questions.Manage);
+
+        admin.MapPost("/exams/{examId:guid}/versions/{versionId:guid}/questions/{questionId:guid}/deactivate", async (Guid examId, Guid versionId, Guid questionId, ISender sender) =>
+        {
+            var result = await sender.Send(new DeactivateAdminExamQuestionCommand { ExamId = examId, VersionId = versionId, QuestionId = questionId });
+            return Results.Ok(result);
+        })
+        .WithName("AdminDeactivateExamQuestion")
+        .RequirePermission(Permissions.Questions.Manage);
+
+        admin.MapDelete("/exams/{examId:guid}/versions/{versionId:guid}/questions/{questionId:guid}", async (Guid examId, Guid versionId, Guid questionId, ISender sender) =>
+        {
+            await sender.Send(new DeleteAdminExamQuestionCommand { ExamId = examId, VersionId = versionId, QuestionId = questionId });
+            return Results.NoContent();
+        })
+        .WithName("AdminDeleteExamQuestion")
+        .RequirePermission(Permissions.Questions.Manage);
+
+        admin.MapGet("/exams/{examId:guid}/versions/{versionId:guid}/questions/{questionId:guid}/options", async (Guid examId, Guid versionId, Guid questionId, ISender sender) =>
+        {
+            var result = await sender.Send(new ListAdminExamAnswerOptionsQuery { ExamId = examId, VersionId = versionId, QuestionId = questionId });
+            return Results.Ok(result);
+        })
+        .WithName("AdminListExamAnswerOptions")
+        .RequirePermission(Permissions.Questions.View);
+
+        admin.MapPost("/exams/{examId:guid}/versions/{versionId:guid}/questions/{questionId:guid}/options", async (Guid examId, Guid versionId, Guid questionId, UpsertAdminExamAnswerOptionRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new CreateAdminExamAnswerOptionCommand { ExamId = examId, VersionId = versionId, QuestionId = questionId, Request = request });
+            return Results.Created($"/api/v1/admin/exams/{examId}/versions/{versionId}/questions/{questionId}/options/{result.Id}", result);
+        })
+        .WithName("AdminCreateExamAnswerOption")
+        .RequirePermission(Permissions.Questions.Manage);
+
+        admin.MapPut("/exams/{examId:guid}/versions/{versionId:guid}/questions/{questionId:guid}/options/{optionId:guid}", async (Guid examId, Guid versionId, Guid questionId, Guid optionId, UpsertAdminExamAnswerOptionRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new UpdateAdminExamAnswerOptionCommand { ExamId = examId, VersionId = versionId, QuestionId = questionId, OptionId = optionId, Request = request });
+            return Results.Ok(result);
+        })
+        .WithName("AdminUpdateExamAnswerOption")
+        .RequirePermission(Permissions.Questions.Manage);
+
+        admin.MapPost("/exams/{examId:guid}/versions/{versionId:guid}/questions/{questionId:guid}/options/{optionId:guid}/deactivate", async (Guid examId, Guid versionId, Guid questionId, Guid optionId, ISender sender) =>
+        {
+            var result = await sender.Send(new DeactivateAdminExamAnswerOptionCommand { ExamId = examId, VersionId = versionId, QuestionId = questionId, OptionId = optionId });
+            return Results.Ok(result);
+        })
+        .WithName("AdminDeactivateExamAnswerOption")
+        .RequirePermission(Permissions.Questions.Manage);
+
+        admin.MapDelete("/exams/{examId:guid}/versions/{versionId:guid}/questions/{questionId:guid}/options/{optionId:guid}", async (Guid examId, Guid versionId, Guid questionId, Guid optionId, ISender sender) =>
+        {
+            await sender.Send(new DeleteAdminExamAnswerOptionCommand { ExamId = examId, VersionId = versionId, QuestionId = questionId, OptionId = optionId });
+            return Results.NoContent();
+        })
+        .WithName("AdminDeleteExamAnswerOption")
+        .RequirePermission(Permissions.Questions.Manage);
 
         api.MapPost("/recruitment/contact-requests", async (CreateContactRequestRequest request, ISender sender) =>
         {

@@ -189,8 +189,8 @@ Do not start work on a later phase until the current phase is complete.
 
 # Phase 8 — Payments
 
-- [ ] Products
-- [ ] Orders
+- [x] Products
+- [x] Orders
 - [ ] Checkout
 - [ ] Payment providers
 - [ ] Webhooks

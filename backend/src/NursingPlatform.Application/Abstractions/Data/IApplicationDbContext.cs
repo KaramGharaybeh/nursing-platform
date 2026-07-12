@@ -3,6 +3,7 @@ using NursingPlatform.Domain.Employers;
 using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
+using NursingPlatform.Domain.Payments;
 using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Domain.ReferenceData;
 
@@ -40,6 +41,9 @@ public interface IApplicationDbContext
     DbSet<ExamSessionQuestion> ExamSessionQuestions { get; }
     DbSet<ExamSessionAnswerOption> ExamSessionAnswerOptions { get; }
     DbSet<ExamSessionAnswer> ExamSessionAnswers { get; }
+    DbSet<PaymentProduct> PaymentProducts { get; }
+    DbSet<PaymentOrder> PaymentOrders { get; }
+    DbSet<PaymentOrderItem> PaymentOrderItems { get; }
     Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,

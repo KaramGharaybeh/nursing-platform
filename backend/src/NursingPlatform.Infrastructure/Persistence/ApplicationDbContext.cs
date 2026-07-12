@@ -5,6 +5,7 @@ using NursingPlatform.Domain.Employers;
 using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
+using NursingPlatform.Domain.Payments;
 using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Domain.ReferenceData;
 
@@ -47,6 +48,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<ExamSessionQuestion> ExamSessionQuestions => Set<ExamSessionQuestion>();
     public DbSet<ExamSessionAnswerOption> ExamSessionAnswerOptions => Set<ExamSessionAnswerOption>();
     public DbSet<ExamSessionAnswer> ExamSessionAnswers => Set<ExamSessionAnswer>();
+    public DbSet<PaymentProduct> PaymentProducts => Set<PaymentProduct>();
+    public DbSet<PaymentOrder> PaymentOrders => Set<PaymentOrder>();
+    public DbSet<PaymentOrderItem> PaymentOrderItems => Set<PaymentOrderItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

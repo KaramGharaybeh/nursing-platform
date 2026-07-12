@@ -55,6 +55,13 @@ using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseEducation;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseExperiences;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseLanguages;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseSkills;
+using NursingPlatform.Application.Payments.Admin.Products;
+using NursingPlatform.Application.Payments.Commands.CancelMyPaymentOrder;
+using NursingPlatform.Application.Payments.Commands.CreateMyPaymentOrder;
+using NursingPlatform.Application.Payments.Queries.GetMyPaymentOrder;
+using NursingPlatform.Application.Payments.Queries.GetPaymentProduct;
+using NursingPlatform.Application.Payments.Queries.ListMyPaymentOrders;
+using NursingPlatform.Application.Payments.Queries.ListPaymentProducts;
 using NursingPlatform.Application.Recruitment.Commands.ApproveReceivedContactRequest;
 using NursingPlatform.Application.Recruitment.Commands.CancelContactRequest;
 using NursingPlatform.Application.Recruitment.Commands.CreateContactRequest;
@@ -64,6 +71,7 @@ using NursingPlatform.Application.Recruitment.Queries.ListCandidates;
 using NursingPlatform.Application.Recruitment.Queries.ListMyContactRequests;
 using NursingPlatform.Application.Recruitment.Queries.ListReceivedContactRequests;
 using NursingPlatform.Domain.Exams;
+using NursingPlatform.Domain.Payments;
 using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Infrastructure.Persistence;
 using NursingPlatform.WebApi.Middleware;
@@ -282,6 +290,31 @@ public static class ApplicationBuilderExtensions
         .WithName("GetExam")
         .RequireAuthorization();
 
+        api.MapGet("/payment/products", async (
+            int? page,
+            int? pageSize,
+            Guid? examId,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListPaymentProductsQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20,
+                ExamId = examId
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ListPaymentProducts")
+        .RequireAuthorization();
+
+        api.MapGet("/payment/products/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetPaymentProductQuery { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("GetPaymentProduct")
+        .RequireAuthorization();
+
         api.MapPost("/exams/{id:guid}/sessions", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new StartExamSessionCommand { ExamId = id });
@@ -468,6 +501,65 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("AdminDeleteExam")
         .RequirePermission(Permissions.Exams.Delete);
+
+        admin.MapGet("/payment/products", async (
+            int? page,
+            int? pageSize,
+            Guid? examId,
+            bool? isActive,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListAdminPaymentProductsQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20,
+                ExamId = examId,
+                IsActive = isActive
+            });
+            return Results.Ok(result);
+        })
+        .WithName("AdminListPaymentProducts")
+        .RequirePermission(Permissions.Exams.View);
+
+        admin.MapGet("/payment/products/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetAdminPaymentProductQuery { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("AdminGetPaymentProduct")
+        .RequirePermission(Permissions.Exams.View);
+
+        admin.MapPost("/payment/products", async (CreateAdminPaymentProductRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new CreateAdminPaymentProductCommand { Request = request });
+            return Results.Created($"/api/v1/admin/payment/products/{result.Id}", result);
+        })
+        .WithName("AdminCreatePaymentProduct")
+        .RequirePermission(Permissions.Exams.Edit);
+
+        admin.MapPut("/payment/products/{id:guid}", async (Guid id, UpdateAdminPaymentProductRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new UpdateAdminPaymentProductCommand { Id = id, Request = request });
+            return Results.Ok(result);
+        })
+        .WithName("AdminUpdatePaymentProduct")
+        .RequirePermission(Permissions.Exams.Edit);
+
+        admin.MapPost("/payment/products/{id:guid}/archive", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new ArchiveAdminPaymentProductCommand { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("AdminArchivePaymentProduct")
+        .RequirePermission(Permissions.Exams.Edit);
+
+        admin.MapPost("/payment/products/{id:guid}/restore", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new RestoreAdminPaymentProductCommand { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("AdminRestorePaymentProduct")
+        .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapGet("/exams/{examId:guid}/versions", async (Guid examId, ISender sender) =>
         {
@@ -999,6 +1091,43 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListMyExamAttempts");
+
+        nurseProfile.MapPost("/payment/orders", async (CreatePaymentOrderRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new CreateMyPaymentOrderCommand { Request = request });
+            return Results.Created($"/api/v1/me/nurse-profile/payment/orders/{result.Id}", result);
+        })
+        .WithName("CreateMyPaymentOrder");
+
+        nurseProfile.MapGet("/payment/orders", async (
+            int? page,
+            int? pageSize,
+            PaymentOrderStatus? status,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ListMyPaymentOrdersQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20,
+                Status = status
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ListMyPaymentOrders");
+
+        nurseProfile.MapGet("/payment/orders/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetMyPaymentOrderQuery { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("GetMyPaymentOrder");
+
+        nurseProfile.MapPost("/payment/orders/{id:guid}/cancel", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new CancelMyPaymentOrderCommand { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("CancelMyPaymentOrder");
 
         nurseProfile.MapGet("/cv", async (ISender sender) =>
         {

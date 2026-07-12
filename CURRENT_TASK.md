@@ -2,7 +2,7 @@
 
 ## Current Milestone
 
-Phase 7C — Exam Analytics
+Phase 8A — Payment Products & Orders Foundation
 
 Status:
 Implementation complete — batch execution final verification passed.
@@ -11,20 +11,20 @@ Implementation complete — batch execution final verification passed.
 
 ## Objective
 
-Complete backend-only authenticated nurse-owned exam analytics using existing Phase 7A/7B exam session and catalog data.
+Complete backend-only payment products and local nurse-owned pending-payment orders for purchasable exam access.
 
 ---
 
 ## Completion Summary
 
-- [x] Nurse-owned analytics summary endpoint
-- [x] Nurse-owned analytics by-exam endpoint
-- [x] Nurse-owned analytics by-category endpoint
-- [x] Nurse-owned analytics trends endpoint
-- [x] Application DTO, validator, handler, and metric tests
-- [x] WebApi auth, query binding, and raw JSON security tests
-- [x] In-progress, abandoned, submitted, and expired status metric rules
-- [x] Deterministic day/week/month trend bucket rules
+- [x] Payment product domain entities and lifecycle rules
+- [x] Payment order and order item snapshot domain entities
+- [x] Authenticated product catalog endpoints
+- [x] Nurse-owned order create/list/detail/cancel endpoints
+- [x] Admin product create/update/archive/restore endpoints
+- [x] EF configuration and AddPaymentProductsOrdersFoundation migration
+- [x] Domain, Application, Infrastructure, and WebApi payment tests
+- [x] Raw JSON DTO security tests
 - [x] Tracking documentation update
 
 ---
@@ -32,7 +32,7 @@ Complete backend-only authenticated nurse-owned exam analytics using existing Ph
 ## Final Verification
 
 - `dotnet build backend/NursingPlatform.slnx`: passed, 0 warnings, 0 errors
-- `dotnet test backend/NursingPlatform.slnx`: passed, 659 tests
+- `dotnet test backend/NursingPlatform.slnx`: passed, 723 tests
 - `dotnet ef migrations has-pending-model-changes --project backend/src/NursingPlatform.Infrastructure --startup-project backend/src/NursingPlatform.WebApi --context ApplicationDbContext`: no pending model changes
 - EF design-time note: `HostAbortedException` is known non-blocking EF design-time host-resolution noise when EF still reports no pending model changes.
 
@@ -40,7 +40,7 @@ Complete backend-only authenticated nurse-owned exam analytics using existing Ph
 
 ## Current Review State
 
-Phase 7C implementation and final verification are complete.
+Phase 8A implementation and final verification are complete.
 
 ---
 
@@ -48,10 +48,11 @@ Phase 7C implementation and final verification are complete.
 
 Do NOT implement:
 
-- Phase 8 payments
+- Phase 8B checkout
+- Phase 8C payment providers/webhooks
 - Phase 9 dashboards/reports
 - Frontend/admin UI
-- Real checkout, orders, payment providers, subscriptions, refunds, or webhooks
+- Real checkout, payment providers, subscriptions, refunds, or webhooks
 - Exam access grant management
 - Question import pipeline, bulk upload, Excel/CSV import, AI generation, or translations
 - Admin analytics or platform-wide reports
@@ -67,19 +68,22 @@ Do NOT implement:
 
 This milestone is complete when:
 
-- Analytics endpoints require authorization
-- Analytics endpoints do not require permissions or allow anonymous access
-- Application handlers enforce Nurse role and current nurse profile ownership
-- Nurses can view only their own analytics
-- Summary includes `InProgressCount`
-- `AttemptCount = SubmittedCount + ExpiredCount + AbandonedCount + InProgressCount`
-- `CountedAttemptCount = SubmittedCount + ExpiredCount`
-- `InProgress` and `Abandoned` do not count in score/pass metrics
-- Trend buckets are deterministic with UTC day, Monday-start week, first-day month, and exclusive `BucketEnd`
-- Analytics do not expose answer keys, selected answers, explanations, account internals, payment state, or EF/domain navigation objects
-- Session snapshots are not mutated
+- Product catalog endpoints require authorization only
+- Product catalog endpoints do not require permissions or NurseRoleGuard
+- Nurse order Application handlers enforce Nurse role and current nurse profile ownership
+- Admin product reads use existing `Exams.View`
+- Admin product writes/archive/restore use existing `Exams.Edit`
+- Products and orders store money as ISO currency plus integer minor-unit amount
+- Product Type and ExamId are immutable after creation
+- Admin product update cannot change Type, ExamId, or IsActive
+- Order creation creates one item with `Quantity = 1`
+- Order item snapshots are not mutated by later product changes
+- New orders start `PendingPayment` and expire at `CreatedAt + 30 minutes`
+- Lazy expiry applies for owned pending orders in list/detail/cancel
+- No checkout/provider/webhook behavior is implemented
+- No automatic `ExamAccessGrant` is issued
 - Solution builds with zero warnings and zero errors
-- All 659 tests pass
+- All 723 tests pass
 - EF pending model check reports no pending model changes
 - Implementation is committed only after final verification
 
@@ -94,5 +98,5 @@ Before implementing anything, read:
 - docs/standards/engineering-standards.md
 - docs/database/database-design.md
 - docs/api/api-design.md
-- docs/superpowers/specs/2026-07-12-exam-analytics.md
-- docs/superpowers/plans/2026-07-12-exam-analytics.md
+- docs/superpowers/specs/2026-07-12-payment-products-orders-foundation.md
+- docs/superpowers/plans/2026-07-12-payment-products-orders-foundation.md

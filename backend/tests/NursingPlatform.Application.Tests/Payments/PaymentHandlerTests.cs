@@ -5,6 +5,7 @@ using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Application.Payments.Abstractions;
 using NursingPlatform.Application.Payments.Admin.Products;
 using NursingPlatform.Application.Payments.Commands.CancelMyPaymentOrder;
+using NursingPlatform.Application.Payments.Commands.CompleteSandboxPaymentCheckout;
 using NursingPlatform.Application.Payments.Commands.CreateMyPaymentOrder;
 using NursingPlatform.Application.Payments.Commands.StartMyPaymentCheckout;
 using NursingPlatform.Application.Payments.Queries.ListMyPaymentOrders;
@@ -876,6 +877,464 @@ public class PaymentHandlerTests
         Assert.DoesNotContain(constructor.GetParameters(), p => p.ParameterType == typeof(IPaymentCheckoutProvider));
     }
 
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_TransitionsPendingOrderToPaidAndCreatesExamGrant()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        var examId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(examId: examId), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        var before = DateTime.UtcNow;
+        var result = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+        var after = DateTime.UtcNow;
+
+        Assert.Equal(order.Id, result.PaymentOrderId);
+        Assert.Equal("Paid", result.OrderStatus);
+        Assert.NotNull(result.PaidAt);
+        Assert.InRange(result.PaidAt!.Value, before.AddSeconds(-1), after.AddSeconds(1));
+        Assert.Equal(PaymentOrderStatus.Paid, order.Status);
+        Assert.Equal(result.PaidAt, order.PaidAt);
+        var grant = Assert.Single(context.ExamAccessGrants);
+        Assert.Equal(nurseProfileId, grant.NurseProfileId);
+        Assert.Equal(examId, grant.ExamId);
+        Assert.Null(grant.ExpiresAt);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_RepeatedCompletionDoesNotDuplicateGrantOrChangePaidAt()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        var examId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(examId: examId), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        var first = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+        var second = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+
+        Assert.Equal(first.PaidAt, second.PaidAt);
+        Assert.Equal(first.PaymentOrderId, second.PaymentOrderId);
+        Assert.Single(context.ExamAccessGrants);
+        Assert.Equal(PaymentOrderStatus.Paid, order.Status);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_AlreadyPaidOrderWithSubsequentlyExpiredSession_ReturnsIdempotentSuccess()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        var examId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(examId: examId), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        var first = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+        typeof(PaymentCheckoutSession).GetProperty(nameof(PaymentCheckoutSession.ExpiresAt))!.SetValue(session, DateTime.UtcNow.AddMinutes(-1));
+        await context.SaveChangesAsync();
+        var second = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+
+        Assert.Equal("Paid", second.OrderStatus);
+        Assert.Equal(first.PaidAt, second.PaidAt);
+        Assert.Equal(first.GrantedExamIds, second.GrantedExamIds);
+        Assert.Single(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_GrantsOnlyExamAccessItemsForPurchasedExamSnapshots()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        var purchasedExamId = Guid.NewGuid();
+        var unrelatedExamId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(examId: purchasedExamId), DateTime.UtcNow);
+        order.Items.Add(CreateItem(examId: unrelatedExamId, productType: (PaymentProductType)999));
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.AddRange(order.Items);
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+
+        var grant = Assert.Single(context.ExamAccessGrants);
+        Assert.Equal(purchasedExamId, grant.ExamId);
+        Assert.DoesNotContain(context.ExamAccessGrants, g => g.ExamId == unrelatedExamId);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_DuplicateExamAccessOrderItemsForSameExam_CreateOneGrant()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        var examId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(examId: examId), DateTime.UtcNow);
+        order.Items.Add(CreateItem(examId: examId));
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.AddRange(order.Items);
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+
+        var grant = Assert.Single(context.ExamAccessGrants);
+        Assert.Equal(examId, grant.ExamId);
+        Assert.Equal([examId], result.GrantedExamIds);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_GuidEmptyExamSnapshot_CreatesNoGrant()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(examId: Guid.Empty), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+
+        Assert.Empty(context.ExamAccessGrants);
+        Assert.Empty(result.GrantedExamIds);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_NonExamProduct_CreatesNoGrant()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(productType: (PaymentProductType)999), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+
+        Assert.Empty(context.ExamAccessGrants);
+        Assert.Empty(result.GrantedExamIds);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WhenSessionNotOwned_ThrowsKeyNotFoundException()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(Guid.NewGuid(), CreateItem(), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, order.NurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default));
+    }
+
+    [Theory]
+    [InlineData(PaymentCheckoutSessionStatus.Created)]
+    [InlineData(PaymentCheckoutSessionStatus.CreationRejected)]
+    [InlineData(PaymentCheckoutSessionStatus.Expired)]
+    public async Task Handle_CompleteSandboxCheckout_WithInvalidSessionState_ThrowsConflict(PaymentCheckoutSessionStatus status)
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        if (status == PaymentCheckoutSessionStatus.CreationRejected)
+        {
+            session.MarkCreationRejected();
+        }
+        else if (status == PaymentCheckoutSessionStatus.Expired)
+        {
+            Assert.True(session.ExpireIfPastDue(DateTime.UtcNow.AddHours(1)));
+        }
+
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default));
+        Assert.Equal(PaymentOrderStatus.PendingPayment, order.Status);
+        Assert.Empty(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WithNonSandboxProvider_ThrowsConflict()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "RealProvider");
+        session.MarkProviderPending("provider_session", null, "https://checkout.test/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default));
+        Assert.Equal(PaymentOrderStatus.PendingPayment, order.Status);
+        Assert.Empty(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WithCancelledOrder_ThrowsConflictAndCreatesNoGrant()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(), DateTime.UtcNow);
+        order.Cancel(DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default));
+        Assert.Equal(PaymentOrderStatus.Cancelled, order.Status);
+        Assert.Empty(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WithExpiredProviderPendingSession_ThrowsConflictAndLeavesOrderUnpaid()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow.AddHours(-2), providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddHours(-1));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default));
+
+        Assert.Equal(PaymentOrderStatus.PendingPayment, order.Status);
+        Assert.Equal(PaymentCheckoutSessionStatus.Expired, session.Status);
+        Assert.Empty(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WhenGrantPersistenceFails_LeavesOrderUnpaidAndCreatesNoPartialGrant()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        context.SimulateGrantPersistenceFailure = true;
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default));
+
+        Assert.Equal(PaymentOrderStatus.PendingPayment, order.Status);
+        Assert.Null(order.PaidAt);
+        Assert.Empty(context.ExamAccessGrants.Local);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WhenPaidTransitionFails_CreatesNoGrant()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        context.SimulatePaidTransitionFailure = true;
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default));
+
+        Assert.Equal(PaymentOrderStatus.PendingPayment, order.Status);
+        Assert.Empty(context.ExamAccessGrants.Local);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WhenPaidTransitionLosesRace_ReloadsAndReturnsSuccess()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        var examId = Guid.NewGuid();
+        var paidAt = DateTime.UtcNow.AddSeconds(-5);
+        await using var context = CreateContext();
+        context.SimulatePaidTransitionFailure = true;
+        context.AfterZeroPaidTransition = () =>
+        {
+            var order = context.PaymentOrders.Single();
+            order.MarkPaid(paidAt);
+            context.ExamAccessGrants.Add(new ExamAccessGrant
+            {
+                Id = Guid.NewGuid(),
+                NurseProfileId = nurseProfileId,
+                ExamId = examId,
+                GrantedAt = paidAt,
+                ExpiresAt = null,
+                Reason = "SandboxPaymentCompletion"
+            });
+            context.SaveChanges();
+        };
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(examId: examId), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+
+        Assert.Equal("Paid", result.OrderStatus);
+        Assert.Equal(paidAt, result.PaidAt);
+        Assert.Equal([examId], result.GrantedExamIds);
+        Assert.Single(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WhenGrantUniqueRaceLeavesOrderPending_RetriesOnceAndReusesGrant()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        var examId = Guid.NewGuid();
+        await using var context = CreateContext();
+        context.SimulateGrantUniqueViolationOnce = true;
+        context.BeforeGrantUniqueViolation = () =>
+        {
+            context.ExamAccessGrants.Add(new ExamAccessGrant
+            {
+                Id = Guid.NewGuid(),
+                NurseProfileId = nurseProfileId,
+                ExamId = examId,
+                GrantedAt = DateTime.UtcNow.AddSeconds(-3),
+                ExpiresAt = null,
+                Reason = "SandboxPaymentCompletion"
+            });
+            context.SaveChanges();
+        };
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(examId: examId), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+
+        Assert.Equal("Paid", result.OrderStatus);
+        Assert.Equal([examId], result.GrantedExamIds);
+        Assert.Single(context.ExamAccessGrants);
+        Assert.Equal(2, context.PaidTransitionAttemptCount);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WhenUnrelatedPersistenceFailureOccurs_DoesNotReturnSuccess()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        context.SimulateGrantPersistenceFailure = true;
+        SeedNurse(context, userId, nurseProfileId);
+        var order = PaymentOrder.CreatePending(nurseProfileId, CreateItem(), DateTime.UtcNow);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentOrders.Add(order);
+        context.PaymentOrderItems.Add(order.Items.Single());
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default));
+
+        Assert.Equal(PaymentOrderStatus.PendingPayment, order.Status);
+        Assert.Empty(context.ExamAccessGrants.Local);
+    }
+
     private static TestPaymentDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<TestPaymentDbContext>()
@@ -899,15 +1358,19 @@ public class PaymentHandlerTests
         };
     }
 
-    private static PaymentOrderItem CreateItem(string currency = "USD", long amountMinor = 1000)
+    private static PaymentOrderItem CreateItem(
+        string currency = "USD",
+        long amountMinor = 1000,
+        Guid? examId = null,
+        PaymentProductType productType = PaymentProductType.ExamAccess)
     {
         return new PaymentOrderItem
         {
             Id = Guid.NewGuid(),
             ProductId = Guid.NewGuid(),
             ProductNameSnapshot = "Exam Access",
-            ProductTypeSnapshot = PaymentProductType.ExamAccess,
-            ExamIdSnapshot = Guid.NewGuid(),
+            ProductTypeSnapshot = productType,
+            ExamIdSnapshot = examId ?? Guid.NewGuid(),
             Currency = currency,
             UnitAmountMinor = amountMinor,
             Quantity = 1,
@@ -920,12 +1383,13 @@ public class PaymentHandlerTests
         Guid nurseProfileId,
         DateTime createdAt,
         string? idempotencyKeyHash = null,
-        string? requestFingerprintHash = null)
+        string? requestFingerprintHash = null,
+        string providerName = "TestProvider")
     {
         return PaymentCheckoutSession.Create(
             order.Id,
             nurseProfileId,
-            "TestProvider",
+            providerName,
             $"checkout_{Guid.NewGuid():N}",
             order.Currency,
             order.TotalAmountMinor,
@@ -1005,9 +1469,29 @@ public class PaymentHandlerTests
         public DbSet<PaymentCheckoutSession> PaymentCheckoutSessions => Set<PaymentCheckoutSession>();
         public bool SimulateCheckoutInsertUniqueRace { get; set; }
         public Func<PaymentCheckoutSession, PaymentCheckoutSession>? WinningCheckoutSessionFactory { get; set; }
+        public bool SimulateGrantPersistenceFailure { get; set; }
+        public bool SimulateGrantUniqueViolationOnce { get; set; }
+        public Action? BeforeGrantUniqueViolation { get; set; }
+        public bool SimulatePaidTransitionFailure { get; set; }
+        public Action? AfterZeroPaidTransition { get; set; }
+        public int PaidTransitionAttemptCount { get; private set; }
+        private (Guid OrderId, Guid NurseProfileId, DateTime PaidAt)? _pendingPaidTransition;
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            if (SimulateGrantPersistenceFailure && ChangeTracker.Entries<ExamAccessGrant>().Any(e => e.State == EntityState.Added))
+            {
+                throw new DbUpdateException("Simulated grant persistence failure.", new InvalidOperationException("Grant insert failed."));
+            }
+
+            if (SimulateGrantUniqueViolationOnce && ChangeTracker.Entries<ExamAccessGrant>().Any(e => e.State == EntityState.Added))
+            {
+                SimulateGrantUniqueViolationOnce = false;
+                DetachAddedGrantEntries();
+                BeforeGrantUniqueViolation?.Invoke();
+                throw new DbUpdateException("Simulated unique effective grant violation.", new InvalidOperationException("Unique constraint violation."));
+            }
+
             if (SimulateCheckoutInsertUniqueRace)
             {
                 var attemptedEntry = ChangeTracker.Entries<PaymentCheckoutSession>()
@@ -1024,6 +1508,15 @@ public class PaymentHandlerTests
                     await base.SaveChangesAsync(cancellationToken);
                     throw new DbUpdateException("Simulated unique checkout insert race.", new InvalidOperationException("Unique constraint violation."));
                 }
+            }
+
+            if (_pendingPaidTransition is { } pendingPaidTransition)
+            {
+                var order = PaymentOrders.Single(o => o.Id == pendingPaidTransition.OrderId
+                    && o.NurseProfileId == pendingPaidTransition.NurseProfileId
+                    && o.Status == PaymentOrderStatus.PendingPayment);
+                order.MarkPaid(pendingPaidTransition.PaidAt);
+                _pendingPaidTransition = null;
             }
 
             return await base.SaveChangesAsync(cancellationToken);
@@ -1043,6 +1536,45 @@ public class PaymentHandlerTests
         {
             var session = PaymentCheckoutSessions.SingleOrDefault(s => s.Id == checkoutSessionId);
             return Task.FromResult(session is not null && session.TryAcquireProviderCallLease(leaseId, leaseExpiresAt, timestamp) ? 1 : 0);
+        }
+
+        public Task<int> ExecutePaymentOrderPaidTransitionAsync(
+            Guid orderId,
+            Guid nurseProfileId,
+            DateTime paidAt,
+            CancellationToken cancellationToken = default)
+        {
+            PaidTransitionAttemptCount++;
+            if (SimulatePaidTransitionFailure)
+            {
+                DetachAddedGrantEntries();
+                AfterZeroPaidTransition?.Invoke();
+                return Task.FromResult(0);
+            }
+
+            var order = PaymentOrders.SingleOrDefault(o => o.Id == orderId
+                && o.NurseProfileId == nurseProfileId
+                && o.Status == PaymentOrderStatus.PendingPayment);
+            if (order is null)
+            {
+                return Task.FromResult(0);
+            }
+
+            _pendingPaidTransition = (orderId, nurseProfileId, paidAt);
+            return Task.FromResult(1);
+        }
+
+        public bool IsUniqueEffectiveExamAccessGrantViolation(DbUpdateException exception)
+        {
+            return exception.Message.Contains("unique effective grant", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void DetachAddedGrantEntries()
+        {
+            foreach (var entry in ChangeTracker.Entries<ExamAccessGrant>().Where(e => e.State == EntityState.Added).ToList())
+            {
+                entry.State = EntityState.Detached;
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -105,6 +105,17 @@ public class ExamConfigurationTests
     }
 
     [Fact]
+    public void ExamConfiguration_ConfiguresUniqueEffectiveExamAccessGrantPerNurseAndExam()
+    {
+        var index = CreateDbContext().Model.FindEntityType(typeof(ExamAccessGrant))!.GetIndexes()
+            .Single(i => i.Properties.Select(p => p.Name).SequenceEqual(
+                [nameof(ExamAccessGrant.NurseProfileId), nameof(ExamAccessGrant.ExamId)]));
+
+        Assert.True(index.IsUnique);
+        Assert.Equal("\"ExpiresAt\" IS NULL", index.GetFilter());
+    }
+
+    [Fact]
     public void ExamConfiguration_ConfiguresRestrictDeleteForHistoricalIntegrity()
     {
         var entityTypes = new[]

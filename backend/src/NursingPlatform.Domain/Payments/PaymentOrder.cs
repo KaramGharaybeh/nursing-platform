@@ -51,6 +51,17 @@ public class PaymentOrder : AuditableEntity
         CancelledAt = timestamp;
     }
 
+    public void MarkPaid(DateTime timestamp)
+    {
+        if (Status != PaymentOrderStatus.PendingPayment)
+        {
+            throw new InvalidOperationException("Only pending payment orders can be marked paid.");
+        }
+
+        Status = PaymentOrderStatus.Paid;
+        PaidAt = timestamp;
+    }
+
     public bool ExpireIfPastDue(DateTime timestamp)
     {
         if (Status != PaymentOrderStatus.PendingPayment || ExpiresAt is null || ExpiresAt > timestamp)

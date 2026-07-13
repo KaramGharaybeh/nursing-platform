@@ -101,6 +101,9 @@ public class ExamAccessGrantConfiguration : IEntityTypeConfiguration<ExamAccessG
     {
         builder.ToTable("ExamAccessGrants");
         builder.HasKey(g => g.Id);
+        builder.HasIndex(g => new { g.NurseProfileId, g.ExamId })
+            .IsUnique()
+            .HasFilter("\"ExpiresAt\" IS NULL");
         builder.HasIndex(g => new { g.NurseProfileId, g.ExamId, g.ExpiresAt });
         builder.Property(g => g.Reason).HasMaxLength(500);
         builder.HasOne(g => g.NurseProfile)

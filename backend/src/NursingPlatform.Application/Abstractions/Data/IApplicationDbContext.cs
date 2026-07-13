@@ -52,6 +52,12 @@ public interface IApplicationDbContext
         DateTime leaseExpiresAt,
         DateTime timestamp,
         CancellationToken cancellationToken = default);
+    Task<int> ExecutePaymentOrderPaidTransitionAsync(
+        Guid orderId,
+        Guid nurseProfileId,
+        DateTime paidAt,
+        CancellationToken cancellationToken = default);
+    bool IsUniqueEffectiveExamAccessGrantViolation(DbUpdateException exception);
     Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,

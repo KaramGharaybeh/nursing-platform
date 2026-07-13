@@ -75,6 +75,44 @@ public class PaymentEntityTests
     }
 
     [Fact]
+    public void PaymentOrder_MarkPaid_PendingOrderSetsPaidStatusAndServerTimestamp()
+    {
+        var timestamp = new DateTime(2026, 7, 13, 12, 0, 0, DateTimeKind.Utc);
+        var order = PaymentOrder.CreatePending(Guid.NewGuid(), CreateItem(1000), timestamp.AddMinutes(-1));
+
+        order.MarkPaid(timestamp);
+
+        Assert.Equal(PaymentOrderStatus.Paid, order.Status);
+        Assert.Equal(timestamp, order.PaidAt);
+        Assert.Null(order.CancelledAt);
+    }
+
+    [Fact]
+    public void PaymentOrder_MarkPaid_NonPendingOrderThrowsWithoutChangingStatus()
+    {
+        var order = PaymentOrder.CreatePending(Guid.NewGuid(), CreateItem(1000), DateTime.UtcNow);
+        order.Cancel(DateTime.UtcNow);
+
+        Assert.Throws<InvalidOperationException>(() => order.MarkPaid(DateTime.UtcNow));
+
+        Assert.Equal(PaymentOrderStatus.Cancelled, order.Status);
+        Assert.Null(order.PaidAt);
+    }
+
+    [Fact]
+    public void PaymentOrder_CancelPaidOrder_ThrowsWithoutReturningToCancelledOrPending()
+    {
+        var order = PaymentOrder.CreatePending(Guid.NewGuid(), CreateItem(1000), DateTime.UtcNow);
+        order.MarkPaid(DateTime.UtcNow);
+
+        Assert.Throws<InvalidOperationException>(() => order.Cancel(DateTime.UtcNow.AddMinutes(1)));
+
+        Assert.Equal(PaymentOrderStatus.Paid, order.Status);
+        Assert.NotNull(order.PaidAt);
+        Assert.Null(order.CancelledAt);
+    }
+
+    [Fact]
     public void PaymentOrder_ExpirePastDuePending_SetsExpiredStatus()
     {
         var createdAt = new DateTime(2026, 7, 12, 10, 0, 0, DateTimeKind.Utc);

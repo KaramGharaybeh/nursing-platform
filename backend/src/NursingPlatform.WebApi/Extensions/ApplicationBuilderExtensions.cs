@@ -57,6 +57,7 @@ using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseLanguages;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseSkills;
 using NursingPlatform.Application.Payments.Admin.Products;
 using NursingPlatform.Application.Payments.Commands.CancelMyPaymentOrder;
+using NursingPlatform.Application.Payments.Commands.CompleteSandboxPaymentCheckout;
 using NursingPlatform.Application.Payments.Commands.CreateMyPaymentOrder;
 using NursingPlatform.Application.Payments.Commands.StartMyPaymentCheckout;
 using NursingPlatform.Application.Payments.Queries.GetMyPaymentOrder;
@@ -1146,6 +1147,25 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("StartMyPaymentCheckout");
+
+        if (app.Environment.IsDevelopment() || string.Equals(app.Environment.EnvironmentName, "Test", StringComparison.OrdinalIgnoreCase))
+        {
+            api.MapPost("/dev/sandbox/payment/checkout-sessions/{checkoutSessionId:guid}/complete", async (
+                Guid checkoutSessionId,
+                ISender sender,
+                HttpContext httpContext) =>
+            {
+                var result = await sender.Send(new CompleteSandboxPaymentCheckoutCommand
+                {
+                    CheckoutSessionId = checkoutSessionId
+                });
+
+                httpContext.Response.Headers.CacheControl = "no-store";
+                return Results.Ok(result);
+            })
+            .WithName("CompleteSandboxPaymentCheckout")
+            .RequireAuthorization();
+        }
 
         nurseProfile.MapGet("/cv", async (ISender sender) =>
         {

@@ -4,12 +4,14 @@ using System.Text;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
+using Microsoft.AspNetCore.Hosting;
 using Moq;
 using NursingPlatform.Application.Authorization;
 using NursingPlatform.Application.Common.Models;
 using NursingPlatform.Application.Payments.Admin.Products;
 using NursingPlatform.Application.Payments.Abstractions;
 using NursingPlatform.Application.Payments.Commands.CancelMyPaymentOrder;
+using NursingPlatform.Application.Payments.Commands.CompleteSandboxPaymentCheckout;
 using NursingPlatform.Application.Payments.Commands.CreateMyPaymentOrder;
 using NursingPlatform.Application.Payments.Commands.StartMyPaymentCheckout;
 using NursingPlatform.Application.Payments.DTOs;
@@ -33,6 +35,7 @@ public class PaymentEndpointsTests
         ("GET", "/api/v1/me/nurse-profile/payment/orders/11111111-1111-1111-1111-111111111111"),
         ("POST", "/api/v1/me/nurse-profile/payment/orders/11111111-1111-1111-1111-111111111111/cancel"),
         ("POST", "/api/v1/me/nurse-profile/payment/orders/11111111-1111-1111-1111-111111111111/checkout"),
+        ("POST", "/api/v1/dev/sandbox/payment/checkout-sessions/11111111-1111-1111-1111-111111111111/complete"),
         ("GET", "/api/v1/admin/payment/products"),
         ("GET", "/api/v1/admin/payment/products/11111111-1111-1111-1111-111111111111"),
         ("POST", "/api/v1/admin/payment/products"),
@@ -79,11 +82,13 @@ public class PaymentEndpointsTests
     ];
 
     private readonly HttpClient _client;
+    private readonly WebApiTestFactory _factory;
     private readonly Mock<ISender> _senderMock;
     private readonly Mock<IPermissionService> _permissionServiceMock;
 
     public PaymentEndpointsTests(WebApiTestFactory factory)
     {
+        _factory = factory;
         _senderMock = factory.SenderMock;
         _permissionServiceMock = factory.PermissionServiceMock;
         _senderMock.Reset();
@@ -331,6 +336,82 @@ public class PaymentEndpointsTests
     }
 
     [Fact]
+    public async Task CompleteSandboxCheckout_WithValidRequest_SendsCommandAndReturnsOkWithNoStore()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var checkoutSessionId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<CompleteSandboxPaymentCheckoutCommand>(c => c.CheckoutSessionId == checkoutSessionId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateCompletionDto());
+
+        var response = await _client.PostAsync($"/api/v1/dev/sandbox/payment/checkout-sessions/{checkoutSessionId}/complete", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("no-store", response.Headers.CacheControl?.ToString());
+    }
+
+    [Fact]
+    public async Task CompleteSandboxCheckout_WhenMissingOrNonOwnedSession_ReturnsNotFound()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<CompleteSandboxPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new KeyNotFoundException("Payment checkout session was not found."));
+
+        var response = await _client.PostAsync($"/api/v1/dev/sandbox/payment/checkout-sessions/{Guid.NewGuid()}/complete", null);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CompleteSandboxCheckout_WhenInvalidState_ReturnsConflict()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<CompleteSandboxPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Only provider-pending Sandbox checkout sessions can be completed."));
+
+        var response = await _client.PostAsync($"/api/v1/dev/sandbox/payment/checkout-sessions/{Guid.NewGuid()}/complete", null);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CompleteSandboxCheckout_ResponseExcludesSensitiveFields()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<CompleteSandboxPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateCompletionDto());
+
+        var response = await _client.PostAsync($"/api/v1/dev/sandbox/payment/checkout-sessions/{Guid.NewGuid()}/complete", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        foreach (var pattern in ForbiddenCheckoutJsonPatterns)
+        {
+            Assert.DoesNotContain(pattern, json, StringComparison.OrdinalIgnoreCase);
+        }
+        Assert.DoesNotContain("checkoutUrl", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("provider", json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task CompleteSandboxCheckout_InProduction_IsNotMapped()
+    {
+        using var productionClient = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.UseEnvironment("Production");
+        }).CreateClient();
+        NurseEndpointTestAuth.Authorize(productionClient, Guid.NewGuid());
+
+        var response = await productionClient.PostAsync($"/api/v1/dev/sandbox/payment/checkout-sessions/{Guid.NewGuid()}/complete", null);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        _senderMock.Verify(s => s.Send(It.IsAny<CompleteSandboxPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task PaymentValidationFailure_ReturnsValidationProblemDetails()
     {
         NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
@@ -443,6 +524,17 @@ public class PaymentEndpointsTests
             ExpiresAt = DateTime.UtcNow.AddMinutes(20),
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
+        };
+    }
+
+    private static PaymentCompletionDto CreateCompletionDto()
+    {
+        return new PaymentCompletionDto
+        {
+            PaymentOrderId = Guid.NewGuid(),
+            OrderStatus = "Paid",
+            PaidAt = DateTime.UtcNow,
+            GrantedExamIds = [Guid.NewGuid()]
         };
     }
 

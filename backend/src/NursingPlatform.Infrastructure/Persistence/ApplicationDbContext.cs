@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Npgsql;
 using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Domain.Common;
 using NursingPlatform.Domain.Employers;
@@ -91,6 +92,31 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                 .SetProperty(s => s.ProviderCallLeaseId, leaseId)
                 .SetProperty(s => s.ProviderCallLeaseExpiresAt, leaseExpiresAt)
                 .SetProperty(s => s.UpdatedAt, timestamp), cancellationToken);
+    }
+
+    public Task<int> ExecutePaymentOrderPaidTransitionAsync(
+        Guid orderId,
+        Guid nurseProfileId,
+        DateTime paidAt,
+        CancellationToken cancellationToken = default)
+    {
+        return PaymentOrders
+            .Where(o => o.Id == orderId
+                && o.NurseProfileId == nurseProfileId
+                && o.Status == PaymentOrderStatus.PendingPayment)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(o => o.Status, PaymentOrderStatus.Paid)
+                .SetProperty(o => o.PaidAt, paidAt)
+                .SetProperty(o => o.UpdatedAt, paidAt), cancellationToken);
+    }
+
+    public bool IsUniqueEffectiveExamAccessGrantViolation(DbUpdateException exception)
+    {
+        return exception.GetBaseException() is PostgresException
+        {
+            SqlState: PostgresErrorCodes.UniqueViolation,
+            ConstraintName: "IX_ExamAccessGrants_NurseProfileId_ExamId"
+        };
     }
 
     public Task<int> ExecuteContactRequestTransitionAsync(

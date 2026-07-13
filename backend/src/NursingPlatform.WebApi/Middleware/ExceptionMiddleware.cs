@@ -39,6 +39,7 @@ public class ExceptionMiddleware
             BadHttpRequestException => (StatusCodes.Status400BadRequest, "Bad request"),
             ValidationException => (StatusCodes.Status400BadRequest, "Validation failed"),
             KeyNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
+            PaymentCheckoutProviderUnavailableException => (StatusCodes.Status503ServiceUnavailable, "Service unavailable"),
             CheckoutInitializationInProgressException => (StatusCodes.Status409Conflict, "Conflict"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
             ForbiddenAccessException => (StatusCodes.Status403Forbidden, "Forbidden"),
@@ -73,7 +74,9 @@ public class ExceptionMiddleware
 
         if (exception is CheckoutInitializationInProgressException checkoutInitializationInProgressException)
         {
-            problem["retryAfterSeconds"] = (int)Math.Ceiling(checkoutInitializationInProgressException.RetryAfter.TotalSeconds);
+            var retryAfterSeconds = (int)Math.Ceiling(checkoutInitializationInProgressException.RetryAfter.TotalSeconds);
+            context.Response.Headers.RetryAfter = retryAfterSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            problem["retryAfterSeconds"] = retryAfterSeconds;
         }
 
         var json = JsonSerializer.Serialize(problem);

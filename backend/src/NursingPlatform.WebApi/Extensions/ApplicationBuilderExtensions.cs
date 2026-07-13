@@ -58,6 +58,7 @@ using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseSkills;
 using NursingPlatform.Application.Payments.Admin.Products;
 using NursingPlatform.Application.Payments.Commands.CancelMyPaymentOrder;
 using NursingPlatform.Application.Payments.Commands.CreateMyPaymentOrder;
+using NursingPlatform.Application.Payments.Commands.StartMyPaymentCheckout;
 using NursingPlatform.Application.Payments.Queries.GetMyPaymentOrder;
 using NursingPlatform.Application.Payments.Queries.GetPaymentProduct;
 using NursingPlatform.Application.Payments.Queries.ListMyPaymentOrders;
@@ -1128,6 +1129,23 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("CancelMyPaymentOrder");
+
+        nurseProfile.MapPost("/payment/orders/{orderId:guid}/checkout", async (
+            Guid orderId,
+            StartPaymentCheckoutRequest request,
+            ISender sender,
+            HttpContext httpContext) =>
+        {
+            var result = await sender.Send(new StartMyPaymentCheckoutCommand
+            {
+                OrderId = orderId,
+                Request = request
+            });
+
+            httpContext.Response.Headers.CacheControl = "no-store";
+            return Results.Ok(result);
+        })
+        .WithName("StartMyPaymentCheckout");
 
         nurseProfile.MapGet("/cv", async (ISender sender) =>
         {

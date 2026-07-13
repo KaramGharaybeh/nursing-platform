@@ -8,8 +8,10 @@ using Moq;
 using NursingPlatform.Application.Authorization;
 using NursingPlatform.Application.Common.Models;
 using NursingPlatform.Application.Payments.Admin.Products;
+using NursingPlatform.Application.Payments.Abstractions;
 using NursingPlatform.Application.Payments.Commands.CancelMyPaymentOrder;
 using NursingPlatform.Application.Payments.Commands.CreateMyPaymentOrder;
+using NursingPlatform.Application.Payments.Commands.StartMyPaymentCheckout;
 using NursingPlatform.Application.Payments.DTOs;
 using NursingPlatform.Application.Payments.Queries.GetMyPaymentOrder;
 using NursingPlatform.Application.Payments.Queries.GetPaymentProduct;
@@ -30,6 +32,7 @@ public class PaymentEndpointsTests
         ("GET", "/api/v1/me/nurse-profile/payment/orders"),
         ("GET", "/api/v1/me/nurse-profile/payment/orders/11111111-1111-1111-1111-111111111111"),
         ("POST", "/api/v1/me/nurse-profile/payment/orders/11111111-1111-1111-1111-111111111111/cancel"),
+        ("POST", "/api/v1/me/nurse-profile/payment/orders/11111111-1111-1111-1111-111111111111/checkout"),
         ("GET", "/api/v1/admin/payment/products"),
         ("GET", "/api/v1/admin/payment/products/11111111-1111-1111-1111-111111111111"),
         ("POST", "/api/v1/admin/payment/products"),
@@ -54,6 +57,24 @@ public class PaymentEndpointsTests
         "\"nurseProfile\"",
         "\"paymentProduct\"",
         "\"paymentOrder\"",
+        "\"examAccessGrant\""
+    ];
+
+    private static readonly string[] ForbiddenCheckoutJsonPatterns =
+    [
+        "\"nurseProfileId\"",
+        "\"userId\"",
+        "\"idempotencyKey\"",
+        "\"idempotencyKeyHash\"",
+        "\"requestFingerprintHash\"",
+        "\"providerPaymentIntentId\"",
+        "\"providerCheckoutSessionId\"",
+        "\"providerCallLeaseId\"",
+        "\"providerCallLeaseExpiresAt\"",
+        "\"card\"",
+        "\"secret\"",
+        "\"webhook\"",
+        "\"raw\"",
         "\"examAccessGrant\""
     ];
 
@@ -206,6 +227,110 @@ public class PaymentEndpointsTests
     }
 
     [Fact]
+    public async Task StartCheckout_WithValidRequest_SendsCommandWithRouteOrderIdAndIdempotencyKey()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var orderId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<StartMyPaymentCheckoutCommand>(c =>
+                c.OrderId == orderId && c.Request.IdempotencyKey == "checkout-key"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateCheckoutDto());
+
+        var response = await _client.PostAsJsonAsync($"/api/v1/me/nurse-profile/payment/orders/{orderId}/checkout", new { idempotencyKey = "checkout-key" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task StartCheckout_SuccessResponse_ContainsOnlyApprovedDtoFieldsAndHttpsCheckoutUrl()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<StartMyPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateCheckoutDto());
+
+        var response = await _client.PostAsJsonAsync($"/api/v1/me/nurse-profile/payment/orders/{Guid.NewGuid()}/checkout", new { idempotencyKey = "checkout-key" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.Contains("\"checkoutUrl\":\"https://sandbox-payments.local/checkout/", json, StringComparison.OrdinalIgnoreCase);
+        foreach (var pattern in ForbiddenCheckoutJsonPatterns)
+        {
+            Assert.DoesNotContain(pattern, json, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public async Task StartCheckout_SuccessResponse_UsesCacheControlNoStore()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<StartMyPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateCheckoutDto());
+
+        var response = await _client.PostAsJsonAsync($"/api/v1/me/nurse-profile/payment/orders/{Guid.NewGuid()}/checkout", new { idempotencyKey = "checkout-key" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("no-store", response.Headers.CacheControl?.ToString());
+    }
+
+    [Fact]
+    public async Task StartCheckout_WhenMissingOrNonOwnedOrder_ReturnsNotFound()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<StartMyPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new KeyNotFoundException("Payment order was not found."));
+
+        var response = await _client.PostAsJsonAsync($"/api/v1/me/nurse-profile/payment/orders/{Guid.NewGuid()}/checkout", new { idempotencyKey = "checkout-key" });
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("Checkout is only available for pending payment orders.")]
+    [InlineData("Idempotency key is already bound to a different checkout request fingerprint.")]
+    [InlineData("IdempotencyKeyAlreadyUsed")]
+    public async Task StartCheckout_WhenApplicationConflict_ReturnsConflict(string message)
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<StartMyPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(message));
+
+        var response = await _client.PostAsJsonAsync($"/api/v1/me/nurse-profile/payment/orders/{Guid.NewGuid()}/checkout", new { idempotencyKey = "checkout-key" });
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task StartCheckout_WhenInitializationInProgress_ReturnsConflictWithRetryAfter()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<StartMyPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new CheckoutInitializationInProgressException(TimeSpan.FromSeconds(12)));
+
+        var response = await _client.PostAsJsonAsync($"/api/v1/me/nurse-profile/payment/orders/{Guid.NewGuid()}/checkout", new { idempotencyKey = "checkout-key" });
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal(TimeSpan.FromSeconds(12), response.Headers.RetryAfter?.Delta);
+    }
+
+    [Fact]
+    public async Task StartCheckout_WhenProviderUnavailableOrInvalidConfiguration_ReturnsServiceUnavailable()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<StartMyPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new PaymentCheckoutProviderUnavailableException("Payment checkout provider is unavailable."));
+
+        var response = await _client.PostAsJsonAsync($"/api/v1/me/nurse-profile/payment/orders/{Guid.NewGuid()}/checkout", new { idempotencyKey = "checkout-key" });
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+    }
+
+    [Fact]
     public async Task PaymentValidationFailure_ReturnsValidationProblemDetails()
     {
         NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
@@ -301,6 +426,23 @@ public class PaymentEndpointsTests
                     LineTotalAmountMinor = 1000
                 }
             ]
+        };
+    }
+
+    private static PaymentCheckoutSessionDto CreateCheckoutDto()
+    {
+        return new PaymentCheckoutSessionDto
+        {
+            Id = Guid.NewGuid(),
+            PaymentOrderId = Guid.NewGuid(),
+            Status = "ProviderPending",
+            ProviderName = "Sandbox",
+            CheckoutUrl = $"https://sandbox-payments.local/checkout/{Guid.NewGuid():N}",
+            Currency = "USD",
+            AmountMinor = 1000,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(20),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
     }
 

@@ -12,7 +12,7 @@ try
     builder.Host.UseSerilog((context, config) =>
         config.ReadFrom.Configuration(context.Configuration));
 
-    builder.Services.AddApplicationServices(builder.Configuration);
+    builder.Services.AddApplicationServices(builder.Configuration, builder.Environment);
 
     var app = builder.Build();
 

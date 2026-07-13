@@ -12,11 +12,12 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IWebHostEnvironment environment)
     {
         services.AddEndpointsApiExplorer();
         services.AddApplication();
-        services.AddInfrastructure(configuration);
+        services.AddInfrastructure(configuration, environment);
         services.AddPresentation(configuration);
 
         return services;

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Domain.Common;
 using NursingPlatform.Domain.Employers;
@@ -66,6 +67,30 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
         UpdateAuditableEntities();
         return base.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IApplicationDbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        var transaction = await Database.BeginTransactionAsync(cancellationToken);
+        return new ApplicationDbTransaction(transaction);
+    }
+
+    public Task<int> AcquirePaymentCheckoutProviderLeaseAsync(
+        Guid checkoutSessionId,
+        Guid leaseId,
+        DateTime leaseExpiresAt,
+        DateTime timestamp,
+        CancellationToken cancellationToken = default)
+    {
+        return PaymentCheckoutSessions
+            .Where(s => s.Id == checkoutSessionId
+                && s.Status == PaymentCheckoutSessionStatus.Created
+                && s.ExpiresAt > timestamp
+                && (s.ProviderCallLeaseId == null || s.ProviderCallLeaseExpiresAt <= timestamp))
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(s => s.ProviderCallLeaseId, leaseId)
+                .SetProperty(s => s.ProviderCallLeaseExpiresAt, leaseExpiresAt)
+                .SetProperty(s => s.UpdatedAt, timestamp), cancellationToken);
     }
 
     public Task<int> ExecuteContactRequestTransitionAsync(
@@ -151,6 +176,31 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
                     entry.Property(nameof(IAuditableEntity.CreatedBy)).IsModified = false;
                     break;
             }
+        }
+    }
+
+    private sealed class ApplicationDbTransaction : IApplicationDbTransaction
+    {
+        private readonly IDbContextTransaction _transaction;
+
+        public ApplicationDbTransaction(IDbContextTransaction transaction)
+        {
+            _transaction = transaction;
+        }
+
+        public Task CommitAsync(CancellationToken cancellationToken = default)
+        {
+            return _transaction.CommitAsync(cancellationToken);
+        }
+
+        public Task RollbackAsync(CancellationToken cancellationToken = default)
+        {
+            return _transaction.RollbackAsync(cancellationToken);
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            return _transaction.DisposeAsync();
         }
     }
 }

@@ -4,6 +4,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using NursingPlatform.Application.Common.Exceptions;
+using NursingPlatform.Application.Payments.Abstractions;
 
 namespace NursingPlatform.WebApi.Middleware;
 
@@ -38,6 +39,7 @@ public class ExceptionMiddleware
             BadHttpRequestException => (StatusCodes.Status400BadRequest, "Bad request"),
             ValidationException => (StatusCodes.Status400BadRequest, "Validation failed"),
             KeyNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
+            CheckoutInitializationInProgressException => (StatusCodes.Status409Conflict, "Conflict"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
             ForbiddenAccessException => (StatusCodes.Status403Forbidden, "Forbidden"),
             UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
@@ -67,6 +69,11 @@ public class ExceptionMiddleware
                 .ToDictionary(
                     g => g.Key,
                     g => g.Select(e => e.ErrorMessage).ToArray());
+        }
+
+        if (exception is CheckoutInitializationInProgressException checkoutInitializationInProgressException)
+        {
+            problem["retryAfterSeconds"] = (int)Math.Ceiling(checkoutInitializationInProgressException.RetryAfter.TotalSeconds);
         }
 
         var json = JsonSerializer.Serialize(problem);

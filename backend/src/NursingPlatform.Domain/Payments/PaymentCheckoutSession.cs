@@ -152,6 +152,38 @@ public class PaymentCheckoutSession : AuditableEntity
             && ExpiresAt > timestamp;
     }
 
+    public bool TryAcquireProviderCallLease(Guid leaseId, DateTime leaseExpiresAt, DateTime timestamp)
+    {
+        if (leaseId == Guid.Empty)
+        {
+            throw new InvalidOperationException("Provider call lease id is required.");
+        }
+
+        if (Status != PaymentCheckoutSessionStatus.Created || ExpiresAt <= timestamp)
+        {
+            return false;
+        }
+
+        if (ProviderCallLeaseId is not null && ProviderCallLeaseExpiresAt > timestamp)
+        {
+            return false;
+        }
+
+        ProviderCallLeaseId = leaseId;
+        ProviderCallLeaseExpiresAt = leaseExpiresAt;
+        return true;
+    }
+
+    public bool HasActiveProviderCallLease(DateTime timestamp)
+    {
+        return ProviderCallLeaseId is not null && ProviderCallLeaseExpiresAt > timestamp;
+    }
+
+    public bool IsProviderCallLeaseOwner(Guid leaseId)
+    {
+        return ProviderCallLeaseId == leaseId;
+    }
+
     private static bool IsHttpsUrl(string? checkoutUrl)
     {
         return Uri.TryCreate(checkoutUrl, UriKind.Absolute, out var uri)

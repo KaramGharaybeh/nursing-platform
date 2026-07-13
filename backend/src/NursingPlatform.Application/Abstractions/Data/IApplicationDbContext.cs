@@ -45,6 +45,13 @@ public interface IApplicationDbContext
     DbSet<PaymentOrder> PaymentOrders { get; }
     DbSet<PaymentOrderItem> PaymentOrderItems { get; }
     DbSet<PaymentCheckoutSession> PaymentCheckoutSessions { get; }
+    Task<IApplicationDbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+    Task<int> AcquirePaymentCheckoutProviderLeaseAsync(
+        Guid checkoutSessionId,
+        Guid leaseId,
+        DateTime leaseExpiresAt,
+        DateTime timestamp,
+        CancellationToken cancellationToken = default);
     Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,
@@ -65,4 +72,10 @@ public interface IApplicationDbContext
         DateTime timestamp,
         CancellationToken cancellationToken = default);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+}
+
+public interface IApplicationDbTransaction : IAsyncDisposable
+{
+    Task CommitAsync(CancellationToken cancellationToken = default);
+    Task RollbackAsync(CancellationToken cancellationToken = default);
 }

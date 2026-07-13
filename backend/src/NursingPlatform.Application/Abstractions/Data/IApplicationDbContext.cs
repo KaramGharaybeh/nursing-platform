@@ -44,6 +44,7 @@ public interface IApplicationDbContext
     DbSet<PaymentProduct> PaymentProducts { get; }
     DbSet<PaymentOrder> PaymentOrders { get; }
     DbSet<PaymentOrderItem> PaymentOrderItems { get; }
+    DbSet<PaymentCheckoutSession> PaymentCheckoutSessions { get; }
     Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,

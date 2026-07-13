@@ -1,4 +1,5 @@
 using NursingPlatform.Application.Payments.Admin.Products;
+using NursingPlatform.Application.Payments.Commands.StartMyPaymentCheckout;
 using NursingPlatform.Application.Payments.Commands.CreateMyPaymentOrder;
 using NursingPlatform.Application.Payments.Queries.ListMyPaymentOrders;
 using NursingPlatform.Application.Payments.Queries.ListPaymentProducts;
@@ -45,6 +46,51 @@ public class PaymentValidatorTests
 
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName.Contains(nameof(CreatePaymentOrderRequest.ProductId)));
+    }
+
+    [Fact]
+    public void StartCheckoutValidator_WithEmptyOrderId_ShouldHaveError()
+    {
+        var validator = new StartMyPaymentCheckoutCommandValidator();
+
+        var result = validator.Validate(new StartMyPaymentCheckoutCommand
+        {
+            OrderId = Guid.Empty,
+            Request = new StartPaymentCheckoutRequest()
+        });
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(StartMyPaymentCheckoutCommand.OrderId));
+    }
+
+    [Fact]
+    public void StartCheckoutValidator_WithTooLongIdempotencyKey_ShouldHaveError()
+    {
+        var validator = new StartMyPaymentCheckoutCommandValidator();
+
+        var result = validator.Validate(new StartMyPaymentCheckoutCommand
+        {
+            OrderId = Guid.NewGuid(),
+            Request = new StartPaymentCheckoutRequest { IdempotencyKey = new string('a', 129) }
+        });
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName.Contains(nameof(StartPaymentCheckoutRequest.IdempotencyKey)));
+    }
+
+    [Fact]
+    public void StartCheckoutValidator_WithNullRequest_ShouldHaveError()
+    {
+        var validator = new StartMyPaymentCheckoutCommandValidator();
+
+        var result = validator.Validate(new StartMyPaymentCheckoutCommand
+        {
+            OrderId = Guid.NewGuid(),
+            Request = null!
+        });
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(StartMyPaymentCheckoutCommand.Request));
     }
 
     [Theory]

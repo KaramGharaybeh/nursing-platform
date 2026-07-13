@@ -43,6 +43,23 @@ internal static class PaymentMapping
         };
     }
 
+    public static PaymentCheckoutSessionDto ToCheckoutSessionDto(PaymentCheckoutSession session)
+    {
+        return new PaymentCheckoutSessionDto
+        {
+            Id = session.Id,
+            PaymentOrderId = session.PaymentOrderId,
+            Status = session.Status.ToString(),
+            ProviderName = session.ProviderName,
+            CheckoutUrl = session.CheckoutUrl,
+            Currency = session.Currency,
+            AmountMinor = session.AmountMinor,
+            ExpiresAt = session.ExpiresAt,
+            CreatedAt = session.CreatedAt,
+            UpdatedAt = session.UpdatedAt
+        };
+    }
+
     private static PaymentOrderItemDto ToOrderItemDto(PaymentOrderItem item)
     {
         return new PaymentOrderItemDto

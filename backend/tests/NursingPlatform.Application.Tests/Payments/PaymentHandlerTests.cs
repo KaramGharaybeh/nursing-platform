@@ -240,6 +240,7 @@ public class PaymentHandlerTests
         public DbSet<PaymentProduct> PaymentProducts => Set<PaymentProduct>();
         public DbSet<PaymentOrder> PaymentOrders => Set<PaymentOrder>();
         public DbSet<PaymentOrderItem> PaymentOrderItems => Set<PaymentOrderItem>();
+        public DbSet<PaymentCheckoutSession> PaymentCheckoutSessions => Set<PaymentCheckoutSession>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

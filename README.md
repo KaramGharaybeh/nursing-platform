@@ -150,13 +150,34 @@ Only implement work that belongs to the current milestone.
 
 # Current Status
 
-Current milestone:
+Current status:
 
-**Project Foundation**
+**Backend local MVP substantially implemented**
 
-The current focus is establishing the production-ready foundation of the platform.
+Implemented backend capabilities include:
 
-Business modules such as Authentication, Nurse Management, Employer Management, Examinations, Recruitment, and Payments have not yet been implemented.
+- Identity, JWT authentication, refresh tokens, email verification, password reset, RBAC, and permission-based authorization.
+- Nurse profiles, experience, education, certificates, skills, languages, and CV upload.
+- Employer profiles, organization management, candidate search/filtering, and recruitment contact requests.
+- Exams, admin content management, versions, questions, sessions, scoring, results, attempts, and analytics.
+- Payment products, nurse-owned payment orders, immutable order snapshots, checkout sessions, and provider-neutral checkout abstraction.
+- Development/Test Sandbox checkout and fulfillment from order checkout to `Paid` order and `ExamAccessGrant` issuance.
+- Purchased exam access enforcement for paid exams before exam session start.
+
+Frontend implementation has not started. The Sandbox payment provider is for Development/Test only and is not a production payment integration. A production payment provider has not been selected.
+
+## Backend Verification
+
+Latest synchronized backend verification after `1ec2efa feat: enforce purchased exam access`:
+
+- Domain: 69 passed.
+- Application: 434 passed.
+- Infrastructure: 119 passed.
+- WebApi: 252 passed.
+- Total: 874 passed.
+- Build: 0 warnings, 0 errors.
+- EF: no pending model changes.
+- PostgreSQL Sandbox tests: 6 passed, 0 skipped.
 
 ---
 

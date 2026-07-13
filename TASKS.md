@@ -83,8 +83,7 @@ Do not start work on a later phase until the current phase is complete.
 - [x] ApplicationDbContext
 - [x] Initial migration
 - [x] Database initialization
-- [ ] Repository implementations
-- [ ] Unit of Work (if adopted)
+- [x] Direct EF Core `ApplicationDbContext` persistence; repository/unit-of-work abstractions intentionally not adopted
 
 ## Reference Data
 
@@ -162,7 +161,7 @@ Do not start work on a later phase until the current phase is complete.
 
 ---
 
-# Phase 6 — Employer Module
+# Phase 6 — Employer Module ✅
 
 - [x] Employer profile
 - [x] Organization management
@@ -189,11 +188,29 @@ Do not start work on a later phase until the current phase is complete.
 
 # Phase 8 — Payments
 
-- [x] Products
-- [x] Orders
-- [ ] Checkout
-- [ ] Payment providers
-- [ ] Webhooks
+- [x] Payment products
+- [x] Payment orders
+- [x] Order snapshots
+- [x] Nurse order APIs
+- [x] Checkout session foundation
+- [x] Provider abstraction
+- [x] Checkout idempotency/concurrency core
+- [x] Sandbox provider for Development/Test
+- [x] Sandbox checkout initialization
+- [x] Sandbox completion endpoint
+- [x] Atomic Paid transition
+- [x] ExamAccessGrant issuance
+- [x] Purchased exam access enforcement
+- [x] PostgreSQL payment concurrency/rollback tests
+- [x] Sandbox purchase-to-exam-start integration test
+- [ ] Production payment provider
+- [ ] Public production webhook
+- [ ] Signature verification
+- [ ] Provider reconciliation
+- [ ] Refunds
+- [ ] Subscriptions
+- [ ] Coupons, taxes, invoices, wallets, and payouts
+- [ ] Production payment reporting/admin operations
 
 ---
 

@@ -2,90 +2,80 @@
 
 ## Current Milestone
 
-Phase 8A — Payment Products & Orders Foundation
+Backend Local MVP — Payment Fulfillment and Purchased Exam Access Complete
 
 Status:
-Implementation complete — batch execution final verification passed.
+Backend local MVP is complete enough for frontend development.
 
 ---
 
 ## Objective
 
-Complete backend-only payment products and local nurse-owned pending-payment orders for purchasable exam access.
+Record the completed local backend MVP, preserve the verified payment-to-exam-access boundary, and await explicit selection of the next implementation phase.
+
+The full Development/Test Sandbox journey exists:
+
+```text
+product -> order -> checkout -> Sandbox completion -> Paid -> ExamAccessGrant -> authorized exam start
+```
+
+Production payment-provider selection is intentionally deferred because company country, bank-account jurisdiction, and provider selection are not finalized.
 
 ---
 
-## Completion Summary
+## Completed Backend Capabilities
 
-- [x] Payment product domain entities and lifecycle rules
-- [x] Payment order and order item snapshot domain entities
-- [x] Authenticated product catalog endpoints
-- [x] Nurse-owned order create/list/detail/cancel endpoints
-- [x] Admin product create/update/archive/restore endpoints
-- [x] EF configuration and AddPaymentProductsOrdersFoundation migration
-- [x] Domain, Application, Infrastructure, and WebApi payment tests
-- [x] Raw JSON DTO security tests
-- [x] Tracking documentation update
+- [x] Payment products and immutable order snapshots.
+- [x] Nurse-owned order create/list/detail/cancel behavior.
+- [x] Checkout session foundation and lifecycle.
+- [x] Provider-neutral checkout abstraction.
+- [x] Sandbox provider available only in Development/Test.
+- [x] Sandbox checkout initialization.
+- [x] Development/Test-only Sandbox completion endpoint.
+- [x] Atomic `PendingPayment` -> `Paid` transition.
+- [x] Server-persisted `PaidAt`.
+- [x] Transactional and idempotent `ExamAccessGrant` fulfillment.
+- [x] PostgreSQL concurrency and rollback coverage.
+- [x] Purchased exam access enforcement.
+- [x] Effective paid rule: `Exam.IsFree == false` OR active positive-price `ExamAccess` product exists.
+- [x] Exam catalog/detail `IsFree` and `CanStart` consistency.
+- [x] Complete local Sandbox purchase-to-exam-start journey.
 
 ---
 
-## Final Verification
+## Latest Verified Results
 
-- `dotnet build backend/NursingPlatform.slnx`: passed, 0 warnings, 0 errors
-- `dotnet test backend/NursingPlatform.slnx`: passed, 723 tests
-- `dotnet ef migrations has-pending-model-changes --project backend/src/NursingPlatform.Infrastructure --startup-project backend/src/NursingPlatform.WebApi --context ApplicationDbContext`: no pending model changes
-- EF design-time note: `HostAbortedException` is known non-blocking EF design-time host-resolution noise when EF still reports no pending model changes.
+- Domain: 69 passed.
+- Application: 434 passed.
+- Infrastructure: 119 passed.
+- WebApi: 252 passed.
+- Total: 874 passed.
+- Build: 0 warnings, 0 errors.
+- EF: no pending model changes.
+- PostgreSQL Sandbox tests: 6 passed, 0 skipped.
 
 ---
 
 ## Current Review State
 
-Phase 8A implementation and final verification are complete.
+Backend local MVP payment fulfillment and purchased exam access are complete for local frontend development.
+
+Next status: awaiting explicit selection of the next phase.
 
 ---
 
-## Out of Scope
+## Deferred Work
 
-Do NOT implement:
+The following work is deferred and is not a current blocker for local frontend development:
 
-- Phase 8B checkout
-- Phase 8C payment providers/webhooks
-- Phase 9 dashboards/reports
-- Frontend/admin UI
-- Real checkout, payment providers, subscriptions, refunds, or webhooks
-- Exam access grant management
-- Question import pipeline, bulk upload, Excel/CSV import, AI generation, or translations
-- Admin analytics or platform-wide reports
-- Exports, CSV, or Excel endpoints
-- AI recommendations
-- Weak-area analytics
-- Notifications or messaging
-- Recruitment, contact-request, candidate, or employer changes
+- Production payment provider.
+- Production webhook/signature verification.
+- Refunds and reconciliation.
+- Production-grade object storage.
+- Operational/production hardening.
+- Frontend implementation.
 
----
-
-## Definition of Done
-
-This milestone is complete when:
-
-- Product catalog endpoints require authorization only
-- Product catalog endpoints do not require permissions or NurseRoleGuard
-- Nurse order Application handlers enforce Nurse role and current nurse profile ownership
-- Admin product reads use existing `Exams.View`
-- Admin product writes/archive/restore use existing `Exams.Edit`
-- Products and orders store money as ISO currency plus integer minor-unit amount
-- Product Type and ExamId are immutable after creation
-- Admin product update cannot change Type, ExamId, or IsActive
-- Order creation creates one item with `Quantity = 1`
-- Order item snapshots are not mutated by later product changes
-- New orders start `PendingPayment` and expire at `CreatedAt + 30 minutes`
-- Lazy expiry applies for owned pending orders in list/detail/cancel
-- No checkout/provider/webhook behavior is implemented
-- No automatic `ExamAccessGrant` is issued
-- Solution builds with zero warnings and zero errors
-- All 723 tests pass
-- EF pending model check reports no pending model changes
-- Implementation is committed only after final verification
+Do not mark these deferred items complete until they are explicitly implemented and verified.
 
 ---
 
@@ -95,8 +85,12 @@ Before implementing anything, read:
 
 - PROJECT_RULES.md
 - AGENTS.md
-- docs/standards/engineering-standards.md
+- TASKS.md
+- README.md
+- docs/product/vision.md
+- docs/architecture/system-architecture.md
+- docs/backend/backend-architecture.md
+- docs/frontend/frontend-architecture.md
 - docs/database/database-design.md
 - docs/api/api-design.md
-- docs/superpowers/specs/2026-07-12-payment-products-orders-foundation.md
-- docs/superpowers/plans/2026-07-12-payment-products-orders-foundation.md
+- docs/standards/engineering-standards.md

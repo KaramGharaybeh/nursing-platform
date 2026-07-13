@@ -50,6 +50,18 @@ public class ExamEndpointsTests
         "\"examVersion\""
     ];
 
+    private static readonly string[] ExamAccessForbiddenPatterns =
+    [
+        "examAccessGrant",
+        "grantId",
+        "nurseProfileId",
+        "paymentOrder",
+        "paymentProduct",
+        "checkout",
+        "provider",
+        "productId"
+    ];
+
     private readonly HttpClient _client;
     private readonly Mock<ISender> _senderMock;
 
@@ -117,6 +129,54 @@ public class ExamEndpointsTests
         var response = await _client.PostAsync($"/api/v1/exams/{Guid.NewGuid()}/sessions", null);
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task StartExamSession_WithForbiddenAccess_ResponseDoesNotExposePaymentOrGrantInternals()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<StartExamSessionCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ForbiddenAccessException("Exam access is required."));
+
+        var response = await _client.PostAsync($"/api/v1/exams/{Guid.NewGuid()}/sessions", null);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        AssertDoesNotContain(json, ExamAccessForbiddenPatterns);
+    }
+
+    [Fact]
+    public async Task StartExamSession_WithAuthorizedAccess_ReturnsExistingSessionContract()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var examId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<StartExamSessionCommand>(c => c.ExamId == examId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExamSessionDto
+            {
+                Id = Guid.NewGuid(),
+                ExamId = examId,
+                ExamTitle = "NCLEX RN",
+                Status = "InProgress",
+                Items =
+                [
+                    new ExamSessionQuestionDto
+                    {
+                        Id = Guid.NewGuid(),
+                        Text = "Question",
+                        Options = [new ExamSessionAnswerOptionDto { Id = Guid.NewGuid(), Text = "A" }]
+                    }
+                ]
+            });
+
+        var response = await _client.PostAsync($"/api/v1/exams/{examId}/sessions", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.Contains("examTitle", json, StringComparison.OrdinalIgnoreCase);
+        AssertDoesNotContain(json, GlobalForbiddenPatterns);
+        AssertDoesNotContain(json, ExamAccessForbiddenPatterns);
     }
 
     [Fact]

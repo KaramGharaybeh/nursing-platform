@@ -6,6 +6,7 @@ using NursingPlatform.Application.Exams.Common;
 using NursingPlatform.Application.Exams.DTOs;
 using NursingPlatform.Application.Nurses.Common;
 using NursingPlatform.Domain.Exams;
+using NursingPlatform.Domain.Payments;
 
 namespace NursingPlatform.Application.Exams.Queries.ListExams;
 
@@ -61,13 +62,24 @@ public class ListExamsQueryHandler : IRequestHandler<ListExamsQuery, PaginatedRe
             .ToListAsync(cancellationToken);
         var grantedExamIds = grants.ToHashSet();
 
+        var paidProductExamIds = await _context.PaymentProducts
+            .Where(p => examIds.Contains(p.ExamId)
+                && p.Type == PaymentProductType.ExamAccess
+                && p.IsActive
+                && p.UnitAmountMinor > 0)
+            .Select(p => p.ExamId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        var paidProductExamIdSet = paidProductExamIds.ToHashSet();
+
         var items = rows
             .Where(r => versionByExam.ContainsKey(r.exam.Id))
             .Select(r =>
             {
                 var version = versionByExam[r.exam.Id];
-                var canStart = r.exam.IsFree || grantedExamIds.Contains(r.exam.Id);
-                return ExamMapping.ToCatalogItem(r.exam, version, r.country.Name, r.category?.Name, canStart);
+                var isFree = r.exam.IsFree && !paidProductExamIdSet.Contains(r.exam.Id);
+                var canStart = isFree || grantedExamIds.Contains(r.exam.Id);
+                return ExamMapping.ToCatalogItem(r.exam, version, r.country.Name, r.category?.Name, isFree, canStart);
             })
             .Where(i => i.CanStart)
             .OrderBy(i => i.CountryName)

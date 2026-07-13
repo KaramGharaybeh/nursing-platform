@@ -10,6 +10,7 @@ internal static class ExamMapping
         ExamVersion version,
         string countryName,
         string? categoryName,
+        bool isFree,
         bool canStart)
     {
         return new ExamCatalogItemDto
@@ -24,7 +25,7 @@ internal static class ExamMapping
             DurationMinutes = exam.DurationMinutes,
             QuestionCount = version.QuestionCount,
             PassingScorePercentage = exam.PassingScorePercentage,
-            IsFree = exam.IsFree,
+            IsFree = isFree,
             CanStart = canStart
         };
     }
@@ -34,6 +35,7 @@ internal static class ExamMapping
         ExamVersion version,
         string countryName,
         string? categoryName,
+        bool isFree,
         bool canStart)
     {
         return new ExamDetailDto
@@ -49,7 +51,7 @@ internal static class ExamMapping
             DurationMinutes = exam.DurationMinutes,
             QuestionCount = version.QuestionCount,
             PassingScorePercentage = exam.PassingScorePercentage,
-            IsFree = exam.IsFree,
+            IsFree = isFree,
             CanStart = canStart
         };
     }

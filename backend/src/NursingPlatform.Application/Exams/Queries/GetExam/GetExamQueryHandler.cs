@@ -5,6 +5,7 @@ using NursingPlatform.Application.Exams.Common;
 using NursingPlatform.Application.Exams.DTOs;
 using NursingPlatform.Application.Nurses.Common;
 using NursingPlatform.Domain.Exams;
+using NursingPlatform.Domain.Payments;
 
 namespace NursingPlatform.Application.Exams.Queries.GetExam;
 
@@ -52,6 +53,15 @@ public class GetExamQueryHandler : IRequestHandler<GetExamQuery, ExamDetailDto>
                 && (g.ExpiresAt == null || g.ExpiresAt > now),
                 cancellationToken);
 
-        return ExamMapping.ToDetail(row.exam, version, row.country.Name, row.category?.Name, row.exam.IsFree || hasGrant);
+        var hasActivePaidExamAccessProduct = await _context.PaymentProducts
+            .AnyAsync(p => p.ExamId == row.exam.Id
+                && p.Type == PaymentProductType.ExamAccess
+                && p.IsActive
+                && p.UnitAmountMinor > 0,
+                cancellationToken);
+
+        var isFree = row.exam.IsFree && !hasActivePaidExamAccessProduct;
+
+        return ExamMapping.ToDetail(row.exam, version, row.country.Name, row.category?.Name, isFree, isFree || hasGrant);
     }
 }

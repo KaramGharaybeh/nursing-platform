@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NursingPlatform.Application.Abstractions.Data;
-using NursingPlatform.Application.Common.Exceptions;
 using NursingPlatform.Application.Exams.Common;
 using NursingPlatform.Application.Exams.DTOs;
 using NursingPlatform.Application.Nurses.Common;
@@ -13,11 +12,16 @@ public class StartExamSessionCommandHandler : IRequestHandler<StartExamSessionCo
 {
     private readonly IApplicationDbContext _context;
     private readonly NurseRoleGuard _nurseRoleGuard;
+    private readonly IExamAccessPolicy _examAccessPolicy;
 
-    public StartExamSessionCommandHandler(IApplicationDbContext context, NurseRoleGuard nurseRoleGuard)
+    public StartExamSessionCommandHandler(
+        IApplicationDbContext context,
+        NurseRoleGuard nurseRoleGuard,
+        IExamAccessPolicy examAccessPolicy)
     {
         _context = context;
         _nurseRoleGuard = nurseRoleGuard;
+        _examAccessPolicy = examAccessPolicy;
     }
 
     public async Task<ExamSessionDto> Handle(StartExamSessionCommand request, CancellationToken cancellationToken)
@@ -43,19 +47,7 @@ public class StartExamSessionCommandHandler : IRequestHandler<StartExamSessionCo
             throw new KeyNotFoundException("Exam was not found.");
         }
 
-        if (!exam.IsFree)
-        {
-            var hasGrant = await _context.ExamAccessGrants.AnyAsync(g =>
-                    g.NurseProfileId == nurseProfileId
-                    && g.ExamId == exam.Id
-                    && (g.ExpiresAt == null || g.ExpiresAt > now),
-                cancellationToken);
-
-            if (!hasGrant)
-            {
-                throw new ForbiddenAccessException("Exam access is required.");
-            }
-        }
+        await _examAccessPolicy.AuthorizeStartAsync(nurseProfileId, exam.Id, cancellationToken);
 
         var existing = await _context.ExamSessions
             .Where(s => s.NurseProfileId == nurseProfileId

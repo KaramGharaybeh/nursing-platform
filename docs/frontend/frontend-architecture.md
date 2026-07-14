@@ -1,334 +1,959 @@
 # Frontend Architecture
 
-## Purpose
+## Purpose And Authority
 
-This document defines the frontend architecture, design principles, project structure, and development standards for the Nursing Platform.
+This document is the authoritative source for permanent frontend engineering rules in the Nursing Platform repository.
 
-It serves as the authoritative reference for all frontend implementation decisions.
+It defines the approved frontend technology foundation, architectural boundaries, state-management approach, API integration rules, authentication and token-handling rules, accessibility target, testing principles, trust boundaries, performance rules, and implementation guardrails.
 
----
+This document does not define temporary phase scope, visual design, acceptance criteria, execution steps, or phase task lists.
 
-# Technology Stack
+Separate documents own those decisions:
 
-The frontend is built using:
+- Approved Figma artifacts own final visual design decisions within the security, accessibility, and architecture constraints in this document.
+- Future approved frontend design specifications own phase scope, behavior, and acceptance criteria.
+- Future approved implementation plans own execution steps, task sequencing, verification commands, and commit strategy.
+- `CURRENT_TASK.md` and `TASKS.md` are updated only when explicitly approved.
 
-- Angular 22
-- TypeScript
-- Standalone Components
-- Angular Signals
-- RxJS
-- Tailwind CSS
+Frontend work MUST follow this architecture unless a later reviewer-approved architecture decision explicitly changes it.
 
-The application should leverage modern Angular features while remaining maintainable and scalable.
+This document describes the intended frontend architecture. It MUST NOT be read as evidence that the Angular application already exists.
 
----
+## Source Authority Policy
 
-# Architecture Goals
+Implemented backend source and the generated Development OpenAPI document are the current runtime contract authority for frontend integration. When they disagree with prose documentation, implementation work MUST stop and the discrepancy MUST be resolved rather than guessed around.
 
-The frontend architecture prioritizes:
+Official Angular documentation matching the Angular version pinned in the workspace is the authority for Angular APIs, compatibility, defaults, tooling, and recommended patterns.
 
-- Maintainability
-- Scalability
-- Performance
-- Testability
-- Simplicity
-- Reusability
-- Consistency
+Endpoint fields, validation limits, content types, status behavior, and other volatile contract details MUST be verified against the implemented backend and generated Development OpenAPI during each feature design and implementation phase.
 
-Every implementation should support long-term project growth.
+Permanent trust-boundary, security, ownership, and architectural rules belong in this document. Short-lived endpoint values and mutable request or response details belong in API documentation or approved feature specifications.
 
----
+Historical reviews and cached documentation do not guarantee future compatibility. Every implementation phase MUST use current sources for the pinned workspace and current backend revision.
 
-# Architectural Style
+## Technology Foundation
 
-The frontend follows a feature-based architecture.
+The approved frontend foundation is:
 
-Features should remain independent and self-contained whenever possible.
+- Angular 22.
+- TypeScript.
+- Angular standalone application architecture.
+- Angular Signals.
+- Signal Forms as the default first choice for new forms.
+- Strictly typed Reactive Forms as the documented fallback when Signal Forms are unsuitable or risky for a workflow.
+- RxJS.
+- Tailwind CSS.
+- Angular Router.
+- Feature-based architecture.
+- Angular SPA for the initial product architecture.
 
-Shared functionality should be extracted into reusable modules only when justified.
+SSR, SSG, hybrid rendering, PWA, and offline support are deferred unless explicitly approved later.
 
----
+npm is the only approved package manager.
 
-# Project Structure
+Angular strict mode and TypeScript strict mode MUST be enabled when the project is scaffolded.
 
-The application should be organized by feature rather than by technical type.
+Angular CLI MUST use the same major version as Angular.
 
-Example:
+The exact Node.js version MUST be pinned during scaffold work after checking the official Angular 22 compatibility requirements. The chosen Node.js version MUST later be consistent across local development, `.nvmrc`, `package.json` engines, and CI.
 
+Angular, TypeScript, Node.js, and RxJS versions MUST satisfy the official Angular 22 compatibility table. Exact executable versions MUST be selected only from those supported ranges.
+
+The frontend MUST NOT introduce NgRx or another state-management library without a separate approved architecture decision.
+
+The frontend MUST NOT introduce an external UI component library without explicit reviewer approval.
+
+## Angular 22 Platform Rules
+
+Angular standalone APIs are the default application model. New components, directives, and pipes MUST NOT set redundant `standalone: true` metadata.
+
+New components MUST NOT set redundant `ChangeDetectionStrategy.OnPush`; implementation MUST rely on Angular 22's zoneless-compatible defaults unless an approved compatibility exception establishes a concrete need.
+
+The frontend MUST preserve Angular 22's zoneless model unless a future approved architecture decision explicitly changes it.
+
+Code MUST follow the official Angular style guide unless a repository-specific rule is stricter.
+
+Source files SHOULD keep one primary Angular concept per file.
+
+Filenames MUST use hyphens between words. Tests MUST use the same base filename as the unit under test with the `.spec.ts` suffix.
+
+Code MUST be organized by feature or domain rather than global type-only folders. Vague catch-all files such as `helpers.ts`, `utils.ts`, and `common.ts` MUST NOT be introduced; files MUST communicate focused ownership.
+
+New component APIs MUST use `input()`, `output()`, and `model()` rather than legacy decorator APIs. Angular-created input, output, model, and query properties SHOULD be declared `readonly`.
+
+Dependency injection SHOULD use `inject()` rather than constructor injection for new code.
+
+Signals MUST be preferred for local synchronous component state. Derived state MUST use `computed()`, and signal transformations MUST remain pure.
+
+Signals MUST be changed with `set()` or `update()`. Legacy mutation patterns that modify signal-held state without notifying Angular MUST NOT be used.
+
+Effects MUST be used sparingly and MUST NOT replace clear event-driven application flow.
+
+New templates MUST use built-in control flow with `@if`, `@for`, and `@switch`. Every `@for` block MUST use a stable tracking expression.
+
+Class and style bindings SHOULD be preferred over `ngClass` and `ngStyle`.
+
+Host bindings and listeners MUST use component or directive `host` metadata rather than `@HostBinding` or `@HostListener`.
+
+Templates MUST remain simple and MUST NOT contain business workflows or expensive transformations. Templates MUST NOT assume JavaScript globals such as `new Date()` are directly available; values needed by a template MUST be exposed explicitly by the component.
+
+External component template and style paths MUST be relative to the component TypeScript file.
+
+`NgOptimizedImage` MUST be used for supported static images. The frontend MUST NOT introduce `::ng-deep`.
+
+Services MUST be focused and single-responsibility. Asynchronous template values SHOULD use `AsyncPipe` or deliberate signal interop rather than unmanaged subscriptions.
+
+Uncertain external boundaries MUST use `unknown` and explicit narrowing. `any` MUST be avoided and requires narrow, documented justification when unavoidable.
+
+### Zoneless Rules
+
+`zone.js`, `zone.js/testing`, and `provideZoneChangeDetection` MUST NOT be added without an approved compatibility exception.
+
+Application code MUST notify Angular of relevant state changes through signals, inputs, template or host listeners, `AsyncPipe`, or another explicitly supported notification mechanism.
+
+Tests MUST reflect Production zoneless behavior. Tests MUST NOT rely on repeated forced `fixture.detectChanges()` calls to conceal missing application notifications.
+
+## Angular AI Tooling Rules
+
+When agents use Angular AI assistance, they MUST prefer official Angular context sources over generic framework assumptions.
+
+`https://angular.dev/llms.txt` is the official Angular AI context index. `https://angular.dev/assets/context/llms-full.txt` is supplementary compiled context. These resources are dynamic, and agents MUST consult their current versions when they are relevant.
+
+Cached AI knowledge MUST NOT be assumed to match the Angular version pinned in the workspace. A vendored copy of Angular AI context MUST NOT become permanent authority without an explicit update and compatibility policy.
+
+The official `angular-developer` and `angular-new-app` skills SHOULD be available to agents when the active environment supports them.
+
+Angular CLI MCP SHOULD be evaluated during approved scaffold work. MCP MUST run from the Angular CLI version pinned by the project and MUST NOT silently download or execute an unpinned future major version.
+
+Read-only audits SHOULD use read-only MCP capabilities. MCP write operations MUST NOT bypass isolated-worktree, TDD, approval, review, or verification requirements.
+
+AI-generated Angular code MUST still be verified against this document, the official Angular documentation, and the implemented backend source.
+
+AI tools MUST NOT be treated as authority for backend contracts, security decisions, accessibility waivers, or product scope.
+
+## Dependency And Lockfile Policy
+
+Because npm is approved, `package-lock.json` MUST be committed after the frontend project is scaffolded.
+
+CI MUST use `npm ci` for deterministic dependency installation.
+
+Floating dependency declarations such as `latest` MUST NOT be committed.
+
+New dependencies require a scoped justification and MUST NOT duplicate capabilities already provided by Angular, TypeScript, RxJS, Tailwind CSS, or the platform.
+
+Lockfile changes MUST be attributable to an approved dependency or package-manager change. Normal lockfile updates caused by approved dependency changes are expected.
+
+Wholesale deletion or regeneration of `package-lock.json` merely to bypass conflicts is forbidden.
+
+Local development and CI MUST use the pinned Node.js and npm policy once those executable files are established.
+
+## Architecture Goals
+
+Frontend implementation SHOULD optimize for:
+
+- Maintainability.
+- Scalability.
+- Testability.
+- Accessibility.
+- Security.
+- Predictability.
+- Clear ownership boundaries.
+- Long-term consistency with backend contracts.
+- Performance that is measured and budgeted, not assumed.
+
+Convenience MUST NOT override architecture, security, accessibility, or testability.
+
+## Project Structure
+
+The initial Angular application MUST use a feature-based structure under `src/app`.
+
+The approved top-level application boundaries are:
+
+```text
+src/app/core/
+src/app/shared/
+src/app/features/
 ```
-src/
 
-├── app/
-│   ├── core/
-│   ├── shared/
-│   ├── features/
-│   │   ├── auth/
-│   │   ├── nurses/
-│   │   ├── employers/
-│   │   ├── exams/
-│   │   ├── recruitment/
-│   │   └── administration/
-│   └── app.routes.ts
-│
-├── assets/
-└── environments/
-```
+Major feature routes MUST use lazy loading.
 
-The exact structure may evolve, but feature boundaries should remain clear.
+The exact folder tree MAY evolve during approved implementation work, but the `core`, `shared`, and `features` ownership rules in this document MUST remain intact.
 
----
+## Dependency Direction
 
-# Core Layer
+Frontend dependencies MUST preserve clear ownership boundaries.
 
-The Core layer contains application-wide services and infrastructure.
+| Source | May Depend On | Must Not Depend On |
+| --- | --- | --- |
+| `core` | Angular platform APIs, shared business-neutral utilities | Feature implementations |
+| `shared` | Angular platform APIs, business-neutral utilities | Core auth state, feature implementations, feature APIs |
+| `features` | Core public services, shared public utilities, owning feature internals | Private internals of other features |
+| generated API client | Generated model/client code only | Components, feature state, UI concerns |
+| feature API adapters | Generated or handwritten API clients | Component implementation details from other features |
 
-Examples include:
+Business workflows belong in the owning feature or in explicit application services, not in low-level generated clients, interceptors, route files, or shared UI primitives.
 
-- Authentication
-- HTTP configuration
-- Route guards
-- Global interceptors
-- Global configuration
-- Error handling
+Shared MUST NOT depend on Core or Features.
 
-Core services should generally be singletons.
+Core MUST NOT depend on Features.
 
----
+Features MAY depend only on stable public Core and Shared APIs plus their own internals.
 
-# Shared Layer
+The root application shell and routing MAY compose public Feature entry points.
 
-The Shared layer contains reusable building blocks.
+Barrel files MUST NOT expose private internals. Circular dependencies are forbidden.
 
-Examples include:
+These boundaries SHOULD be enforced with lint rules or architecture tests after the Angular workspace exists.
 
-- UI components
-- Pipes
-- Directives
-- Utility functions
-- Shared models
+## Core Boundary
 
-Business logic should never reside in the Shared layer.
+`src/app/core/` owns application-wide infrastructure.
 
----
+Core MAY contain:
 
-# Feature Modules
+- authentication state;
+- token lifecycle;
+- HTTP interceptors;
+- global error handling;
+- route guards;
+- application configuration;
+- application-shell infrastructure.
 
-Each feature owns its own:
+Core MUST NOT contain business-feature implementation.
 
-- Components
-- Services
-- Routes
-- Models
-- State
-- Validators
+Core services SHOULD be singletons only when application-wide lifetime is required.
 
-Features should minimize dependencies on one another.
+## Shared Boundary
 
----
+`src/app/shared/` owns reusable, business-neutral building blocks.
 
-# Routing
+Shared MAY contain:
 
-The application uses Angular Router.
+- reusable UI primitives;
+- directives;
+- pipes;
+- generic utilities;
+- truly shared models.
 
-Routes should:
+Shared MUST NOT contain:
 
-- Be feature-oriented
-- Support lazy loading where appropriate
-- Protect secure areas using route guards
+- feature business logic;
+- feature-specific API calls;
+- feature state;
+- feature workflows.
 
-The routing configuration should remain easy to understand.
+Shared code MUST remain reusable without depending on private feature details.
 
----
+## Feature Boundary
 
-# State Management
+Each feature under `src/app/features/` owns its own:
 
-Angular Signals should be the primary state management mechanism.
+- routes;
+- pages;
+- components;
+- forms;
+- feature state;
+- feature models;
+- API adapters;
+- validators.
 
-RxJS should be used for:
+Features MUST NOT import private internals from other features.
 
-- Asynchronous operations
-- HTTP communication
-- Event streams
+Cross-feature communication MUST use stable public contracts or approved application-wide services.
 
-Avoid unnecessary global state.
+Feature code SHOULD keep state and behavior as local as practical.
 
-State should remain as local as practical.
+## Routing And Authorization
 
----
+The frontend MUST use Angular Router.
 
-# HTTP Communication
+Routes MUST be feature-oriented and lazy-loaded for major features.
 
-All API communication should be centralized.
+Route guards MAY improve navigation, presentation, and user experience.
 
-HTTP services should:
+Route guards MUST NOT be treated as final security enforcement.
 
-- Use typed request and response models
-- Handle errors consistently
-- Avoid duplicated request logic
+Frontend authorization is presentation and navigation behavior only. Backend authentication and authorization remain authoritative.
 
-Business logic should not exist inside HTTP services.
+## State Management
 
----
+Signals are the primary mechanism for synchronous UI and feature state.
 
-# Authentication
+RxJS is used for:
 
-Authentication should support:
+- HTTP;
+- asynchronous coordination;
+- cancellation;
+- event streams;
+- router-driven streams when appropriate.
 
-- JWT access tokens
-- Refresh tokens
-- Automatic token renewal
-- Route protection
+State MUST remain as local as practical.
 
-Authentication state should be managed centrally.
+Auth state is application-wide and belongs in Core.
 
----
+Feature state belongs to the owning feature.
 
-# Authorization
+The frontend MUST NOT create a global store without a demonstrated requirement and an approved architecture decision.
 
-UI authorization should complement backend authorization.
+The frontend MUST NOT cache server data without explicit invalidation and refresh rules.
 
-Frontend authorization improves user experience but must never replace server-side security.
+## RxJS Cancellation And Cleanup
 
-The backend remains the source of truth.
+Search, filtering, autocomplete, and route-driven requests SHOULD cancel stale requests when newer input supersedes them.
 
----
+Component subscriptions MUST be lifecycle-safe and cleaned up automatically.
 
-# Forms
+Angular lifecycle-aware cleanup such as `takeUntilDestroyed` SHOULD be used where applicable.
 
-Reactive Forms should be used throughout the application.
+Composition operators such as `switchMap` SHOULD be preferred over nested subscriptions when newer emissions supersede older work.
 
-Validation should be:
+Long-lived subscriptions require explicit ownership and cleanup documentation.
 
-- Predictable
-- Reusable
-- User-friendly
+## Figma And Visual Design Boundary
 
-Client-side validation complements, but never replaces, server-side validation.
+Visual design is handled separately through Figma.
 
----
+Approved Figma artifacts and approved design tokens become authoritative for:
 
-# Styling
+- brand colors;
+- typography;
+- spacing;
+- visual hierarchy;
+- component appearance;
+- dashboard layouts;
+- responsive compositions;
+- iconography;
+- illustrations;
+- interaction appearance.
 
-Tailwind CSS is the primary styling solution.
+Figma decisions MUST operate within repository security, accessibility, performance, and architecture rules. Figma artifacts MUST NOT override WCAG requirements, backend trust boundaries, token-handling rules, or sensitive-data handling.
 
-Styling should prioritize:
+When an approved Figma design conflicts with accessibility, security, privacy, performance, backend contracts, or permanent architecture rules, implementation MUST stop and request design review.
 
-- Consistency
-- Responsiveness
-- Accessibility
+Tailwind CSS is the implementation mechanism for styling. Tailwind CSS is not the source of final visual-design decisions.
 
-Avoid excessive custom CSS when utility classes provide sufficient flexibility.
+Frontend implementation agents MUST NOT invent final visual design.
 
----
+Before approved Figma designs exist, frontend work MAY use only neutral structural UI to verify:
 
-# Component Design
+- routing;
+- authentication;
+- forms;
+- API communication;
+- loading states;
+- error states;
+- accessibility behavior.
 
-Components should have a single responsibility.
+The initial foundation MUST NOT create a separate design-system package.
 
-Prefer composition over inheritance.
+## Accessibility
 
-Large components should be decomposed into smaller reusable components.
+WCAG 2.2 AA is the permanent accessibility target.
 
-Presentation components should remain independent of business logic whenever possible.
+Frontend implementation MUST use:
 
----
+- semantic HTML;
+- keyboard navigation;
+- visible focus states;
+- accessible labels and names;
+- screen-reader compatible structure;
+- sufficient contrast;
+- form errors associated with their fields;
+- non-color-only communication;
+- reduced-motion support when animation is introduced.
 
-# Error Handling
+Accessibility MUST be designed into components and workflows from the beginning, not added only after implementation.
 
-Unexpected errors should be handled consistently.
+## Localization And RTL Readiness
 
-User-facing error messages should be clear and actionable.
+Full Arabic localization and full RTL implementation are not part of the initial Frontend Foundation unless explicitly added to its future approved design specification.
 
-Technical implementation details should never be exposed to users.
+The architecture MUST remain localization-ready and RTL-ready.
 
----
+Frontend implementation MUST:
 
-# Performance
+- avoid assumptions that make RTL conversion difficult;
+- prefer logical layout concepts such as start/end over hardcoded left/right when practical;
+- organize user-visible text so it can later move into translation resources.
 
-Frontend performance should prioritize:
+The frontend MUST NOT introduce a complete i18n library until localization becomes approved implementation scope.
 
-- Lazy loading
-- Code splitting
-- Efficient change detection
-- Minimal bundle size
-- Image optimization
+## Current Backend Authentication Contract
 
-Premature optimization should be avoided.
+The current backend contract uses JWT Bearer authentication.
 
----
+Login and refresh currently return `accessToken`, `refreshToken`, and `expiresAt` in JSON responses.
 
-# Accessibility
+The frontend MUST use `GET /api/v1/me` to hydrate the authenticated user, roles, and permissions.
 
-The application should follow modern accessibility standards.
+The `/api/v1/me` response is the frontend's current-user authority. JWT contents MAY support transport-level authentication but MUST NOT be treated as the authoritative source for profile, roles, or permissions in the UI.
 
-Key goals include:
+Frontend authorization MUST remain presentation and navigation behavior only.
 
-- Keyboard navigation
-- Semantic HTML
-- Screen reader compatibility
-- Sufficient color contrast
+Backend authentication and authorization remain authoritative.
 
-Accessibility should be considered throughout development rather than added later.
+## Token Handling For The Local MVP
 
----
+For the local frontend MVP:
 
-# Internationalization
+- the access token MUST be kept in memory;
+- the refresh token MUST be kept in `sessionStorage`;
+- authentication tokens MUST NOT be stored in `localStorage`;
+- all token access MUST be centralized behind an authentication abstraction;
+- components and features MUST NOT access `sessionStorage` directly;
+- tokens MUST NOT appear in logs;
+- tokens MUST NOT appear in analytics;
+- tokens MUST NOT appear in URLs or query strings;
+- tokens MUST NOT appear in user-facing errors.
 
-The architecture should support future localization.
+This is an interim local-MVP decision, not the final production security design.
 
-User-facing text should be structured to allow future translation without significant refactoring.
+Production MUST NOT automatically ship with the local-MVP refresh-token-in-`sessionStorage` design.
 
----
+Final Production authentication requires dedicated written security approval. That review MUST cover Secure, HttpOnly, SameSite cookies; HTTPS; CSRF/XSRF; CORS; refresh rotation; revocation; server logout; multi-tab behavior; and compromised-session recovery.
 
-# Testing
+Retaining `sessionStorage` for refresh tokens in Production requires explicit documented residual-risk approval.
 
-Frontend testing should include:
+Production release MUST remain blocked until refresh-token storage, CSRF posture, CORS posture, CSP, logging, and error-reporting behavior are reviewed together against the final deployment model.
 
-- Component tests
-- Service tests
-- Integration tests
-- End-to-end tests (future)
+## Authentication Bootstrap
 
-Critical user workflows should always be testable.
+Initial authentication state MUST be `initializing` or an equivalent explicit bootstrap state.
 
----
+The application MUST NOT start by treating the user as prematurely authenticated or anonymous before bootstrap completes.
 
-# Build & Deployment
+If a refresh token exists in `sessionStorage`, startup MUST attempt exactly one coordinated refresh through the central authentication abstraction.
 
-Production builds should:
+If no refresh token exists in `sessionStorage`, bootstrap MUST resolve directly as anonymous.
 
-- Use Angular production optimizations
-- Minimize bundle size
-- Remove debugging artifacts
+After successful refresh, the access token MUST be held in memory.
 
-Environment-specific configuration should be managed through Angular environment files.
+The frontend MUST then call `GET /api/v1/me` to hydrate the authenticated user, roles, and permissions.
 
----
+The frontend MUST NOT call `/api/v1/me` without a valid access token.
 
-# Future Enhancements
+Protected-route resolution MAY treat the user as authenticated or anonymous only after this bootstrap process completes.
 
-The architecture should support future features including:
+Guards MUST wait for authentication bootstrap completion and MUST NOT redirect while initialization is still in progress.
 
-- Progressive Web App (PWA)
-- Mobile applications
-- Offline capabilities
-- Push notifications
-- Real-time updates
-- Multi-language support
+Guards MUST also wait until anonymous bootstrap has completed when no refresh token exists.
 
-These enhancements should integrate without requiring major architectural changes.
+Failed refresh or a `/me` response of `401` after valid recovery MUST clear local authentication state, clear locally stored tokens, and resolve the user as anonymous.
 
----
+A transient `/me` network failure or `5xx` response MUST NOT automatically be treated as invalid credentials and MUST NOT erase tokens. It MUST resolve through an explicit bootstrap-unavailable or recovery state with bounded user-visible recovery behavior.
 
-# Design Philosophy
+Because `sessionStorage` is used, the local-MVP authentication session is tab-scoped.
 
-The frontend should always remain:
+A reload in the same tab MAY restore the session through refresh.
 
-- Modular
-- Predictable
-- Maintainable
-- Accessible
-- Testable
-- Scalable
+The local MVP officially supports one authenticated tab per session. Opening or duplicating tabs can create stale copies of a rotating refresh token.
 
-A clean frontend architecture should enable rapid feature development while preserving long-term code quality.
+Cross-tab refresh coordination is deferred. Reuse detected because another tab used a stale refresh token MUST resolve through deterministic local logout; the frontend MUST NOT bypass backend refresh-token reuse detection.
+
+Full multi-tab authentication support requires a separate approved secure-coordination design.
+
+## Refresh Coordination
+
+Within one application and tab instance, the frontend MUST NOT allow more than one refresh request to be in flight at the same time.
+
+Concurrent requests requiring refresh MUST wait for the same refresh operation.
+
+After a successful refresh:
+
+- the newly returned refresh token MUST atomically replace the previous refresh token in `sessionStorage`;
+- the previous refresh token MUST NOT remain active in frontend storage;
+- the new access token MUST be placed in memory;
+- token replacement MUST complete before queued requests are released;
+- queued requests MUST use the new access token.
+
+Failure to persist the new local authentication state MUST be treated as refresh failure.
+
+A request that received `401` MAY be replayed once only when the request was rejected by authentication before business processing.
+
+If that guarantee cannot be established, a non-idempotent request MUST NOT be replayed automatically.
+
+A second `401` after refresh MUST trigger deterministic logout and MUST NOT cause another refresh loop.
+
+Infinite refresh or retry loops are forbidden.
+
+Login and refresh requests MUST NOT trigger automatic refresh handling.
+
+Server-provided expiry data controls token expiry behavior. Any client clock-skew allowance MUST be bounded, documented, and tested; it MUST NOT extend server authority.
+
+Refresh failure MUST deterministically:
+
+- clear authentication state;
+- clear stored tokens;
+- fail queued requests;
+- redirect the user to login.
+
+Components and features MUST remain unable to access refresh-token storage directly.
+
+## Logout
+
+The current backend does not expose an approved logout or refresh-token revocation endpoint for the frontend.
+
+Until such an endpoint exists:
+
+- logout MUST clear local authentication state;
+- logout MUST clear locally held tokens;
+- logout MUST redirect to login;
+- the frontend MUST NOT claim that the server-side token was revoked.
+
+Server-side logout or token revocation requires a separate backend task.
+
+## API Integration
+
+The API contract uses `/api/v1`.
+
+Frontend requests SHOULD use relative API paths.
+
+Local development SHOULD use an Angular development proxy.
+
+Production SHOULD prefer a same-origin reverse proxy.
+
+Backend CORS MUST NOT be added unless an approved deployment design requires separate origins.
+
+Allowed origins, methods, headers, credentials, and environment boundaries MUST be explicit. Wildcard origins MUST NOT be combined with credentials. Development CORS configuration MUST NOT silently become Production configuration.
+
+Frontend environment files MUST NOT contain secrets.
+
+Public frontend configuration MUST be treated as visible to users.
+
+All API communication MUST be:
+
+- centralized;
+- typed;
+- consistently mapped;
+- free from duplicated low-level request behavior.
+
+Business logic MUST NOT be placed inside low-level HTTP clients.
+
+## HTTP Interceptors
+
+HTTP interceptors MUST use Angular's functional interceptor style unless an approved exception is documented.
+
+Interceptor behavior MUST be deterministic and ordered deliberately.
+
+The final interceptor chain MUST account for:
+
+- authentication header attachment;
+- refresh coordination;
+- one-time authentication replay where safe;
+- Problem Details mapping;
+- correlation and diagnostics where approved;
+- request cancellation behavior.
+
+Interceptors MUST NOT contain feature business logic.
+
+Interceptors MUST NOT silently retry mutations.
+
+## Date And Time Conventions
+
+API timestamps MUST use the formats defined by the backend/OpenAPI contract, normally ISO 8601.
+
+UTC timestamps MUST remain UTC during transport and state storage.
+
+Conversion to the user's timezone belongs to presentation.
+
+Locale-formatted date strings MUST NOT be sent to the API unless an endpoint explicitly requires them.
+
+Date parsing and formatting MUST be centralized rather than duplicated across components.
+
+Ambiguous timezone-free timestamps MUST NOT be silently interpreted without an explicit contract.
+
+## OpenAPI Client Policy
+
+A generated Angular API client is preferred, but no generator tool is approved yet.
+
+Future approved frontend design work MUST include a small OpenAPI generation spike using the real Development OpenAPI document.
+
+The spike MUST verify:
+
+- operation names;
+- request and response DTOs;
+- nullable fields;
+- enums;
+- pagination;
+- multipart uploads;
+- Problem Details;
+- authentication configuration.
+
+Only after that verification MAY one generator be approved.
+
+If generation is adopted:
+
+- generated files MUST live in a clearly isolated generated-code directory;
+- generated files MUST NOT be edited manually;
+- generation MUST use one repeatable command;
+- features SHOULD use thin adapters when direct dependency on generated types would create excessive coupling.
+
+If generation is rejected, typed handwritten services are allowed only with the rejection reason documented in the approved frontend design specification.
+
+This architecture document does not select an OpenAPI generator.
+
+## JSON Enums And Pagination
+
+Enum handling MUST follow the actual OpenAPI/backend representation.
+
+Components MUST NOT invent ad hoc enum serialization or parsing.
+
+Unknown enum values MUST fail safely and remain diagnosable without crashing the application.
+
+The current backend commonly exposes enum values as strings in response DTOs through server-side mapping. Query-bound enum values MUST still follow the OpenAPI/backend contract for the specific endpoint.
+
+Pagination MUST use a shared typed contract matching the backend response shape: `items`, `page`, `pageSize`, `totalCount`, and `totalPages`.
+
+Feature state owns page number, page size, filters, sorting, loading state, and total counts.
+
+Changing filters or page size SHOULD reset the page when required to avoid invalid queries.
+
+Generated or handwritten clients MUST preserve pagination metadata.
+
+## Problem Details And Error Handling
+
+RFC 7807 Problem Details is the standard backend error contract.
+
+The frontend MUST handle standard fields including `type`, `title`, `status`, and `detail`.
+
+The frontend MUST handle backend extensions including `traceId`, validation `errors`, `retryAfterSeconds`, and `Retry-After` response headers when present.
+
+The frontend MUST handle:
+
+- `400` validation errors by mapping field errors when possible;
+- `401` through one refresh attempt or deterministic logout;
+- `403` as authenticated but unauthorized;
+- `404` as not found, including privacy-preserving not-found responses for resources hidden by ownership checks;
+- `409` as a meaningful conflict without blind retry;
+- `429` by respecting `Retry-After` when supplied;
+- `503` as service unavailable with appropriate manual or bounded recovery.
+
+The frontend MUST NOT show raw exception details.
+
+Frontend behavior MUST NOT branch on human-readable `title` or `detail` text. Behavior MUST branch on HTTP status, documented structured extensions, and endpoint semantics.
+
+Unknown Problem Details extensions MUST be tolerated without breaking error handling.
+
+The `traceId` MAY be shown or copied for support purposes when doing so does not expose internal exception information.
+
+Ownership-hidden `404` responses MUST NOT be converted into UI wording that reveals private resource existence.
+
+Ownership-hidden `404` responses MUST remain generic in telemetry as well as the UI. Telemetry MUST NOT include private identifiers or resource contents merely because a hidden `404` occurred.
+
+## HTTP Retry And Idempotency
+
+`POST`, `PUT`, `PATCH`, and `DELETE` requests MUST NOT be retried automatically.
+
+Payment, checkout completion, access-grant, exam-start, and security-sensitive operations MUST NOT use blind retry.
+
+Replay after successful refresh is authentication replay, not a general network retry.
+
+Network failures, timeouts, `409`, and `503` MUST NOT trigger automatic replay of mutation requests.
+
+Payment, checkout, exam-start, and other sensitive requests require their documented idempotency semantics.
+
+Idempotent reads MAY use only bounded retry for explicitly approved transient failures.
+
+Retry behavior MUST consider HTTP method, endpoint semantics, status code, and server guidance such as `Retry-After`.
+
+An idempotency key represents one logical operation.
+
+Browser-generated idempotency keys MUST use an approved cryptographically strong mechanism such as `crypto.randomUUID()`. `Math.random()` MUST NOT be used.
+
+Keys are opaque. They MUST NOT contain user, order, exam, email, token, or other business or personal data, and they MUST NOT appear in URLs, logs, analytics, or user messages.
+
+When generated by the frontend, an idempotency key MUST be generated by the owning feature workflow, not by a low-level interceptor.
+
+The owning feature controls the key for the full lifetime of the logical operation. Re-rendering and rapid double-clicks MUST NOT create second logical operations.
+
+A safe follow-up or replay of the same checkout, including recovery from an uncertain network outcome, MUST reuse the same idempotency key.
+
+When a request with an idempotency key is safely replayed after authentication refresh, it MUST reuse the same key.
+
+A genuinely new user-initiated logical operation MUST use a new idempotency key.
+
+Components MUST NOT generate or replace payment idempotency keys independently of the owning feature workflow.
+
+## Forms
+
+Signal Forms are the default first choice for new application forms.
+
+Strictly typed Reactive Forms are the approved fallback for compatibility gaps or workflows where Signal Forms are unsuitable or risky. A feature selecting Reactive Forms MUST document that reason in its approved design specification or implementation plan.
+
+Template-driven Forms MUST NOT be used for application workflows.
+
+A single workflow MUST NOT mix form systems arbitrarily. The chosen form system MUST have clear ownership for value, validation, submission, and server-error state.
+
+Client validation improves user experience but never replaces backend validation.
+
+Server validation remains authoritative.
+
+Structured backend field errors MUST integrate into the selected form state and remain associated with the relevant controls or fields.
+
+Forms MUST represent:
+
+- submitting;
+- validation-failure;
+- server-failure;
+- success states.
+
+Server field errors SHOULD remain visible until the related value is changed or the request succeeds.
+
+Complex business rules MUST NOT be duplicated in the frontend as an alternative source of truth.
+
+## File Uploads
+
+File uploads MUST use `multipart/form-data` with browser `FormData`.
+
+Upload code MUST NOT manually set the multipart `Content-Type` boundary.
+
+Client-side file-size and file-type validation improves user experience only; backend validation remains authoritative.
+
+Each upload feature MUST verify current size, extension, content-type, and multipart-field requirements against the implemented backend and generated Development OpenAPI. Mutable upload validator values MUST remain in API documentation or the approved feature specification rather than being duplicated here as permanent authority.
+
+File contents and sensitive file metadata MUST NOT be logged or placed in unrelated global state.
+
+Upload progress MAY be exposed only when it provides real user value.
+
+## Payments Trust Boundary
+
+Price, currency, discounts if introduced, provider identity, payment and checkout status, `paidAt`, order totals, order-item snapshots, access grants, and entitlements are server-owned.
+
+The frontend MUST NOT submit or trust client-computed amount, currency, paid status, provider, `paidAt`, access grant, or entitlement values.
+
+Existing order-item snapshots returned by the backend are authoritative and MUST NOT be reconstructed from the current product catalog.
+
+Integer minor units from the backend are authoritative. The frontend MUST preserve them for transport and state according to the current backend/OpenAPI contract.
+
+Floating-point arithmetic MUST NOT be used as authoritative financial calculation.
+
+Money display MUST use `Intl.NumberFormat` with the server-provided currency. Unsupported currencies or unsupported minor-unit assumptions MUST fail safely rather than silently invent formatting or arithmetic rules.
+
+Checkout initialization can return `409` with `Retry-After` and `retryAfterSeconds` when initialization is already in progress. The UI MUST communicate this as a bounded wait/conflict state, not as a generic failure or blind retry trigger.
+
+Checkout and Sandbox completion responses include `Cache-Control: no-store`; frontend code MUST treat these responses as sensitive and MUST NOT persist them outside the owning workflow state.
+
+Development/Test Sandbox payment routes MUST NOT be enabled or called by Production frontend configuration.
+
+Payment checkout URLs and server responses MUST be treated as server-owned data.
+
+Checkout creation or navigation does not prove payment. Only backend order and fulfillment state prove payment and access.
+
+Checkout URL validation MUST use parsing and positive allowlisting rather than only blacklist checks. Only `http` and `https` schemes MAY be accepted, and all other schemes MUST be rejected.
+
+Production checkout navigation MUST use `https`, and Production provider origins MUST be explicitly approved. Development MAY use an explicitly configured local `http` origin.
+
+## Sensitive Response No-Store Policy
+
+Responses marked `Cache-Control: no-store` MUST NOT be copied into `localStorage`, `sessionStorage`, IndexedDB, a persistent application cache, or a service-worker cache.
+
+Checkout URLs and Sandbox completion data MUST remain short-lived state owned by the active feature workflow.
+
+Future caching layers MUST respect backend cache directives.
+
+A generic no-store interceptor is not required unless an actual application cache requires centralized enforcement. Browser HTTP cache behavior and application-state persistence are separate concerns and MUST be reviewed separately.
+
+## Exam Trust Boundary
+
+Exam catalog and detail responses may expose `isFree` and `canStart` as UI hints.
+
+The backend is authoritative for exam access. The frontend MUST NOT treat `isFree`, `canStart`, product state, local purchases, cached profile data, route guards, or JWT data as final permission to start an exam.
+
+The frontend MUST NOT create, infer, consume, or mutate access grants. Payment-product existence and checkout navigation do not establish exam access.
+
+`POST /api/v1/exams/{examId}/sessions` is the authoritative exam-session creation decision.
+
+The backend owns exam timing, expiration, scoring, pass/fail, result availability, review availability, correct answers, and rationales.
+
+Local timers are presentation only. Server session state and server timestamps are authoritative.
+
+The frontend MUST accept server denial even when a cached `canStart` hint was previously `true`.
+
+The frontend MUST NOT expose correct answers, rationales, scores, pass/fail state, or review data before the backend returns those fields through an approved review or result contract.
+
+Local answer selection MAY update immediately for responsive user experience. Local selection MUST NOT be presented as server-saved or submitted before backend confirmation.
+
+Saved, synchronized, submitted, scoring, and completion states are server-authoritative. Failed answer persistence MUST remain visible as an unsaved or failed state, and retry behavior MUST follow the mutation and idempotency rules in this document.
+
+The frontend MUST NOT use optimistic updates for exam-session start, answer submission, final submission, results, or purchased exam access.
+
+Ownership-hidden session responses MUST preserve privacy and MUST NOT reveal whether another user's exam session exists.
+
+## Sensitive Operations
+
+The frontend MUST NOT use optimistic updates for:
+
+- payment status;
+- checkout completion;
+- access grants;
+- paid-exam access;
+- exam-session start;
+- security-sensitive account operations.
+
+Sensitive workflows MUST keep state scoped to the owning feature unless application-wide state is explicitly required.
+
+Sensitive server responses MUST NOT be written to long-lived browser storage unless the storage behavior is explicitly approved.
+
+## Testing Principles
+
+Vitest is the approved unit and component test runner for the Angular 22 frontend foundation because it is the Angular CLI default for Angular 22.
+
+Vitest MUST remain the sole unit and component test runner. The frontend MUST NOT introduce a competing unit-test runner.
+
+Angular TestBed and official Angular testing utilities are approved.
+
+Unit tests for Angular `HttpClient` services, interceptors, and adapters MUST use Angular's official HTTP testing providers and `HttpTestingController`.
+
+Integration and E2E tests intentionally validating the real backend MUST NOT replace that backend with `HttpTestingController`.
+
+Fast DOM emulation is appropriate for most unit and component tests. Browser-specific behavior MUST run in a real browser when DOM emulation is insufficient.
+
+A Playwright-backed Vitest browser provider MAY be added when a feature documents and verifies the need for browser execution.
+
+The architecture requires:
+
+- component tests;
+- service tests;
+- auth-state tests;
+- token-storage abstraction tests;
+- interceptor tests;
+- single-flight refresh tests;
+- route-guard tests;
+- Problem Details mapping tests;
+- form validation tests;
+- permission-aware presentation tests;
+- payment trust-boundary tests;
+- exam trust-boundary tests;
+- accessibility-focused component tests where practical.
+
+Automated accessibility testing MUST include AXE. AXE does not replace keyboard, focus, screen-reader, or manual accessibility review.
+
+Playwright is the approved future E2E framework.
+
+Cypress MUST NOT be introduced in parallel.
+
+Critical browser journeys MUST eventually run against the real Development backend, including the real Sandbox payment path where applicable.
+
+This architecture document MUST NOT establish a permanent repository-wide coverage percentage.
+
+Coverage thresholds belong in phase specifications and CI decisions, while security-critical behavior MUST always have direct behavioral tests regardless of percentage.
+
+## Browser Policy
+
+Angular 22's official Web Platform Baseline is the compatibility authority.
+
+Internet Explorer is not supported.
+
+The project browser configuration becomes the executable implementation of that policy after scaffolding. It MUST NOT expand or narrow support without approval and compatibility verification.
+
+Polyfills require a demonstrated capability gap and tests. Polyfills MUST NOT be used to claim support for a browser that Angular 22 otherwise does not support.
+
+## Browser Security
+
+Untrusted content MUST NOT be injected through unsafe HTML APIs.
+
+Production MUST use AOT compilation. JIT and runtime-compiled dynamic templates MUST NOT be used in Production.
+
+Templates MUST NOT be constructed from user input.
+
+Angular sanitization bypass APIs require narrow scope, documented justification, and explicit security review.
+
+Third-party scripts, analytics SDKs, tag managers, embedded widgets, and remote executable content require explicit approval.
+
+Content Security Policy MUST be designed before Production. The frontend MUST NOT introduce `unsafe-eval`, and `unsafe-inline` MUST NOT be broadly enabled without explicit security review.
+
+Trusted Types MUST be evaluated and enabled when compatible. An exception requires documented security review.
+
+Direct use of `document`, `ElementRef.nativeElement`, and third-party DOM manipulation MUST be minimized and narrowly owned.
+
+Authentication data, payment data, private profile data, uploaded file content, exam answers, exam results, correct answers, rationales, and tokens MUST NOT be exposed through console logs, analytics, URLs, or client-side error reports.
+
+Browser storage MUST be treated as user-visible and script-readable unless the storage mechanism explicitly provides stronger guarantees.
+
+## Performance Rules
+
+Major portal and feature routes MUST be lazy-loaded.
+
+Production MUST define bundle budgets. CI MUST fail when approved error budgets are exceeded.
+
+Performance decisions MUST be measured with Angular build output, browser tooling, or production-like telemetry when available.
+
+Large datasets MUST use backend pagination, filtering, and sorting. The frontend MUST NOT download all candidates, users, exams, orders, sessions, or attempts and filter them entirely in the browser.
+
+Polling MUST NOT be introduced without explicit interval, cancellation, backoff, and ownership rules.
+
+Static supported images MUST use `NgOptimizedImage`. Images and other media MUST be optimized for size, responsive display, and accessibility.
+
+Expensive derived UI state MUST use `computed()` rather than repeated template work.
+
+Stale requests SHOULD be cancelled when newer input or navigation supersedes them.
+
+Duplicate safe HTTP work MAY be shared only when ownership, lifetime, caching, and invalidation rules are explicit.
+
+Network waterfalls SHOULD be avoided in route activation and dashboard loading when requests can be safely coordinated.
+
+Performance optimizations MUST NOT weaken correctness, security, or accessibility.
+
+## Build And Deployment Configuration
+
+Production builds MUST use Angular production optimizations and AOT compilation.
+
+Development-only routes, providers, mocks, diagnostics, and Sandbox payment affordances MUST be excluded from Production configuration.
+
+Frontend configuration MUST distinguish public configuration from secrets. Secrets MUST NOT be shipped in browser bundles or environment files.
+
+Deployment topology decisions, including same-origin hosting or separate-origin CORS, MUST be made through approved deployment design.
+
+## Production Diagnostics
+
+Debug logging, development tooling, test hooks, verbose diagnostics, and Sandbox affordances MUST NOT ship enabled in Production.
+
+Source-map generation and publication require an approved policy. Source maps MUST NOT be publicly exposed by default; private upload to an approved monitoring provider MAY be allowed.
+
+Production monitoring and diagnostics MUST redact sensitive payloads.
+
+Client-side error reporting, telemetry, analytics, and logging MUST redact or omit tokens, payment values where sensitive, uploaded file metadata, exam answers, exam results, correct answers, rationales, profile data, and raw API payloads unless an explicit privacy and security review approves the data.
+
+Trace identifiers MAY be captured for support correlation when they do not expose sensitive details.
+
+Diagnostic sampling, retention, provider selection, and user-consent behavior require explicit approval before Production.
+
+## Agent And Implementation Rules
+
+Frontend agents MUST NOT:
+
+- change the approved stack without explicit approval;
+- introduce a state library or UI library without explicit approval;
+- invent visual design that belongs to Figma;
+- edit generated API code manually;
+- modify backend code to make frontend work easier unless the task explicitly authorizes backend changes;
+- mix unrelated features into a foundation task;
+- expose tokens or secrets;
+- implement Production access to Sandbox routes;
+- stage, commit, merge, or push without explicit approval.
+
+Every implementation phase MUST:
+
+- have an approved design specification;
+- have an approved implementation plan before code changes begin;
+- use an isolated Git worktree unless an explicit reviewed exception exists;
+- use TDD for behavior and logic;
+- run focused tests;
+- run the full applicable frontend test suite;
+- run lint;
+- run a production build;
+- verify git status and staged files;
+- stop for review before commit or merge.
+
+## Deferred Decisions
+
+The following decisions remain intentionally deferred:
+
+- exact Node.js version;
+- exact OpenAPI generator;
+- final Figma colors, typography, spacing, layouts, and component appearance;
+- SSR, SSG, hybrid rendering, PWA, and offline support;
+- full Arabic localization and full RTL implementation;
+- production refresh-token storage strategy;
+- dedicated frontend deployment topology;
+- permanent coverage thresholds.

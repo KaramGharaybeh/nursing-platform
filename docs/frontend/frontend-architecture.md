@@ -42,7 +42,10 @@ The approved frontend foundation is:
 - Signal Forms as the default first choice for new forms.
 - Strictly typed Reactive Forms as the documented fallback when Signal Forms are unsuitable or risky for a workflow.
 - RxJS.
-- Tailwind CSS.
+- Angular Material.
+- Angular CDK where required by Angular Material or explicitly justified application behavior.
+- SCSS as the approved styling language and stylesheet strategy.
+- A project-owned Angular Material theme derived from approved Figma design tokens.
 - Angular Router.
 - Feature-based architecture.
 - Angular SPA for the initial product architecture.
@@ -55,13 +58,19 @@ Angular strict mode and TypeScript strict mode MUST be enabled when the project 
 
 Angular CLI MUST use the same major version as Angular.
 
+Angular Material and Angular CDK versions MUST match the pinned Angular major and MUST be pinned through the approved npm dependency policy.
+
 The exact Node.js version MUST be pinned during scaffold work after checking the official Angular 22 compatibility requirements. The chosen Node.js version MUST later be consistent across local development, `.nvmrc`, `package.json` engines, and CI.
 
 Angular, TypeScript, Node.js, and RxJS versions MUST satisfy the official Angular 22 compatibility table. Exact executable versions MUST be selected only from those supported ranges.
 
 The frontend MUST NOT introduce NgRx or another state-management library without a separate approved architecture decision.
 
-The frontend MUST NOT introduce an external UI component library without explicit reviewer approval.
+Angular Material is the only currently approved general-purpose UI component library.
+
+Any other external UI component library MUST NOT be introduced without a separate approved architecture decision.
+
+An external toast library or package MUST NOT be introduced without a separate approved architecture decision.
 
 ## Angular 22 Platform Rules
 
@@ -139,7 +148,7 @@ CI MUST use `npm ci` for deterministic dependency installation.
 
 Floating dependency declarations such as `latest` MUST NOT be committed.
 
-New dependencies require a scoped justification and MUST NOT duplicate capabilities already provided by Angular, TypeScript, RxJS, Tailwind CSS, or the platform.
+New dependencies require a scoped justification and MUST NOT duplicate capabilities already provided by Angular, Angular Material, Angular CDK, TypeScript, RxJS, SCSS, or the platform.
 
 Lockfile changes MUST be attributable to an approved dependency or package-manager change. Normal lockfile updates caused by approved dependency changes are expected.
 
@@ -330,7 +339,7 @@ Figma decisions MUST operate within repository security, accessibility, performa
 
 When an approved Figma design conflicts with accessibility, security, privacy, performance, backend contracts, or permanent architecture rules, implementation MUST stop and request design review.
 
-Tailwind CSS is the implementation mechanism for styling. Tailwind CSS is not the source of final visual-design decisions.
+SCSS and the project-owned Angular Material theme are the implementation mechanisms for approved visual design. They are not independent sources of final visual-design decisions.
 
 Frontend implementation agents MUST NOT invent final visual design.
 
@@ -345,6 +354,93 @@ Before approved Figma designs exist, frontend work MAY use only neutral structur
 - accessibility behavior.
 
 The initial foundation MUST NOT create a separate design-system package.
+
+## Angular Material Usage Policy
+
+Angular Material provides accessible behavioral and interaction primitives. Material visual defaults are not the final Nursing Platform design.
+
+Material components MUST be imported selectively by standalone components or focused providers to preserve clear ownership and tree shaking.
+
+The frontend MUST NOT create a broad global `MaterialModule` that imports or exports the entire library.
+
+Features SHOULD use Angular Material components when they satisfy the required behavior and accessibility contract.
+
+The project MUST NOT wrap every Material component automatically. A project-owned wrapper is justified only when it establishes a repeated Nursing Platform behavior, stable design contract, security rule, accessibility rule, or shared Figma customization.
+
+Application business logic MUST NOT be placed inside Material wrappers.
+
+Angular Material internal DOM structure and private CSS class names MUST NOT be treated as stable APIs. Styles MUST NOT target undocumented internal selectors, including private `mat-mdc` implementation classes.
+
+Angular Material customization MUST use supported theming APIs, design tokens, CSS custom properties where appropriate, documented component APIs, and narrowly owned application classes.
+
+The existing prohibition on `::ng-deep` remains enforceable.
+
+Figma-approved visual intent and the project theme determine colors, typography, density, shape, spacing, and component appearance within accessibility and architecture constraints.
+
+Final colors, typography values, density values, elevations, breakpoints, and dark-mode behavior MUST be defined only through later approved Figma and feature or foundation design scope.
+
+## SCSS Architecture
+
+The global stylesheet architecture MUST have clear ownership.
+
+- `src/styles.scss` is the single root global stylesheet entry point.
+- `src/styles/` owns only application-wide styling foundations.
+- Component-specific SCSS remains colocated with its Angular component.
+- Feature-specific styles remain inside the owning feature.
+- A feature MUST NOT place private styling into the global stylesheet merely to avoid proper component ownership.
+
+The future scaffold SHOULD organize global SCSS responsibilities around:
+
+- design tokens;
+- Angular Material theme integration;
+- base document styles;
+- typography;
+- approved layout and accessibility utilities;
+- theme variants when later approved.
+
+The Frontend Foundation design specification and approved implementation plan MAY establish exact final filenames. The ownership boundaries in this section are permanent.
+
+Global styles MUST remain small and intentional. Deep global selectors and page-specific global rules are forbidden.
+
+CSS specificity MUST remain predictable. `!important` MUST NOT be used except for a narrowly documented exceptional requirement.
+
+Repeated arbitrary colors, spacing, typography, radii, shadows, or z-index values MUST NOT be scattered across components. Approved design values MUST come from centralized design tokens.
+
+SCSS variables, maps, mixins, functions, and CSS custom properties MUST each have a clear purpose and MUST NOT duplicate the same source of truth.
+
+Runtime theme values SHOULD use CSS custom properties where runtime switching or Angular Material integration requires them.
+
+Compile-time SCSS helpers MUST remain deterministic and free from component business semantics.
+
+Theme CSS MUST be emitted once at the correct application boundary. Angular Material theme mixins or equivalent generated theme output MUST NOT be included repeatedly by unrelated components.
+
+Component styles MUST rely on Angular view encapsulation and MUST NOT assume global leakage.
+
+Logical CSS properties such as `inset-inline-start`, `inset-inline-end`, `margin-inline`, and `padding-inline` SHOULD be preferred to preserve RTL readiness.
+
+Responsive rules MUST use approved breakpoint tokens or mixins rather than repeated arbitrary media-query values.
+
+Stylesheet optimization MUST NOT reduce accessibility, focus visibility, readable contrast, semantic behavior, or responsive correctness.
+
+## Theme Architecture
+
+The Nursing Platform owns one internal application theme system. The initial foundation MUST NOT create a separately published design-system npm package.
+
+The theme maps approved Figma tokens into Angular Material theming and application-level SCSS tokens.
+
+There MUST be one authoritative token source for each visual decision. Material theme configuration and application tokens MUST NOT drift into separate conflicting values.
+
+Components MUST consume semantic tokens such as surface, primary action, critical text, spacing, and typography roles rather than arbitrary visual literals.
+
+Theme tokens MUST use semantic names rather than names tied only to a temporary color value.
+
+Theme changes MUST be reviewable and testable.
+
+Future light, dark, high-contrast, brand, or tenant variants require approved design scope. This architecture does not promise dark mode.
+
+Figma remains the source of approved visual intent. The repository theme implementation becomes the executable mapping of that approved intent.
+
+A Figma design MUST NOT override accessibility, security, privacy, performance, backend contracts, or permanent architecture rules.
 
 ## Accessibility
 
@@ -640,6 +736,80 @@ Ownership-hidden `404` responses MUST NOT be converted into UI wording that reve
 
 Ownership-hidden `404` responses MUST remain generic in telemetry as well as the UI. Telemetry MUST NOT include private identifiers or resource contents merely because a hidden `404` occurred.
 
+## User Feedback And Error Presentation
+
+The frontend MUST NOT present every backend error as a snack bar. Feedback presentation MUST match the context, persistence, sensitivity, and recovery needs of the owning workflow.
+
+- Field validation errors belong beside their fields and in the selected form state.
+- Form-wide business or submission errors belong in a persistent form summary when appropriate.
+- Page-loading failures belong in a page-level error state or persistent banner with a recovery action.
+- `403` belongs in an unauthorized page or contextual authorization state.
+- Privacy-preserving `404` belongs in a generic not-found page or contextual state.
+- `409`, `429`, and `503` require contextual persistent feedback when the user must wait, retry, or make a decision.
+- Payment, checkout, access-grant, exam-session, answer-persistence, submission, result, and security-sensitive states MUST remain visible inside the owning workflow.
+- Snack bars are supplementary transient feedback and MUST NOT be the sole representation of critical workflow state.
+
+UI behavior MUST branch on HTTP status, structured Problem Details fields, and endpoint semantics. Human-readable backend `title` or `detail` text MUST NOT be used directly as a programming contract.
+
+Raw exception details MUST NOT be shown. Raw backend `detail` text MUST NOT be displayed automatically without a reviewed safe-message policy.
+
+User-visible messages SHOULD come from an application-owned message catalog or intentional feature mapping. Validation errors MAY use safe structured field messages supplied by the backend.
+
+The `traceId` MAY be displayed or copied for support when no sensitive data is exposed.
+
+Tokens, private identifiers, payment data, uploaded-file data, exam answers, correct answers, rationales, and internal diagnostics MUST NOT appear in snack bars or other user feedback.
+
+## Snack-Bar Architecture
+
+Angular Material `MatSnackBar` is the approved notification rendering infrastructure. No separate npm toast library is approved.
+
+Application feedback behavior and presentation MUST remain controlled by the project-owned feedback abstraction and custom snack-bar content component.
+
+Core owns:
+
+- the application-wide feedback service;
+- typed feedback models;
+- queueing;
+- deduplication;
+- lifecycle policy;
+- the Angular Material snack-bar adapter.
+
+Shared owns:
+
+- the project-owned snack-bar presentation component;
+- business-neutral visual feedback primitives.
+
+The application shell owns the single application-level snack-bar or overlay presentation boundary where required by the final implementation.
+
+Features:
+
+- request feedback through the project-owned abstraction;
+- MUST NOT depend directly on `MatSnackBar` for ordinary application feedback;
+- MUST NOT create independent toast systems;
+- MUST NOT duplicate notification queues.
+
+The project-owned feedback API SHOULD support typed kinds such as success, information, warning, and error.
+
+Final durations, positions, colors, icons, animation values, and responsive layout MUST remain deferred until approved Figma and design-specification work.
+
+Duplicate equivalent feedback SHOULD be deduplicated. Queue size and simultaneous visibility MUST be bounded.
+
+Critical or actionable messages MUST NOT disappear before the user can perceive or act on them. Auto-dismiss duration MUST account for message length and accessibility.
+
+Hover, keyboard focus, action interaction, and screen-reader behavior MUST be considered before dismissal. Snack-bar actions MUST be keyboard accessible.
+
+Information and success announcements SHOULD use a polite live region. Urgent errors MAY use assertive announcement only when genuinely necessary.
+
+A snack bar MUST NOT steal focus automatically. Reduced-motion preferences MUST be respected.
+
+Untrusted HTML MUST NOT be rendered inside feedback messages.
+
+Repeated server or polling failures MUST NOT flood the user with duplicate snack bars.
+
+Logout or expired-session feedback MAY use a snack bar only as supplementary information; redirect and authentication-state transition remain authoritative.
+
+The custom presentation component MUST be styled through the project SCSS theme and approved Angular Material customization APIs. It MUST NOT depend on undocumented Angular Material internal selectors.
+
 ## HTTP Retry And Idempotency
 
 `POST`, `PUT`, `PATCH`, and `DELETE` requests MUST NOT be retried automatically.
@@ -824,6 +994,17 @@ The architecture requires:
 - permission-aware presentation tests;
 - payment trust-boundary tests;
 - exam trust-boundary tests;
+- feedback service tests;
+- feedback queue and deduplication tests;
+- Angular Material snack-bar adapter tests;
+- contextual error-presentation policy tests;
+- validation-error mapping tests;
+- no-raw-server-error exposure tests;
+- accessibility announcement tests;
+- keyboard action and dismissal tests;
+- reduced-motion behavior tests where animation exists;
+- theme-token and Angular Material theme-integration smoke tests;
+- checks preventing Tailwind dependencies or configuration from being introduced;
 - accessibility-focused component tests where practical.
 
 Automated accessibility testing MUST include AXE. AXE does not replace keyboard, focus, screen-reader, or manual accessibility review.
@@ -837,6 +1018,8 @@ Critical browser journeys MUST eventually run against the real Development backe
 This architecture document MUST NOT establish a permanent repository-wide coverage percentage.
 
 Coverage thresholds belong in phase specifications and CI decisions, while security-critical behavior MUST always have direct behavioral tests regardless of percentage.
+
+Visual snapshot testing is not a permanent requirement and MUST NOT be adopted as one without separate approval.
 
 ## Browser Policy
 
@@ -893,6 +1076,20 @@ Duplicate safe HTTP work MAY be shared only when ownership, lifetime, caching, a
 Network waterfalls SHOULD be avoided in route activation and dashboard loading when requests can be safely coordinated.
 
 Performance optimizations MUST NOT weaken correctness, security, or accessibility.
+
+Angular Material imports MUST remain selective to preserve tree shaking.
+
+Global CSS and component-style budgets MUST be established during scaffold planning. Angular CLI `anyComponentStyle` or the appropriate supported style budget SHOULD be evaluated.
+
+Duplicate theme generation MUST be prevented. Unused global selectors and unused SCSS utilities MUST NOT accumulate.
+
+Feature deletion MUST allow its private SCSS to be removed with the feature.
+
+A shared style abstraction requires demonstrated reuse. A one-off style MUST NOT be promoted into a global mixin or utility prematurely.
+
+Styling optimization MUST be measured with Production builds and browser tooling.
+
+Organization and reuse MUST NOT create excessive abstraction or a universal styling framework inside the project.
 
 ## Build And Deployment Configuration
 

@@ -145,7 +145,12 @@ Nursing Platform is a production-ready SaaS platform built using modern engineer
 - Standalone Components
 - Signals
 - RxJS
-- Tailwind CSS
+- Angular Material
+- Angular CDK where required
+- SCSS
+- Project-owned Angular Material theme
+
+Frontend agents must follow the styling, theming, and user-feedback rules in `docs/frontend/frontend-architecture.md`.
 
 ---
 

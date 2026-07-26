@@ -109,6 +109,8 @@ This repository contains project documentation, backend code, frontend code, scr
 
 The AI must always treat the repository documentation as the primary source of truth.
 
+OpenCode multi-agent work must follow `docs/development/model-orchestration.md`. That document is the authority for model routing, delegation, independent review, evidence, and escalation. Only `openai/gpt-5.5` may be configured as the project's OpenAI orchestrator; no other project OpenAI model may be configured for delegation or fallback.
+
 When multiple documents exist:
 
 - `docs/*` defines architecture and implementation rules.

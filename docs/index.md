@@ -20,7 +20,8 @@ When starting work on the project, review the documentation in the following ord
 6. API Design
 7. Engineering Standards
 8. Development Guide
-9. Deployment Guide
+9. Model Orchestration
+10. Deployment Guide
 
 ---
 
@@ -134,6 +135,16 @@ Location:
 
 ```
 docs/development/development-guide.md
+```
+
+### model-orchestration.md
+
+Defines the authority for model routing, delegation, independent review, evidence, and escalation for OpenCode multi-agent work in this repository.
+
+Location:
+
+```
+docs/development/model-orchestration.md
 ```
 
 ---

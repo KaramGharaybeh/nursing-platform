@@ -108,6 +108,28 @@ Responsible for:
 
 ---
 
+## Preparation Packages (Planned)
+
+Responsible for the planned paid preparation package product and its four logical benefit rights:
+
+- Managed study materials (managed content library with immutable published versions).
+- Practice question bank (separate runtime content from exam content, with immediate feedback).
+- Package-scoped exam attempt (one attempt per active entitlement, consumed atomically with the qualifying session creation).
+- Analytical report (one immutable diagnostic report per qualifying session).
+
+This module is currently in the documentation/specification phase. The umbrella architecture-decisions specification is reviewed and approved, and the underlying DA1–DA10 business and architecture decisions plus the reporting-profile transition remain approved. This approval covers the recorded architecture decisions only; no preparation-package capability is implemented. Staged specifications and implementation plans remain separate and unapproved, and Stage 1 has not begun. The Examination module continues to own standalone paid and free mock-exam behavior unchanged. See `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md` for the recorded decisions, deferred features, and staged-specification boundaries.
+
+Approved architectural direction for the preparation package module:
+
+- The package domain is additive at the architectural level. Existing handlers, entities, DTOs, tests, and persistence will require backward-compatible modification, but existing standalone-exam behavior is preserved.
+- One package purchase entitlement grants four independently authorizable benefit rights.
+- A package version references one exact published exam version, one compatible immutable reporting-profile publication, an ordered list of specific published material versions, and one specific practice collection version.
+- A package-attempt exam session start is a separate operation from a standalone or free exam session start, records provenance, and consumes the attempt atomically with the qualifying session creation.
+- The analytical report references one compatible immutable reporting-profile publication that is separate from the immutable published exam version.
+- `ExamAccessGrant` is preserved for standalone paid-exam access and is not repurposed as the package's exam-attempt right.
+
+---
+
 ## Recruitment
 
 Responsible for:
@@ -288,7 +310,7 @@ Examples include:
 
 # Future Expansion
 
-The architecture is intentionally designed to allow future modules without modifying existing business logic.
+Future modules should be introduced through backward-compatible extension so existing observable behavior remains stable. Necessary changes to existing modules are allowed when explicitly specified, reviewed, and tested. Unnecessary redesign and breaking changes should be avoided.
 
 Examples include:
 
@@ -298,6 +320,7 @@ Examples include:
 - Mobile Applications
 - Internationalization
 - Notification Services
+- Preparation Package extensions beyond the first commercial launch (multi-exam bundles, cross-country and cross-category packages, practice-evidence reports, subscriptions, and additional benefits). These extensions are explicitly deferred by the approved umbrella architecture-decisions specification.
 
 ---
 

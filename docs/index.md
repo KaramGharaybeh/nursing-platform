@@ -152,6 +152,20 @@ docs/deployment/deployment.md
 
 ---
 
+## Specifications
+
+### preparation-package-architecture-decisions.md
+
+Approved umbrella architecture-decisions specification for the planned paid preparation package product. The umbrella approval covers the recorded architecture decisions, including DA1–DA10 and the reporting-profile transition, but does not implement any preparation-package capability. Staged specifications and implementation plans remain separate and unapproved, and Stage 1 has not begun. The specification records approved business invariants and architectural directions, explicitly deferred features, design details reserved for staged specifications, and launch-time configuration decisions.
+
+Location:
+
+```
+docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md
+```
+
+---
+
 # Documentation Principles
 
 Every document in this directory has a single responsibility.

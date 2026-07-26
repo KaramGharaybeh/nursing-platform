@@ -296,8 +296,11 @@ Examples:
 - Exams
 - Recruitment
 - Administration
+- Preparation Packages (planned, currently in the documentation/specification phase)
 
-The architecture should allow adding new modules without changing existing modules.
+The architecture should allow adding new modules through backward-compatible extension, without unnecessary redesign or breaking the observable behavior of existing modules.
+
+Approved architectural direction for the planned Preparation Packages module: it is additive at the architectural level, preserves existing standalone-exam behavior, and is introduced through separately reviewed staged specifications. The linked umbrella architecture-decisions specification is reviewed and approved, and the underlying DA1–DA10 decisions plus the reporting-profile transition remain approved. This approval covers architecture decisions only; no preparation-package capability is implemented, staged specifications and implementation plans remain separate and unapproved, and Stage 1 has not begun. See `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md` for the recorded decisions and staged-specification boundaries.
 
 ---
 

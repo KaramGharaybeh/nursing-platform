@@ -351,6 +351,20 @@ These endpoints are intended for monitoring and orchestration.
 
 This section documents the backend payment and purchased-exam-access contracts currently implemented for local frontend development. Sandbox payment behavior is Development/Test-only and must not be presented as a production payment provider.
 
+## Planned Preparation Package APIs
+
+A paid preparation package product is approved as an architecture decision but is not yet implemented. No preparation package API is implemented today. The planned package will introduce, at minimum:
+
+- Package catalog endpoints for browsing purchasable package offers.
+- Package-attempt exam session start as a distinct operation from standalone exam session start, with explicit package purchase entitlement selection and atomic attempt consumption.
+- Benefit-right-enforced access to managed study materials, the practice question bank, the package-scoped exam attempt, and the immutable analytical report.
+
+The package will be introduced as an additive extension of existing payment and exam-access contracts. In particular, this is expected to include additive extension of order-item snapshots to cover package offers, extension of checkout and payment completion to package offers, package purchase entitlements as a new entitlement type distinct from `ExamAccessGrant`, and authorized materials/practice/report access endpoints gated by the four package benefit rights. No concrete routes or DTOs are approved at this stage.
+
+Every new exam session has one immutable logical source: free, standalone grant-authorized, or one specific Package Purchase attempt. Session source and provenance cannot be rewritten after creation. Existing `isFree` and `canStart` semantics remain backward compatible for free and standalone access; package availability and package-attempt eligibility are represented as separate additive capability information. Existing `canStart` must not silently include, select, or consume package rights.
+
+The umbrella architecture-decisions specification is reviewed and approved, but concrete capability response fields, endpoint paths, request/response DTOs, status codes, error codes, pagination, authorization requirements, and persistence are not approved. They remain subject to separately authorized and reviewed staged specifications and implementation plans; Stage 1 has not begun. Existing standalone paid-exam, free-exam, and grant-authorized exam session contracts remain observably unchanged. See `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md` for the recorded decisions, deferred features, and staged-specification boundaries.
+
 ## Payment Product Catalog
 
 Payment product catalog endpoints require JWT authentication with `.RequireAuthorization()` and do not require an additional permission policy.

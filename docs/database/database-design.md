@@ -74,8 +74,24 @@ Examples include:
 - Recruitment
 - Administration
 - Payments
+- Preparation Packages (planned, currently in the documentation/specification phase)
 
 Future database partitioning or service decomposition should not require redesigning the domain model.
+
+## Planned Preparation Package Domain
+
+A preparation package domain is approved as an architecture decision but is not yet implemented. The umbrella architecture-decisions specification is reviewed and approved, and the underlying DA1–DA10 decisions plus the reporting-profile transition remain approved. The approval covers the recorded business invariants and architectural directions only; concrete table designs, entity names, properties, relationships, indexes, migrations, staged specifications, and implementation plans remain separate and unapproved. Stage 1 has not begun.
+
+Approved directions affecting the planned schema:
+
+- One package purchase entitlement grants four independently authorizable benefit rights (materials, practice, exam attempt, and report).
+- A package version references one exact published exam version, one compatible immutable reporting-profile publication, an ordered list of specific published material versions, and one specific practice collection version.
+- The reporting-profile publication is separate from the immutable published exam version.
+- A package-attempt exam session records provenance distinct from a standalone `ExamAccessGrant` session, while preserving existing `ExamAccessGrant` semantics for standalone paid-exam access.
+- The existing unique permanent-grant index on `ExamAccessGrant` (one permanent grant per `NurseProfileId` + `ExamId`) is not violated by package fulfillment; a package attempt is not a permanent grant.
+- Purchased-offer snapshots are immutable; later changes to package definitions, package versions, offers, materials, practice collections, or reporting profiles do not mutate existing order item snapshots or existing entitlements.
+
+No migration is created or approved by this document. See `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md` for the recorded decisions and staged-specification boundaries.
 
 ---
 

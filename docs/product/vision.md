@@ -111,6 +111,19 @@ The platform consists of several independent modules.
 
 ---
 
+## Preparation Packages (Planned)
+
+The platform is adding a paid preparation package product alongside the existing standalone paid mock-exam product. A preparation package is scoped to one exam's Country and ExamCategory and bundles four benefits into one product:
+
+- Managed study materials (a managed content library with immutable published versions).
+- A practice question bank with immediate feedback, separate from exam content.
+- One package-scoped mock-exam attempt, consumed atomically with the qualifying session creation.
+- One immutable analytical report generated from the qualifying session.
+
+This module is currently in the documentation/specification phase. The umbrella architecture-decisions specification is reviewed and approved, and the underlying DA1–DA10 business and architecture decisions plus the reporting-profile transition remain approved. This approval covers the recorded architecture decisions only; no preparation-package capability is implemented. Staged specifications and implementation plans remain separate and unapproved, and Stage 1 has not begun. See `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md` for the recorded decisions, deferred features, and staged-specification boundaries.
+
+---
+
 ## Recruitment Engine
 
 - Advanced candidate search
@@ -194,6 +207,7 @@ Future versions may include:
 - Analytics dashboards.
 - Subscription plans.
 - AI-assisted recruitment.
+- Preparation package extensions beyond the first commercial launch (multi-exam bundles, practice-evidence reports, comparative reports, cross-country packages, subscriptions, and additional benefits). These extensions are explicitly deferred by the approved umbrella architecture-decisions specification.
 
 ---
 

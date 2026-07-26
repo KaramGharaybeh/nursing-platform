@@ -2,7 +2,7 @@
 
 ## 1. Status
 
-Draft — Stage 1 Specification Pending Review
+Approved — Stage 1 Specification
 
 This specification is a staged product and architecture specification only. It does not authorize implementation, implementation planning, source-code changes, database migrations, API implementation, tests, frontend screens, staging, committing, pushing, or beginning Stage 2, Stage 3, or Stage 4.
 

@@ -4,6 +4,7 @@ using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
 using NursingPlatform.Domain.Payments;
+using NursingPlatform.Domain.PreparationPackages;
 using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Domain.ReferenceData;
 
@@ -45,6 +46,20 @@ public interface IApplicationDbContext
     DbSet<PaymentOrder> PaymentOrders { get; }
     DbSet<PaymentOrderItem> PaymentOrderItems { get; }
     DbSet<PaymentCheckoutSession> PaymentCheckoutSessions { get; }
+    DbSet<PreparationPackageDefinition> PreparationPackageDefinitions { get; }
+    DbSet<PreparationPackageVersion> PreparationPackageVersions { get; }
+    DbSet<PreparationPackageVersionMaterial> PreparationPackageVersionMaterials { get; }
+    DbSet<PreparationPackageOffer> PreparationPackageOffers { get; }
+    DbSet<StudyMaterial> StudyMaterials { get; }
+    DbSet<StudyMaterialVersion> StudyMaterialVersions { get; }
+    DbSet<StudyMaterialVersionTopic> StudyMaterialVersionTopics { get; }
+    DbSet<PracticeCollection> PracticeCollections { get; }
+    DbSet<PracticeCollectionVersion> PracticeCollectionVersions { get; }
+    DbSet<PracticeItem> PracticeItems { get; }
+    DbSet<PracticeAnswerOption> PracticeAnswerOptions { get; }
+    DbSet<ReportingTopic> ReportingTopics { get; }
+    DbSet<ReportingProfilePublication> ReportingProfilePublications { get; }
+    DbSet<ReportingProfileQuestionAssignment> ReportingProfileQuestionAssignments { get; }
     Task<IApplicationDbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
     Task<int> AcquirePaymentCheckoutProviderLeaseAsync(
         Guid checkoutSessionId,

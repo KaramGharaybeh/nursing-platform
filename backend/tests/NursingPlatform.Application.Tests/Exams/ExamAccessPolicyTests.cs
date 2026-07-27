@@ -13,6 +13,7 @@ using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
 using NursingPlatform.Domain.Payments;
+using NursingPlatform.Domain.PreparationPackages;
 using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Domain.ReferenceData;
 
@@ -544,6 +545,20 @@ public class ExamAccessPolicyTests
         public DbSet<PaymentOrder> PaymentOrders => Set<PaymentOrder>();
         public DbSet<PaymentOrderItem> PaymentOrderItems => Set<PaymentOrderItem>();
         public DbSet<PaymentCheckoutSession> PaymentCheckoutSessions => Set<PaymentCheckoutSession>();
+        public DbSet<PreparationPackageDefinition> PreparationPackageDefinitions => Set<PreparationPackageDefinition>();
+        public DbSet<PreparationPackageVersion> PreparationPackageVersions => Set<PreparationPackageVersion>();
+        public DbSet<PreparationPackageVersionMaterial> PreparationPackageVersionMaterials => Set<PreparationPackageVersionMaterial>();
+        public DbSet<PreparationPackageOffer> PreparationPackageOffers => Set<PreparationPackageOffer>();
+        public DbSet<StudyMaterial> StudyMaterials => Set<StudyMaterial>();
+        public DbSet<StudyMaterialVersion> StudyMaterialVersions => Set<StudyMaterialVersion>();
+        public DbSet<StudyMaterialVersionTopic> StudyMaterialVersionTopics => Set<StudyMaterialVersionTopic>();
+        public DbSet<PracticeCollection> PracticeCollections => Set<PracticeCollection>();
+        public DbSet<PracticeCollectionVersion> PracticeCollectionVersions => Set<PracticeCollectionVersion>();
+        public DbSet<PracticeItem> PracticeItems => Set<PracticeItem>();
+        public DbSet<PracticeAnswerOption> PracticeAnswerOptions => Set<PracticeAnswerOption>();
+        public DbSet<ReportingTopic> ReportingTopics => Set<ReportingTopic>();
+        public DbSet<ReportingProfilePublication> ReportingProfilePublications => Set<ReportingProfilePublication>();
+        public DbSet<ReportingProfileQuestionAssignment> ReportingProfileQuestionAssignments => Set<ReportingProfileQuestionAssignment>();
 
         public Task<IApplicationDbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
         {

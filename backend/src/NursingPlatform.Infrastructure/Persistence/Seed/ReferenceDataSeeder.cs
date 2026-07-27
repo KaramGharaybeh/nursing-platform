@@ -74,32 +74,51 @@ public static class ReferenceDataSeeder
 
     private static async Task SeedPermissionsAsync(ApplicationDbContext context)
     {
-        if (await context.Set<Permission>().AnyAsync())
+        var permissions = new[]
+        {
+            new Permission { Id = new Guid("3C4D5E6F-7081-492A-3B4C-5D6E7F8091A2"), Name = "Users.View", Description = "View users" },
+            new Permission { Id = new Guid("4D5E6F70-8192-4A3B-4C5D-6E7F8091A2B3"), Name = "Users.Create", Description = "Create users" },
+            new Permission { Id = new Guid("5E6F7081-92A3-4B4C-5D6E-7F8091A2B3C4"), Name = "Users.Edit", Description = "Edit users" },
+            new Permission { Id = new Guid("6F708192-A3B4-4C5D-6E7F-8091A2B3C4D5"), Name = "Users.Delete", Description = "Delete users" },
+            new Permission { Id = new Guid("708192A3-B4C5-4D6E-7F80-91A2B3C4D5E6"), Name = "Roles.View", Description = "View roles" },
+            new Permission { Id = new Guid("8192A3B4-C5D6-4E7F-8091-A2B3C4D5E6F7"), Name = "Roles.Manage", Description = "Manage roles" },
+            new Permission { Id = new Guid("92A3B4C5-D6E7-4F80-91A2-B3C4D5E6F708"), Name = "Permissions.View", Description = "View permissions" },
+            new Permission { Id = new Guid("A3B4C5D6-E7F8-4091-A2B3-C4D5E6F70819"), Name = "Permissions.Manage", Description = "Manage permissions" },
+            new Permission { Id = new Guid("B4C5D6E7-F809-41A2-B3C4-D5E6F708192A"), Name = "Countries.View", Description = "View countries" },
+            new Permission { Id = new Guid("C5D6E7F8-091A-42B3-C4D5-E6F708192A3B"), Name = "Countries.Manage", Description = "Manage countries" },
+            new Permission { Id = new Guid("D6E7F809-1A2B-43C4-D5E6-F708192A3B4C"), Name = "Languages.View", Description = "View languages" },
+            new Permission { Id = new Guid("E7F8091A-2B3C-44D5-E6F7-08192A3B4C5D"), Name = "Languages.Manage", Description = "Manage languages" },
+            new Permission { Id = new Guid("01ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Exams.View", Description = "View exams" },
+            new Permission { Id = new Guid("02ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Exams.Create", Description = "Create exams" },
+            new Permission { Id = new Guid("03ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Exams.Edit", Description = "Edit exams" },
+            new Permission { Id = new Guid("04ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Exams.Delete", Description = "Delete exams" },
+            new Permission { Id = new Guid("05ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Questions.View", Description = "View questions" },
+            new Permission { Id = new Guid("06ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Questions.Manage", Description = "Manage questions" },
+            new Permission { Id = new Guid("07ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Nurses.View", Description = "View nurses" },
+            new Permission { Id = new Guid("08ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Employers.View", Description = "View employers" },
+            new Permission { Id = new Guid("09ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = Permissions.PreparationPackages.View, Description = "View preparation packages" },
+            new Permission { Id = new Guid("0AABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = Permissions.PreparationPackages.Manage, Description = "Manage preparation packages" },
+            new Permission { Id = new Guid("0BABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = Permissions.PreparationPackages.Publish, Description = "Publish preparation packages" },
+            new Permission { Id = new Guid("0CABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = Permissions.PreparationPackageOffers.Manage, Description = "Manage preparation package offers" },
+            new Permission { Id = new Guid("0DABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = Permissions.StudyMaterials.Manage, Description = "Manage study materials" },
+            new Permission { Id = new Guid("0EABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = Permissions.PracticeCollections.Manage, Description = "Manage practice collections" },
+            new Permission { Id = new Guid("0FABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = Permissions.ReportingTopics.Manage, Description = "Manage reporting topics" },
+            new Permission { Id = new Guid("10ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = Permissions.ReportingProfiles.Manage, Description = "Manage reporting profiles" },
+        };
+
+        var existingPermissionNames = await context.Set<Permission>()
+            .Select(permission => permission.Name)
+            .ToListAsync();
+        var existingPermissionNameSet = existingPermissionNames.ToHashSet(StringComparer.Ordinal);
+
+        var missingPermissions = permissions
+            .Where(permission => !existingPermissionNameSet.Contains(permission.Name))
+            .ToList();
+
+        if (missingPermissions.Count == 0)
             return;
 
-        context.Set<Permission>().AddRange(
-        [
-            new() { Id = new Guid("3C4D5E6F-7081-492A-3B4C-5D6E7F8091A2"), Name = "Users.View", Description = "View users" },
-            new() { Id = new Guid("4D5E6F70-8192-4A3B-4C5D-6E7F8091A2B3"), Name = "Users.Create", Description = "Create users" },
-            new() { Id = new Guid("5E6F7081-92A3-4B4C-5D6E-7F8091A2B3C4"), Name = "Users.Edit", Description = "Edit users" },
-            new() { Id = new Guid("6F708192-A3B4-4C5D-6E7F-8091A2B3C4D5"), Name = "Users.Delete", Description = "Delete users" },
-            new() { Id = new Guid("708192A3-B4C5-4D6E-7F80-91A2B3C4D5E6"), Name = "Roles.View", Description = "View roles" },
-            new() { Id = new Guid("8192A3B4-C5D6-4E7F-8091-A2B3C4D5E6F7"), Name = "Roles.Manage", Description = "Manage roles" },
-            new() { Id = new Guid("92A3B4C5-D6E7-4F80-91A2-B3C4D5E6F708"), Name = "Permissions.View", Description = "View permissions" },
-            new() { Id = new Guid("A3B4C5D6-E7F8-4091-A2B3-C4D5E6F70819"), Name = "Permissions.Manage", Description = "Manage permissions" },
-            new() { Id = new Guid("B4C5D6E7-F809-41A2-B3C4-D5E6F708192A"), Name = "Countries.View", Description = "View countries" },
-            new() { Id = new Guid("C5D6E7F8-091A-42B3-C4D5-E6F708192A3B"), Name = "Countries.Manage", Description = "Manage countries" },
-            new() { Id = new Guid("D6E7F809-1A2B-43C4-D5E6-F708192A3B4C"), Name = "Languages.View", Description = "View languages" },
-            new() { Id = new Guid("E7F8091A-2B3C-44D5-E6F7-08192A3B4C5D"), Name = "Languages.Manage", Description = "Manage languages" },
-            new() { Id = new Guid("01ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Exams.View", Description = "View exams" },
-            new() { Id = new Guid("02ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Exams.Create", Description = "Create exams" },
-            new() { Id = new Guid("03ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Exams.Edit", Description = "Edit exams" },
-            new() { Id = new Guid("04ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Exams.Delete", Description = "Delete exams" },
-            new() { Id = new Guid("05ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Questions.View", Description = "View questions" },
-            new() { Id = new Guid("06ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Questions.Manage", Description = "Manage questions" },
-            new() { Id = new Guid("07ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Nurses.View", Description = "View nurses" },
-            new() { Id = new Guid("08ABCDEF-1234-4ABC-8DEF-0123456789AB"), Name = "Employers.View", Description = "View employers" },
-        ]);
+        context.Set<Permission>().AddRange(missingPermissions);
 
         await context.SaveChangesAsync();
     }

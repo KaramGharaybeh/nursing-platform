@@ -28,7 +28,7 @@ public class ReferenceDataSeederTests
     }
 
     [Fact]
-    public async Task SeedAsync_SuperAdmin_GetsAllTwentyPermissions()
+    public async Task SeedAsync_SuperAdmin_GetsAllPermissions()
     {
         var context = CreateDbContext();
 
@@ -38,11 +38,11 @@ public class ReferenceDataSeederTests
             .Where(rp => rp.Role.Name == "SuperAdmin")
             .CountAsync();
 
-        Assert.Equal(20, pairs);
+        Assert.Equal(28, pairs);
     }
 
     [Fact]
-    public async Task SeedAsync_Admin_GetsAllTwentyPermissions()
+    public async Task SeedAsync_Admin_GetsAllPermissions()
     {
         var context = CreateDbContext();
 
@@ -52,7 +52,7 @@ public class ReferenceDataSeederTests
             .Where(rp => rp.Role.Name == "Admin")
             .CountAsync();
 
-        Assert.Equal(20, pairs);
+        Assert.Equal(28, pairs);
     }
 
     [Fact]
@@ -92,7 +92,7 @@ public class ReferenceDataSeederTests
         await ReferenceDataSeeder.SeedAsync(context);
 
         var pairCount = await context.Set<RolePermission>().CountAsync();
-        Assert.Equal(40, pairCount);
+        Assert.Equal(56, pairCount);
     }
 
     [Fact]
@@ -112,7 +112,7 @@ public class ReferenceDataSeederTests
         await ReferenceDataSeeder.SeedAsync(context);
 
         var pairCount = await context.Set<RolePermission>().CountAsync();
-        Assert.Equal(40, pairCount);
+        Assert.Equal(56, pairCount);
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public class ReferenceDataSeederTests
         await ReferenceDataSeeder.SeedAsync(context);
 
         var allPairs = await context.Set<RolePermission>().ToListAsync();
-        Assert.Equal(40, allPairs.Count);
+        Assert.Equal(56, allPairs.Count);
         Assert.Single(allPairs, rp =>
             rp.RoleId == superAdmin.Id && rp.PermissionId == usersView.Id);
     }
@@ -166,12 +166,50 @@ public class ReferenceDataSeederTests
         await ReferenceDataSeeder.SeedAsync(context);
 
         var allPairs = await context.Set<RolePermission>().ToListAsync();
-        Assert.Equal(40, allPairs.Count);
+        Assert.Equal(56, allPairs.Count);
 
         var experimentalPermission = await context.Set<Permission>()
             .FirstAsync(p => p.Name == "Experimental.Manage");
         var extraGranted = allPairs.Count(rp =>
             rp.PermissionId == experimentalPermission.Id);
         Assert.Equal(0, extraGranted);
+    }
+
+    [Fact]
+    public async Task PreparationPackagePermissionSeedData_IncludesDedicatedPermissions()
+    {
+        var context = CreateDbContext();
+        var expectedPermissions = new[]
+        {
+            "PreparationPackages.View",
+            "PreparationPackages.Manage",
+            "PreparationPackages.Publish",
+            "PreparationPackageOffers.Manage",
+            "StudyMaterials.Manage",
+            "PracticeCollections.Manage",
+            "ReportingTopics.Manage",
+            "ReportingProfiles.Manage"
+        };
+
+        await ReferenceDataSeeder.SeedAsync(context);
+
+        var permissionNames = await context.Set<Permission>()
+            .Select(permission => permission.Name)
+            .ToListAsync();
+
+        Assert.All(expectedPermissions, permission => Assert.Contains(permission, permissionNames));
+    }
+
+    [Fact]
+    public async Task PreparationPackagePermissionSeedData_HasNoDuplicateNamesOrIds()
+    {
+        var context = CreateDbContext();
+
+        await ReferenceDataSeeder.SeedAsync(context);
+
+        var permissions = await context.Set<Permission>().ToListAsync();
+
+        Assert.Equal(permissions.Count, permissions.Select(permission => permission.Id).Distinct().Count());
+        Assert.Equal(permissions.Count, permissions.Select(permission => permission.Name).Distinct(StringComparer.Ordinal).Count());
     }
 }

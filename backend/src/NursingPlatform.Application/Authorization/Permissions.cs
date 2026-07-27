@@ -58,6 +58,38 @@ public static class Permissions
         public const string View = "Employers.View";
     }
 
+    public static class PreparationPackages
+    {
+        public const string View = "PreparationPackages.View";
+        public const string Manage = "PreparationPackages.Manage";
+        public const string Publish = "PreparationPackages.Publish";
+    }
+
+    public static class PreparationPackageOffers
+    {
+        public const string Manage = "PreparationPackageOffers.Manage";
+    }
+
+    public static class StudyMaterials
+    {
+        public const string Manage = "StudyMaterials.Manage";
+    }
+
+    public static class PracticeCollections
+    {
+        public const string Manage = "PracticeCollections.Manage";
+    }
+
+    public static class ReportingTopics
+    {
+        public const string Manage = "ReportingTopics.Manage";
+    }
+
+    public static class ReportingProfiles
+    {
+        public const string Manage = "ReportingProfiles.Manage";
+    }
+
     public static readonly string[] All =
     [
         Users.Create, Users.View, Users.Edit, Users.Delete,
@@ -68,7 +100,13 @@ public static class Permissions
         Exams.View, Exams.Create, Exams.Edit, Exams.Delete,
         Questions.View, Questions.Manage,
         Nurses.View,
-        Employers.View
+        Employers.View,
+        PreparationPackages.View, PreparationPackages.Manage, PreparationPackages.Publish,
+        PreparationPackageOffers.Manage,
+        StudyMaterials.Manage,
+        PracticeCollections.Manage,
+        ReportingTopics.Manage,
+        ReportingProfiles.Manage
     ];
 
     public static readonly string[] Admin = All;

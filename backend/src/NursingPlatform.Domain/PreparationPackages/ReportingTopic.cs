@@ -33,6 +33,19 @@ public class ReportingTopic : AuditableEntity
         IsActive = false;
     }
 
+    public void Update(Guid examCategoryId, string name, string slug, string? description)
+    {
+        if (examCategoryId == Guid.Empty)
+        {
+            throw new InvalidOperationException("examCategoryId is required.");
+        }
+
+        ExamCategoryId = examCategoryId;
+        Name = NormalizeRequired(name, nameof(name));
+        Slug = NormalizeRequired(slug, nameof(slug));
+        Description = NormalizeOptional(description);
+    }
+
     private static string NormalizeRequired(string value, string parameterName)
     {
         if (string.IsNullOrWhiteSpace(value))

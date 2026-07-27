@@ -41,6 +41,20 @@ public class PreparationPackageDomainTests
     }
 
     [Fact]
+    public void DraftPracticeCollectionVersion_CanReplaceItemsBeforePublish()
+    {
+        var version = PracticeCollectionVersion.CreateDraft(Guid.NewGuid(), 1);
+        version.AddPracticeItem(CreatePracticeItem());
+        var replacement = CreatePracticeItem(displayOrder: 2);
+
+        version.ReplaceDraftItems([replacement]);
+
+        var item = Assert.Single(version.Items);
+        Assert.Equal(2, item.DisplayOrder);
+        Assert.Equal(version.Id, item.PracticeCollectionVersionId);
+    }
+
+    [Fact]
     public void PublishedReportingProfile_IsImmutableAfterPublish()
     {
         var profile = ReportingProfilePublication.CreateDraft(Guid.NewGuid(), "NCLEX profile");
@@ -178,6 +192,61 @@ public class PreparationPackageDomainTests
     }
 
     [Fact]
+    public void ReportingTopic_Update_ChangesEditableCatalogFieldsAndPreservesIdentity()
+    {
+        var categoryId = Guid.NewGuid();
+        var topic = ReportingTopic.Create(categoryId, "Pharmacology", "pharmacology", "Initial");
+
+        topic.Update(categoryId, "Updated Pharmacology", "updated-pharmacology", "Updated");
+
+        Assert.Equal(categoryId, topic.ExamCategoryId);
+        Assert.Equal("Updated Pharmacology", topic.Name);
+        Assert.Equal("updated-pharmacology", topic.Slug);
+        Assert.Equal("Updated", topic.Description);
+        Assert.True(topic.IsActive);
+    }
+
+    [Fact]
+    public void PreparationPackageDefinition_Update_ChangesEditableCatalogFieldsAndPreservesIdentity()
+    {
+        var countryId = Guid.NewGuid();
+        var categoryId = Guid.NewGuid();
+        var definition = PreparationPackageDefinition.Create(countryId, categoryId, "NCLEX Prep", "nclex-prep", "Initial");
+
+        definition.Update(countryId, categoryId, "Updated NCLEX Prep", "updated-nclex-prep", "Updated");
+
+        Assert.Equal(countryId, definition.CountryId);
+        Assert.Equal(categoryId, definition.ExamCategoryId);
+        Assert.Equal("Updated NCLEX Prep", definition.Title);
+        Assert.Equal("updated-nclex-prep", definition.Slug);
+        Assert.Equal("Updated", definition.Description);
+    }
+
+    [Fact]
+    public void PreparationPackageOffer_UpdateDraft_ChangesCommercialFieldsOnlyWhileDraft()
+    {
+        var definitionId = Guid.NewGuid();
+        var versionId = Guid.NewGuid();
+        var offer = PreparationPackageOffer.CreateDraft(definitionId, versionId, "Offer", "offer", "Initial", 1000, "usd", 30);
+
+        offer.UpdateDraft(definitionId, versionId, "Updated Offer", "updated-offer", "Updated", 2000, "cad", 60);
+
+        Assert.Equal(definitionId, offer.PreparationPackageDefinitionId);
+        Assert.Equal(versionId, offer.PreparationPackageVersionId);
+        Assert.Equal("Updated Offer", offer.Title);
+        Assert.Equal("updated-offer", offer.Slug);
+        Assert.Equal("Updated", offer.Summary);
+        Assert.Equal(2000, offer.PriceAmountMinor);
+        Assert.Equal("CAD", offer.Currency);
+        Assert.Equal(60, offer.AccessDurationDays);
+        Assert.Throws<InvalidOperationException>(() => offer.UpdateDraft(definitionId, versionId, " ", "slug", null, 1000, "USD", 30));
+
+        offer.Activate(new DateTime(2026, 7, 27, 9, 0, 0, DateTimeKind.Utc));
+
+        Assert.Throws<InvalidOperationException>(() => offer.UpdateDraft(definitionId, versionId, "After Publish", "after-publish", null, 1000, "USD", 30));
+    }
+
+    [Fact]
     public void PracticeCollectionVersion_CannotPublishWithoutPracticeItems()
     {
         var version = PracticeCollectionVersion.CreateDraft(Guid.NewGuid(), 1);
@@ -258,13 +327,13 @@ public class PreparationPackageDomainTests
             [Guid.NewGuid()]));
     }
 
-    private static PracticeItem CreatePracticeItem()
+    private static PracticeItem CreatePracticeItem(int displayOrder = 1)
     {
         var item = PracticeItem.Create(
             Guid.NewGuid(),
             "Independent practice prompt",
             "Independent practice feedback",
-            1);
+            displayOrder);
 
         item.AddAnswerOption("Correct option", true, 1);
         item.AddAnswerOption("Incorrect option", false, 2);

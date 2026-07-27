@@ -1,7 +1,11 @@
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Application.Common.Models;
+using NursingPlatform.Application.PreparationPackages.Common;
 using NursingPlatform.Application.PreparationPackages.DTOs;
+using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.Application.PreparationPackages.Admin.PackageOffers;
 
@@ -102,5 +106,95 @@ public class PreparationPackageOfferRequestValidator : AbstractValidator<CreateA
         RuleFor(x => x.PriceAmountMinor).GreaterThanOrEqualTo(0);
         RuleFor(x => x.Currency).NotEmpty().Matches("^[A-Z]{3}$");
         RuleFor(x => x.AccessDurationDays).GreaterThanOrEqualTo(1);
+    }
+}
+
+public class CreateAdminPreparationPackageOfferCommandHandler : IRequestHandler<CreateAdminPreparationPackageOfferCommand, AdminPreparationPackageOfferDto>
+{
+    private readonly IApplicationDbContext _context;
+    public CreateAdminPreparationPackageOfferCommandHandler(IApplicationDbContext context) => _context = context;
+    public async Task<AdminPreparationPackageOfferDto> Handle(CreateAdminPreparationPackageOfferCommand request, CancellationToken cancellationToken)
+    {
+        var definitionExists = await _context.PreparationPackageDefinitions.AnyAsync(d => d.Id == request.Request.PreparationPackageDefinitionId, cancellationToken);
+        if (!definitionExists) throw new KeyNotFoundException("Preparation package definition was not found.");
+        var versionExists = await _context.PreparationPackageVersions.AnyAsync(v => v.Id == request.Request.PreparationPackageVersionId && v.PreparationPackageDefinitionId == request.Request.PreparationPackageDefinitionId, cancellationToken);
+        if (!versionExists) throw new KeyNotFoundException("Preparation package version was not found.");
+        var offer = PreparationPackageOffer.CreateDraft(request.Request.PreparationPackageDefinitionId, request.Request.PreparationPackageVersionId, request.Request.Title, request.Request.Slug, request.Request.Summary, request.Request.PriceAmountMinor, request.Request.Currency, request.Request.AccessDurationDays);
+        _context.PreparationPackageOffers.Add(offer);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToPackageOfferDto(offer);
+    }
+}
+
+public class UpdateAdminPreparationPackageOfferCommandHandler : IRequestHandler<UpdateAdminPreparationPackageOfferCommand, AdminPreparationPackageOfferDto>
+{
+    private readonly IApplicationDbContext _context;
+    public UpdateAdminPreparationPackageOfferCommandHandler(IApplicationDbContext context) => _context = context;
+    public async Task<AdminPreparationPackageOfferDto> Handle(UpdateAdminPreparationPackageOfferCommand request, CancellationToken cancellationToken)
+    {
+        var offer = await _context.PreparationPackageOffers.FirstOrDefaultAsync(o => o.Id == request.Id, cancellationToken)
+            ?? throw new KeyNotFoundException("Preparation package offer was not found.");
+        offer.UpdateDraft(request.Request.PreparationPackageDefinitionId, request.Request.PreparationPackageVersionId, request.Request.Title, request.Request.Slug, request.Request.Summary, request.Request.PriceAmountMinor, request.Request.Currency, request.Request.AccessDurationDays);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToPackageOfferDto(offer);
+    }
+}
+
+public class ActivateAdminPreparationPackageOfferCommandHandler : IRequestHandler<ActivateAdminPreparationPackageOfferCommand, AdminPreparationPackageOfferDto>
+{
+    private readonly IApplicationDbContext _context;
+    public ActivateAdminPreparationPackageOfferCommandHandler(IApplicationDbContext context) => _context = context;
+    public async Task<AdminPreparationPackageOfferDto> Handle(ActivateAdminPreparationPackageOfferCommand request, CancellationToken cancellationToken)
+    {
+        var offer = await _context.PreparationPackageOffers.FirstOrDefaultAsync(o => o.Id == request.Id, cancellationToken)
+            ?? throw new KeyNotFoundException("Preparation package offer was not found.");
+        var version = await _context.PreparationPackageVersions.FirstOrDefaultAsync(v => v.Id == offer.PreparationPackageVersionId, cancellationToken)
+            ?? throw new KeyNotFoundException("Preparation package version was not found.");
+        if (version.Status != PreparationPackageVersionStatus.Published)
+        {
+            throw new InvalidOperationException("Only published package versions can be activated for sale.");
+        }
+
+        if (offer.PriceAmountMinor < 0 || offer.Currency.Length != 3 || offer.AccessDurationDays < 1)
+        {
+            throw new InvalidOperationException("Package offer commercial configuration is invalid.");
+        }
+
+        var activeExists = await _context.PreparationPackageOffers.AnyAsync(o => o.Id != offer.Id && o.PreparationPackageDefinitionId == offer.PreparationPackageDefinitionId && o.Status == PreparationPackageOfferStatus.Active, cancellationToken);
+        if (activeExists)
+        {
+            throw new InvalidOperationException("Only one active preparation package offer is allowed per package definition.");
+        }
+
+        offer.Activate(DateTime.UtcNow);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToPackageOfferDto(offer);
+    }
+}
+
+public class DeactivateAdminPreparationPackageOfferCommandHandler : IRequestHandler<DeactivateAdminPreparationPackageOfferCommand, AdminPreparationPackageOfferDto>
+{
+    private readonly IApplicationDbContext _context;
+    public DeactivateAdminPreparationPackageOfferCommandHandler(IApplicationDbContext context) => _context = context;
+    public async Task<AdminPreparationPackageOfferDto> Handle(DeactivateAdminPreparationPackageOfferCommand request, CancellationToken cancellationToken)
+    {
+        var offer = await _context.PreparationPackageOffers.FirstOrDefaultAsync(o => o.Id == request.Id, cancellationToken)
+            ?? throw new KeyNotFoundException("Preparation package offer was not found.");
+        offer.Deactivate(DateTime.UtcNow);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToPackageOfferDto(offer);
+    }
+}
+
+public class ListAdminPreparationPackageOffersQueryHandler : IRequestHandler<ListAdminPreparationPackageOffersQuery, PaginatedResult<AdminPreparationPackageOfferDto>>
+{
+    private readonly IApplicationDbContext _context;
+    public ListAdminPreparationPackageOffersQueryHandler(IApplicationDbContext context) => _context = context;
+    public async Task<PaginatedResult<AdminPreparationPackageOfferDto>> Handle(ListAdminPreparationPackageOffersQuery request, CancellationToken cancellationToken)
+    {
+        var query = _context.PreparationPackageOffers.AsQueryable();
+        if (request.PreparationPackageDefinitionId.HasValue) query = query.Where(o => o.PreparationPackageDefinitionId == request.PreparationPackageDefinitionId.Value);
+        var offers = await query.OrderBy(o => o.Title).ThenBy(o => o.Id).ToListAsync(cancellationToken);
+        return new PaginatedResult<AdminPreparationPackageOfferDto> { Items = offers.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Select(PreparationPackageMapping.ToPackageOfferDto).ToList(), Page = request.Page, PageSize = request.PageSize, TotalCount = offers.Count };
     }
 }

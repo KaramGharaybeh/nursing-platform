@@ -42,6 +42,29 @@ public class PracticeCollectionVersion : AuditableEntity
         _items.Add(item);
     }
 
+    public void ReplaceDraftItems(IEnumerable<PracticeItem> items)
+    {
+        EnsureDraft();
+
+        var replacements = items.ToList();
+        if (replacements.Count == 0)
+        {
+            throw new InvalidOperationException("A practice collection version must include at least one practice item.");
+        }
+
+        if (replacements.Select(item => item.DisplayOrder).Distinct().Count() != replacements.Count)
+        {
+            throw new InvalidOperationException("Practice item display order must be unique within a collection version.");
+        }
+
+        _items.Clear();
+        foreach (var item in replacements.OrderBy(item => item.DisplayOrder))
+        {
+            item.SetPracticeCollectionVersionId(Id);
+            _items.Add(item);
+        }
+    }
+
     public void Publish(DateTime publishedAt)
     {
         EnsureDraft();

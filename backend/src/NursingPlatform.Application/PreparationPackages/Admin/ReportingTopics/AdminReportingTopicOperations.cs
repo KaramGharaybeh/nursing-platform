@@ -1,7 +1,11 @@
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Application.Common.Models;
+using NursingPlatform.Application.PreparationPackages.Common;
 using NursingPlatform.Application.PreparationPackages.DTOs;
+using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.Application.PreparationPackages.Admin.ReportingTopics;
 
@@ -73,5 +77,88 @@ public class ArchiveAdminReportingTopicCommandValidator : AbstractValidator<Arch
     public ArchiveAdminReportingTopicCommandValidator()
     {
         RuleFor(x => x.Id).NotEmpty();
+    }
+}
+
+public class CreateAdminReportingTopicCommandHandler : IRequestHandler<CreateAdminReportingTopicCommand, AdminReportingTopicDto>
+{
+    private readonly IApplicationDbContext _context;
+
+    public CreateAdminReportingTopicCommandHandler(IApplicationDbContext context) => _context = context;
+
+    public async Task<AdminReportingTopicDto> Handle(CreateAdminReportingTopicCommand request, CancellationToken cancellationToken)
+    {
+        var category = await _context.ExamCategories.FirstOrDefaultAsync(c => c.Id == request.Request.ExamCategoryId, cancellationToken)
+            ?? throw new KeyNotFoundException("Exam category was not found.");
+        var topic = ReportingTopic.Create(category.Id, request.Request.Name, request.Request.Slug, null);
+        _context.ReportingTopics.Add(topic);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToReportingTopicDto(topic, category.Name);
+    }
+}
+
+public class UpdateAdminReportingTopicCommandHandler : IRequestHandler<UpdateAdminReportingTopicCommand, AdminReportingTopicDto>
+{
+    private readonly IApplicationDbContext _context;
+
+    public UpdateAdminReportingTopicCommandHandler(IApplicationDbContext context) => _context = context;
+
+    public async Task<AdminReportingTopicDto> Handle(UpdateAdminReportingTopicCommand request, CancellationToken cancellationToken)
+    {
+        var topic = await _context.ReportingTopics.FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken)
+            ?? throw new KeyNotFoundException("Reporting topic was not found.");
+        var category = await _context.ExamCategories.FirstOrDefaultAsync(c => c.Id == request.Request.ExamCategoryId, cancellationToken)
+            ?? throw new KeyNotFoundException("Exam category was not found.");
+        topic.Update(category.Id, request.Request.Name, request.Request.Slug, null);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToReportingTopicDto(topic, category.Name);
+    }
+}
+
+public class ArchiveAdminReportingTopicCommandHandler : IRequestHandler<ArchiveAdminReportingTopicCommand, AdminReportingTopicDto>
+{
+    private readonly IApplicationDbContext _context;
+
+    public ArchiveAdminReportingTopicCommandHandler(IApplicationDbContext context) => _context = context;
+
+    public async Task<AdminReportingTopicDto> Handle(ArchiveAdminReportingTopicCommand request, CancellationToken cancellationToken)
+    {
+        var topic = await _context.ReportingTopics.FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken)
+            ?? throw new KeyNotFoundException("Reporting topic was not found.");
+        topic.Archive();
+        await _context.SaveChangesAsync(cancellationToken);
+        var categoryName = await _context.ExamCategories.Where(c => c.Id == topic.ExamCategoryId).Select(c => c.Name).FirstOrDefaultAsync(cancellationToken) ?? string.Empty;
+        return PreparationPackageMapping.ToReportingTopicDto(topic, categoryName);
+    }
+}
+
+public class ListAdminReportingTopicsQueryHandler : IRequestHandler<ListAdminReportingTopicsQuery, PaginatedResult<AdminReportingTopicDto>>
+{
+    private readonly IApplicationDbContext _context;
+
+    public ListAdminReportingTopicsQueryHandler(IApplicationDbContext context) => _context = context;
+
+    public async Task<PaginatedResult<AdminReportingTopicDto>> Handle(ListAdminReportingTopicsQuery request, CancellationToken cancellationToken)
+    {
+        var query = _context.ReportingTopics.AsQueryable();
+        if (request.ExamCategoryId.HasValue)
+        {
+            query = query.Where(t => t.ExamCategoryId == request.ExamCategoryId.Value);
+        }
+
+        var rows = await query
+            .Join(_context.ExamCategories, t => t.ExamCategoryId, c => c.Id, (topic, category) => new { topic, category.Name })
+            .OrderBy(r => r.Name)
+            .ThenBy(r => r.topic.Name)
+            .ThenBy(r => r.topic.Id)
+            .ToListAsync(cancellationToken);
+
+        return new PaginatedResult<AdminReportingTopicDto>
+        {
+            Items = rows.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Select(r => PreparationPackageMapping.ToReportingTopicDto(r.topic, r.Name)).ToList(),
+            Page = request.Page,
+            PageSize = request.PageSize,
+            TotalCount = rows.Count
+        };
     }
 }

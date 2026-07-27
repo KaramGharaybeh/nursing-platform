@@ -32,6 +32,23 @@ public class PreparationPackageDefinition : AuditableEntity
         };
     }
 
+    public void Update(
+        Guid countryId,
+        Guid examCategoryId,
+        string title,
+        string slug,
+        string? description)
+    {
+        EnsureNotEmpty(countryId, nameof(countryId));
+        EnsureNotEmpty(examCategoryId, nameof(examCategoryId));
+
+        CountryId = countryId;
+        ExamCategoryId = examCategoryId;
+        Title = NormalizeRequired(title, nameof(title));
+        Slug = NormalizeRequired(slug, nameof(slug));
+        Description = NormalizeOptional(description);
+    }
+
     private static string NormalizeRequired(string value, string parameterName)
     {
         if (string.IsNullOrWhiteSpace(value))

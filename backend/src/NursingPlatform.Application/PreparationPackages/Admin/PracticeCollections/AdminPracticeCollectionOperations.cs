@@ -1,7 +1,11 @@
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Application.Common.Models;
+using NursingPlatform.Application.PreparationPackages.Common;
 using NursingPlatform.Application.PreparationPackages.DTOs;
+using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.Application.PreparationPackages.Admin.PracticeCollections;
 
@@ -156,5 +160,110 @@ public class UpsertAdminPracticeAnswerOptionRequestValidator : AbstractValidator
     {
         RuleFor(x => x.OptionText).NotEmpty().MaximumLength(2000);
         RuleFor(x => x.DisplayOrder).GreaterThanOrEqualTo(1);
+    }
+}
+
+public class CreateAdminPracticeCollectionCommandHandler : IRequestHandler<CreateAdminPracticeCollectionCommand, AdminPracticeCollectionDto>
+{
+    private readonly IApplicationDbContext _context;
+    public CreateAdminPracticeCollectionCommandHandler(IApplicationDbContext context) => _context = context;
+    public async Task<AdminPracticeCollectionDto> Handle(CreateAdminPracticeCollectionCommand request, CancellationToken cancellationToken)
+    {
+        var collection = PracticeCollection.Create(request.Request.Title, request.Request.Slug, request.Request.Description);
+        _context.PracticeCollections.Add(collection);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToPracticeCollectionDto(collection);
+    }
+}
+
+public class ListAdminPracticeCollectionsQueryHandler : IRequestHandler<ListAdminPracticeCollectionsQuery, PaginatedResult<AdminPracticeCollectionDto>>
+{
+    private readonly IApplicationDbContext _context;
+    public ListAdminPracticeCollectionsQueryHandler(IApplicationDbContext context) => _context = context;
+    public async Task<PaginatedResult<AdminPracticeCollectionDto>> Handle(ListAdminPracticeCollectionsQuery request, CancellationToken cancellationToken)
+    {
+        var collections = await _context.PracticeCollections.OrderBy(c => c.Title).ThenBy(c => c.Id).ToListAsync(cancellationToken);
+        return new PaginatedResult<AdminPracticeCollectionDto> { Items = collections.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).Select(PreparationPackageMapping.ToPracticeCollectionDto).ToList(), Page = request.Page, PageSize = request.PageSize, TotalCount = collections.Count };
+    }
+}
+
+public class CreateAdminPracticeCollectionVersionCommandHandler : IRequestHandler<CreateAdminPracticeCollectionVersionCommand, AdminPracticeCollectionVersionDto>
+{
+    private readonly IApplicationDbContext _context;
+    public CreateAdminPracticeCollectionVersionCommandHandler(IApplicationDbContext context) => _context = context;
+    public async Task<AdminPracticeCollectionVersionDto> Handle(CreateAdminPracticeCollectionVersionCommand request, CancellationToken cancellationToken)
+    {
+        var collectionExists = await _context.PracticeCollections.AnyAsync(c => c.Id == request.PracticeCollectionId, cancellationToken);
+        if (!collectionExists) throw new KeyNotFoundException("Practice collection was not found.");
+        var nextVersion = await _context.PracticeCollectionVersions.Where(v => v.PracticeCollectionId == request.PracticeCollectionId).Select(v => v.VersionNumber).DefaultIfEmpty().MaxAsync(cancellationToken) + 1;
+        var version = PracticeCollectionVersion.CreateDraft(request.PracticeCollectionId, nextVersion);
+        AddPracticeItems(version, request.Request.Items);
+        _context.PracticeCollectionVersions.Add(version);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToPracticeCollectionVersionDto(version);
+    }
+
+    internal static void AddPracticeItems(PracticeCollectionVersion version, IEnumerable<UpsertAdminPracticeItemRequest> items)
+    {
+        foreach (var itemRequest in items.OrderBy(i => i.DisplayOrder))
+        {
+            var item = PracticeItem.Create(itemRequest.ReportingTopicId, itemRequest.Prompt, itemRequest.ImmediateFeedback, itemRequest.DisplayOrder);
+            foreach (var option in itemRequest.AnswerOptions.OrderBy(o => o.DisplayOrder))
+            {
+                item.AddAnswerOption(option.OptionText, option.IsCorrect, option.DisplayOrder);
+            }
+
+            version.AddPracticeItem(item);
+        }
+    }
+}
+
+public class UpdateAdminPracticeCollectionVersionCommandHandler : IRequestHandler<UpdateAdminPracticeCollectionVersionCommand, AdminPracticeCollectionVersionDto>
+{
+    private readonly IApplicationDbContext _context;
+    public UpdateAdminPracticeCollectionVersionCommandHandler(IApplicationDbContext context) => _context = context;
+    public async Task<AdminPracticeCollectionVersionDto> Handle(UpdateAdminPracticeCollectionVersionCommand request, CancellationToken cancellationToken)
+    {
+        var version = await _context.PracticeCollectionVersions.FirstOrDefaultAsync(v => v.Id == request.VersionId && v.PracticeCollectionId == request.PracticeCollectionId, cancellationToken)
+            ?? throw new KeyNotFoundException("Practice collection version was not found.");
+        var replacement = PracticeCollectionVersion.CreateDraft(version.PracticeCollectionId, version.VersionNumber);
+        CreateAdminPracticeCollectionVersionCommandHandler.AddPracticeItems(replacement, request.Request.Items);
+        version.ReplaceDraftItems(replacement.Items);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToPracticeCollectionVersionDto(version);
+    }
+}
+
+public class PublishAdminPracticeCollectionVersionCommandHandler : IRequestHandler<PublishAdminPracticeCollectionVersionCommand, AdminPracticeCollectionVersionDto>
+{
+    private readonly IApplicationDbContext _context;
+    public PublishAdminPracticeCollectionVersionCommandHandler(IApplicationDbContext context) => _context = context;
+    public async Task<AdminPracticeCollectionVersionDto> Handle(PublishAdminPracticeCollectionVersionCommand request, CancellationToken cancellationToken)
+    {
+        var version = await _context.PracticeCollectionVersions.FirstOrDefaultAsync(v => v.Id == request.VersionId && v.PracticeCollectionId == request.PracticeCollectionId, cancellationToken)
+            ?? throw new KeyNotFoundException("Practice collection version was not found.");
+        foreach (var topicId in version.Items.Select(i => i.ReportingTopicId).Distinct())
+        {
+            var exists = await _context.ReportingTopics.AnyAsync(t => t.Id == topicId && t.IsActive, cancellationToken);
+            if (!exists) throw new InvalidOperationException("Practice item topics must exist and be active.");
+        }
+
+        version.Publish(DateTime.UtcNow);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToPracticeCollectionVersionDto(version);
+    }
+}
+
+public class RetireAdminPracticeCollectionVersionCommandHandler : IRequestHandler<RetireAdminPracticeCollectionVersionCommand, AdminPracticeCollectionVersionDto>
+{
+    private readonly IApplicationDbContext _context;
+    public RetireAdminPracticeCollectionVersionCommandHandler(IApplicationDbContext context) => _context = context;
+    public async Task<AdminPracticeCollectionVersionDto> Handle(RetireAdminPracticeCollectionVersionCommand request, CancellationToken cancellationToken)
+    {
+        var version = await _context.PracticeCollectionVersions.FirstOrDefaultAsync(v => v.Id == request.VersionId && v.PracticeCollectionId == request.PracticeCollectionId, cancellationToken)
+            ?? throw new KeyNotFoundException("Practice collection version was not found.");
+        version.Retire(DateTime.UtcNow);
+        await _context.SaveChangesAsync(cancellationToken);
+        return PreparationPackageMapping.ToPracticeCollectionVersionDto(version);
     }
 }

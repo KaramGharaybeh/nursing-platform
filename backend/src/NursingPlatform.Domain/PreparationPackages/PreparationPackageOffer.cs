@@ -67,6 +67,44 @@ public class PreparationPackageOffer : AuditableEntity
         DeactivatedAt = null;
     }
 
+    public void UpdateDraft(
+        Guid preparationPackageDefinitionId,
+        Guid preparationPackageVersionId,
+        string title,
+        string slug,
+        string? summary,
+        long priceAmountMinor,
+        string currency,
+        int accessDurationDays)
+    {
+        if (Status != PreparationPackageOfferStatus.Draft)
+        {
+            throw new InvalidOperationException("Only draft package offers can be updated.");
+        }
+
+        EnsureNotEmpty(preparationPackageDefinitionId, nameof(preparationPackageDefinitionId));
+        EnsureNotEmpty(preparationPackageVersionId, nameof(preparationPackageVersionId));
+
+        if (priceAmountMinor < 0)
+        {
+            throw new InvalidOperationException("Package offer price cannot be negative.");
+        }
+
+        if (accessDurationDays < 1)
+        {
+            throw new InvalidOperationException("Package offer access duration must be positive.");
+        }
+
+        PreparationPackageDefinitionId = preparationPackageDefinitionId;
+        PreparationPackageVersionId = preparationPackageVersionId;
+        Title = NormalizeRequired(title, nameof(title));
+        Slug = NormalizeRequired(slug, nameof(slug));
+        Summary = NormalizeOptional(summary);
+        PriceAmountMinor = priceAmountMinor;
+        Currency = NormalizeRequired(currency, nameof(currency)).ToUpperInvariant();
+        AccessDurationDays = accessDurationDays;
+    }
+
     public void Deactivate(DateTime deactivatedAt)
     {
         if (Status != PreparationPackageOfferStatus.Active)

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NursingPlatform.Domain.Payments;
 using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.Infrastructure.Persistence.Configurations;
@@ -271,6 +272,104 @@ public class ReportingProfileQuestionAssignmentConfiguration : IEntityTypeConfig
         builder.HasOne<ReportingTopic>()
             .WithMany()
             .HasForeignKey(a => a.ReportingTopicId)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+public class PackagePurchaseEntitlementConfiguration : IEntityTypeConfiguration<PackagePurchaseEntitlement>
+{
+    public void Configure(EntityTypeBuilder<PackagePurchaseEntitlement> builder)
+    {
+        builder.ToTable("PackagePurchaseEntitlements");
+        builder.HasKey(e => e.Id);
+        builder.HasIndex(e => e.PaymentOrderItemId).IsUnique();
+        builder.HasIndex(e => e.PaymentOrderId);
+        builder.HasIndex(e => new { e.NurseProfileId, e.PreparationPackageDefinitionId })
+            .IsUnique()
+            .HasFilter("\"Status\" = 'Active'");
+        builder.HasIndex(e => new { e.NurseProfileId, e.Status, e.AccessEndsAt, e.Id });
+        builder.HasIndex(e => new { e.PreparationPackageDefinitionId, e.PreparationPackageVersionId });
+        builder.HasIndex(e => e.PreparationPackageOfferId);
+        builder.HasIndex(e => e.PurchasedOfferSnapshotId).IsUnique();
+
+        builder.Property(e => e.Status).HasConversion<string>().IsRequired().HasMaxLength(32);
+        builder.Property(e => e.Currency).IsRequired().HasMaxLength(3);
+        builder.Property(e => e.PriceAmountMinor).IsRequired();
+        builder.Property(e => e.AccessDurationDays).IsRequired();
+        builder.Property(e => e.FulfilledAt).IsRequired();
+        builder.Property(e => e.AccessStartsAt).IsRequired();
+        builder.Property(e => e.AccessEndsAt).IsRequired();
+        builder.Property("_studyMaterialVersionIds")
+            .HasColumnName("StudyMaterialVersionIds")
+            .IsRequired();
+
+        builder.HasOne<NursingPlatform.Domain.Nurses.NurseProfile>()
+            .WithMany()
+            .HasForeignKey(e => e.NurseProfileId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PaymentOrder>()
+            .WithMany()
+            .HasForeignKey(e => e.PaymentOrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PaymentOrderItem>()
+            .WithMany()
+            .HasForeignKey(e => e.PaymentOrderItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PackageOrderItemSnapshot>()
+            .WithMany()
+            .HasForeignKey(e => e.PurchasedOfferSnapshotId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PreparationPackageDefinition>()
+            .WithMany()
+            .HasForeignKey(e => e.PreparationPackageDefinitionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PreparationPackageVersion>()
+            .WithMany()
+            .HasForeignKey(e => e.PreparationPackageVersionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PreparationPackageOffer>()
+            .WithMany()
+            .HasForeignKey(e => e.PreparationPackageOfferId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<NursingPlatform.Domain.Exams.Exam>()
+            .WithMany()
+            .HasForeignKey(e => e.IncludedExamId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<NursingPlatform.Domain.Exams.ExamVersion>()
+            .WithMany()
+            .HasForeignKey(e => e.IncludedExamVersionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<ReportingProfilePublication>()
+            .WithMany()
+            .HasForeignKey(e => e.ReportingProfilePublicationId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PracticeCollectionVersion>()
+            .WithMany()
+            .HasForeignKey(e => e.PracticeCollectionVersionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(e => e.Rights)
+            .WithOne()
+            .HasForeignKey(r => r.PackagePurchaseEntitlementId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Navigation(e => e.Rights).UsePropertyAccessMode(PropertyAccessMode.Field);
+    }
+}
+
+public class PackageBenefitRightConfiguration : IEntityTypeConfiguration<PackageBenefitRight>
+{
+    public void Configure(EntityTypeBuilder<PackageBenefitRight> builder)
+    {
+        builder.ToTable("PackageBenefitRights");
+        builder.HasKey(r => r.Id);
+        builder.HasIndex(r => new { r.PackagePurchaseEntitlementId, r.RightType }).IsUnique();
+        builder.HasIndex(r => new { r.PackagePurchaseEntitlementId, r.RightType, r.Status });
+        builder.Property(r => r.RightType).HasConversion<string>().IsRequired().HasMaxLength(32);
+        builder.Property(r => r.Status).HasConversion<string>().IsRequired().HasMaxLength(32);
+        builder.Property(r => r.AccessStartsAt).IsRequired();
+        builder.Property(r => r.AccessEndsAt);
+        builder.HasOne<PackagePurchaseEntitlement>()
+            .WithMany()
+            .HasForeignKey(r => r.PackagePurchaseEntitlementId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -55,6 +55,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<PaymentOrder> PaymentOrders => Set<PaymentOrder>();
     public DbSet<PaymentOrderItem> PaymentOrderItems => Set<PaymentOrderItem>();
     public DbSet<PaymentCheckoutSession> PaymentCheckoutSessions => Set<PaymentCheckoutSession>();
+    public DbSet<PackageOrderItemSnapshot> PackageOrderItemSnapshots => Set<PackageOrderItemSnapshot>();
+    public DbSet<PackagePurchaseEntitlement> PackagePurchaseEntitlements => Set<PackagePurchaseEntitlement>();
+    public DbSet<PackageBenefitRight> PackageBenefitRights => Set<PackageBenefitRight>();
     public DbSet<PreparationPackageDefinition> PreparationPackageDefinitions => Set<PreparationPackageDefinition>();
     public DbSet<PreparationPackageVersion> PreparationPackageVersions => Set<PreparationPackageVersion>();
     public DbSet<PreparationPackageVersionMaterial> PreparationPackageVersionMaterials => Set<PreparationPackageVersionMaterial>();

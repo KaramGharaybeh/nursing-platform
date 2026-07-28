@@ -21,6 +21,8 @@ public class PreparationPackageConfigurationTests
     [InlineData(typeof(ReportingTopic), "ReportingTopics")]
     [InlineData(typeof(ReportingProfilePublication), "ReportingProfilePublications")]
     [InlineData(typeof(ReportingProfileQuestionAssignment), "ReportingProfileQuestionAssignments")]
+    [InlineData(typeof(PackagePurchaseEntitlement), "PackagePurchaseEntitlements")]
+    [InlineData(typeof(PackageBenefitRight), "PackageBenefitRights")]
     public void PreparationPackageEntities_AreConfiguredInModel(Type entityType, string tableName)
     {
         var entity = CreateDbContext().Model.FindEntityType(entityType);
@@ -71,6 +73,22 @@ public class PreparationPackageConfigurationTests
             nameof(ReportingProfilePublication.ExamVersionId), "Name");
         AssertHasIndex<ReportingProfileQuestionAssignment>(context, true,
             nameof(ReportingProfileQuestionAssignment.ReportingProfilePublicationId), nameof(ReportingProfileQuestionAssignment.ExamQuestionId));
+
+        AssertHasIndex<PackagePurchaseEntitlement>(context, true,
+            nameof(PackagePurchaseEntitlement.PaymentOrderItemId));
+        var activeEntitlementIndex = AssertHasIndex<PackagePurchaseEntitlement>(context, true,
+            nameof(PackagePurchaseEntitlement.NurseProfileId), nameof(PackagePurchaseEntitlement.PreparationPackageDefinitionId));
+        Assert.Equal("\"Status\" = 'Active'", activeEntitlementIndex.GetFilter());
+        AssertHasIndex<PackagePurchaseEntitlement>(context, false,
+            nameof(PackagePurchaseEntitlement.NurseProfileId), nameof(PackagePurchaseEntitlement.Status), nameof(PackagePurchaseEntitlement.AccessEndsAt), nameof(PackagePurchaseEntitlement.Id));
+        AssertHasIndex<PackagePurchaseEntitlement>(context, false,
+            nameof(PackagePurchaseEntitlement.PaymentOrderId));
+        AssertHasIndex<PackagePurchaseEntitlement>(context, false,
+            nameof(PackagePurchaseEntitlement.PreparationPackageDefinitionId), nameof(PackagePurchaseEntitlement.PreparationPackageVersionId));
+        AssertHasIndex<PackageBenefitRight>(context, true,
+            nameof(PackageBenefitRight.PackagePurchaseEntitlementId), nameof(PackageBenefitRight.RightType));
+        AssertHasIndex<PackageBenefitRight>(context, false,
+            nameof(PackageBenefitRight.PackagePurchaseEntitlementId), nameof(PackageBenefitRight.RightType), nameof(PackageBenefitRight.Status));
     }
 
     [Theory]
@@ -80,6 +98,9 @@ public class PreparationPackageConfigurationTests
     [InlineData(typeof(StudyMaterialVersion), nameof(StudyMaterialVersion.Status))]
     [InlineData(typeof(PracticeCollectionVersion), nameof(PracticeCollectionVersion.Status))]
     [InlineData(typeof(ReportingProfilePublication), nameof(ReportingProfilePublication.Status))]
+    [InlineData(typeof(PackagePurchaseEntitlement), nameof(PackagePurchaseEntitlement.Status))]
+    [InlineData(typeof(PackageBenefitRight), nameof(PackageBenefitRight.RightType))]
+    [InlineData(typeof(PackageBenefitRight), nameof(PackageBenefitRight.Status))]
     public void PreparationPackageEnums_AreStoredAsStringsWithMaxLength(Type entityType, string propertyName)
     {
         var property = CreateDbContext().Model.FindEntityType(entityType)!.FindProperty(propertyName)!;
@@ -104,7 +125,9 @@ public class PreparationPackageConfigurationTests
             typeof(PracticeAnswerOption),
             typeof(ReportingTopic),
             typeof(ReportingProfilePublication),
-            typeof(ReportingProfileQuestionAssignment)
+            typeof(ReportingProfileQuestionAssignment),
+            typeof(PackagePurchaseEntitlement),
+            typeof(PackageBenefitRight)
         };
 
         var foreignKeys = entityTypes
@@ -116,6 +139,39 @@ public class PreparationPackageConfigurationTests
     }
 
     [Fact]
+    public void PackageEntitlementConfiguration_UsesRestrictDeleteBehaviorForFinancialSnapshotAndRightRelationships()
+    {
+        var context = CreateDbContext();
+        var entitlementForeignKeys = context.Model.FindEntityType(typeof(PackagePurchaseEntitlement))!.GetForeignKeys().ToList();
+        var rightForeignKeys = context.Model.FindEntityType(typeof(PackageBenefitRight))!.GetForeignKeys().ToList();
+
+        Assert.Contains(entitlementForeignKeys, fk => fk.PrincipalEntityType.ClrType.Name == "NurseProfile"
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackagePurchaseEntitlement.NurseProfileId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.Contains(entitlementForeignKeys, fk => fk.PrincipalEntityType.ClrType.Name == "PaymentOrder"
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackagePurchaseEntitlement.PaymentOrderId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.Contains(entitlementForeignKeys, fk => fk.PrincipalEntityType.ClrType.Name == "PaymentOrderItem"
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackagePurchaseEntitlement.PaymentOrderItemId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.Contains(entitlementForeignKeys, fk => fk.PrincipalEntityType.ClrType == typeof(PackageOrderItemSnapshot)
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackagePurchaseEntitlement.PurchasedOfferSnapshotId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.All(rightForeignKeys, fk => Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior));
+    }
+
+    [Fact]
+    public void PackageEntitlementConfiguration_PersistsUtcAccessWindowAndDurationDerivedEndTime()
+    {
+        var entity = CreateDbContext().Model.FindEntityType(typeof(PackagePurchaseEntitlement))!;
+
+        Assert.False(entity.FindProperty(nameof(PackagePurchaseEntitlement.FulfilledAt))!.IsNullable);
+        Assert.False(entity.FindProperty(nameof(PackagePurchaseEntitlement.AccessStartsAt))!.IsNullable);
+        Assert.False(entity.FindProperty(nameof(PackagePurchaseEntitlement.AccessEndsAt))!.IsNullable);
+        Assert.False(entity.FindProperty(nameof(PackagePurchaseEntitlement.AccessDurationDays))!.IsNullable);
+    }
+
+    [Fact]
     public void PreparationPackageMigration_CanGenerateIdempotentScript()
     {
         var migrations = typeof(ApplicationDbContext).Assembly.GetTypes()
@@ -124,6 +180,11 @@ public class PreparationPackageConfigurationTests
             .ToList();
 
         Assert.Contains("AddPreparationPackageStage1CatalogAuthoring", migrations);
+        Assert.Contains("AddPreparationPackageStage2Persistence", migrations);
+        Assert.DoesNotContain(migrations, name => name.Contains("Workspace", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(migrations, name => name.Contains("ReportGeneration", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(migrations, name => name.Contains("ReportAccess", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(migrations, name => name.Contains("EmployerPackage", StringComparison.OrdinalIgnoreCase));
     }
 
     private static ApplicationDbContext CreateDbContext()

@@ -14,7 +14,13 @@ public class PermissionsTests
         "Exams.View", "Exams.Create", "Exams.Edit", "Exams.Delete",
         "Questions.View", "Questions.Manage",
         "Nurses.View",
-        "Employers.View"
+        "Employers.View",
+        "PreparationPackages.View", "PreparationPackages.Manage", "PreparationPackages.Publish",
+        "PreparationPackageOffers.Manage",
+        "StudyMaterials.Manage",
+        "PracticeCollections.Manage",
+        "ReportingTopics.Manage",
+        "ReportingProfiles.Manage"
     ];
 
     [Fact]
@@ -41,7 +47,7 @@ public class PermissionsTests
     {
         foreach (var name in Permissions.All)
         {
-            Assert.Matches(@"^[A-Z][a-z]+\.[A-Z][a-z]+$", name);
+            Assert.Matches(@"^[A-Z][A-Za-z]+\.[A-Z][A-Za-z]+$", name);
         }
     }
 }

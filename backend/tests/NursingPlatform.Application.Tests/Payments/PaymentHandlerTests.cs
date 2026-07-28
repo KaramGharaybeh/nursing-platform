@@ -111,6 +111,220 @@ public class PaymentHandlerTests
     }
 
     [Fact]
+    public async Task Handle_CreateOrder_WithProductId_PreservesExistingExamAccessOrderSnapshot()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var exam = CreateExam(ExamStatus.Published);
+        var product = PaymentProduct.CreateExamAccess(exam.Id, "Exam Access", "Description", "usd", 4999);
+        context.Exams.Add(exam);
+        context.PaymentProducts.Add(product);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { ProductId = product.Id }
+        }, default);
+
+        var item = Assert.Single(result.Items);
+        Assert.Equal(product.Id, item.ProductId);
+        Assert.Equal("Exam Access", item.ProductName);
+        Assert.Equal(PaymentProductType.ExamAccess.ToString(), item.ProductType);
+        Assert.Equal(exam.Id, item.ExamId);
+        Assert.Equal("ExamAccessProduct", item.SourceType);
+        Assert.Equal(product.Id, item.SourceId);
+        Assert.Null(item.PackageSnapshot);
+        Assert.Equal(PaymentOrderItemSourceType.ExamAccessProduct, Assert.Single(context.PaymentOrderItems).SourceType);
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_WithActiveSellableOffer_CreatesPendingOrderWithPurchasedOfferSnapshot()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default);
+
+        Assert.Equal("PendingPayment", result.Status);
+        Assert.Equal(package.Offer.PriceAmountMinor, result.TotalAmountMinor);
+        Assert.Equal(package.Offer.Currency, result.Currency);
+        var item = Assert.Single(result.Items);
+        Assert.Equal(Guid.Empty, item.ProductId);
+        Assert.Equal(string.Empty, item.ProductName);
+        Assert.Equal(Guid.Empty, item.ExamId);
+        Assert.Equal("PreparationPackageOffer", item.SourceType);
+        Assert.Equal(package.Offer.Id, item.SourceId);
+        Assert.Equal(package.Offer.Currency, item.Currency);
+        Assert.Equal(package.Offer.PriceAmountMinor, item.UnitAmountMinor);
+        Assert.Equal(package.Offer.PriceAmountMinor, item.LineTotalAmountMinor);
+        Assert.NotNull(item.PackageSnapshot);
+        Assert.Equal(package.Offer.Id, item.PackageSnapshot.PackageOfferId);
+        Assert.Equal(package.Offer.Title, item.PackageSnapshot.PackageOfferTitle);
+        Assert.Equal(package.Offer.Slug, item.PackageSnapshot.PackageOfferSlug);
+        Assert.Equal(package.Definition.Id, item.PackageSnapshot.PackageDefinitionId);
+        Assert.Equal(package.Definition.Title, item.PackageSnapshot.PackageDefinitionTitle);
+        Assert.Equal(package.Definition.Slug, item.PackageSnapshot.PackageDefinitionSlug);
+        Assert.Equal(package.Definition.CountryId, item.PackageSnapshot.CountryId);
+        Assert.Equal(package.Definition.ExamCategoryId, item.PackageSnapshot.ExamCategoryId);
+        Assert.Equal(package.Version.Id, item.PackageSnapshot.PackageVersionId);
+        // Stage 1 package versions do not yet expose a package version number/display version.
+        Assert.Equal(1, item.PackageSnapshot.PackageVersionNumber);
+        Assert.Equal(package.Exam.Id, item.PackageSnapshot.IncludedExamId);
+        Assert.Equal(package.ExamVersion.Id, item.PackageSnapshot.IncludedExamVersionId);
+        Assert.Equal(package.Exam.Title, item.PackageSnapshot.IncludedExamTitle);
+        Assert.Equal(package.ReportingProfile.Id, item.PackageSnapshot.ReportingProfilePublicationId);
+        Assert.Equal(package.PracticeCollectionVersion.Id, item.PackageSnapshot.PracticeCollectionVersionId);
+        Assert.Equal(package.MaterialVersionIds, item.PackageSnapshot.StudyMaterialVersionIds);
+        Assert.Equal(package.Offer.AccessDurationDays, item.PackageSnapshot.AccessDurationDays);
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_WithMissingOffer_ThrowsKeyNotFoundException()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = Guid.NewGuid() }
+        }, default));
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_WithInactiveOffer_ThrowsInvalidOperationException()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context, activateOffer: false);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default));
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_WithRetiredOffer_ThrowsInvalidOperationException()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        package.Offer.Retire(DateTime.UtcNow);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default));
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_WithUnsellableOfferComponents_ThrowsInvalidOperationException()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context, publishMaterial: false);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default));
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_UsesServerSideOfferPackageFacts()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default);
+
+        var item = Assert.Single(result.Items);
+        Assert.Equal(package.Offer.PriceAmountMinor, item.UnitAmountMinor);
+        Assert.Equal(package.Offer.Currency, item.Currency);
+        Assert.Equal(package.Offer.AccessDurationDays, item.PackageSnapshot!.AccessDurationDays);
+        Assert.Equal(package.Version.Id, item.PackageSnapshot.PackageVersionId);
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_DoesNotCreatePaymentProductOrExamAccessProductSnapshot()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default);
+
+        Assert.Empty(context.PaymentProducts);
+        var persistedItem = Assert.Single(context.PaymentOrderItems);
+        Assert.Equal(PaymentOrderItemSourceType.PreparationPackageOffer, persistedItem.SourceType);
+        Assert.Equal(Guid.Empty, persistedItem.ProductId);
+        Assert.Equal(Guid.Empty, persistedItem.ExamIdSnapshot);
+        Assert.Equal("PreparationPackageOffer", Assert.Single(result.Items).SourceType);
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_DoesNotCreateGrantOrRuntimeRows()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        await handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default);
+
+        Assert.Empty(context.ExamAccessGrants);
+        Assert.Empty(context.ExamSessions);
+    }
+
+    [Fact]
     public async Task Handle_ListOrders_LazilyExpiresPastDuePendingOrders()
     {
         var userId = Guid.NewGuid();
@@ -1409,6 +1623,103 @@ public class PaymentHandlerTests
         context.Roles.Add(role);
         context.NurseProfiles.Add(new NurseProfile { Id = nurseProfileId, UserId = userId });
     }
+
+    private static SellablePackageFixture SeedSellablePackageOffer(
+        TestPaymentDbContext context,
+        bool activateOffer = true,
+        bool publishMaterial = true)
+    {
+        var categoryId = Guid.NewGuid();
+        var countryId = Guid.NewGuid();
+        var exam = CreateExam(ExamStatus.Published);
+        exam.CountryId = countryId;
+        exam.ExamCategoryId = categoryId;
+        var examVersion = new ExamVersion
+        {
+            Id = Guid.NewGuid(),
+            ExamId = exam.Id,
+            VersionNumber = 3,
+            Status = ExamVersionStatus.Published,
+            QuestionCount = 1,
+            TotalPoints = 1,
+            PublishedAt = DateTime.UtcNow
+        };
+
+        var topic = ReportingTopic.Create(categoryId, "Clinical judgment", "clinical-judgment", null);
+        var materialVersion = StudyMaterialVersion.CreateDraft(
+            Guid.NewGuid(),
+            StudyMaterialType.FormattedText,
+            "Study content",
+            null,
+            null,
+            null,
+            [topic.Id]);
+        if (publishMaterial)
+        {
+            materialVersion.Publish(DateTime.UtcNow);
+        }
+
+        var practiceCollectionVersion = PracticeCollectionVersion.CreateDraft(Guid.NewGuid(), 1);
+        var practiceItem = PracticeItem.Create(topic.Id, "Practice prompt", "Practice feedback", 1);
+        practiceItem.AddAnswerOption("Correct", true, 1);
+        practiceItem.AddAnswerOption("Incorrect", false, 2);
+        practiceCollectionVersion.AddPracticeItem(practiceItem);
+        practiceCollectionVersion.Publish(DateTime.UtcNow);
+
+        var reportingProfile = ReportingProfilePublication.CreateDraft(examVersion.Id, "Profile");
+        reportingProfile.AssignQuestion(Guid.NewGuid(), topic.Id);
+        reportingProfile.Publish(DateTime.UtcNow);
+
+        var definition = PreparationPackageDefinition.Create(countryId, categoryId, "NCLEX Prep", "nclex-prep", "Package definition");
+        var version = PreparationPackageVersion.CreateDraft(definition.Id, examVersion.Id, reportingProfile.Id, practiceCollectionVersion.Id);
+        version.AddMaterialVersion(materialVersion.Id, 1);
+        version.ConfirmContentIsolation();
+        version.Publish(DateTime.UtcNow);
+
+        var offer = PreparationPackageOffer.CreateDraft(
+            definition.Id,
+            version.Id,
+            "NCLEX preparation package",
+            "nclex-preparation-package",
+            "Focused preparation.",
+            14900,
+            "usd",
+            90);
+        if (activateOffer)
+        {
+            offer.Activate(DateTime.UtcNow);
+        }
+
+        context.Exams.Add(exam);
+        context.ExamVersions.Add(examVersion);
+        context.ReportingTopics.Add(topic);
+        context.StudyMaterialVersions.Add(materialVersion);
+        context.PracticeCollectionVersions.Add(practiceCollectionVersion);
+        context.ReportingProfilePublications.Add(reportingProfile);
+        context.PreparationPackageDefinitions.Add(definition);
+        context.PreparationPackageVersions.Add(version);
+        context.PreparationPackageOffers.Add(offer);
+
+        return new SellablePackageFixture(
+            offer,
+            definition,
+            version,
+            exam,
+            examVersion,
+            reportingProfile,
+            practiceCollectionVersion,
+            [materialVersion.Id]);
+    }
+
+    private sealed record SellablePackageFixture(
+        PreparationPackageOffer Offer,
+        PreparationPackageDefinition Definition,
+        PreparationPackageVersion Version,
+        Exam Exam,
+        ExamVersion ExamVersion,
+        ReportingProfilePublication ReportingProfile,
+        PracticeCollectionVersion PracticeCollectionVersion,
+        IReadOnlyList<Guid> MaterialVersionIds);
 
     private static NursingPlatform.Application.Nurses.Common.NurseRoleGuard CreateGuard(TestPaymentDbContext context, Guid userId)
     {

@@ -72,7 +72,35 @@ internal static class PaymentMapping
             Currency = item.Currency,
             UnitAmountMinor = item.UnitAmountMinor,
             Quantity = item.Quantity,
-            LineTotalAmountMinor = item.LineTotalAmountMinor
+            LineTotalAmountMinor = item.LineTotalAmountMinor,
+            SourceType = item.SourceType.ToString(),
+            SourceId = item.SourceId,
+            PackageSnapshot = item.PackageOrderItemSnapshot is null
+                ? null
+                : new PaymentPackageSnapshotDto
+                {
+                    PackageOfferId = item.PackageOrderItemSnapshot.PackageOfferId,
+                    PackageOfferTitle = item.PackageOrderItemSnapshot.PackageOfferTitle,
+                    PackageOfferSlug = item.PackageOrderItemSnapshot.PackageOfferSlug,
+                    PackageOfferSummary = item.PackageOrderItemSnapshot.PackageOfferSummary,
+                    PackageDefinitionId = item.PackageOrderItemSnapshot.PackageDefinitionId,
+                    PackageDefinitionTitle = item.PackageOrderItemSnapshot.PackageDefinitionTitle,
+                    PackageDefinitionSlug = item.PackageOrderItemSnapshot.PackageDefinitionSlug,
+                    CountryId = item.PackageOrderItemSnapshot.CountryId,
+                    ExamCategoryId = item.PackageOrderItemSnapshot.ExamCategoryId,
+                    PackageVersionId = item.PackageOrderItemSnapshot.PackageVersionId,
+                    PackageVersionNumber = item.PackageOrderItemSnapshot.PackageVersionNumber,
+                    IncludedExamId = item.PackageOrderItemSnapshot.IncludedExamId,
+                    IncludedExamVersionId = item.PackageOrderItemSnapshot.IncludedExamVersionId,
+                    IncludedExamTitle = item.PackageOrderItemSnapshot.IncludedExamTitle,
+                    ReportingProfilePublicationId = item.PackageOrderItemSnapshot.ReportingProfilePublicationId,
+                    PracticeCollectionVersionId = item.PackageOrderItemSnapshot.PracticeCollectionVersionId,
+                    StudyMaterialVersionIds = item.PackageOrderItemSnapshot.StudyMaterialVersionIds.ToList(),
+                    PriceAmountMinor = item.PackageOrderItemSnapshot.PriceAmountMinor,
+                    Currency = item.PackageOrderItemSnapshot.Currency,
+                    AccessDurationDays = item.PackageOrderItemSnapshot.AccessDurationDays,
+                    OrderCreatedAt = item.PackageOrderItemSnapshot.OrderCreatedAt
+                }
         };
     }
 }

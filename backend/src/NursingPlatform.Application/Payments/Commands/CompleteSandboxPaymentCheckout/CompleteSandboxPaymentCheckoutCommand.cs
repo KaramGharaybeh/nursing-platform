@@ -7,6 +7,7 @@ using NursingPlatform.Application.Payments.Common;
 using NursingPlatform.Application.Payments.DTOs;
 using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Payments;
+using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.Application.Payments.Commands.CompleteSandboxPaymentCheckout;
 
@@ -29,6 +30,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
     private const string SandboxProviderName = "Sandbox";
     private readonly IApplicationDbContext _context;
     private readonly NurseRoleGuard _nurseRoleGuard;
+    private readonly PackagePaymentFulfillmentService _packageFulfillmentService;
 
     public CompleteSandboxPaymentCheckoutCommandHandler(
         IApplicationDbContext context,
@@ -36,6 +38,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
     {
         _context = context;
         _nurseRoleGuard = nurseRoleGuard;
+        _packageFulfillmentService = new PackagePaymentFulfillmentService(context);
     }
 
     public async Task<PaymentCompletionDto> Handle(
@@ -51,6 +54,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
             var session = await _context.PaymentCheckoutSessions
                 .Include(s => s.PaymentOrder)
                 .ThenInclude(o => o.Items)
+                .ThenInclude(i => i.PackageOrderItemSnapshot)
                 .FirstOrDefaultAsync(s => s.Id == request.CheckoutSessionId && s.NurseProfileId == nurseProfileId, cancellationToken);
 
             ValidateOwnedSandboxProviderPendingSession(session, nurseProfileId);
@@ -91,6 +95,8 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
                     Reason = "SandboxPaymentCompletion"
                 });
             }
+
+            await _packageFulfillmentService.FulfillPackageOrderItemsAsync(order, nurseProfileId, now, cancellationToken);
 
             try
             {
@@ -222,6 +228,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
             .AsNoTracking()
             .Include(s => s.PaymentOrder)
             .ThenInclude(o => o.Items)
+            .ThenInclude(i => i.PackageOrderItemSnapshot)
             .FirstOrDefaultAsync(s => s.Id == checkoutSessionId
                 && s.NurseProfileId == nurseProfileId
                 && s.PaymentOrder.NurseProfileId == nurseProfileId
@@ -278,7 +285,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
         }
 
         var entries = dbContext.ChangeTracker.Entries()
-            .Where(e => e.Entity is ExamAccessGrant or PaymentOrder or PaymentCheckoutSession)
+            .Where(e => e.Entity is ExamAccessGrant or PaymentOrder or PaymentCheckoutSession or PackagePurchaseEntitlement or PackageBenefitRight)
             .ToList();
 
         foreach (var entry in entries)

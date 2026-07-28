@@ -46,6 +46,9 @@ public interface IApplicationDbContext
     DbSet<PaymentOrder> PaymentOrders { get; }
     DbSet<PaymentOrderItem> PaymentOrderItems { get; }
     DbSet<PaymentCheckoutSession> PaymentCheckoutSessions { get; }
+    DbSet<PackageOrderItemSnapshot> PackageOrderItemSnapshots { get; }
+    DbSet<PackagePurchaseEntitlement> PackagePurchaseEntitlements { get; }
+    DbSet<PackageBenefitRight> PackageBenefitRights { get; }
     DbSet<PreparationPackageDefinition> PreparationPackageDefinitions { get; }
     DbSet<PreparationPackageVersion> PreparationPackageVersions { get; }
     DbSet<PreparationPackageVersionMaterial> PreparationPackageVersionMaterials { get; }

@@ -126,6 +126,8 @@ public static class ApplicationBuilderExtensions
     {
         var api = app.MapGroup("/api/v1");
 
+        api.MapPreparationPackageEndpoints();
+
         api.MapPost("/auth/login", async (LoginCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);

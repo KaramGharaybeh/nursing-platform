@@ -327,6 +327,160 @@ public class PreparationPackageDomainTests
             [Guid.NewGuid()]));
     }
 
+    [Fact]
+    public void PackageEntitlement_CreateFromSnapshot_CapturesImmutablePurchaseFacts()
+    {
+        var nurseProfileId = Guid.NewGuid();
+        var paymentOrderId = Guid.NewGuid();
+        var paymentOrderItemId = Guid.NewGuid();
+        var snapshot = CreatePackageSnapshot(paymentOrderItemId: paymentOrderItemId);
+
+        var entitlement = PackagePurchaseEntitlement.CreateFromSnapshot(
+            nurseProfileId,
+            paymentOrderId,
+            paymentOrderItemId,
+            snapshot,
+            new DateTime(2026, 7, 28, 12, 0, 0, DateTimeKind.Utc));
+
+        Assert.Equal(nurseProfileId, entitlement.NurseProfileId);
+        Assert.Equal(paymentOrderId, entitlement.PaymentOrderId);
+        Assert.Equal(paymentOrderItemId, entitlement.PaymentOrderItemId);
+        Assert.Equal(snapshot.Id, entitlement.PurchasedOfferSnapshotId);
+        Assert.Equal(snapshot.PackageDefinitionId, entitlement.PreparationPackageDefinitionId);
+        Assert.Equal(snapshot.PackageVersionId, entitlement.PreparationPackageVersionId);
+        Assert.Equal(snapshot.PackageOfferId, entitlement.PreparationPackageOfferId);
+        Assert.Equal(snapshot.IncludedExamId, entitlement.IncludedExamId);
+        Assert.Equal(snapshot.IncludedExamVersionId, entitlement.IncludedExamVersionId);
+        Assert.Equal(snapshot.ReportingProfilePublicationId, entitlement.ReportingProfilePublicationId);
+        Assert.Equal(snapshot.PracticeCollectionVersionId, entitlement.PracticeCollectionVersionId);
+        Assert.Equal(snapshot.PriceAmountMinor, entitlement.PriceAmountMinor);
+        Assert.Equal(snapshot.Currency, entitlement.Currency);
+        Assert.Equal(snapshot.AccessDurationDays, entitlement.AccessDurationDays);
+        Assert.Equal(snapshot.StudyMaterialVersionIds, entitlement.StudyMaterialVersionIds);
+        Assert.Equal(PackagePurchaseEntitlementStatus.Active, entitlement.Status);
+    }
+
+    [Fact]
+    public void PackageEntitlement_CreateFromSnapshot_SetsAccessWindowFromFulfillmentTimeAndPurchasedDurationDays()
+    {
+        var fulfilledAt = new DateTime(2026, 7, 28, 12, 0, 0, DateTimeKind.Utc);
+        var snapshot = CreatePackageSnapshot(accessDurationDays: 90);
+
+        var entitlement = PackagePurchaseEntitlement.CreateFromSnapshot(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            snapshot.PaymentOrderItemId,
+            snapshot,
+            fulfilledAt);
+
+        Assert.Equal(fulfilledAt, entitlement.FulfilledAt);
+        Assert.Equal(fulfilledAt, entitlement.AccessStartsAt);
+        Assert.Equal(fulfilledAt.AddDays(90), entitlement.AccessEndsAt);
+    }
+
+    [Fact]
+    public void PackageEntitlement_IsActiveRequiresActiveStatusAndCurrentAccessWindow()
+    {
+        var fulfilledAt = new DateTime(2026, 7, 28, 12, 0, 0, DateTimeKind.Utc);
+        var snapshot = CreatePackageSnapshot(accessDurationDays: 30);
+        var entitlement = PackagePurchaseEntitlement.CreateFromSnapshot(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            snapshot.PaymentOrderItemId,
+            snapshot,
+            fulfilledAt);
+
+        Assert.False(entitlement.IsActiveAt(fulfilledAt.AddTicks(-1)));
+        Assert.True(entitlement.IsActiveAt(fulfilledAt));
+        Assert.True(entitlement.IsActiveAt(fulfilledAt.AddDays(30).AddTicks(-1)));
+        Assert.False(entitlement.IsActiveAt(fulfilledAt.AddDays(30)));
+
+        entitlement.ExpireIfPastAccessWindow(fulfilledAt.AddDays(30));
+
+        Assert.Equal(PackagePurchaseEntitlementStatus.Expired, entitlement.Status);
+        Assert.False(entitlement.IsActiveAt(fulfilledAt.AddDays(30).AddTicks(1)));
+    }
+
+    [Fact]
+    public void PackageBenefitRights_CreateDefaultSet_IncludesExactlyFourStage2RightTypes()
+    {
+        var snapshot = CreatePackageSnapshot();
+
+        var entitlement = PackagePurchaseEntitlement.CreateFromSnapshot(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            snapshot.PaymentOrderItemId,
+            snapshot,
+            new DateTime(2026, 7, 28, 12, 0, 0, DateTimeKind.Utc));
+
+        Assert.Collection(
+            entitlement.Rights.OrderBy(right => right.RightType),
+            right => Assert.Equal(PackageBenefitRightType.MaterialsAccess, right.RightType),
+            right => Assert.Equal(PackageBenefitRightType.PracticeAccess, right.RightType),
+            right => Assert.Equal(PackageBenefitRightType.PackageExamAttemptEligibility, right.RightType),
+            right => Assert.Equal(PackageBenefitRightType.ReportEligibility, right.RightType));
+    }
+
+    [Fact]
+    public void PackageBenefitRights_CreateDefaultSet_CreatesReportRightDormant()
+    {
+        var snapshot = CreatePackageSnapshot();
+
+        var entitlement = PackagePurchaseEntitlement.CreateFromSnapshot(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            snapshot.PaymentOrderItemId,
+            snapshot,
+            new DateTime(2026, 7, 28, 12, 0, 0, DateTimeKind.Utc));
+
+        Assert.All(
+            entitlement.Rights.Where(right => right.RightType != PackageBenefitRightType.ReportEligibility),
+            right => Assert.Equal(PackageBenefitRightStatus.Available, right.Status));
+
+        var reportRight = Assert.Single(entitlement.Rights, right => right.RightType == PackageBenefitRightType.ReportEligibility);
+        Assert.Equal(PackageBenefitRightStatus.Dormant, reportRight.Status);
+    }
+
+    [Fact]
+    public void PackageOrderItemSnapshot_Create_RequiresUtcOrderCreatedAt()
+    {
+        Assert.Throws<InvalidOperationException>(() => PackageOrderItemSnapshot.Create(
+            packageOfferId: Guid.NewGuid(),
+            packageOfferTitle: "NCLEX preparation",
+            packageOfferSlug: "nclex-preparation",
+            packageOfferSummary: "Focused preparation.",
+            packageDefinitionId: Guid.NewGuid(),
+            packageDefinitionTitle: "NCLEX Prep",
+            packageDefinitionSlug: "nclex-prep",
+            countryId: Guid.NewGuid(),
+            examCategoryId: Guid.NewGuid(),
+            packageVersionId: Guid.NewGuid(),
+            packageVersionNumber: 2,
+            includedExamId: Guid.NewGuid(),
+            includedExamVersionId: Guid.NewGuid(),
+            includedExamTitle: "NCLEX RN",
+            reportingProfilePublicationId: Guid.NewGuid(),
+            practiceCollectionVersionId: Guid.NewGuid(),
+            studyMaterialVersionIds: [Guid.NewGuid()],
+            priceAmountMinor: 14900,
+            currency: "usd",
+            accessDurationDays: 90,
+            orderCreatedAt: new DateTime(2026, 7, 28, 10, 0, 0, DateTimeKind.Local)));
+    }
+
+    [Fact]
+    public void PackageEntitlement_CreateFromSnapshot_RequiresUtcFulfillmentTimestamp()
+    {
+        var snapshot = CreatePackageSnapshot();
+
+        Assert.Throws<InvalidOperationException>(() => PackagePurchaseEntitlement.CreateFromSnapshot(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            snapshot.PaymentOrderItemId,
+            snapshot,
+            new DateTime(2026, 7, 28, 12, 0, 0, DateTimeKind.Local)));
+    }
+
     private static PracticeItem CreatePracticeItem(int displayOrder = 1)
     {
         var item = PracticeItem.Create(
@@ -339,5 +493,36 @@ public class PreparationPackageDomainTests
         item.AddAnswerOption("Incorrect option", false, 2);
 
         return item;
+    }
+
+    private static PackageOrderItemSnapshot CreatePackageSnapshot(
+        Guid? paymentOrderItemId = null,
+        int accessDurationDays = 90)
+    {
+        var snapshot = PackageOrderItemSnapshot.Create(
+            packageOfferId: Guid.NewGuid(),
+            packageOfferTitle: "NCLEX preparation",
+            packageOfferSlug: "nclex-preparation",
+            packageOfferSummary: "Focused preparation.",
+            packageDefinitionId: Guid.NewGuid(),
+            packageDefinitionTitle: "NCLEX Prep",
+            packageDefinitionSlug: "nclex-prep",
+            countryId: Guid.NewGuid(),
+            examCategoryId: Guid.NewGuid(),
+            packageVersionId: Guid.NewGuid(),
+            packageVersionNumber: 2,
+            includedExamId: Guid.NewGuid(),
+            includedExamVersionId: Guid.NewGuid(),
+            includedExamTitle: "NCLEX RN",
+            reportingProfilePublicationId: Guid.NewGuid(),
+            practiceCollectionVersionId: Guid.NewGuid(),
+            studyMaterialVersionIds: [Guid.NewGuid(), Guid.NewGuid()],
+            priceAmountMinor: 14900,
+            currency: "usd",
+            accessDurationDays: accessDurationDays,
+            orderCreatedAt: new DateTime(2026, 7, 28, 10, 0, 0, DateTimeKind.Utc));
+
+        snapshot.AssignPaymentOrderItem(paymentOrderItemId ?? Guid.NewGuid());
+        return snapshot;
     }
 }

@@ -14,6 +14,7 @@ public class PackageBenefitRight : AuditableEntity
     public PackageBenefitRightStatus Status { get; private set; }
     public DateTime AccessStartsAt { get; private set; }
     public DateTime? AccessEndsAt { get; private set; }
+    public DateTime? ConsumedAt { get; private set; }
 
     public static PackageBenefitRight Create(
         Guid packagePurchaseEntitlementId,
@@ -66,5 +67,27 @@ public class PackageBenefitRight : AuditableEntity
 
         Status = PackageBenefitRightStatus.Expired;
         UpdatedAt = timestamp;
+    }
+
+    public void ConsumePackageExamAttempt(DateTime consumedAtUtc)
+    {
+        if (RightType != PackageBenefitRightType.PackageExamAttemptEligibility)
+        {
+            throw new InvalidOperationException("Only package exam attempt eligibility rights can be consumed as exam attempts.");
+        }
+
+        if (Status != PackageBenefitRightStatus.Available)
+        {
+            throw new InvalidOperationException("Package exam attempt right must be available before it can be consumed.");
+        }
+
+        if (consumedAtUtc < AccessStartsAt || (AccessEndsAt.HasValue && consumedAtUtc >= AccessEndsAt.Value))
+        {
+            throw new InvalidOperationException("Package exam attempt right can only be consumed within its access window.");
+        }
+
+        Status = PackageBenefitRightStatus.Consumed;
+        ConsumedAt = consumedAtUtc;
+        UpdatedAt = consumedAtUtc;
     }
 }

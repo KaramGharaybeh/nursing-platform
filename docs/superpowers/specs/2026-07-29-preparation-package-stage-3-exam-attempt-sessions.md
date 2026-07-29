@@ -214,16 +214,26 @@ The existing endpoint may only be updated to record source metadata for sessions
 
 ## Source Distinction
 
-Every new exam session has one immutable logical source:
+Every stored exam session has one immutable logical source:
 
+- `Legacy` — historical/backfill-only value for pre-Stage-3 `ExamSession` rows created before source/provenance existed.
 - `Free` — started through the existing exam start operation where the exam does not require paid authorization under current policy.
 - `StandaloneGrant` — started through the existing exam start operation and authorized by standalone `ExamAccessGrant`.
 - `PackageAttempt` — started through the new package-specific start operation and authorized by one selected package purchase entitlement's `PackageExamAttemptEligibility` right.
 
-The source is server-owned and selected by the start operation, not by the client.
+The source is server-owned and selected by the start operation or by an approved migration backfill, not by the client.
 
 Rules:
 
+- `Legacy` is allowed only as a migration backfill value for existing pre-Stage-3 rows.
+- New application-created sessions after Stage 3 must never use `Legacy`.
+- New free sessions must use `Free`.
+- New standalone paid sessions must use `StandaloneGrant`.
+- New package sessions must use `PackageAttempt`.
+- `Legacy` does not authorize package behavior.
+- `Legacy` does not create package provenance.
+- `Legacy` must not be used for report qualification.
+- Existing historical sessions with `Legacy` remain resumable/reviewable only under existing session ownership and lifecycle rules.
 - A session source cannot be changed after creation.
 - A free or standalone session cannot become a package session.
 - A package session cannot become a free or standalone session.
@@ -278,7 +288,7 @@ For `PackageAttempt` sessions, the provenance record must store these server-own
 
 The provenance record must not store protected exam question text, answer identifiers, correct answers, answer keys, protected options, rationales, internal scoring logic, report evidence, report analytics, provider secrets, tokens, password hashes, or free-text provenance.
 
-For `Free` and `StandaloneGrant` sessions, package provenance fields are not present. The session source discriminator is sufficient for Stage 3. If a one-to-one row is used for all source types, free and standalone rows must not contain package ids or internal package right ids.
+For `Legacy`, `Free`, and `StandaloneGrant` sessions, package provenance fields are not present. The session source discriminator is sufficient for Stage 3. If a one-to-one row is used for all source types, legacy, free, and standalone rows must not contain package ids or internal package right ids.
 
 ---
 
@@ -485,6 +495,7 @@ Future implementation must use EF Core Code-First migrations and PostgreSQL cons
 Required invariants:
 
 - Every session has exactly one immutable source value.
+- Existing pre-Stage-3 sessions are backfilled to `Legacy`; new application-created sessions must use explicit non-`Legacy` source values.
 - Every package-attempt session has exactly one provenance row.
 - Every package-attempt provenance row references one exam session.
 - A package-attempt provenance row references the selected package entitlement and resolved package exam attempt right.
@@ -523,6 +534,7 @@ Future Stage 3 implementation must include tests by layer.
 - `ExamSession_CreateFreeSource_RecordsImmutableFreeSource`
 - `ExamSession_CreateStandaloneGrantSource_RecordsImmutableStandaloneGrantSource`
 - `ExamSession_CreatePackageAttemptSource_RecordsImmutablePackageSource`
+- `ExamSession_CreateLegacySource_RecordsImmutableLegacySourceForBackfillOnly`
 - `ExamSessionProvenance_CreateForPackageAttempt_CapturesRequiredPackageFacts`
 - `ExamSessionProvenance_CreateForPackageAttempt_RejectsMissingEntitlementRightOrSnapshotIds`
 - `PackageBenefitRight_ConsumePackageExamAttempt_TransitionsAvailableToConsumed`
@@ -544,7 +556,9 @@ Future Stage 3 implementation must include tests by layer.
 - `Handle_StartPackageAttempt_DoesNotReadOrCreateExamAccessGrant`
 - `Handle_StartExamSession_ForFreeExam_RecordsFreeSourceAndDoesNotConsumePackageRight`
 - `Handle_StartExamSession_ForStandalonePaidExam_RecordsStandaloneGrantSourceAndDoesNotConsumePackageRight`
+- `Handle_StartExamSession_NeverCreatesLegacySource`
 - `Handle_StartExamSession_WithPackageEntitlementOnly_StillRequiresStandaloneGrantWhenPaidPolicyRequiresGrant`
+- `Handle_StartPackageAttempt_WithLegacySessionSource_DoesNotSatisfyPackageStart`
 - `Handle_StartPackageAttempt_WhenSessionCreationFails_DoesNotConsumeRight`
 - `Handle_StartPackageAttempt_WhenRightConsumptionFails_DoesNotPersistSession`
 - `Handle_StartPackageAttempt_AfterEntitlementExpiryButSessionInProgress_ReturnsExistingSessionWithoutRecheckingWindow`
@@ -552,6 +566,7 @@ Future Stage 3 implementation must include tests by layer.
 ### Infrastructure Tests
 
 - `ExamSessionConfiguration_PersistsSessionSourceAsRequiredString`
+- `ExamSessionMigration_BackfillsExistingRowsToLegacySource`
 - `ExamSessionProvenanceConfiguration_UsesOneToOneSessionRelationship`
 - `ExamSessionProvenanceConfiguration_UsesRestrictDeleteBehavior`
 - `ExamSessionProvenanceConfiguration_IndexesPackageEntitlementAndBenefitRight`
@@ -570,6 +585,7 @@ Future Stage 3 implementation must include tests by layer.
 - `StartPackageExamSession_WithDifferentSourceInProgress_ReturnsConflictProblemDetails`
 - `StartPackageExamSession_WithConsumedTerminalAttempt_ReturnsConsumedProblemDetails`
 - `StartPackageExamSession_RawJsonDoesNotExposeSensitiveFields`
+- `StartPackageExamSession_WithLegacySessionSource_DoesNotAuthorizePackageBehavior`
 - `ExistingStartExamSession_ForFreeExam_RemainsBackwardCompatible`
 - `ExistingStartExamSession_ForStandalonePaidExam_RemainsBackwardCompatible`
 - `ExistingStartExamSession_DoesNotAcceptOrConsumePackageEntitlement`
@@ -608,7 +624,7 @@ These items were open questions in the review draft and are now resolved by user
 
 1. Problem Details use `409 Conflict` with stable client-safe codes: `exam-session-source-conflict`, `package-attempt-consumed`, `package-entitlement-inactive`, `package-attempt-right-missing`, and `package-exam-version-unavailable`.
 2. Package start success returns an additive package-start DTO wrapping safe session data and safe package/source/entitlement summary. It must not expose internal benefit right ids.
-3. Nurse-facing session DTOs may expose session source as a safe field with values `Free`, `StandaloneGrant`, and `PackageAttempt`. They must not expose package provenance internals.
+3. Nurse-facing session DTOs may expose session source as a safe field with values `Legacy`, `Free`, `StandaloneGrant`, and `PackageAttempt`. `Legacy` is historical/backfill-only and must not be created by new application flows. DTOs must not expose package provenance internals.
 4. Missing and non-owned package entitlements return `404 Not Found` and must be indistinguishable to the client.
 5. The package attempt right receives a dedicated nullable `ConsumedAt` business timestamp during implementation. Generic audit timestamps are not sufficient for attempt-consumption evidence.
 6. Concurrency uses optimistic concurrency plus database uniqueness and reload behavior. PostgreSQL row locking is not part of the approved Stage 3 design unless later implementation evidence proves it necessary and a separate review approves it.
@@ -623,14 +639,15 @@ These items were open questions in the review draft and are now resolved by user
 - The client selects an entitlement id only.
 - The backend resolves the current nurse, package entitlement, included exam/version, internal `PackageExamAttemptEligibility` right, and all provenance facts.
 - The client must not send internal right id, exam version id, package version id, or provenance facts.
-- Public DTOs expose safe session source values `Free`, `StandaloneGrant`, and `PackageAttempt`, but do not expose internal benefit right ids or package provenance internals.
+- Public DTOs expose safe session source values `Legacy`, `Free`, `StandaloneGrant`, and `PackageAttempt`, but do not expose internal benefit right ids or package provenance internals.
+- `Legacy` is a safe historical/backfill-only source value for pre-Stage-3 sessions. It does not authorize package behavior, does not create package provenance, must not qualify for reports, and must never be used for new application-created sessions.
 - Missing and non-owned package entitlements return indistinguishable `404 Not Found` responses.
 - Stage 3 conflict outcomes use `409 Conflict` with stable client-safe codes: `exam-session-source-conflict`, `package-attempt-consumed`, `package-entitlement-inactive`, `package-attempt-right-missing`, and `package-exam-version-unavailable`.
 - Package right authorization and standalone grant authorization remain separate.
 - Package rights do not satisfy standalone exam start.
 - `ExamAccessGrant` does not satisfy package attempt start.
 - Existing free/standalone endpoint behavior remains backward-compatible.
-- Every session receives one immutable source: `Free`, `StandaloneGrant`, or `PackageAttempt`.
+- Every session receives one immutable source: `Legacy`, `Free`, `StandaloneGrant`, or `PackageAttempt`; only migration-backfilled historical sessions may use `Legacy`.
 - Package provenance is immutable once created.
 - Recommended storage is a one-to-one `ExamSessionProvenance` table rather than many nullable `ExamSession` columns.
 - Package attempt right consumption happens only when package session creation succeeds.

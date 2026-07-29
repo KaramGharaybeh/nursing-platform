@@ -19,7 +19,7 @@
 - **Existing behavior:** Preserve `POST /api/v1/exams/{id}/sessions` as the free/standalone start operation. It must not accept package entitlement ids, infer package starts, read package rights for authorization, consume package rights, or switch existing session source.
 - **New endpoint:** Add only `POST /api/v1/me/nurse-profile/preparation-packages/entitlements/{entitlementId}/exam-session`, requiring authentication and current-nurse ownership; no admin permission and no anonymous access.
 - **Client input:** The package start route supplies only `entitlementId`. The client must not supply internal benefit right id, nurse profile id, exam id, exam version id, package ids, snapshot ids, access-window dates, source/provenance facts, right status, scoring facts, or report facts.
-- **Session source values:** Every new session has one immutable source: `Free`, `StandaloneGrant`, or `PackageAttempt`.
+- **Session source values:** Every stored session has one immutable source: `Legacy`, `Free`, `StandaloneGrant`, or `PackageAttempt`. `Legacy` is historical/backfill-only for pre-Stage-3 rows and must never be used by new application-created sessions.
 - **Provenance storage:** Use a one-to-one `ExamSessionProvenance` table for package provenance rather than many nullable columns on `ExamSession`.
 - **Problem Details codes:** Use stable client-safe `409 Conflict` codes: `exam-session-source-conflict`, `package-attempt-consumed`, `package-entitlement-inactive`, `package-attempt-right-missing`, and `package-exam-version-unavailable`.
 - **Not-found behavior:** Missing and non-owned package entitlements must both return indistinguishable `404 Not Found`.
@@ -37,7 +37,7 @@
 ### Domain
 
 - Modify `backend/src/NursingPlatform.Domain/Exams/ExamSession.cs`: add immutable `Source` property and factory overload/source-aware creation.
-- Create `backend/src/NursingPlatform.Domain/Exams/ExamSessionSource.cs`: enum/string-backed source values `Free`, `StandaloneGrant`, `PackageAttempt`.
+- Create `backend/src/NursingPlatform.Domain/Exams/ExamSessionSource.cs`: enum/string-backed source values `Legacy`, `Free`, `StandaloneGrant`, `PackageAttempt`, with `Legacy` reserved for migration backfill only.
 - Create `backend/src/NursingPlatform.Domain/Exams/ExamSessionProvenance.cs`: immutable one-to-one package provenance entity with required package facts.
 - Modify `backend/src/NursingPlatform.Domain/PreparationPackages/PackageBenefitRight.cs`: add `ConsumedAt`, package-attempt consumption method, and concurrency token if not already present.
 - Modify `backend/src/NursingPlatform.Domain/PreparationPackages/PackageBenefitRightStatus.cs`: preserve existing statuses and ensure `Consumed` is used for Stage 3 attempts only where specified.
@@ -51,7 +51,7 @@
 - Create `backend/src/NursingPlatform.Application/PreparationPackages/ExamSessions/StartPackageExamSession/StartPackageExamSessionCommandHandler.cs`: package start orchestration, ownership/authorization, idempotency, transaction, snapshot creation, right consumption, reload-on-conflict behavior.
 - Create `backend/src/NursingPlatform.Application/PreparationPackages/ExamSessions/DTOs/PackageExamSessionStartDto.cs`: additive success DTO wrapping safe `ExamSessionDto`, safe source, and safe entitlement/package summary.
 - Create `backend/src/NursingPlatform.Application/PreparationPackages/ExamSessions/Exceptions/PackageExamSessionConflictException.cs`: application exception with stable code and message for WebApi Problem Details.
-- Modify `backend/src/NursingPlatform.Application/Exams/DTOs/ExamSessionDto.cs`: add safe `Source` field with values `Free`, `StandaloneGrant`, `PackageAttempt`; do not add provenance/right ids.
+- Modify `backend/src/NursingPlatform.Application/Exams/DTOs/ExamSessionDto.cs`: add safe `Source` field with values `Legacy`, `Free`, `StandaloneGrant`, `PackageAttempt`; do not add provenance/right ids. New application flows must not create `Legacy`.
 - Modify `backend/src/NursingPlatform.Application/Exams/Common/ExamMapping.cs`: map safe source and continue hiding correct-answer snapshots.
 
 ### Infrastructure
@@ -89,14 +89,14 @@
 - Test: `backend/tests/NursingPlatform.Domain.Tests/PreparationPackages/PackageBenefitRightConsumptionTests.cs`
 
 **Interfaces:**
-- Produces: `ExamSessionSource` values `Free`, `StandaloneGrant`, `PackageAttempt`.
+- Produces: `ExamSessionSource` values `Legacy`, `Free`, `StandaloneGrant`, `PackageAttempt`, with `Legacy` available only for migration/backfill representation and not selected by application start handlers.
 - Produces: `ExamSession.Create(..., ExamSessionSource source)` returning an `ExamSession` whose source is set once at creation.
 - Produces: `ExamSessionProvenance.CreateForPackageAttempt(...)` with required package facts.
 - Produces: `PackageBenefitRight.ConsumePackageExamAttempt(DateTime consumedAtUtc)` setting `Status = Consumed` and `ConsumedAt = consumedAtUtc` only when the right is `PackageExamAttemptEligibility` and `Available`.
 
 - [ ] **Step 1: Write failing source tests**
 
-Create tests proving all three source values are recorded at creation and cannot be changed through a public source mutation method. The assertion must check the actual `Source` property value for `Free`, `StandaloneGrant`, and `PackageAttempt`.
+Create tests proving all four source values are recorded at creation and cannot be changed through a public source mutation method. The assertion must check the actual `Source` property value for `Legacy`, `Free`, `StandaloneGrant`, and `PackageAttempt`. The `Legacy` test must name and document that the value exists for migration/backfill representation only.
 
 - [ ] **Step 2: Run domain source tests and verify they fail**
 
@@ -177,6 +177,7 @@ Do not stage or commit unless the user explicitly authorizes staging/committing 
 Create tests named exactly:
 
 - `ExamSessionConfiguration_PersistsSessionSourceAsRequiredString`
+- `ExamSessionMigration_BackfillsExistingRowsToLegacySource`
 - `ExamSessionProvenanceConfiguration_UsesOneToOneSessionRelationship`
 - `ExamSessionProvenanceConfiguration_UsesRestrictDeleteBehavior`
 - `ExamSessionProvenanceConfiguration_IndexesPackageEntitlementAndBenefitRight`
@@ -207,7 +208,7 @@ If application retry handling needs provider-specific detection, add narrowly na
 
 After explicit user approval for migrations, run the project’s existing migration command pattern for Infrastructure. The migration must:
 
-- Add required `Source` to `ExamSessions` using a deterministic, reviewed backfill strategy before implementation. Before generating the migration, report the exact planned backfill strategy and receive approval if there is any ambiguity. If existing historical sessions cannot be accurately classified from existing data, the implementation slice must stop and report before generating the migration. Possible strategies must be explicitly reviewed, such as classifying from existing exam/payment/grant data if reliable, introducing an explicitly approved legacy/source value only if the specification is amended, or requiring a data migration decision before implementation. Do not invent a default that changes the meaning of historical sessions, and do not silently classify unknown historical paid/standalone sessions as `Free`.
+- Add required `Source` to `ExamSessions` using the approved `Legacy` historical backfill strategy: add `Source`, backfill all existing pre-Stage-3 rows to `Legacy`, then make `Source` required. Future inserted rows must use explicit non-`Legacy` source values from application code. Do not classify historical sessions as `Free`, `StandaloneGrant`, or `PackageAttempt` because the authorization branch used at historical creation time cannot be reconstructed deterministically.
 - Add `ConsumedAt` nullable timestamp to `PackageBenefitRights`.
 - Add `ExamSessionProvenances` with required package facts.
 - Add one-to-one unique index on `ExamSessionId`.
@@ -254,16 +255,17 @@ Create tests named exactly:
 
 - `Handle_StartExamSession_ForFreeExam_RecordsFreeSourceAndDoesNotConsumePackageRight`
 - `Handle_StartExamSession_ForStandalonePaidExam_RecordsStandaloneGrantSourceAndDoesNotConsumePackageRight`
+- `Handle_StartExamSession_NeverCreatesLegacySource`
 - `Handle_StartExamSession_WithPackageEntitlementOnly_StillRequiresStandaloneGrantWhenPaidPolicyRequiresGrant`
 
-The tests must prove the existing endpoint does not consume package rights and package entitlement alone does not satisfy standalone paid exam start.
+The tests must prove the existing endpoint does not consume package rights, package entitlement alone does not satisfy standalone paid exam start, and new existing-endpoint sessions never use `Legacy`.
 
 - [ ] **Step 2: Run application compatibility tests and verify they fail**
 
 Run:
 
 ```bash
-dotnet test backend/tests/NursingPlatform.Application.Tests/NursingPlatform.Application.Tests.csproj --filter "Handle_StartExamSession_ForFreeExam|Handle_StartExamSession_ForStandalonePaidExam|Handle_StartExamSession_WithPackageEntitlementOnly"
+dotnet test backend/tests/NursingPlatform.Application.Tests/NursingPlatform.Application.Tests.csproj --filter "Handle_StartExamSession_ForFreeExam|Handle_StartExamSession_ForStandalonePaidExam|Handle_StartExamSession_NeverCreatesLegacySource|Handle_StartExamSession_WithPackageEntitlementOnly"
 ```
 
 Expected: fails because source recording is not implemented.
@@ -274,7 +276,7 @@ Refactor the existing exam access policy minimally so the start handler can dist
 
 - [ ] **Step 4: Record source in existing start handler**
 
-Pass `ExamSessionSource.Free` or `ExamSessionSource.StandaloneGrant` into `ExamSession.Create`. If the existing in-progress session source is `PackageAttempt`, return `PackageExamSessionConflictException` with code `exam-session-source-conflict` rather than silently resuming it as free/standalone.
+Pass `ExamSessionSource.Free` or `ExamSessionSource.StandaloneGrant` into `ExamSession.Create`. Never pass `ExamSessionSource.Legacy` from application start code. If the existing in-progress session source is `PackageAttempt`, return `PackageExamSessionConflictException` with code `exam-session-source-conflict` rather than silently resuming it as free/standalone. Historical `Legacy` sessions remain resumable/reviewable only under existing session ownership/lifecycle rules and do not authorize package behavior.
 
 - [ ] **Step 5: Map source in safe DTO**
 
@@ -285,7 +287,7 @@ Add `Source` to `ExamSessionDto` and `ExamMapping.ToSessionDto`. Do not add enti
 Run:
 
 ```bash
-dotnet test backend/tests/NursingPlatform.Application.Tests/NursingPlatform.Application.Tests.csproj --filter "Handle_StartExamSession_ForFreeExam|Handle_StartExamSession_ForStandalonePaidExam|Handle_StartExamSession_WithPackageEntitlementOnly"
+dotnet test backend/tests/NursingPlatform.Application.Tests/NursingPlatform.Application.Tests.csproj --filter "Handle_StartExamSession_ForFreeExam|Handle_StartExamSession_ForStandalonePaidExam|Handle_StartExamSession_NeverCreatesLegacySource|Handle_StartExamSession_WithPackageEntitlementOnly"
 ```
 
 Expected: all matching tests pass.
@@ -375,12 +377,13 @@ Create tests named exactly:
 - `Handle_StartPackageAttempt_WithConsumedRightAndInProgressMatchingSession_ReturnsSameSession`
 - `Handle_StartPackageAttempt_WithConsumedRightAndTerminalSession_ReturnsConsumedOutcome`
 - `Handle_StartPackageAttempt_WithDifferentSourceInProgress_ReturnsSourceConflictWithoutConsumingRight`
+- `Handle_StartPackageAttempt_WithLegacySessionSource_DoesNotSatisfyPackageStart`
 - `Handle_StartPackageAttempt_WithDifferentPackageEntitlementInProgressForSameExamVersion_ReturnsSourceConflict`
 - `Handle_StartPackageAttempt_AfterEntitlementExpiryButSessionInProgress_ReturnsExistingSessionWithoutRecheckingWindow`
 
 - [ ] **Step 8: Implement same-source retry and deterministic conflicts**
 
-Implement idempotency based on current nurse profile id + entitlement id + included exam version id. For expired matching in-progress package session, call existing finalization behavior, then throw/return consumed outcome `package-attempt-consumed`; do not create a second session.
+Implement idempotency based on current nurse profile id + entitlement id + included exam version id. `Legacy` must not satisfy package start, must not create package provenance, and must not authorize package behavior. For expired matching in-progress package session, call existing finalization behavior, then throw/return consumed outcome `package-attempt-consumed`; do not create a second session.
 
 - [ ] **Step 9: Write failing rollback tests**
 
@@ -495,7 +498,7 @@ Assert HTTP 409, `application/problem+json`, and exact `code` values.
 
 - [ ] **Step 3: Write failing raw JSON security test**
 
-Create `StartPackageExamSession_RawJsonDoesNotExposeSensitiveFields`. Read raw JSON string before deserializing and assert it does not contain `passwordHash`, `benefitRightId`, `packageBenefitRightId`, `examSessionProvenance`, `correct`, `answerKey`, `rationale`, `providerSecret`, `accessToken`, `refreshToken`, `reportEvidence`, or `internalAuthorizationState` case-insensitively.
+Create `StartPackageExamSession_RawJsonDoesNotExposeSensitiveFields`. Read raw JSON string before deserializing and assert it does not contain `passwordHash`, `benefitRightId`, `packageBenefitRightId`, `examSessionProvenance`, `correct`, `answerKey`, `rationale`, `providerSecret`, `accessToken`, `refreshToken`, `reportEvidence`, or `internalAuthorizationState` case-insensitively. Also create `StartPackageExamSession_WithLegacySessionSource_DoesNotAuthorizePackageBehavior` proving a historical/backfilled `Legacy` session cannot be treated as package provenance or package authorization.
 
 - [ ] **Step 4: Map endpoint**
 
@@ -681,7 +684,7 @@ End with the required stop status. Do not proceed to Stage 4. Do not stage, comm
 
 - Separate package start endpoint is covered in Tasks 4 and 6.
 - One-to-one `ExamSessionProvenance` is covered in Tasks 1 and 2.
-- Source values `Free`, `StandaloneGrant`, and `PackageAttempt` are covered in Tasks 1 and 3.
+- Source values `Legacy`, `Free`, `StandaloneGrant`, and `PackageAttempt` are covered in Tasks 1 and 3; `Legacy` migration backfill and non-creation by application flows are covered in Tasks 2, 3, 4, and 6.
 - Stable 409 Problem Details codes are covered in Tasks 4 and 6.
 - Additive package-start DTO and safe source exposure are covered in Tasks 3, 4, and 6.
 - `404 Not Found` for missing/non-owned entitlement is covered in Tasks 4 and 6.

@@ -2,9 +2,9 @@
 
 ## Status
 
-Draft — Stage 3 Specification for Review
+Approved — Stage 3 Specification
 
-This specification defines the Stage 3 product and architecture requirements for package exam attempt start, attempt consumption, exam session source distinction, and immutable session provenance. It does not authorize implementation, implementation planning, source-code changes beyond this specification file, database migrations, API implementation, tests, frontend work, staging, committing, pushing, or beginning Stage 4.
+This specification defines the Stage 3 product and architecture requirements for package exam attempt start, attempt consumption, exam session source distinction, and immutable session provenance. It does not authorize implementation, implementation planning, source-code changes beyond this specification file, database migrations, API implementation, tests, frontend work, staging, committing, pushing, deleting branches, or beginning Stage 4.
 
 ---
 
@@ -310,7 +310,7 @@ Authorization must not be satisfied by a different entitlement, another package'
 
 The `PackageExamAttemptEligibility` right is consumed only when qualifying package session creation succeeds.
 
-Consumption means the right transitions from `Available` to `Consumed` and records a server-owned timestamp through either a dedicated consumed timestamp or existing audit fields selected during implementation planning.
+Consumption means the right transitions from `Available` to `Consumed` and records a server-owned timestamp in a dedicated nullable `ConsumedAt` business timestamp on the package attempt right. Stage 3 implementation must not rely only on generic audit timestamps to prove attempt consumption.
 
 Rules:
 
@@ -346,7 +346,7 @@ The same transaction must persist:
 
 If any part fails before commit, the entire operation rolls back.
 
-If another concurrent transaction wins session creation or right consumption, the losing transaction must reload authoritative state and return either an idempotent same-source result or a deterministic conflict.
+If another concurrent transaction wins session creation or right consumption, the losing transaction must reload authoritative state and return either an idempotent same-source result or a deterministic conflict. Stage 3 uses optimistic concurrency plus database uniqueness and reload behavior. PostgreSQL row locking must not be used unless later implementation evidence proves it necessary and a separate review approves that change.
 
 ---
 
@@ -397,7 +397,7 @@ A same-source package retry means the same nurse repeats package start for the s
 Required same-source behavior:
 
 - If the matching package session is still `InProgress` and the session timer has not expired, return/resume that same session.
-- If the matching package session is `InProgress` but the session timer has expired, existing finalization behavior may transition the session to terminal according to exam session rules. A new package session must not be created from the already-consumed right.
+- If the matching package session is `InProgress` but the session timer has expired, finalize it using existing session finalization behavior, then return the deterministic consumed outcome. A new package session must not be created from the already-consumed right.
 - If the matching package session is terminal, return a deterministic consumed outcome.
 - Same-source retry must not re-check entitlement access-window validity after session creation when returning the already-created in-progress session. The entitlement only had to be valid at creation time.
 
@@ -450,8 +450,10 @@ Authorization:
 
 Response boundary:
 
-- Returns the safe existing session DTO or an additive safe package-start DTO selected during implementation planning.
-- Must not expose internal package benefit right ids in public DTOs unless explicitly approved later.
+- Returns an additive package-start DTO wrapping safe session data and safe package/source/entitlement summary.
+- Exposes session source as a safe nurse-facing field with values `Free`, `StandaloneGrant`, and `PackageAttempt`.
+- Must not expose internal package benefit right ids in public DTOs.
+- Must not expose package provenance internals in nurse-facing DTOs.
 - Must not expose protected exam content beyond the existing safe session question/option presentation.
 - Must not expose correct answers, answer identifiers, answer keys, protected options, rationales, report evidence, provider secrets, tokens, password hashes, stack traces, or internal authorization state.
 
@@ -465,7 +467,7 @@ The existing `POST /api/v1/exams/{id}/sessions` endpoint remains the free/standa
 - Client input is limited to selecting the package purchase entitlement id for package start.
 - The backend resolves nurse ownership, entitlement, right, exam id, exam version id, package ids, purchased snapshot id, and provenance facts.
 - Internal `PackageBenefitRight` ids are never client-selected.
-- Public/nurse-facing DTOs must not expose internal right ids unless explicitly approved by a later task.
+- Public/nurse-facing DTOs must expose only safe source and entitlement summary fields; they must not expose internal right ids or package provenance internals.
 - Package right status and provenance must not be writable by the client.
 - No source switching or provenance rewriting endpoint may exist.
 - Package attempts must not create, mutate, or rely on `ExamAccessGrant`.
@@ -491,6 +493,7 @@ Required invariants:
 - One in-progress session per nurse/exam version remains enforced at the database level across all sources.
 - Attempt consumption and package session/provenance creation are committed atomically.
 - Source and provenance cannot be rewritten after creation.
+- Package attempt right consumption stores a dedicated nullable `ConsumedAt` timestamp.
 
 ---
 
@@ -498,17 +501,16 @@ Required invariants:
 
 Stage 3 must define deterministic client-safe outcomes for:
 
-- entitlement not found or not owned by current nurse;
-- entitlement inactive or outside access window at creation;
-- attempt right missing;
-- attempt right not available;
-- exact included exam/exam-version mismatch or unavailable historical exam version;
-- different-source in-progress session conflict;
-- same exam version in progress from a different package entitlement;
-- consumed package attempt with terminal session;
-- concurrency conflict where another transaction creates the in-progress session or consumes the right first.
+- entitlement not found or not owned by current nurse: return `404 Not Found`; missing and non-owned entitlements must be indistinguishable to the client;
+- entitlement inactive or outside access window at creation: return `409 Conflict` with stable client-safe code `package-entitlement-inactive`;
+- attempt right missing: return `409 Conflict` with stable client-safe code `package-attempt-right-missing`;
+- attempt right not available because it was consumed by a terminal package session: return `409 Conflict` with stable client-safe code `package-attempt-consumed`;
+- exact included exam/exam-version mismatch or unavailable historical exam version: return `409 Conflict` with stable client-safe code `package-exam-version-unavailable`;
+- different-source in-progress session conflict: return `409 Conflict` with stable client-safe code `exam-session-source-conflict`;
+- same exam version in progress from a different package entitlement: return `409 Conflict` with stable client-safe code `exam-session-source-conflict`;
+- concurrency conflict where another transaction creates the in-progress session or consumes the right first: reload authoritative state and return either the same-source idempotent session result or the appropriate `409 Conflict` stable code above.
 
-Exact Problem Details type names, extension codes, and status-code mapping require user approval before implementation planning.
+Problem Details responses must remain client-safe and must not expose internal right ids, package provenance internals, stack traces, protected exam content, report evidence, provider secrets, tokens, password hashes, or internal authorization state.
 
 ---
 
@@ -524,6 +526,7 @@ Future Stage 3 implementation must include tests by layer.
 - `ExamSessionProvenance_CreateForPackageAttempt_CapturesRequiredPackageFacts`
 - `ExamSessionProvenance_CreateForPackageAttempt_RejectsMissingEntitlementRightOrSnapshotIds`
 - `PackageBenefitRight_ConsumePackageExamAttempt_TransitionsAvailableToConsumed`
+- `PackageBenefitRight_ConsumePackageExamAttempt_SetsConsumedAt`
 - `PackageBenefitRight_ConsumePackageExamAttempt_WhenNotAvailable_Throws`
 - `PackageBenefitRight_Expire_DoesNotOverwriteConsumedAttemptRight`
 
@@ -563,6 +566,7 @@ Future Stage 3 implementation must include tests by layer.
 - `StartPackageExamSession_Returns401WithoutJwt`
 - `StartPackageExamSession_WithForeignEntitlement_ReturnsNotFoundOrForbiddenWithoutExposure`
 - `StartPackageExamSession_WithValidEntitlement_ReturnsSessionAndNoInternalRightId`
+- `StartPackageExamSession_WithValidEntitlement_ReturnsSafePackageStartDtoWithSourceAndEntitlementSummary`
 - `StartPackageExamSession_WithDifferentSourceInProgress_ReturnsConflictProblemDetails`
 - `StartPackageExamSession_WithConsumedTerminalAttempt_ReturnsConsumedProblemDetails`
 - `StartPackageExamSession_RawJsonDoesNotExposeSensitiveFields`
@@ -598,24 +602,30 @@ Stage 3 must not implement placeholder report tables or routes.
 
 ---
 
-## Open Questions Requiring User Approval Before Implementation Planning
+## Resolved Open Questions
 
-1. Exact Problem Details status codes and stable error codes for source conflict, consumed attempt, inactive entitlement, missing right, and unavailable historical exam version.
-2. Whether the package start success response should reuse `ExamSessionDto` unchanged or return an additive package-start DTO containing safe source/entitlement summary fields.
-3. Whether nurse-facing session DTOs may expose the source value (`Free`, `StandaloneGrant`, `PackageAttempt`) in Stage 3, or whether source remains internal until a later API review.
-4. Whether package start should return `404` or `403` for a foreign entitlement; the implementation must choose one privacy-preserving behavior and test it consistently.
-5. Whether attempt consumption needs a dedicated `ConsumedAt` column in addition to existing audit timestamps.
-6. Whether concurrency control for right consumption should rely on optimistic concurrency plus database uniqueness/reload behavior or use explicit PostgreSQL row locking. Recommendation: optimistic concurrency plus deterministic reload/conflict handling, unless implementation review finds existing patterns require row locks.
-7. Whether an expired-by-timer package session should be finalized during a package-start retry before returning consumed outcome, or whether retry should return consumed outcome based on the already-terminalized state only. The behavior must be deterministic and test-covered.
+These items were open questions in the review draft and are now resolved by user approval before implementation planning:
+
+1. Problem Details use `409 Conflict` with stable client-safe codes: `exam-session-source-conflict`, `package-attempt-consumed`, `package-entitlement-inactive`, `package-attempt-right-missing`, and `package-exam-version-unavailable`.
+2. Package start success returns an additive package-start DTO wrapping safe session data and safe package/source/entitlement summary. It must not expose internal benefit right ids.
+3. Nurse-facing session DTOs may expose session source as a safe field with values `Free`, `StandaloneGrant`, and `PackageAttempt`. They must not expose package provenance internals.
+4. Missing and non-owned package entitlements return `404 Not Found` and must be indistinguishable to the client.
+5. The package attempt right receives a dedicated nullable `ConsumedAt` business timestamp during implementation. Generic audit timestamps are not sufficient for attempt-consumption evidence.
+6. Concurrency uses optimistic concurrency plus database uniqueness and reload behavior. PostgreSQL row locking is not part of the approved Stage 3 design unless later implementation evidence proves it necessary and a separate review approves it.
+7. If same-source package retry finds an expired in-progress package session, the handler finalizes it using existing session finalization behavior, then returns the deterministic consumed outcome. It must not create a replacement package session from the already-consumed right.
 
 ---
 
 ## Decisions Summary
 
 - Stage 3 uses a separate package-specific start endpoint: `POST /api/v1/me/nurse-profile/preparation-packages/entitlements/{entitlementId}/exam-session`.
+- Package start success returns an additive package-start DTO wrapping safe session data and safe package/source/entitlement summary.
 - The client selects an entitlement id only.
 - The backend resolves the current nurse, package entitlement, included exam/version, internal `PackageExamAttemptEligibility` right, and all provenance facts.
 - The client must not send internal right id, exam version id, package version id, or provenance facts.
+- Public DTOs expose safe session source values `Free`, `StandaloneGrant`, and `PackageAttempt`, but do not expose internal benefit right ids or package provenance internals.
+- Missing and non-owned package entitlements return indistinguishable `404 Not Found` responses.
+- Stage 3 conflict outcomes use `409 Conflict` with stable client-safe codes: `exam-session-source-conflict`, `package-attempt-consumed`, `package-entitlement-inactive`, `package-attempt-right-missing`, and `package-exam-version-unavailable`.
 - Package right authorization and standalone grant authorization remain separate.
 - Package rights do not satisfy standalone exam start.
 - `ExamAccessGrant` does not satisfy package attempt start.
@@ -624,8 +634,11 @@ Stage 3 must not implement placeholder report tables or routes.
 - Package provenance is immutable once created.
 - Recommended storage is a one-to-one `ExamSessionProvenance` table rather than many nullable `ExamSession` columns.
 - Package attempt right consumption happens only when package session creation succeeds.
+- Package attempt right consumption records a dedicated nullable `ConsumedAt` business timestamp.
 - The system must never persist a consumed package attempt right without its qualifying session, or a package attempt session without the consumed right.
 - Retry must not double-consume package rights.
+- Concurrency uses optimistic concurrency plus database uniqueness and reload behavior; PostgreSQL row locking is not approved unless later evidence and review require it.
+- Same-source retry for an expired in-progress package session finalizes the session through existing finalization behavior and returns consumed outcome without creating a replacement session.
 - One in-progress session per nurse/exam-version across free, standalone, and package sources remains the concurrency rule.
 - Different packages containing the same exam can coexist as entitlements but cannot create simultaneous in-progress sessions for the same nurse/exam-version.
 - Stage 4 report generation/access, analytics, workspace runtime, and employer package data remain deferred.

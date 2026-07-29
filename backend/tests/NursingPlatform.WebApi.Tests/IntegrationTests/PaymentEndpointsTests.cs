@@ -180,6 +180,48 @@ public class PaymentEndpointsTests
     }
 
     [Fact]
+    public async Task CreatePaymentOrder_WithPackageOfferId_Returns401WithoutJwt()
+    {
+        var response = await _client.PostAsJsonAsync("/api/v1/me/nurse-profile/payment/orders", new { packageOfferId = Guid.NewGuid() });
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        _senderMock.Verify(s => s.Send(It.IsAny<CreateMyPaymentOrderCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CreatePaymentOrder_WithPackageOfferId_SendsCommandWithPackageOfferId()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var packageOfferId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<CreateMyPaymentOrderCommand>(c =>
+                c.Request.PackageOfferId == packageOfferId && c.Request.ProductId == null), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreatePackageOrderDto(packageOfferId));
+
+        var response = await _client.PostAsJsonAsync("/api/v1/me/nurse-profile/payment/orders", new { packageOfferId });
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreatePaymentOrder_WithBothProductIdAndPackageOfferId_ReturnsValidationProblem()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<CreateMyPaymentOrderCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ValidationException([new ValidationFailure("Request", "Provide either ProductId or PackageOfferId, not both.")]));
+
+        var response = await _client.PostAsJsonAsync("/api/v1/me/nurse-profile/payment/orders", new
+        {
+            productId = Guid.NewGuid(),
+            packageOfferId = Guid.NewGuid()
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
     public async Task CreateOrder_RequestContainsOnlyProductId()
     {
         NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
@@ -397,6 +439,29 @@ public class PaymentEndpointsTests
     }
 
     [Fact]
+    public async Task CompleteSandboxCheckout_ForPackageOrder_ReturnsAdditivePackageEntitlementSummaryAndNoStore()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var entitlementId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<CompleteSandboxPaymentCheckoutCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreatePackageCompletionDto(entitlementId));
+
+        var response = await _client.PostAsync($"/api/v1/dev/sandbox/payment/checkout-sessions/{Guid.NewGuid()}/complete", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("no-store", response.Headers.CacheControl?.ToString());
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.Contains(entitlementId.ToString(), json, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("packageEntitlements", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("benefitRightId", json, StringComparison.OrdinalIgnoreCase);
+        foreach (var pattern in ForbiddenCheckoutJsonPatterns)
+        {
+            Assert.DoesNotContain(pattern, json, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
     public async Task CompleteSandboxCheckout_InProduction_IsNotMapped()
     {
         using var productionClient = _factory.WithWebHostBuilder(builder =>
@@ -510,6 +575,59 @@ public class PaymentEndpointsTests
         };
     }
 
+    private static PaymentOrderDto CreatePackageOrderDto(Guid packageOfferId)
+    {
+        var packageDefinitionId = Guid.NewGuid();
+        var packageVersionId = Guid.NewGuid();
+
+        return new PaymentOrderDto
+        {
+            Id = Guid.NewGuid(),
+            Status = "PendingPayment",
+            Currency = "USD",
+            TotalAmountMinor = 9900,
+            ExpiresAt = DateTime.UtcNow.AddMinutes(30),
+            Items =
+            [
+                new PaymentOrderItemDto
+                {
+                    Id = Guid.NewGuid(),
+                    ProductName = "NCLEX RN Complete",
+                    ProductType = "PreparationPackage",
+                    Currency = "USD",
+                    UnitAmountMinor = 9900,
+                    Quantity = 1,
+                    LineTotalAmountMinor = 9900,
+                    SourceType = "PreparationPackageOffer",
+                    SourceId = packageOfferId,
+                    PackageSnapshot = new PaymentPackageSnapshotDto
+                    {
+                        PackageOfferId = packageOfferId,
+                        PackageOfferTitle = "NCLEX RN Complete",
+                        PackageOfferSlug = "nclex-rn-complete",
+                        PackageDefinitionId = packageDefinitionId,
+                        PackageDefinitionTitle = "NCLEX RN Complete",
+                        PackageDefinitionSlug = "nclex-rn-complete",
+                        CountryId = Guid.NewGuid(),
+                        ExamCategoryId = Guid.NewGuid(),
+                        PackageVersionId = packageVersionId,
+                        PackageVersionNumber = 1,
+                        IncludedExamId = Guid.NewGuid(),
+                        IncludedExamVersionId = Guid.NewGuid(),
+                        IncludedExamTitle = "NCLEX RN",
+                        ReportingProfilePublicationId = Guid.NewGuid(),
+                        PracticeCollectionVersionId = Guid.NewGuid(),
+                        StudyMaterialVersionIds = [Guid.NewGuid()],
+                        PriceAmountMinor = 9900,
+                        Currency = "USD",
+                        AccessDurationDays = 90,
+                        OrderCreatedAt = DateTime.UtcNow
+                    }
+                }
+            ]
+        };
+    }
+
     private static PaymentCheckoutSessionDto CreateCheckoutDto()
     {
         return new PaymentCheckoutSessionDto
@@ -535,6 +653,34 @@ public class PaymentEndpointsTests
             OrderStatus = "Paid",
             PaidAt = DateTime.UtcNow,
             GrantedExamIds = [Guid.NewGuid()]
+        };
+    }
+
+    private static PaymentCompletionDto CreatePackageCompletionDto(Guid entitlementId)
+    {
+        return new PaymentCompletionDto
+        {
+            PaymentOrderId = Guid.NewGuid(),
+            OrderStatus = "Paid",
+            PaidAt = DateTime.UtcNow,
+            GrantedExamIds = [],
+            PackageEntitlements =
+            [
+                new PaymentPackageEntitlementSummaryDto
+                {
+                    Id = entitlementId,
+                    PackageOfferId = Guid.NewGuid(),
+                    PackageOfferTitle = "NCLEX RN Complete",
+                    PackageDefinitionId = Guid.NewGuid(),
+                    PackageDefinitionTitle = "NCLEX RN Complete",
+                    PackageVersionId = Guid.NewGuid(),
+                    IncludedExamId = Guid.NewGuid(),
+                    IncludedExamTitle = "NCLEX RN",
+                    AccessStartsAt = DateTime.UtcNow,
+                    AccessEndsAt = DateTime.UtcNow.AddDays(90),
+                    Status = "Active"
+                }
+            ]
         };
     }
 

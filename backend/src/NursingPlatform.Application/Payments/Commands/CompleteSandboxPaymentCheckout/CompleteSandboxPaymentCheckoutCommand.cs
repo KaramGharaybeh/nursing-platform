@@ -108,7 +108,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
                     var paidOutcome = await LoadPaidOutcomeAsync(request.CheckoutSessionId, nurseProfileId, cancellationToken);
                     if (paidOutcome is not null)
                     {
-                        return ToCompletionDto(paidOutcome.Order, paidOutcome.GrantedExamIds);
+                        return await ToCompletionDtoAsync(paidOutcome.Order, paidOutcome.GrantedExamIds, cancellationToken);
                     }
 
                     throw new InvalidOperationException("Only pending payment orders can be completed.");
@@ -126,7 +126,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
                 var paidOutcome = await LoadPaidOutcomeAsync(request.CheckoutSessionId, nurseProfileId, cancellationToken);
                 if (paidOutcome is not null)
                 {
-                    return ToCompletionDto(paidOutcome.Order, paidOutcome.GrantedExamIds);
+                    return await ToCompletionDtoAsync(paidOutcome.Order, paidOutcome.GrantedExamIds, cancellationToken);
                 }
 
                 var pendingOutcome = await LoadPendingOutcomeAsync(request.CheckoutSessionId, nurseProfileId, cancellationToken);
@@ -179,7 +179,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
             throw new InvalidOperationException("Payment fulfillment could not be completed safely.");
         }
 
-        return ToCompletionDto(paidOutcome.Order, paidOutcome.GrantedExamIds);
+        return await ToCompletionDtoAsync(paidOutcome.Order, paidOutcome.GrantedExamIds, cancellationToken);
     }
 
     private async Task<CompletionOutcome?> LoadPaidOutcomeAsync(
@@ -266,15 +266,60 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
             .OrderBy(id => id);
     }
 
-    private static PaymentCompletionDto ToCompletionDto(PaymentOrder order, IReadOnlyList<Guid> examIds)
+    private async Task<PaymentCompletionDto> ToCompletionDtoAsync(PaymentOrder order, IReadOnlyList<Guid> examIds, CancellationToken cancellationToken)
     {
+        var packageEntitlements = await LoadPackageEntitlementSummariesAsync(order.Id, cancellationToken);
+
         return new PaymentCompletionDto
         {
             PaymentOrderId = order.Id,
             OrderStatus = order.Status.ToString(),
             PaidAt = order.PaidAt,
-            GrantedExamIds = examIds
+            GrantedExamIds = examIds,
+            PackageEntitlements = packageEntitlements
         };
+    }
+
+    private async Task<IReadOnlyList<PaymentPackageEntitlementSummaryDto>> LoadPackageEntitlementSummariesAsync(
+        Guid paymentOrderId,
+        CancellationToken cancellationToken)
+    {
+        var entitlements = await _context.PackagePurchaseEntitlements
+            .AsNoTracking()
+            .Where(e => e.PaymentOrderId == paymentOrderId)
+            .OrderBy(e => e.AccessStartsAt)
+            .ThenBy(e => e.Id)
+            .ToListAsync(cancellationToken);
+
+        if (entitlements.Count == 0)
+        {
+            return [];
+        }
+
+        var snapshotIds = entitlements.Select(e => e.PurchasedOfferSnapshotId).Distinct().ToList();
+        var snapshots = await _context.PackageOrderItemSnapshots
+            .AsNoTracking()
+            .Where(s => snapshotIds.Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id, cancellationToken);
+
+        return entitlements.Select(e =>
+        {
+            snapshots.TryGetValue(e.PurchasedOfferSnapshotId, out var snapshot);
+            return new PaymentPackageEntitlementSummaryDto
+            {
+                Id = e.Id,
+                PackageOfferId = e.PreparationPackageOfferId,
+                PackageOfferTitle = snapshot?.PackageOfferTitle ?? string.Empty,
+                PackageDefinitionId = e.PreparationPackageDefinitionId,
+                PackageDefinitionTitle = snapshot?.PackageDefinitionTitle ?? string.Empty,
+                PackageVersionId = e.PreparationPackageVersionId,
+                IncludedExamId = e.IncludedExamId,
+                IncludedExamTitle = snapshot?.IncludedExamTitle ?? string.Empty,
+                AccessStartsAt = e.AccessStartsAt,
+                AccessEndsAt = e.AccessEndsAt,
+                Status = e.Status.ToString()
+            };
+        }).ToList();
     }
 
     private void DetachTrackedPaymentCompletionState()

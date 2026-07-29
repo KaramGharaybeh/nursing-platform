@@ -10,6 +10,9 @@ using NursingPlatform.Application.PreparationPackages.Admin.ReportingTopics;
 using NursingPlatform.Application.PreparationPackages.Admin.StudyMaterials;
 using NursingPlatform.Application.PreparationPackages.Catalog;
 using NursingPlatform.Application.PreparationPackages.DTOs;
+using NursingPlatform.Application.PreparationPackages.Entitlements.DTOs;
+using NursingPlatform.Application.PreparationPackages.Entitlements.GetMyPackageEntitlement;
+using NursingPlatform.Application.PreparationPackages.Entitlements.ListMyPackageEntitlements;
 
 namespace NursingPlatform.WebApi.Extensions;
 
@@ -18,9 +21,43 @@ public static class PreparationPackageEndpointExtensions
     public static RouteGroupBuilder MapPreparationPackageEndpoints(this RouteGroupBuilder api)
     {
         MapPublicCatalogEndpoints(api);
+        MapNurseEntitlementEndpoints(api);
         MapAdminEndpoints(api);
 
         return api;
+    }
+
+    private static void MapNurseEntitlementEndpoints(RouteGroupBuilder api)
+    {
+        var entitlements = api.MapGroup("/me/nurse-profile/preparation-packages/entitlements");
+
+        entitlements.MapGet("/", async (int? page, int? pageSize, ISender sender) =>
+        {
+            var result = await sender.Send(new ListMyPackageEntitlementsQuery
+            {
+                Page = page ?? 1,
+                PageSize = pageSize ?? 20
+            });
+
+            return Results.Ok(result);
+        })
+        .WithName("ListMyPackageEntitlements")
+        .WithNurseEntitlementMetadata<PaginatedResult<PackageEntitlementListItemDto>>(
+            "List my preparation package entitlements",
+            "Lists preparation package entitlements owned by the current nurse profile.")
+        .RequireAuthorization();
+
+        entitlements.MapGet("/{id:guid}", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetMyPackageEntitlementQuery { Id = id });
+            return Results.Ok(result);
+        })
+        .WithName("GetMyPackageEntitlement")
+        .WithNurseEntitlementMetadata<PackageEntitlementDetailDto>(
+            "Get my preparation package entitlement",
+            "Gets one preparation package entitlement owned by the current nurse profile.",
+            includeNotFound: true)
+        .RequireAuthorization();
     }
 
     private static void MapPublicCatalogEndpoints(RouteGroupBuilder api)
@@ -574,6 +611,28 @@ public static class PreparationPackageEndpointExtensions
             .WithDescription(description)
             .Produces<TResponse>(StatusCodes.Status200OK)
             .ProducesValidationProblem(StatusCodes.Status400BadRequest);
+
+        if (includeNotFound)
+        {
+            builder.ProducesProblem(StatusCodes.Status404NotFound);
+        }
+
+        return builder;
+    }
+
+    private static RouteHandlerBuilder WithNurseEntitlementMetadata<TResponse>(
+        this RouteHandlerBuilder builder,
+        string summary,
+        string description,
+        bool includeNotFound = false)
+    {
+        builder
+            .WithTags("Preparation Package Entitlements")
+            .WithSummary(summary)
+            .WithDescription(description)
+            .Produces<TResponse>(StatusCodes.Status200OK)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
 
         if (includeNotFound)
         {

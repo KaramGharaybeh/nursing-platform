@@ -48,6 +48,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<ExamAnswerOption> ExamAnswerOptions => Set<ExamAnswerOption>();
     public DbSet<ExamAccessGrant> ExamAccessGrants => Set<ExamAccessGrant>();
     public DbSet<ExamSession> ExamSessions => Set<ExamSession>();
+    public DbSet<ExamSessionProvenance> ExamSessionProvenances => Set<ExamSessionProvenance>();
     public DbSet<ExamSessionQuestion> ExamSessionQuestions => Set<ExamSessionQuestion>();
     public DbSet<ExamSessionAnswerOption> ExamSessionAnswerOptions => Set<ExamSessionAnswerOption>();
     public DbSet<ExamSessionAnswer> ExamSessionAnswers => Set<ExamSessionAnswer>();

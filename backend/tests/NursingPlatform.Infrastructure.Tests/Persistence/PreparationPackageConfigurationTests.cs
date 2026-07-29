@@ -172,6 +172,16 @@ public class PreparationPackageConfigurationTests
     }
 
     [Fact]
+    public void PackageBenefitRightConfiguration_PersistsConsumedAt()
+    {
+        var property = CreateDbContext().Model.FindEntityType(typeof(PackageBenefitRight))!
+            .FindProperty(nameof(PackageBenefitRight.ConsumedAt));
+
+        Assert.NotNull(property);
+        Assert.True(property.IsNullable);
+    }
+
+    [Fact]
     public void PreparationPackageMigration_CanGenerateIdempotentScript()
     {
         var migrations = typeof(ApplicationDbContext).Assembly.GetTypes()

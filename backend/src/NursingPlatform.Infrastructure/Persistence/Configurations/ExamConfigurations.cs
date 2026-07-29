@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NursingPlatform.Domain.Exams;
+using NursingPlatform.Domain.Payments;
+using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.Infrastructure.Persistence.Configurations;
 
@@ -128,6 +130,7 @@ public class ExamSessionConfiguration : IEntityTypeConfiguration<ExamSession>
             .IsUnique()
             .HasFilter("\"Status\" = 'InProgress'");
         builder.Property(s => s.Status).HasConversion<string>().IsRequired().HasMaxLength(32);
+        builder.Property(s => s.Source).HasConversion<string>().IsRequired().HasMaxLength(32);
         builder.Property(s => s.Percentage).HasPrecision(5, 2);
         builder.HasOne(s => s.NurseProfile)
             .WithMany()
@@ -140,6 +143,90 @@ public class ExamSessionConfiguration : IEntityTypeConfiguration<ExamSession>
         builder.HasOne(s => s.ExamVersion)
             .WithMany()
             .HasForeignKey(s => s.ExamVersionId)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+public class ExamSessionProvenanceConfiguration : IEntityTypeConfiguration<ExamSessionProvenance>
+{
+    public void Configure(EntityTypeBuilder<ExamSessionProvenance> builder)
+    {
+        builder.ToTable("ExamSessionProvenances");
+        builder.HasKey(p => p.Id);
+
+        builder.HasIndex(p => p.ExamSessionId).IsUnique();
+        builder.HasIndex(p => p.PackagePurchaseEntitlementId);
+        builder.HasIndex(p => p.PackageBenefitRightId);
+        builder.HasIndex(p => p.IncludedExamVersionId);
+
+        builder.Property(p => p.ExamSessionId).IsRequired();
+        builder.Property(p => p.PackagePurchaseEntitlementId).IsRequired();
+        builder.Property(p => p.PackageBenefitRightId).IsRequired();
+        builder.Property(p => p.PackageOrderItemSnapshotId).IsRequired();
+        builder.Property(p => p.PaymentOrderId).IsRequired();
+        builder.Property(p => p.PaymentOrderItemId).IsRequired();
+        builder.Property(p => p.PreparationPackageDefinitionId).IsRequired();
+        builder.Property(p => p.PreparationPackageVersionId).IsRequired();
+        builder.Property(p => p.PreparationPackageOfferId).IsRequired();
+        builder.Property(p => p.IncludedExamId).IsRequired();
+        builder.Property(p => p.IncludedExamVersionId).IsRequired();
+        builder.Property(p => p.ReportingProfilePublicationId).IsRequired();
+        builder.Property(p => p.PracticeCollectionVersionId).IsRequired();
+        builder.Property(p => p.PackageAccessStartsAt).IsRequired();
+        builder.Property(p => p.PackageAccessEndsAt).IsRequired();
+        builder.Property(p => p.StartedAt).IsRequired();
+
+        builder.HasOne(p => p.ExamSession)
+            .WithOne()
+            .HasForeignKey<ExamSessionProvenance>(p => p.ExamSessionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PackagePurchaseEntitlement>()
+            .WithMany()
+            .HasForeignKey(p => p.PackagePurchaseEntitlementId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PackageBenefitRight>()
+            .WithMany()
+            .HasForeignKey(p => p.PackageBenefitRightId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PackageOrderItemSnapshot>()
+            .WithMany()
+            .HasForeignKey(p => p.PackageOrderItemSnapshotId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PaymentOrder>()
+            .WithMany()
+            .HasForeignKey(p => p.PaymentOrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PaymentOrderItem>()
+            .WithMany()
+            .HasForeignKey(p => p.PaymentOrderItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PreparationPackageDefinition>()
+            .WithMany()
+            .HasForeignKey(p => p.PreparationPackageDefinitionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PreparationPackageVersion>()
+            .WithMany()
+            .HasForeignKey(p => p.PreparationPackageVersionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PreparationPackageOffer>()
+            .WithMany()
+            .HasForeignKey(p => p.PreparationPackageOfferId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Exam>()
+            .WithMany()
+            .HasForeignKey(p => p.IncludedExamId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<ExamVersion>()
+            .WithMany()
+            .HasForeignKey(p => p.IncludedExamVersionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<ReportingProfilePublication>()
+            .WithMany()
+            .HasForeignKey(p => p.ReportingProfilePublicationId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PracticeCollectionVersion>()
+            .WithMany()
+            .HasForeignKey(p => p.PracticeCollectionVersionId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

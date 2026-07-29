@@ -2,7 +2,8 @@ namespace NursingPlatform.Domain.Exams;
 
 public enum ExamSessionSource
 {
-    Free = 0,
-    StandaloneGrant = 1,
-    PackageAttempt = 2
+    Legacy = 0,
+    Free = 1,
+    StandaloneGrant = 2,
+    PackageAttempt = 3
 }

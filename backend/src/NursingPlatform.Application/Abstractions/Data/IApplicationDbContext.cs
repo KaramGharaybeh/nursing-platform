@@ -39,6 +39,8 @@ public interface IApplicationDbContext
     DbSet<ExamAnswerOption> ExamAnswerOptions { get; }
     DbSet<ExamAccessGrant> ExamAccessGrants { get; }
     DbSet<ExamSession> ExamSessions { get; }
+    DbSet<ExamSessionProvenance> ExamSessionProvenances => throw new NotSupportedException(
+        "This IApplicationDbContext implementation does not expose exam session provenance persistence.");
     DbSet<ExamSessionQuestion> ExamSessionQuestions { get; }
     DbSet<ExamSessionAnswerOption> ExamSessionAnswerOptions { get; }
     DbSet<ExamSessionAnswer> ExamSessionAnswers { get; }

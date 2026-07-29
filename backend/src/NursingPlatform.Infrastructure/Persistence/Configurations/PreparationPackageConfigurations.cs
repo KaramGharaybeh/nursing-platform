@@ -367,6 +367,7 @@ public class PackageBenefitRightConfiguration : IEntityTypeConfiguration<Package
         builder.Property(r => r.Status).HasConversion<string>().IsRequired().HasMaxLength(32);
         builder.Property(r => r.AccessStartsAt).IsRequired();
         builder.Property(r => r.AccessEndsAt);
+        builder.Property(r => r.ConsumedAt);
         builder.HasOne<PackagePurchaseEntitlement>()
             .WithMany()
             .HasForeignKey(r => r.PackagePurchaseEntitlementId)

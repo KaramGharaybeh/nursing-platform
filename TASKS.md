@@ -268,7 +268,7 @@ The numbered phases remain historically accurate. The Preparation Package Workst
 
 # Preparation Package Workstream (Planned)
 
-This workstream introduces the paid preparation package product described in `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md`. It is an explicitly authorized additive workstream and is currently in the specification/documentation phase. Starting it does not mark, skip, or complete Phases 9–11. No preparation-package capability is implemented today. Stage 1 -> Stage 2 -> Stage 3 -> Stage 4 order is mandatory; no later stage may start before the earlier stage is completed and approved. Each stage requires a separately reviewed staged specification and implementation plan before implementation begins.
+This workstream introduces the paid preparation package product described in `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md`. It is an explicitly authorized additive workstream. Starting it does not mark, skip, or complete Phases 9–11. Stage 2 backend capabilities are complete through package offer payment order creation, Sandbox package completion, purchased-offer snapshots, package purchase entitlements, and benefit-right authorization/read models. Stage 3 -> Stage 4 order remains mandatory; no later stage may start before the earlier stage is completed and approved. Each remaining stage requires a separately reviewed staged specification and implementation plan before implementation begins.
 
 Existing standalone paid-exam, free-exam, and grant-authorized exam session behavior must be preserved throughout this workstream.
 
@@ -277,7 +277,7 @@ Existing standalone paid-exam, free-exam, and grant-authorized exam session beha
 - [x] Umbrella architecture-decisions draft created
 - [x] Umbrella architecture-decisions specification reviewed and approved
 - [ ] Stage 1 — Content, Package Catalog, and Reporting Profile staged specification
-- [ ] Stage 2 — Commerce, Fulfillment, Entitlements, and Benefit Rights staged specification
+- [x] Stage 2 — Commerce, Fulfillment, Entitlements, and Benefit Rights staged specification
 - [ ] Stage 3 — Package-Attempt Authorization, Session Provenance, Concurrency, and Legacy Compatibility staged specification
 - [ ] Stage 4 — Analytical-Report Generation and Access staged specification
 
@@ -312,15 +312,34 @@ Existing standalone paid-exam, free-exam, and grant-authorized exam session beha
 
 ## Stage 2 — Commerce, Fulfillment, Entitlements, and Benefit Rights
 
-- [ ] Stage 2 staged specification reviewed and approved
-- [ ] Stage 2 implementation plan reviewed and approved
-- [ ] Package offer snapshotting
-- [ ] Payment completion for package offers
-- [ ] Idempotent package fulfillment (paid order item to package purchase entitlement)
-- [ ] Four benefit rights (materials, practice, exam attempt, report) with independent authorization
-- [ ] Benefit-right authorization hooks
-- [ ] Stage 2 migration
-- [ ] Stage 2 tests
+- [x] Stage 2 staged specification reviewed and approved
+- [x] Stage 2 implementation plan reviewed and approved
+- [x] Slice 1 — domain model
+- [x] Slice 2 — payment order contracts
+- [x] Slice 3 — persistence/migration
+- [x] Slice 4 — fulfillment/idempotency
+- [x] Slice 5 — APIs/integration tests
+- [x] Slice 6 — authorization/read models
+- [x] Slice 7 — final verification
+- [x] Package offer snapshotting
+- [x] Package offer order creation through the existing payment order endpoint
+- [x] Sandbox package payment completion through the existing Sandbox completion endpoint
+- [x] Purchased-offer snapshot usage for fulfillment and read models
+- [x] Package purchase entitlement creation after successful payment completion
+- [x] Idempotent package fulfillment (paid order item to package purchase entitlement)
+- [x] Four benefit rights (materials, practice, exam attempt, report) with independent authorization
+- [x] Benefit-right authorization hooks and read models
+- [x] Active same-package entitlement blocking based on stable package definition
+- [x] Same exam in different package definitions allowed to coexist independently
+- [x] Standalone exam access product completion still creates `ExamAccessGrant`
+- [x] Package fulfillment does not create `ExamAccessGrant`
+- [x] Stage 2 migration
+- [x] Stage 2 tests
+- [x] Stage 2 final verification: Domain filtered 66/66 passed; Application filtered 100/100 passed; Infrastructure filtered 59/59 passed; WebApi filtered 72/72 passed; full Application 496/496 passed; full WebApi 284/284 passed; build succeeded with 0 warnings and 0 errors; EF had no pending model changes; final idempotent migration script generated at `/tmp/opencode/preparation-package-stage2-final.sql` with size 91141 bytes; Infrastructure migration/configuration diff was clean; no backend files remained modified.
+
+Stage 2 remains bounded to package fulfillment and entitlement/read-model behavior. Package exam start, package attempt consumption, exam session provenance, report generation/access, workspace runtime, and employer package data remain deferred to later approved stages.
+
+Next recommended work is Stage 3 planning/review only. Stage 3 implementation must not begin until its staged specification and implementation plan are explicitly reviewed and approved.
 
 ## Stage 3 — Package-Attempt Authorization, Session Provenance, Concurrency, Legacy Compatibility
 

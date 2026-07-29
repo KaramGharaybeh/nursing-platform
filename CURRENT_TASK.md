@@ -2,10 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Umbrella Architecture Accepted
+Preparation Package — Stage 2 Package Fulfillment and Entitlements Complete
 
 Status:
-The Preparation Package umbrella architecture-decisions specification is reviewed and approved. DA1–DA10 plus the reporting-profile transition remain approved decisions. This approval authorizes the recorded architecture decisions only; no preparation-package capability, staged specification, or implementation plan is approved or implemented by this milestone.
+Preparation Package Stage 2 — Package Fulfillment and Entitlements is implemented, verified, and stopped for review. Stage 2 extends the existing payment/order/checkout/Sandbox fulfillment path with package offer purchase, purchased-offer snapshots, package purchase entitlements, and benefit-right authorization/read models while preserving standalone paid-exam behavior.
+
+Stage 2 verification completed on branch `feature/preparation-package-foundation` at `56de439 feat: add package benefit authorization read models`. Slice 7 was verification-only and produced no commit.
 
 ---
 
@@ -59,17 +61,48 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the umbrella approval-status closeout only. The umbrella architecture-decisions specification has been reviewed and approved, and the authoritative documentation records the approved decisions, staged-specification boundaries, and accepted status.
+The current authorized task is the documentation-only Stage 2 completion status update. Stage 2 implementation and verification are complete; no code, tests, migrations, frontend/design files, staging, committing, pushing, or Stage 3 work is authorized by this update.
 
-No application code, tests, migrations, frontend files, or historical specifications have been modified.
+Known unrelated frontend/design worktree changes remain preserved and outside this backend Stage 2 completion update.
 
-No staged specification or implementation plan has been created or approved. The next possible work item is the Stage 1 — Content, Package Catalog, and Reporting Profile staged specification, but umbrella approval does not authorize that work; it requires a separate explicit instruction and review. The remaining staged specifications and all implementation plans likewise remain separate and unapproved.
+### Stage 2 Implementation Status
 
-Existing backend and frontend worktree changes remain preserved and outside this approval-status closeout.
+Stage 2 — Package Fulfillment and Entitlements is complete through seven reviewed slices:
 
-### Implementation Status
+- Slice 1 — domain model for package order item source typing, purchased-offer snapshots, package purchase entitlements, and benefit rights.
+- Slice 2 — payment order contracts for package offer order creation while preserving existing standalone product order behavior.
+- Slice 3 — persistence and migration for package snapshots, entitlements, and benefit rights.
+- Slice 4 — idempotent package fulfillment integrated with Sandbox payment completion.
+- Slice 5 — Stage 2 package entitlement APIs and integration tests.
+- Slice 6 — benefit-right authorization helpers and safe entitlement read models.
+- Slice 7 — final compatibility, security, EF, and git hygiene verification.
 
-No preparation-package capability is implemented today. The preparation package is in the documentation/specification phase. The completed backend MVP (standalone paid-exam access, free-exam access, grant-authorized session start, scoring, review, attempt history, and nurse-owned exam analytics) remains the compatibility baseline and is unchanged.
+Implemented Stage 2 package order/payment behavior:
+
+- Authenticated nurse package offer order creation through the existing payment order endpoint.
+- Development/Test Sandbox package payment completion through the existing Sandbox completion endpoint.
+- Immutable purchased-offer snapshot usage for package fulfillment and read models.
+- Package purchase entitlement creation after successful payment completion.
+- Four benefit rights per entitlement: `MaterialsAccess`, `PracticeAccess`, `PackageExamAttemptEligibility`, and dormant `ReportEligibility`.
+- Idempotent package fulfillment for repeated completion of the same paid package order item.
+- Active same-package entitlement blocking based on the stable package definition.
+- Different package definitions containing the same exam can coexist independently.
+
+Preserved standalone behavior:
+
+- Standalone exam access product completion still creates `ExamAccessGrant` authorization evidence.
+- Package fulfillment does not create `ExamAccessGrant` rows and does not participate in standalone effective-paid classification.
+
+Explicitly still deferred to later stages:
+
+- Package exam start.
+- Package attempt consumption.
+- Exam session provenance.
+- Report generation and report access.
+- Package workspace runtime.
+- Employer package data.
+
+Next recommended work is Stage 3 planning/review only. Stage 3 implementation is not authorized until its staged specification and implementation plan are explicitly reviewed and approved.
 
 ---
 
@@ -90,6 +123,14 @@ No preparation-package capability is implemented today. The preparation package 
 - [x] Effective paid rule: `Exam.IsFree == false` OR active positive-price `ExamAccess` product exists.
 - [x] Exam catalog/detail `IsFree` and `CanStart` consistency.
 - [x] Complete local Sandbox purchase-to-exam-start journey.
+- [x] Preparation Package Stage 2 package offer order creation.
+- [x] Preparation Package Stage 2 purchased-offer snapshots.
+- [x] Preparation Package Stage 2 package payment completion through Sandbox.
+- [x] Preparation Package Stage 2 package purchase entitlements and four benefit rights.
+- [x] Preparation Package Stage 2 idempotent package fulfillment.
+- [x] Preparation Package Stage 2 nurse-owned entitlement list/detail APIs.
+- [x] Preparation Package Stage 2 benefit-right authorization/read models.
+- [x] Preparation Package Stage 2 final compatibility, security, EF, and git hygiene verification.
 
 ---
 
@@ -106,6 +147,23 @@ The following snapshot reflects the completed baseline at the time it was finali
 - EF: no pending model changes.
 - PostgreSQL Sandbox tests: 6 passed, 0 skipped.
 
+## Stage 2 Final Verification Snapshot
+
+The following snapshot records the final Stage 2 Slice 7 verification evidence:
+
+- Domain filtered tests: 66 passed, 0 failed.
+- Application filtered tests: 100 passed, 0 failed.
+- Infrastructure filtered tests: 59 passed, 0 failed.
+- WebApi filtered tests: 72 passed, 0 failed.
+- Full Application tests: 496 passed, 0 failed.
+- Full WebApi tests: 284 passed, 0 failed.
+- Build: 0 warnings, 0 errors.
+- EF: no pending model changes.
+- Final idempotent migration script generated at `/tmp/opencode/preparation-package-stage2-final.sql` with size 91141 bytes.
+- Infrastructure migration/configuration diff: clean.
+- Backend files: no remaining modified backend files after Stage 2 verification.
+- Worktree: only known unrelated frontend/design changes remained.
+
 ---
 
 ## Deferred Work
@@ -118,6 +176,10 @@ The following work remains deferred relative to the baseline. Do not mark these 
 - Production-grade object storage.
 - Operational/production hardening.
 - Frontend implementation.
+- Preparation Package Stage 3 package exam start, attempt consumption, and exam session provenance.
+- Preparation Package Stage 4 report generation and report access.
+- Preparation Package workspace runtime.
+- Employer package purchase/report/practice-progress data.
 
 ---
 

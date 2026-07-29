@@ -41,6 +41,7 @@ public class ListMyPackageEntitlementsQueryHandler : IRequestHandler<ListMyPacka
         var nurseProfileId = await GetCurrentNurseProfileIdAsync(cancellationToken);
         var entitlements = await _context.PackagePurchaseEntitlements
             .AsNoTracking()
+            .Include(e => e.Rights)
             .Where(e => e.NurseProfileId == nurseProfileId)
             .OrderByDescending(e => e.AccessStartsAt)
             .ThenBy(e => e.Id)
@@ -100,7 +101,8 @@ internal static class PackageEntitlementMapping
             IncludedExamTitle = snapshot?.IncludedExamTitle ?? string.Empty,
             AccessStartsAt = entitlement.AccessStartsAt,
             AccessEndsAt = entitlement.AccessEndsAt,
-            Status = entitlement.Status.ToString()
+            Status = entitlement.Status.ToString(),
+            BenefitRights = MapBenefitRights(entitlement)
         };
     }
 
@@ -135,16 +137,24 @@ internal static class PackageEntitlementMapping
                 Currency = entitlement.Currency,
                 AccessDurationDays = entitlement.AccessDurationDays
             },
-            BenefitRights = entitlement.Rights
-                .OrderBy(r => r.RightType.ToString())
-                .Select(r => new PackageBenefitRightSummaryDto
-                {
-                    RightType = r.RightType.ToString(),
-                    Status = r.Status.ToString(),
-                    AccessStartsAt = r.AccessStartsAt,
-                    AccessEndsAt = r.AccessEndsAt
-                })
-                .ToList()
+            BenefitRights = MapBenefitRights(entitlement)
         };
+    }
+
+    private static List<PackageBenefitRightSummaryDto> MapBenefitRights(PackagePurchaseEntitlement entitlement)
+    {
+        return entitlement.Rights
+            .OrderBy(r => r.RightType.ToString())
+            .Select(r => new PackageBenefitRightSummaryDto
+            {
+                RightType = r.RightType.ToString(),
+                Status = r.Status.ToString(),
+                IsAvailable = entitlement.Status == PackagePurchaseEntitlementStatus.Active
+                    && r.Status == PackageBenefitRightStatus.Available,
+                IsDormant = r.Status == PackageBenefitRightStatus.Dormant,
+                AccessStartsAt = r.AccessStartsAt,
+                AccessEndsAt = r.AccessEndsAt
+            })
+            .ToList();
     }
 }

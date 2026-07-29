@@ -13,12 +13,12 @@ public class PackageEntitlementListItemDto
     public DateTime AccessStartsAt { get; set; }
     public DateTime AccessEndsAt { get; set; }
     public string Status { get; set; } = string.Empty;
+    public List<PackageBenefitRightSummaryDto> BenefitRights { get; set; } = [];
 }
 
 public class PackageEntitlementDetailDto : PackageEntitlementListItemDto
 {
     public PackageEntitlementSnapshotDto PurchasedSnapshot { get; set; } = new();
-    public List<PackageBenefitRightSummaryDto> BenefitRights { get; set; } = [];
 }
 
 public class PackageEntitlementSnapshotDto
@@ -41,6 +41,8 @@ public class PackageBenefitRightSummaryDto
 {
     public string RightType { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    public bool IsAvailable { get; set; }
+    public bool IsDormant { get; set; }
     public DateTime AccessStartsAt { get; set; }
     public DateTime? AccessEndsAt { get; set; }
 }

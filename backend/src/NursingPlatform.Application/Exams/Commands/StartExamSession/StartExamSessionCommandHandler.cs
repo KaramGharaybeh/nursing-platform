@@ -47,7 +47,7 @@ public class StartExamSessionCommandHandler : IRequestHandler<StartExamSessionCo
             throw new KeyNotFoundException("Exam was not found.");
         }
 
-        await _examAccessPolicy.AuthorizeStartAsync(nurseProfileId, exam.Id, cancellationToken);
+        var sessionSource = await _examAccessPolicy.AuthorizeStartAndGetSourceAsync(nurseProfileId, exam.Id, cancellationToken);
 
         var existing = await _context.ExamSessions
             .Where(s => s.NurseProfileId == nurseProfileId
@@ -90,7 +90,7 @@ public class StartExamSessionCommandHandler : IRequestHandler<StartExamSessionCo
 
         ValidatePublishedOptions(questions, options);
 
-        var session = ExamSession.Create(nurseProfileId, exam.Id, version.Id, now, exam.DurationMinutes);
+        var session = ExamSession.Create(nurseProfileId, exam.Id, version.Id, now, exam.DurationMinutes, sessionSource);
         _context.ExamSessions.Add(session);
 
         foreach (var question in questions)

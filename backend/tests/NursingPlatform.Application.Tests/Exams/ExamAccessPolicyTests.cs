@@ -300,6 +300,94 @@ public class ExamAccessPolicyTests
     }
 
     [Fact]
+    public async Task StartExamSession_FreeExam_CreatesSessionWithFreeSource()
+    {
+        await using var context = CreateContext();
+        var user = SeedNurse(context);
+        var exam = SeedStartableExam(context);
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, user.UserId);
+
+        await handler.Handle(new StartExamSessionCommand { ExamId = exam.Id }, default);
+
+        var session = Assert.Single(context.ExamSessions);
+        Assert.Equal(ExamSessionSource.Free, session.Source);
+    }
+
+    [Fact]
+    public async Task StartExamSession_StandaloneGrant_CreatesSessionWithStandaloneGrantSource()
+    {
+        await using var context = CreateContext();
+        var user = SeedNurse(context);
+        var exam = SeedStartableExam(context);
+        exam.IsFree = false;
+        SeedGrant(context, user.NurseProfileId, exam.Id, expiresAt: null);
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, user.UserId);
+
+        await handler.Handle(new StartExamSessionCommand { ExamId = exam.Id }, default);
+
+        var session = Assert.Single(context.ExamSessions);
+        Assert.Equal(ExamSessionSource.StandaloneGrant, session.Source);
+    }
+
+    [Fact]
+    public async Task StartExamSession_DoesNotCreateLegacySource()
+    {
+        await using var context = CreateContext();
+        var user = SeedNurse(context);
+        var exam = SeedStartableExam(context);
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, user.UserId);
+
+        await handler.Handle(new StartExamSessionCommand { ExamId = exam.Id }, default);
+
+        Assert.DoesNotContain(context.ExamSessions, session => session.Source == ExamSessionSource.Legacy);
+    }
+
+    [Fact]
+    public async Task StartExamSession_WhenExistingInProgressSession_ReturnsExistingSessionWithoutChangingSource()
+    {
+        await using var context = CreateContext();
+        var user = SeedNurse(context);
+        var exam = SeedStartableExam(context);
+        exam.IsFree = false;
+        SeedGrant(context, user.NurseProfileId, exam.Id, expiresAt: null);
+        await context.SaveChangesAsync();
+        var version = await context.ExamVersions.SingleAsync(v => v.ExamId == exam.Id);
+        var existing = ExamSession.Create(
+            user.NurseProfileId,
+            exam.Id,
+            version.Id,
+            DateTime.UtcNow.AddMinutes(-1),
+            exam.DurationMinutes,
+            ExamSessionSource.StandaloneGrant);
+        context.ExamSessions.Add(existing);
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, user.UserId);
+
+        var result = await handler.Handle(new StartExamSessionCommand { ExamId = exam.Id }, default);
+
+        Assert.Equal(existing.Id, result.Id);
+        var session = Assert.Single(context.ExamSessions);
+        Assert.Equal(ExamSessionSource.StandaloneGrant, session.Source);
+    }
+
+    [Fact]
+    public async Task StartExamSession_DoesNotCreatePackageProvenance()
+    {
+        await using var context = CreateContext();
+        var user = SeedNurse(context);
+        var exam = SeedStartableExam(context);
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, user.UserId);
+
+        await handler.Handle(new StartExamSessionCommand { ExamId = exam.Id }, default);
+
+        Assert.Empty(context.ExamSessionProvenances);
+    }
+
+    [Fact]
     public async Task GetExam_FreeMarkedExamWithPaidProductWithoutGrant_ReturnsNotFreeAndCannotStart()
     {
         await using var context = CreateContext();
@@ -538,6 +626,7 @@ public class ExamAccessPolicyTests
         public DbSet<ExamAnswerOption> ExamAnswerOptions => Set<ExamAnswerOption>();
         public DbSet<ExamAccessGrant> ExamAccessGrants => Set<ExamAccessGrant>();
         public DbSet<ExamSession> ExamSessions => Set<ExamSession>();
+        public DbSet<ExamSessionProvenance> ExamSessionProvenances => Set<ExamSessionProvenance>();
         public DbSet<ExamSessionQuestion> ExamSessionQuestions => Set<ExamSessionQuestion>();
         public DbSet<ExamSessionAnswerOption> ExamSessionAnswerOptions => Set<ExamSessionAnswerOption>();
         public DbSet<ExamSessionAnswer> ExamSessionAnswers => Set<ExamSessionAnswer>();

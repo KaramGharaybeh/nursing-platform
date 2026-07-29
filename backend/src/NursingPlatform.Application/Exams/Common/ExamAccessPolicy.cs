@@ -24,6 +24,11 @@ public class ExamAccessPolicy : IExamAccessPolicy
 
     public async Task AuthorizeStartAsync(Guid nurseProfileId, Guid examId, CancellationToken cancellationToken)
     {
+        await AuthorizeStartAndGetSourceAsync(nurseProfileId, examId, cancellationToken);
+    }
+
+    public async Task<ExamSessionSource> AuthorizeStartAndGetSourceAsync(Guid nurseProfileId, Guid examId, CancellationToken cancellationToken)
+    {
         var examAccessState = await _context.Exams
             .AsNoTracking()
             .Where(exam => exam.Id == examId)
@@ -45,7 +50,7 @@ public class ExamAccessPolicy : IExamAccessPolicy
 
         if (!requiresGrant)
         {
-            return;
+            return ExamSessionSource.Free;
         }
 
         var now = _utcNow();
@@ -60,5 +65,7 @@ public class ExamAccessPolicy : IExamAccessPolicy
         {
             throw new ForbiddenAccessException("Exam access is required.");
         }
+
+        return ExamSessionSource.StandaloneGrant;
     }
 }

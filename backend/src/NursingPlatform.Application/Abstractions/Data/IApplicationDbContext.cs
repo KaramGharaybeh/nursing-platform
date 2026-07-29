@@ -78,6 +78,7 @@ public interface IApplicationDbContext
         DateTime paidAt,
         CancellationToken cancellationToken = default);
     bool IsUniqueEffectiveExamAccessGrantViolation(DbUpdateException exception);
+    bool IsUniqueInProgressExamSessionViolation(DbUpdateException exception);
     Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,

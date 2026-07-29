@@ -402,6 +402,7 @@ public class PackageBenefitAuthorizationTests
         public Task<int> AcquirePaymentCheckoutProviderLeaseAsync(Guid checkoutSessionId, Guid leaseId, DateTime leaseExpiresAt, DateTime timestamp, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task<int> ExecutePaymentOrderPaidTransitionAsync(Guid orderId, Guid nurseProfileId, DateTime paidAt, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public bool IsUniqueEffectiveExamAccessGrantViolation(DbUpdateException exception) => false;
+        public bool IsUniqueInProgressExamSessionViolation(DbUpdateException exception) => false;
         public Task<int> ExecuteContactRequestTransitionAsync(Guid id, Guid ownerProfileId, bool isEmployerOwner, ContactRequestStatus status, DateTime timestamp, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task<int> ExecuteExamSessionFinalizationAsync(Guid id, Guid nurseProfileId, ExamSessionStatus status, int score, int maxScore, decimal percentage, bool passed, int correctCount, int questionCount, DateTime timestamp, CancellationToken cancellationToken = default) => throw new NotSupportedException();
 

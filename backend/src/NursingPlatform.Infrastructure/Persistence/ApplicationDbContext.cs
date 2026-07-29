@@ -138,6 +138,15 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         };
     }
 
+    public bool IsUniqueInProgressExamSessionViolation(DbUpdateException exception)
+    {
+        return exception.GetBaseException() is PostgresException
+        {
+            SqlState: PostgresErrorCodes.UniqueViolation,
+            ConstraintName: "IX_ExamSessions_NurseProfileId_ExamVersionId"
+        };
+    }
+
     public Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,

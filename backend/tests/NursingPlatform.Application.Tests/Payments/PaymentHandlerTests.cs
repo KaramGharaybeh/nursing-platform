@@ -2127,6 +2127,8 @@ public class PaymentHandlerTests
             return exception.Message.Contains("unique effective grant", StringComparison.OrdinalIgnoreCase);
         }
 
+        public bool IsUniqueInProgressExamSessionViolation(DbUpdateException exception) => false;
+
         private void DetachAddedGrantEntries()
         {
             foreach (var entry in ChangeTracker.Entries<ExamAccessGrant>().Where(e => e.State == EntityState.Added).ToList())

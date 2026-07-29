@@ -669,6 +669,8 @@ public class ExamAccessPolicyTests
 
         public bool IsUniqueEffectiveExamAccessGrantViolation(DbUpdateException exception) => false;
 
+        public bool IsUniqueInProgressExamSessionViolation(DbUpdateException exception) => false;
+
         public Task<int> ExecuteContactRequestTransitionAsync(Guid id, Guid ownerProfileId, bool isEmployerOwner, ContactRequestStatus status, DateTime timestamp, CancellationToken cancellationToken = default)
         {
             throw new NotSupportedException();

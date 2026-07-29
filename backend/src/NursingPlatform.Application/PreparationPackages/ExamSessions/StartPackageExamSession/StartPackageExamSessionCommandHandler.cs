@@ -185,6 +185,11 @@ public sealed class StartPackageExamSessionCommandHandler : IRequestHandler<Star
 
             return await CreateResponseAsync(entitlement, session, now, cancellationToken);
         }
+        catch (DbUpdateException exception) when (_context.IsUniqueInProgressExamSessionViolation(exception))
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return await ResolveInProgressSessionRaceAsync(entitlement, nurseProfileId, now, cancellationToken);
+        }
         catch
         {
             await transaction.RollbackAsync(cancellationToken);
@@ -219,6 +224,43 @@ public sealed class StartPackageExamSessionCommandHandler : IRequestHandler<Star
                 && s.ExamVersionId == entitlement.IncludedExamVersionId
                 && s.Source == ExamSessionSource.PackageAttempt,
                 cancellationToken);
+    }
+
+    private async Task<PackageExamSessionStartDto> ResolveInProgressSessionRaceAsync(
+        PackagePurchaseEntitlement entitlement,
+        Guid nurseProfileId,
+        DateTime now,
+        CancellationToken cancellationToken)
+    {
+        var existing = await _context.ExamSessions
+            .AsNoTracking()
+            .Where(s => s.NurseProfileId == nurseProfileId
+                && s.ExamVersionId == entitlement.IncludedExamVersionId
+                && s.Status == ExamSessionStatus.InProgress)
+            .OrderByDescending(s => s.StartedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (existing is null || existing.Source != ExamSessionSource.PackageAttempt || now >= existing.ExpiresAt)
+        {
+            throw Conflict("exam-session-source-conflict", "An in-progress exam session already exists for this exam version.");
+        }
+
+        var hasMatchingProvenance = await _context.ExamSessionProvenances
+            .AsNoTracking()
+            .AnyAsync(p => p.ExamSessionId == existing.Id
+                && p.PackagePurchaseEntitlementId == entitlement.Id
+                && p.IncludedExamVersionId == entitlement.IncludedExamVersionId,
+                cancellationToken);
+
+        if (!hasMatchingProvenance)
+        {
+            throw Conflict("exam-session-source-conflict", "An in-progress exam session already exists for this exam version.");
+        }
+
+        var durableSession = await _context.ExamSessions
+            .FirstAsync(s => s.Id == existing.Id, cancellationToken);
+
+        return await CreateResponseAsync(entitlement, durableSession, now, cancellationToken);
     }
 
     private async Task<PackageExamSessionStartDto> CreateResponseAsync(

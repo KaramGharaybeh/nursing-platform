@@ -268,7 +268,7 @@ The numbered phases remain historically accurate. The Preparation Package Workst
 
 # Preparation Package Workstream (Planned)
 
-This workstream introduces the paid preparation package product described in `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md`. It is an explicitly authorized additive workstream. Starting it does not mark, skip, or complete Phases 9–11. Stage 2 backend capabilities are complete through package offer payment order creation, Sandbox package completion, purchased-offer snapshots, package purchase entitlements, and benefit-right authorization/read models. Stage 3 -> Stage 4 order remains mandatory; no later stage may start before the earlier stage is completed and approved. Each remaining stage requires a separately reviewed staged specification and implementation plan before implementation begins.
+This workstream introduces the paid preparation package product described in `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md`. It is an explicitly authorized additive workstream. Starting it does not mark, skip, or complete Phases 9–11. Stage 2 backend capabilities are complete through package offer payment order creation, Sandbox package completion, purchased-offer snapshots, package purchase entitlements, and benefit-right authorization/read models. Stage 3 backend capabilities are complete through package-attempt exam start, session provenance, atomic attempt consumption, PostgreSQL concurrency/idempotency coverage, WebApi endpoint coverage, and compatibility/scope guards. Stage 4 order remains mandatory; no later stage may start before Stage 4 is specified, planned, implemented, verified, and approved. Each remaining stage requires a separately reviewed staged specification and implementation plan before implementation begins.
 
 Existing standalone paid-exam, free-exam, and grant-authorized exam session behavior must be preserved throughout this workstream.
 
@@ -278,7 +278,7 @@ Existing standalone paid-exam, free-exam, and grant-authorized exam session beha
 - [x] Umbrella architecture-decisions specification reviewed and approved
 - [ ] Stage 1 — Content, Package Catalog, and Reporting Profile staged specification
 - [x] Stage 2 — Commerce, Fulfillment, Entitlements, and Benefit Rights staged specification
-- [ ] Stage 3 — Package-Attempt Authorization, Session Provenance, Concurrency, and Legacy Compatibility staged specification
+- [x] Stage 3 — Package-Attempt Authorization, Session Provenance, Concurrency, and Legacy Compatibility staged specification
 - [ ] Stage 4 — Analytical-Report Generation and Access staged specification
 
 ## Stage 1 — Content, Package Catalog, and Reporting Profile
@@ -339,29 +339,33 @@ Existing standalone paid-exam, free-exam, and grant-authorized exam session beha
 
 Stage 2 remains bounded to package fulfillment and entitlement/read-model behavior. Package exam start, package attempt consumption, exam session provenance, report generation/access, workspace runtime, and employer package data remain deferred to later approved stages.
 
-Next recommended work is Stage 3 planning/review only. Stage 3 implementation must not begin until its staged specification and implementation plan are explicitly reviewed and approved.
+Stage 3 is complete. Next recommended work is Stage 4 planning/review only. Stage 4 implementation must not begin until its staged specification and implementation plan are explicitly reviewed and approved.
 
 ## Stage 3 — Package-Attempt Authorization, Session Provenance, Concurrency, Legacy Compatibility
 
-- [ ] Stage 3 staged specification reviewed and approved
-- [ ] Stage 3 implementation plan reviewed and approved
-- [ ] Package-attempt start operation where the client selects the Package Purchase identity/entitlement and the backend resolves the corresponding internal attempt right; no internal right identifier is client-selected
-- [ ] Atomic attempt consumption with qualifying session creation
-- [ ] Package start validates ownership, exact exam and exam-version match, active package window at creation, unused attempt, and immutable purchase provenance
-- [ ] Same-source retries return/resume the same qualifying in-progress session idempotently, including when that session consumed the attempt; an attempt consumed by a terminal session returns a deterministic consumed outcome
-- [ ] One package access window; access begins immediately at successful fulfillment; only duration configurable
-- [ ] Package expiration after successful session creation does not invalidate the in-progress session; resume, submit, and automatic finalization remain allowed and the session remains report-eligible
-- [ ] Session provenance recording
-- [ ] Every new session has one immutable logical source (free, standalone grant-authorized, or one specific Package Purchase attempt); source and provenance cannot be rewritten after creation
-- [ ] Existing isFree/canStart semantics remain backward compatible for free and standalone access; package availability and package-attempt eligibility are separate additive capability information, and canStart never silently includes or consumes package rights
-- [ ] One in-progress session per nurse per exam version (across access sources)
-- [ ] Source-mismatch conflict semantics
-- [ ] Standalone/free start never consumes a package attempt; no silent entitlement selection, source switching, or provenance rewriting
-- [ ] `ExamAccessGrant` kept as standalone authorization evidence; not part of effective-paid classification
-- [ ] Standalone exam access and package rights coexist independently (same exam may be sold standalone and in a package; neither blocks the other; a standalone session does not consume or qualify the package attempt or report right; different packages containing the same exam coexist; one package cannot satisfy another package's rights; active repurchase of the same stable package is blocked; repurchase after expiration creates a new access window, attempt, and report right)
-- [ ] Free and standalone session start behavior preserved
-- [ ] Stage 3 migration
-- [ ] Stage 3 tests
+- [x] Stage 3 staged specification reviewed and approved
+- [x] Stage 3 implementation plan reviewed and approved
+- [x] Package-attempt start operation where the client selects the Package Purchase identity/entitlement and the backend resolves the corresponding internal attempt right; no internal right identifier is client-selected
+- [x] Atomic attempt consumption with qualifying session creation
+- [x] Package start validates ownership, exact exam and exam-version match, active package window at creation, unused attempt, and immutable purchase provenance
+- [x] Same-source retries return/resume the same qualifying in-progress session idempotently, including when that session consumed the attempt; an attempt consumed by a terminal session returns a deterministic consumed outcome
+- [x] One package access window; access begins immediately at successful fulfillment; only duration configurable
+- [x] Package expiration after successful session creation does not invalidate the in-progress session; resume, submit, and automatic finalization remain allowed and the session remains report-eligible
+- [x] Session provenance recording
+- [x] Every new session has one immutable logical source (free, standalone grant-authorized, or one specific Package Purchase attempt); source and provenance cannot be rewritten after creation
+- [x] Existing isFree/canStart semantics remain backward compatible for free and standalone access; package availability and package-attempt eligibility are separate additive capability information, and canStart never silently includes or consumes package rights
+- [x] One in-progress session per nurse per exam version (across access sources)
+- [x] Source-mismatch conflict semantics
+- [x] Standalone/free start never consumes a package attempt; no silent entitlement selection, source switching, or provenance rewriting
+- [x] `ExamAccessGrant` kept as standalone authorization evidence; not part of effective-paid classification
+- [x] Standalone exam access and package rights coexist independently (same exam may be sold standalone and in a package; neither blocks the other; a standalone session does not consume or qualify the package attempt or report right; different packages containing the same exam coexist; one package cannot satisfy another package's rights; active repurchase of the same stable package is blocked; repurchase after expiration creates a new access window, attempt, and report right)
+- [x] Free and standalone session start behavior preserved
+- [x] Stage 3 migration
+- [x] Stage 3 tests
+
+Stage 3 final verification: Domain filtered 21/21 passed; Application filtered 97/97 passed; WebApi filtered 35/35 passed; Infrastructure filtered 15/15 passed with local PostgreSQL; build succeeded with 0 warnings and 0 errors; EF reported no pending model changes; final idempotent migration script generated at `/tmp/opencode/preparation-package-stage3-final.sql` with size 100156 bytes; `git diff --check` was clean. Stage 3 did not implement report generation/access, workspace/dashboard, employer package behavior, or frontend/design work.
+
+Next recommended work is Stage 4 planning/review only. Stage 4 package report generation/recovery/access/guidance implementation must not begin until its staged specification and implementation plan are explicitly reviewed and approved.
 
 ## Stage 4 — Analytical-Report Generation and Access
 

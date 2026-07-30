@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 2 Package Fulfillment and Entitlements Complete
+Preparation Package — Stage 3 Package Exam Attempt Sessions Complete
 
 Status:
-Preparation Package Stage 2 — Package Fulfillment and Entitlements is implemented, verified, and stopped for review. Stage 2 extends the existing payment/order/checkout/Sandbox fulfillment path with package offer purchase, purchased-offer snapshots, package purchase entitlements, and benefit-right authorization/read models while preserving standalone paid-exam behavior.
+Preparation Package Stage 3 — Package Exam Attempt Sessions is implemented, verified, and stopped for review. Stage 3 adds package-specific exam start, atomic attempt consumption, immutable exam-session source/provenance, deterministic idempotency/conflict behavior, and compatibility/scope guards while preserving existing free and standalone paid-exam behavior.
 
-Stage 2 verification completed on branch `feature/preparation-package-foundation` at `56de439 feat: add package benefit authorization read models`. Slice 7 was verification-only and produced no commit.
+Stage 3 verification completed on branch `feature/preparation-package-foundation` at `11d340b test: guard exam session source compatibility`. Task 8 was verification/status-update only and produced no commit.
 
 ---
 
@@ -61,9 +61,36 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Stage 2 completion status update. Stage 2 implementation and verification are complete; no code, tests, migrations, frontend/design files, staging, committing, pushing, or Stage 3 work is authorized by this update.
+The current authorized task is the documentation-only Stage 3 completion status update. Stage 3 implementation and verification are complete; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or Stage 4 work is authorized by this update.
 
-Known unrelated frontend/design worktree changes remain preserved and outside this backend Stage 2 completion update.
+Known unrelated frontend/design worktree changes remain preserved and outside this backend Stage 3 completion update.
+
+### Stage 3 Implementation Status
+
+Stage 3 — Package Exam Attempt Sessions is complete through eight tasks:
+
+- Task 1 — domain source, provenance, and attempt consumption model.
+- Task 2 — persistence schema, EF configuration, migration, and data integrity tests.
+- Task 3 — existing free/standalone start compatibility and source recording.
+- Task 4 — package start application workflow with atomicity, idempotency, and conflicts.
+- Task 5 — infrastructure PostgreSQL concurrency and rollback coverage.
+- Task 6 — package exam-session WebApi endpoint, Problem Details codes, and response security.
+- Task 7 — existing endpoint/API compatibility and scope guard tests.
+- Task 8 — final verification and Stage 3 completion status update.
+
+Implemented Stage 3 capabilities:
+
+- `ExamSessionSource` values: `Legacy`, `Free`, `StandaloneGrant`, and `PackageAttempt`.
+- Historical sessions are backfilled to `Legacy`; new application-created sessions do not use `Legacy`.
+- Existing free starts record `Free`; existing standalone paid/grant starts record `StandaloneGrant`.
+- Package exam-session Application workflow uses the selected package purchase entitlement and exact included exam version.
+- Package session provenance is recorded in one-to-one `ExamSessionProvenance` rows.
+- Package attempt rights are consumed atomically with qualifying session creation and record `ConsumedAt`.
+- Package start persists session, provenance, snapshots, and attempt consumption in one transaction.
+- PostgreSQL concurrency/idempotency coverage verifies one in-progress session per nurse/exam-version across sources.
+- WebApi exposes only `POST /api/v1/me/nurse-profile/preparation-packages/entitlements/{entitlementId}/exam-session` for package exam start.
+- Stable 409 Problem Details codes are implemented for `exam-session-source-conflict`, `package-attempt-consumed`, `package-entitlement-inactive`, `package-attempt-right-missing`, and `package-exam-version-unavailable`.
+- Compatibility and scope guards protect existing free/standalone endpoint behavior and prevent Stage 4/report/workspace/employer route leakage.
 
 ### Stage 2 Implementation Status
 
@@ -131,6 +158,13 @@ Next recommended work is Stage 3 planning/review only. Stage 3 implementation is
 - [x] Preparation Package Stage 2 nurse-owned entitlement list/detail APIs.
 - [x] Preparation Package Stage 2 benefit-right authorization/read models.
 - [x] Preparation Package Stage 2 final compatibility, security, EF, and git hygiene verification.
+- [x] Preparation Package Stage 3 exam-session source values and historical `Legacy` backfill.
+- [x] Preparation Package Stage 3 package session provenance.
+- [x] Preparation Package Stage 3 package attempt consumption with `ConsumedAt`.
+- [x] Preparation Package Stage 3 package exam-session Application workflow.
+- [x] Preparation Package Stage 3 package exam-session WebApi endpoint.
+- [x] Preparation Package Stage 3 PostgreSQL concurrency/idempotency coverage.
+- [x] Preparation Package Stage 3 compatibility and scope guards.
 
 ---
 
@@ -164,6 +198,23 @@ The following snapshot records the final Stage 2 Slice 7 verification evidence:
 - Backend files: no remaining modified backend files after Stage 2 verification.
 - Worktree: only known unrelated frontend/design changes remained.
 
+## Stage 3 Final Verification Snapshot
+
+The following snapshot records the final Stage 3 Task 8 verification evidence:
+
+- Domain filtered tests: 21 passed, 0 failed.
+- Application filtered tests: 97 passed, 0 failed.
+- WebApi filtered tests: 35 passed, 0 failed.
+- Infrastructure filtered tests with PostgreSQL connection string: 15 passed, 0 failed.
+- Build: 0 warnings, 0 errors.
+- EF: no pending model changes. The known design-time `HostAbortedException` appeared, and EF still completed the intended check with `No changes have been made to the model since the last migration.`
+- Final idempotent migration script generated at `/tmp/opencode/preparation-package-stage3-final.sql` with size 100156 bytes.
+- `git diff --check`: clean.
+- Stage leakage grep: report/workspace/employer terms appear only in existing negative/scope tests and migration-name assertions.
+- Legacy grep: `Legacy` appears only in negative tests/assertions in Application/WebApi test scopes.
+- Sensitive/internal-field grep: matches are existing auth/payment/security code/tests and package endpoint negative forbidden-pattern assertions; Stage 3 public DTOs do not expose package benefit right ids or provenance internals.
+- Worktree: only known unrelated frontend/design changes plus this Stage 3 status update remained after verification.
+
 ---
 
 ## Deferred Work
@@ -176,7 +227,6 @@ The following work remains deferred relative to the baseline. Do not mark these 
 - Production-grade object storage.
 - Operational/production hardening.
 - Frontend implementation.
-- Preparation Package Stage 3 package exam start, attempt consumption, and exam session provenance.
 - Preparation Package Stage 4 report generation and report access.
 - Preparation Package workspace runtime.
 - Employer package purchase/report/practice-progress data.

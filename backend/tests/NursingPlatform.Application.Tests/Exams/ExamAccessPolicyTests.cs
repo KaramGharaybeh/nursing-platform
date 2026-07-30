@@ -8,6 +8,7 @@ using NursingPlatform.Application.Exams.Common;
 using NursingPlatform.Application.Exams.Queries.GetExam;
 using NursingPlatform.Application.Exams.Queries.ListExams;
 using NursingPlatform.Application.Nurses.Common;
+using NursingPlatform.Application.PreparationPackages.ExamSessions.Exceptions;
 using NursingPlatform.Domain.Employers;
 using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Identity;
@@ -288,7 +289,13 @@ public class ExamAccessPolicyTests
         var version = await context.ExamVersions.SingleAsync(v => v.ExamId == exam.Id);
         SeedPaidProduct(context, exam.Id);
         SeedGrant(context, user.NurseProfileId, exam.Id, expiresAt: null);
-        var existing = ExamSession.Create(user.NurseProfileId, exam.Id, version.Id, DateTime.UtcNow.AddMinutes(-1), exam.DurationMinutes);
+        var existing = ExamSession.Create(
+            user.NurseProfileId,
+            exam.Id,
+            version.Id,
+            DateTime.UtcNow.AddMinutes(-1),
+            exam.DurationMinutes,
+            ExamSessionSource.StandaloneGrant);
         context.ExamSessions.Add(existing);
         await context.SaveChangesAsync();
         var handler = CreateHandler(context, user.UserId);
@@ -385,6 +392,55 @@ public class ExamAccessPolicyTests
         await handler.Handle(new StartExamSessionCommand { ExamId = exam.Id }, default);
 
         Assert.Empty(context.ExamSessionProvenances);
+    }
+
+    [Fact]
+    public async Task ExistingStartExam_DoesNotConsumePackageAttemptRight()
+    {
+        await using var context = CreateContext();
+        var user = SeedNurse(context);
+        var exam = SeedStartableExam(context);
+        var attemptRight = PackageBenefitRight.Create(
+            Guid.NewGuid(),
+            PackageBenefitRightType.PackageExamAttemptEligibility,
+            PackageBenefitRightStatus.Available,
+            DateTime.UtcNow.AddDays(-1),
+            DateTime.UtcNow.AddDays(30));
+        context.PackageBenefitRights.Add(attemptRight);
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, user.UserId);
+
+        await handler.Handle(new StartExamSessionCommand { ExamId = exam.Id }, default);
+
+        Assert.Equal(PackageBenefitRightStatus.Available, attemptRight.Status);
+        Assert.Null(attemptRight.ConsumedAt);
+    }
+
+    [Fact]
+    public async Task ExistingStartExam_WhenPackageSessionExistsForSameVersion_ReturnsSourceConflictOrExistingBehaviorAccordingToSpec()
+    {
+        await using var context = CreateContext();
+        var user = SeedNurse(context);
+        var exam = SeedStartableExam(context);
+        await context.SaveChangesAsync();
+        var version = await context.ExamVersions.SingleAsync(v => v.ExamId == exam.Id);
+        var existingPackageSession = ExamSession.Create(
+            user.NurseProfileId,
+            exam.Id,
+            version.Id,
+            DateTime.UtcNow.AddMinutes(-1),
+            exam.DurationMinutes,
+            ExamSessionSource.PackageAttempt);
+        context.ExamSessions.Add(existingPackageSession);
+        await context.SaveChangesAsync();
+        var handler = CreateHandler(context, user.UserId);
+
+        var exception = await Assert.ThrowsAsync<PackageExamSessionConflictException>(() =>
+            handler.Handle(new StartExamSessionCommand { ExamId = exam.Id }, default));
+
+        Assert.Equal("exam-session-source-conflict", exception.Code);
+        Assert.Single(context.ExamSessions);
+        Assert.Equal(ExamSessionSource.PackageAttempt, existingPackageSession.Source);
     }
 
     [Fact]

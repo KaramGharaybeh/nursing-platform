@@ -4,6 +4,7 @@ using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Application.Exams.Common;
 using NursingPlatform.Application.Exams.DTOs;
 using NursingPlatform.Application.Nurses.Common;
+using NursingPlatform.Application.PreparationPackages.ExamSessions.Exceptions;
 using NursingPlatform.Domain.Exams;
 
 namespace NursingPlatform.Application.Exams.Commands.StartExamSession;
@@ -58,6 +59,13 @@ public class StartExamSessionCommandHandler : IRequestHandler<StartExamSessionCo
 
         if (existing is not null)
         {
+            if (existing.Source == ExamSessionSource.PackageAttempt)
+            {
+                throw new PackageExamSessionConflictException(
+                    "exam-session-source-conflict",
+                    "An in-progress exam session already exists for this exam version.");
+            }
+
             var existingBundle = await ExamHandlerHelpers.GetOwnedSessionBundleAsync(_context, nurseProfileId, existing.Id, cancellationToken);
             if (now < existing.ExpiresAt)
             {

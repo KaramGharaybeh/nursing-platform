@@ -180,6 +180,90 @@ public class ExamEndpointsTests
     }
 
     [Fact]
+    public async Task ExistingStartExam_WhenFreeExam_StillReturnsSuccess()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var examId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<StartExamSessionCommand>(c => c.ExamId == examId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateSessionDto(examId, "Free"));
+
+        var response = await _client.PostAsync($"/api/v1/exams/{examId}/sessions", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Free", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("PackageAttempt", json, StringComparison.OrdinalIgnoreCase);
+        AssertDoesNotContain(json, GlobalForbiddenPatterns);
+    }
+
+    [Fact]
+    public async Task ExistingStartExam_WhenStandaloneGrant_StillReturnsSuccess()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var examId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<StartExamSessionCommand>(c => c.ExamId == examId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateSessionDto(examId, "StandaloneGrant"));
+
+        var response = await _client.PostAsync($"/api/v1/exams/{examId}/sessions", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.Contains("StandaloneGrant", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("PackageAttempt", json, StringComparison.OrdinalIgnoreCase);
+        AssertDoesNotContain(json, GlobalForbiddenPatterns);
+    }
+
+    [Fact]
+    public async Task ExistingStartExam_DoesNotCreatePackageAttemptSource()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var examId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<StartExamSessionCommand>(c => c.ExamId == examId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateSessionDto(examId, "Free"));
+
+        var response = await _client.PostAsync($"/api/v1/exams/{examId}/sessions", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.DoesNotContain("PackageAttempt", json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task ExistingStartExam_DoesNotAcceptOrConsumePackageEntitlement()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var examId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<StartExamSessionCommand>(c => c.ExamId == examId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateSessionDto(examId, "Free"));
+
+        var response = await _client.PostAsync($"/api/v1/exams/{examId}/sessions?entitlementId={Guid.NewGuid()}", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        _senderMock.Verify(s => s.Send(It.IsAny<StartExamSessionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        _senderMock.Verify(s => s.Send(It.IsAny<NursingPlatform.Application.PreparationPackages.ExamSessions.StartPackageExamSession.StartPackageExamSessionCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task RuntimeApis_DoNotCreateLegacyExamSessionSource()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var examId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<StartExamSessionCommand>(c => c.ExamId == examId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateSessionDto(examId, "Free"));
+
+        var response = await _client.PostAsync($"/api/v1/exams/{examId}/sessions", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.DoesNotContain("Legacy", json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task GetExamSession_WhenHidden_ReturnsNotFound()
     {
         NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
@@ -330,5 +414,26 @@ public class ExamEndpointsTests
         {
             Assert.DoesNotContain(pattern, json, StringComparison.OrdinalIgnoreCase);
         }
+    }
+
+    private static ExamSessionDto CreateSessionDto(Guid examId, string source)
+    {
+        return new ExamSessionDto
+        {
+            Id = Guid.NewGuid(),
+            ExamId = examId,
+            ExamTitle = "NCLEX RN",
+            Status = "InProgress",
+            Source = source,
+            Items =
+            [
+                new ExamSessionQuestionDto
+                {
+                    Id = Guid.NewGuid(),
+                    Text = "Question",
+                    Options = [new ExamSessionAnswerOptionDto { Id = Guid.NewGuid(), Text = "A" }]
+                }
+            ]
+        };
     }
 }

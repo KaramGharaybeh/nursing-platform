@@ -191,6 +191,48 @@ public class PackageExamSessionEndpointTests
         Assert.Equal(firstBody.Session.Id, secondBody.Session.Id);
     }
 
+    [Theory]
+    [InlineData("POST", "/api/v1/admin/preparation-package/entitlements/11111111-1111-1111-1111-111111111111/exam-session")]
+    [InlineData("POST", "/api/v1/admin/preparation-package/offers/11111111-1111-1111-1111-111111111111/exam-session")]
+    public async Task PackageExamStartEndpoint_IsNotAvailableUnderAdminRoutes(string method, string path)
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+
+        var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod(method), path));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        _senderMock.Verify(s => s.Send(It.IsAny<StartPackageExamSessionCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData("POST", "/api/v1/employer/preparation-packages/entitlements/11111111-1111-1111-1111-111111111111/exam-session")]
+    [InlineData("POST", "/api/v1/employer/preparation-packages/purchases/11111111-1111-1111-1111-111111111111/exam-session")]
+    public async Task PackageExamStartEndpoint_IsNotAvailableUnderEmployerRoutes(string method, string path)
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+
+        var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod(method), path));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        _senderMock.Verify(s => s.Send(It.IsAny<StartPackageExamSessionCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData("POST", "/api/v1/me/nurse-profile/preparation-packages/entitlements/11111111-1111-1111-1111-111111111111/reports/generate")]
+    [InlineData("GET", "/api/v1/me/nurse-profile/preparation-packages/entitlements/11111111-1111-1111-1111-111111111111/reports")]
+    [InlineData("GET", "/api/v1/me/nurse-profile/preparation-packages/entitlements/11111111-1111-1111-1111-111111111111/workspace")]
+    [InlineData("GET", "/api/v1/me/nurse-profile/preparation-packages/workspace/dashboard")]
+    [InlineData("POST", "/api/v1/me/nurse-profile/preparation-packages/entitlements/11111111-1111-1111-1111-111111111111/attempt-reset")]
+    public async Task Stage3EndpointScope_DoesNotExposeReportWorkspaceEmployerOrAttemptResetRoutes(string method, string path)
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+
+        var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod(method), path));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        _senderMock.Verify(s => s.Send(It.IsAny<StartPackageExamSessionCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private async Task AssertConflictCodeAsync(string code)
     {
         NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());

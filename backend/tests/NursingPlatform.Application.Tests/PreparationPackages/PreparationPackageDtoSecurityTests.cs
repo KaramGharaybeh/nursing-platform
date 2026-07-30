@@ -5,6 +5,8 @@ namespace NursingPlatform.Application.Tests.PreparationPackages;
 
 public class PreparationPackageDtoSecurityTests
 {
+    private const string ReportsNamespace = "NursingPlatform.Application.PreparationPackages.Reports.DTOs";
+
     private static readonly string[] CatalogForbiddenTerms =
     [
         "questiontext",
@@ -79,9 +81,60 @@ public class PreparationPackageDtoSecurityTests
         });
     }
 
+    [Fact]
+    public void PackageAnalyticalReportDtos_ShouldNotExposeProtectedContentInternalRightsOrPaymentInternals()
+    {
+        var reportDtoTypes = new[]
+        {
+            RequireApplicationType($"{ReportsNamespace}.PackageAnalyticalReportDto"),
+            RequireApplicationType($"{ReportsNamespace}.PackageAnalyticalReportTopicResultDto"),
+            RequireApplicationType($"{ReportsNamespace}.PackageAnalyticalReportGuidanceItemDto")
+        };
+
+        var forbiddenTerms = new[]
+        {
+            "packagebenefitrightid",
+            "benefitrightid",
+            "paymentorderid",
+            "paymentorderitemid",
+            "paymentprovider",
+            "providersecret",
+            "clientsecret",
+            "secret",
+            "questiontext",
+            "optiontext",
+            "answeroption",
+            "correctanswer",
+            "iscorrect",
+            "answerkey",
+            "rationale",
+            "explanation",
+            "protectedanswer",
+            "navigation",
+            "entity",
+            "authorization",
+            "permission",
+            "token",
+            "passwordhash",
+            "stacktrace"
+        };
+
+        Assert.All(reportDtoTypes.SelectMany(GetPublicPropertyNames), propertyName =>
+        {
+            Assert.DoesNotContain(forbiddenTerms, term =>
+                propertyName.Contains(term, StringComparison.OrdinalIgnoreCase));
+        });
+    }
+
     private static IEnumerable<string> GetPublicPropertyNames(Type type)
     {
         return type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Select(property => property.Name);
+    }
+
+    private static Type RequireApplicationType(string fullName)
+    {
+        return typeof(PreparationPackageOfferListItemDto).Assembly.GetType(fullName)
+            ?? throw new InvalidOperationException($"Expected Application type '{fullName}' to exist.");
     }
 }

@@ -51,6 +51,12 @@ public interface IApplicationDbContext
     DbSet<PackageOrderItemSnapshot> PackageOrderItemSnapshots { get; }
     DbSet<PackagePurchaseEntitlement> PackagePurchaseEntitlements { get; }
     DbSet<PackageBenefitRight> PackageBenefitRights { get; }
+    DbSet<PackageAnalyticalReport> PackageAnalyticalReports => throw new NotSupportedException(
+        "This IApplicationDbContext implementation does not expose package analytical report persistence.");
+    DbSet<PackageAnalyticalReportTopicResult> PackageAnalyticalReportTopicResults => throw new NotSupportedException(
+        "This IApplicationDbContext implementation does not expose package analytical report topic persistence.");
+    DbSet<PackageAnalyticalReportGuidanceItem> PackageAnalyticalReportGuidanceItems => throw new NotSupportedException(
+        "This IApplicationDbContext implementation does not expose package analytical report guidance persistence.");
     DbSet<PreparationPackageDefinition> PreparationPackageDefinitions { get; }
     DbSet<PreparationPackageVersion> PreparationPackageVersions { get; }
     DbSet<PreparationPackageVersionMaterial> PreparationPackageVersionMaterials { get; }
@@ -79,6 +85,7 @@ public interface IApplicationDbContext
         CancellationToken cancellationToken = default);
     bool IsUniqueEffectiveExamAccessGrantViolation(DbUpdateException exception);
     bool IsUniqueInProgressExamSessionViolation(DbUpdateException exception);
+    bool IsUniquePackageAnalyticalReportSessionViolation(DbUpdateException exception) => false;
     Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,

@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft — Stage 4 Specification for Review
+Approved — Stage 4 Specification
 
 This specification is documentation only. It does not authorize implementation, implementation planning, source-code changes outside this file, database migrations, API implementation, tests, frontend or design work, staging, committing, pushing, deleting branches, or beginning any later stage.
 

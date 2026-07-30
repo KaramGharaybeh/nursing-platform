@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using NursingPlatform.Application.Common.Exceptions;
 using NursingPlatform.Application.Payments.Abstractions;
+using NursingPlatform.Application.PreparationPackages.ExamSessions.Exceptions;
 
 namespace NursingPlatform.WebApi.Middleware;
 
@@ -40,6 +41,7 @@ public class ExceptionMiddleware
             ValidationException => (StatusCodes.Status400BadRequest, "Validation failed"),
             KeyNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
             PaymentCheckoutProviderUnavailableException => (StatusCodes.Status503ServiceUnavailable, "Service unavailable"),
+            PackageExamSessionConflictException => (StatusCodes.Status409Conflict, "Conflict"),
             CheckoutInitializationInProgressException => (StatusCodes.Status409Conflict, "Conflict"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
             ForbiddenAccessException => (StatusCodes.Status403Forbidden, "Forbidden"),
@@ -77,6 +79,11 @@ public class ExceptionMiddleware
             var retryAfterSeconds = (int)Math.Ceiling(checkoutInitializationInProgressException.RetryAfter.TotalSeconds);
             context.Response.Headers.RetryAfter = retryAfterSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
             problem["retryAfterSeconds"] = retryAfterSeconds;
+        }
+
+        if (exception is PackageExamSessionConflictException packageExamSessionConflictException)
+        {
+            problem["code"] = packageExamSessionConflictException.Code;
         }
 
         var json = JsonSerializer.Serialize(problem);

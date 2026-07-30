@@ -13,6 +13,8 @@ using NursingPlatform.Application.PreparationPackages.DTOs;
 using NursingPlatform.Application.PreparationPackages.Entitlements.DTOs;
 using NursingPlatform.Application.PreparationPackages.Entitlements.GetMyPackageEntitlement;
 using NursingPlatform.Application.PreparationPackages.Entitlements.ListMyPackageEntitlements;
+using NursingPlatform.Application.PreparationPackages.ExamSessions.DTOs;
+using NursingPlatform.Application.PreparationPackages.ExamSessions.StartPackageExamSession;
 
 namespace NursingPlatform.WebApi.Extensions;
 
@@ -57,6 +59,19 @@ public static class PreparationPackageEndpointExtensions
             "Get my preparation package entitlement",
             "Gets one preparation package entitlement owned by the current nurse profile.",
             includeNotFound: true)
+        .RequireAuthorization();
+
+        entitlements.MapPost("/{entitlementId:guid}/exam-session", async (Guid entitlementId, ISender sender) =>
+        {
+            var result = await sender.Send(new StartPackageExamSessionCommand(entitlementId));
+            return Results.Ok(result);
+        })
+        .WithName("StartPackageExamSession")
+        .WithNurseEntitlementMetadata<PackageExamSessionStartDto>(
+            "Start package exam session",
+            "Starts the exam attempt for one owned preparation package entitlement.",
+            includeNotFound: true,
+            includeConflict: true)
         .RequireAuthorization();
     }
 
@@ -624,7 +639,8 @@ public static class PreparationPackageEndpointExtensions
         this RouteHandlerBuilder builder,
         string summary,
         string description,
-        bool includeNotFound = false)
+        bool includeNotFound = false,
+        bool includeConflict = false)
     {
         builder
             .WithTags("Preparation Package Entitlements")
@@ -637,6 +653,11 @@ public static class PreparationPackageEndpointExtensions
         if (includeNotFound)
         {
             builder.ProducesProblem(StatusCodes.Status404NotFound);
+        }
+
+        if (includeConflict)
+        {
+            builder.ProducesProblem(StatusCodes.Status409Conflict);
         }
 
         return builder;

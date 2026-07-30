@@ -59,6 +59,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<PackageOrderItemSnapshot> PackageOrderItemSnapshots => Set<PackageOrderItemSnapshot>();
     public DbSet<PackagePurchaseEntitlement> PackagePurchaseEntitlements => Set<PackagePurchaseEntitlement>();
     public DbSet<PackageBenefitRight> PackageBenefitRights => Set<PackageBenefitRight>();
+    public DbSet<PackageAnalyticalReport> PackageAnalyticalReports => Set<PackageAnalyticalReport>();
+    public DbSet<PackageAnalyticalReportTopicResult> PackageAnalyticalReportTopicResults => Set<PackageAnalyticalReportTopicResult>();
+    public DbSet<PackageAnalyticalReportGuidanceItem> PackageAnalyticalReportGuidanceItems => Set<PackageAnalyticalReportGuidanceItem>();
     public DbSet<PreparationPackageDefinition> PreparationPackageDefinitions => Set<PreparationPackageDefinition>();
     public DbSet<PreparationPackageVersion> PreparationPackageVersions => Set<PreparationPackageVersion>();
     public DbSet<PreparationPackageVersionMaterial> PreparationPackageVersionMaterials => Set<PreparationPackageVersionMaterial>();
@@ -144,6 +147,15 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         {
             SqlState: PostgresErrorCodes.UniqueViolation,
             ConstraintName: "IX_ExamSessions_NurseProfileId_ExamVersionId"
+        };
+    }
+
+    public bool IsUniquePackageAnalyticalReportSessionViolation(DbUpdateException exception)
+    {
+        return exception.GetBaseException() is PostgresException
+        {
+            SqlState: PostgresErrorCodes.UniqueViolation,
+            ConstraintName: "IX_PackageAnalyticalReports_ExamSessionId"
         };
     }
 

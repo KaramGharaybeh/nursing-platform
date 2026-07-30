@@ -23,6 +23,9 @@ public class PreparationPackageConfigurationTests
     [InlineData(typeof(ReportingProfileQuestionAssignment), "ReportingProfileQuestionAssignments")]
     [InlineData(typeof(PackagePurchaseEntitlement), "PackagePurchaseEntitlements")]
     [InlineData(typeof(PackageBenefitRight), "PackageBenefitRights")]
+    [InlineData(typeof(PackageAnalyticalReport), "PackageAnalyticalReports")]
+    [InlineData(typeof(PackageAnalyticalReportTopicResult), "PackageAnalyticalReportTopicResults")]
+    [InlineData(typeof(PackageAnalyticalReportGuidanceItem), "PackageAnalyticalReportGuidanceItems")]
     public void PreparationPackageEntities_AreConfiguredInModel(Type entityType, string tableName)
     {
         var entity = CreateDbContext().Model.FindEntityType(entityType);
@@ -89,6 +92,16 @@ public class PreparationPackageConfigurationTests
             nameof(PackageBenefitRight.PackagePurchaseEntitlementId), nameof(PackageBenefitRight.RightType));
         AssertHasIndex<PackageBenefitRight>(context, false,
             nameof(PackageBenefitRight.PackagePurchaseEntitlementId), nameof(PackageBenefitRight.RightType), nameof(PackageBenefitRight.Status));
+        AssertHasIndex<PackageAnalyticalReport>(context, true,
+            nameof(PackageAnalyticalReport.ExamSessionId));
+        AssertHasIndex<PackageAnalyticalReport>(context, false,
+            nameof(PackageAnalyticalReport.NurseProfileId), nameof(PackageAnalyticalReport.PackagePurchaseEntitlementId), nameof(PackageAnalyticalReport.ExamSessionId));
+        AssertHasIndex<PackageAnalyticalReportTopicResult>(context, true,
+            nameof(PackageAnalyticalReportTopicResult.PackageAnalyticalReportId), nameof(PackageAnalyticalReportTopicResult.SortOrder));
+        AssertHasIndex<PackageAnalyticalReportGuidanceItem>(context, true,
+            nameof(PackageAnalyticalReportGuidanceItem.PackageAnalyticalReportId), nameof(PackageAnalyticalReportGuidanceItem.SortOrder));
+        AssertHasIndex<PackageAnalyticalReportGuidanceItem>(context, false,
+            nameof(PackageAnalyticalReportGuidanceItem.PackageAnalyticalReportId), nameof(PackageAnalyticalReportGuidanceItem.ReportingTopicId), nameof(PackageAnalyticalReportGuidanceItem.SortOrder));
     }
 
     [Theory]
@@ -101,6 +114,7 @@ public class PreparationPackageConfigurationTests
     [InlineData(typeof(PackagePurchaseEntitlement), nameof(PackagePurchaseEntitlement.Status))]
     [InlineData(typeof(PackageBenefitRight), nameof(PackageBenefitRight.RightType))]
     [InlineData(typeof(PackageBenefitRight), nameof(PackageBenefitRight.Status))]
+    [InlineData(typeof(PackageAnalyticalReportGuidanceItem), nameof(PackageAnalyticalReportGuidanceItem.SourceType))]
     public void PreparationPackageEnums_AreStoredAsStringsWithMaxLength(Type entityType, string propertyName)
     {
         var property = CreateDbContext().Model.FindEntityType(entityType)!.FindProperty(propertyName)!;
@@ -127,7 +141,10 @@ public class PreparationPackageConfigurationTests
             typeof(ReportingProfilePublication),
             typeof(ReportingProfileQuestionAssignment),
             typeof(PackagePurchaseEntitlement),
-            typeof(PackageBenefitRight)
+            typeof(PackageBenefitRight),
+            typeof(PackageAnalyticalReport),
+            typeof(PackageAnalyticalReportTopicResult),
+            typeof(PackageAnalyticalReportGuidanceItem)
         };
 
         var foreignKeys = entityTypes
@@ -182,6 +199,55 @@ public class PreparationPackageConfigurationTests
     }
 
     [Fact]
+    public void PackageAnalyticalReportConfiguration_UsesOnlyMinimalHardRelationships()
+    {
+        var foreignKeys = CreateDbContext().Model.FindEntityType(typeof(PackageAnalyticalReport))!
+            .GetForeignKeys()
+            .ToList();
+
+        Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType.Name == "NurseProfile"
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.NurseProfileId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType.Name == "ExamSession"
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.ExamSessionId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType.Name == "ExamSessionProvenance"
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.ExamSessionProvenanceId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType == typeof(PackagePurchaseEntitlement)
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.PackagePurchaseEntitlementId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+
+        Assert.DoesNotContain(foreignKeys, fk => fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.PaymentOrderId)]));
+        Assert.DoesNotContain(foreignKeys, fk => fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.PaymentOrderItemId)]));
+        Assert.DoesNotContain(foreignKeys, fk => fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.PackageOrderItemSnapshotId)]));
+        Assert.DoesNotContain(foreignKeys, fk => fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.PreparationPackageDefinitionId)]));
+        Assert.DoesNotContain(foreignKeys, fk => fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.PreparationPackageVersionId)]));
+        Assert.DoesNotContain(foreignKeys, fk => fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.PreparationPackageOfferId)]));
+        Assert.DoesNotContain(foreignKeys, fk => fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.IncludedExamId)]));
+        Assert.DoesNotContain(foreignKeys, fk => fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageAnalyticalReport.IncludedExamVersionId)]));
+    }
+
+    [Fact]
+    public void PackageAnalyticalReportConfiguration_ConfiguresRequiredSnapshotFieldsAndPrecision()
+    {
+        var reportEntity = CreateDbContext().Model.FindEntityType(typeof(PackageAnalyticalReport))!;
+        var topicEntity = CreateDbContext().Model.FindEntityType(typeof(PackageAnalyticalReportTopicResult))!;
+
+        Assert.False(reportEntity.FindProperty(nameof(PackageAnalyticalReport.GeneratedAt))!.IsNullable);
+        Assert.False(reportEntity.FindProperty(nameof(PackageAnalyticalReport.FinalizedAt))!.IsNullable);
+        Assert.False(reportEntity.FindProperty(nameof(PackageAnalyticalReport.PackageAccessStartsAt))!.IsNullable);
+        Assert.False(reportEntity.FindProperty(nameof(PackageAnalyticalReport.PackageAccessEndsAt))!.IsNullable);
+        Assert.Equal(5, reportEntity.FindProperty(nameof(PackageAnalyticalReport.Percentage))!.GetPrecision());
+        Assert.Equal(2, reportEntity.FindProperty(nameof(PackageAnalyticalReport.Percentage))!.GetScale());
+        Assert.Equal(5, topicEntity.FindProperty(nameof(PackageAnalyticalReportTopicResult.Percentage))!.GetPrecision());
+        Assert.Equal(2, topicEntity.FindProperty(nameof(PackageAnalyticalReportTopicResult.Percentage))!.GetScale());
+        Assert.False(topicEntity.FindProperty(nameof(PackageAnalyticalReportTopicResult.SortOrder))!.IsNullable);
+        Assert.False(CreateDbContext().Model.FindEntityType(typeof(PackageAnalyticalReportGuidanceItem))!
+            .FindProperty(nameof(PackageAnalyticalReportGuidanceItem.SortOrder))!.IsNullable);
+    }
+
+    [Fact]
     public void PreparationPackageMigration_CanGenerateIdempotentScript()
     {
         var migrations = typeof(ApplicationDbContext).Assembly.GetTypes()
@@ -191,6 +257,7 @@ public class PreparationPackageConfigurationTests
 
         Assert.Contains("AddPreparationPackageStage1CatalogAuthoring", migrations);
         Assert.Contains("AddPreparationPackageStage2Persistence", migrations);
+        Assert.Contains("AddPreparationPackageStage4AnalyticalReports", migrations);
         Assert.DoesNotContain(migrations, name => name.Contains("Workspace", StringComparison.OrdinalIgnoreCase));
         Assert.DoesNotContain(migrations, name => name.Contains("ReportGeneration", StringComparison.OrdinalIgnoreCase));
         Assert.DoesNotContain(migrations, name => name.Contains("ReportAccess", StringComparison.OrdinalIgnoreCase));

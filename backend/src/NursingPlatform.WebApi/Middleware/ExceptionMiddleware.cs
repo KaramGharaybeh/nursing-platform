@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using NursingPlatform.Application.Common.Exceptions;
 using NursingPlatform.Application.Payments.Abstractions;
 using NursingPlatform.Application.PreparationPackages.ExamSessions.Exceptions;
+using NursingPlatform.Application.PreparationPackages.Reports.Generation;
 
 namespace NursingPlatform.WebApi.Middleware;
 
@@ -42,6 +43,7 @@ public class ExceptionMiddleware
             KeyNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
             PaymentCheckoutProviderUnavailableException => (StatusCodes.Status503ServiceUnavailable, "Service unavailable"),
             PackageExamSessionConflictException => (StatusCodes.Status409Conflict, "Conflict"),
+            PackageReportConflictException => (StatusCodes.Status409Conflict, "Conflict"),
             CheckoutInitializationInProgressException => (StatusCodes.Status409Conflict, "Conflict"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
             ForbiddenAccessException => (StatusCodes.Status403Forbidden, "Forbidden"),
@@ -84,6 +86,11 @@ public class ExceptionMiddleware
         if (exception is PackageExamSessionConflictException packageExamSessionConflictException)
         {
             problem["code"] = packageExamSessionConflictException.Code;
+        }
+
+        if (exception is PackageReportConflictException packageReportConflictException)
+        {
+            problem["code"] = packageReportConflictException.Code;
         }
 
         var json = JsonSerializer.Serialize(problem);

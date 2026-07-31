@@ -15,6 +15,8 @@ using NursingPlatform.Application.PreparationPackages.Entitlements.GetMyPackageE
 using NursingPlatform.Application.PreparationPackages.Entitlements.ListMyPackageEntitlements;
 using NursingPlatform.Application.PreparationPackages.ExamSessions.DTOs;
 using NursingPlatform.Application.PreparationPackages.ExamSessions.StartPackageExamSession;
+using NursingPlatform.Application.PreparationPackages.Reports.DTOs;
+using NursingPlatform.Application.PreparationPackages.Reports.GetPackageAnalyticalReport;
 
 namespace NursingPlatform.WebApi.Extensions;
 
@@ -32,6 +34,7 @@ public static class PreparationPackageEndpointExtensions
     private static void MapNurseEntitlementEndpoints(RouteGroupBuilder api)
     {
         var entitlements = api.MapGroup("/me/nurse-profile/preparation-packages/entitlements");
+        var examSessions = api.MapGroup("/me/nurse-profile/preparation-packages/exam-sessions");
 
         entitlements.MapGet("/", async (int? page, int? pageSize, ISender sender) =>
         {
@@ -70,6 +73,19 @@ public static class PreparationPackageEndpointExtensions
         .WithNurseEntitlementMetadata<PackageExamSessionStartDto>(
             "Start package exam session",
             "Starts the exam attempt for one owned preparation package entitlement.",
+            includeNotFound: true,
+            includeConflict: true)
+        .RequireAuthorization();
+
+        examSessions.MapGet("/{sessionId:guid}/report", async (Guid sessionId, ISender sender) =>
+        {
+            var result = await sender.Send(new GetPackageAnalyticalReportQuery(sessionId));
+            return Results.Ok(result);
+        })
+        .WithName("GetMyPackageAnalyticalReport")
+        .WithNurseEntitlementMetadata<PackageAnalyticalReportDto>(
+            "Get my package analytical report",
+            "Gets or lazily generates the analytical report for one owned finalized package exam session.",
             includeNotFound: true,
             includeConflict: true)
         .RequireAuthorization();

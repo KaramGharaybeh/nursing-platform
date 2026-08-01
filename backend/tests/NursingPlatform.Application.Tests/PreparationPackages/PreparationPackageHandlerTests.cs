@@ -154,6 +154,89 @@ public class PreparationPackageHandlerTests
     }
 
     [Fact]
+    public async Task Handle_CreateMaterialVersion_WhenReportingTopicIsMissing_ThrowsInvalidOperationException()
+    {
+        var material = StudyMaterial.Create("Material", "material", null);
+        var versions = new List<StudyMaterialVersion>();
+        SetupContext(materials: [material], materialVersions: versions, topics: []);
+        var handler = new CreateAdminStudyMaterialVersionCommandHandler(_contextMock.Object);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new CreateAdminStudyMaterialVersionCommand
+        {
+            StudyMaterialId = material.Id,
+            Request = new CreateAdminStudyMaterialVersionRequest
+            {
+                MaterialType = StudyMaterialType.FormattedText,
+                FormattedTextContent = "Study content",
+                ReportingTopicIds = [Guid.NewGuid()]
+            }
+        }, CancellationToken.None));
+
+        Assert.Equal("Material version topics must exist and be active.", exception.Message);
+        Assert.Empty(versions);
+        _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_UpdateMaterialVersion_WhenReportingTopicIsMissing_ThrowsInvalidOperationExceptionAndPreservesDraft()
+    {
+        var material = StudyMaterial.Create("Material", "material", null);
+        var originalTopic = ReportingTopic.Create(Guid.NewGuid(), "Original", "original", null);
+        var version = StudyMaterialVersion.CreateDraft(material.Id, StudyMaterialType.FormattedText, "Original content", null, null, null, [originalTopic.Id]);
+        SetupContext(materials: [material], materialVersions: [version], topics: [originalTopic]);
+        var handler = new UpdateAdminStudyMaterialVersionCommandHandler(_contextMock.Object);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new UpdateAdminStudyMaterialVersionCommand
+        {
+            StudyMaterialId = material.Id,
+            VersionId = version.Id,
+            Request = new UpdateAdminStudyMaterialVersionRequest
+            {
+                MaterialType = StudyMaterialType.ExternalLink,
+                ExternalUrl = "https://example.test/study",
+                ReportingTopicIds = [Guid.NewGuid()]
+            }
+        }, CancellationToken.None));
+
+        Assert.Equal("Material version topics must exist and be active.", exception.Message);
+        Assert.Equal(StudyMaterialType.FormattedText, version.MaterialType);
+        Assert.Equal("Original content", version.FormattedTextContent);
+        Assert.Null(version.ExternalUrl);
+        Assert.Equal(originalTopic.Id, Assert.Single(version.Topics).ReportingTopicId);
+        _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_CreateMaterialVersion_AfterPublishedVersionCreatesNextDraftWithoutMutatingPublishedVersion()
+    {
+        var material = StudyMaterial.Create("Material", "material", null);
+        var topic = ReportingTopic.Create(Guid.NewGuid(), "Topic", "topic", null);
+        var published = StudyMaterialVersion.CreateDraft(material.Id, StudyMaterialType.FormattedText, "Published content", null, null, null, [topic.Id]);
+        published.Publish(new DateTime(2026, 7, 27, 9, 0, 0, DateTimeKind.Utc));
+        var versions = new List<StudyMaterialVersion> { published };
+        SetupContext(materials: [material], materialVersions: versions, topics: [topic]);
+        var handler = new CreateAdminStudyMaterialVersionCommandHandler(_contextMock.Object);
+
+        var result = await handler.Handle(new CreateAdminStudyMaterialVersionCommand
+        {
+            StudyMaterialId = material.Id,
+            Request = new CreateAdminStudyMaterialVersionRequest
+            {
+                MaterialType = StudyMaterialType.ExternalLink,
+                ExternalUrl = "https://example.test/revision",
+                ReportingTopicIds = [topic.Id]
+            }
+        }, CancellationToken.None);
+
+        Assert.Equal(2, result.VersionNumber);
+        Assert.Equal("Draft", result.Status);
+        Assert.Equal(PublicationStatus.Published, published.Status);
+        Assert.Equal("Published content", published.FormattedTextContent);
+        Assert.Equal(topic.Id, Assert.Single(published.Topics).ReportingTopicId);
+        Assert.Equal(2, versions.Count);
+    }
+
+    [Fact]
     public async Task Handle_PublishPracticeCollectionVersion_WhenCollectionIsEmpty_ThrowsInvalidOperationException()
     {
         var collection = PracticeCollection.Create("Practice", "practice", null);

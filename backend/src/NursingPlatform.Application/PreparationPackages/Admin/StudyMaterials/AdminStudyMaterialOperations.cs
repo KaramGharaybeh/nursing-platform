@@ -194,6 +194,7 @@ public class CreateAdminStudyMaterialVersionCommandHandler : IRequestHandler<Cre
     {
         var materialExists = await _context.StudyMaterials.AnyAsync(m => m.Id == request.StudyMaterialId, cancellationToken);
         if (!materialExists) throw new KeyNotFoundException("Study material was not found.");
+        await StudyMaterialTopicValidator.EnsureTopicsExistAndAreActiveAsync(_context, request.Request.ReportingTopicIds, cancellationToken);
         var nextVersion = await _context.StudyMaterialVersions.Where(v => v.StudyMaterialId == request.StudyMaterialId).Select(v => v.VersionNumber).DefaultIfEmpty().MaxAsync(cancellationToken) + 1;
         var version = StudyMaterialVersion.CreateDraft(request.StudyMaterialId, request.Request.MaterialType, request.Request.FormattedTextContent, request.Request.FileStorageKey, request.Request.ExternalUrl, request.Request.VideoUrl, request.Request.ReportingTopicIds, nextVersion);
         _context.StudyMaterialVersions.Add(version);
@@ -210,6 +211,7 @@ public class UpdateAdminStudyMaterialVersionCommandHandler : IRequestHandler<Upd
     {
         var version = await _context.StudyMaterialVersions.FirstOrDefaultAsync(v => v.Id == request.VersionId && v.StudyMaterialId == request.StudyMaterialId, cancellationToken)
             ?? throw new KeyNotFoundException("Study material version was not found.");
+        await StudyMaterialTopicValidator.EnsureTopicsExistAndAreActiveAsync(_context, request.Request.ReportingTopicIds, cancellationToken);
         version.UpdateDraftContent(request.Request.MaterialType, request.Request.FormattedTextContent, request.Request.FileStorageKey, request.Request.ExternalUrl, request.Request.VideoUrl, request.Request.ReportingTopicIds);
         await _context.SaveChangesAsync(cancellationToken);
         return PreparationPackageMapping.ToStudyMaterialVersionDto(version);
@@ -231,6 +233,25 @@ public class PublishAdminStudyMaterialVersionCommandHandler : IRequestHandler<Pu
         version.Publish(DateTime.UtcNow);
         await _context.SaveChangesAsync(cancellationToken);
         return PreparationPackageMapping.ToStudyMaterialVersionDto(version);
+    }
+}
+
+internal static class StudyMaterialTopicValidator
+{
+    public static async Task EnsureTopicsExistAndAreActiveAsync(
+        IApplicationDbContext context,
+        IEnumerable<Guid> reportingTopicIds,
+        CancellationToken cancellationToken)
+    {
+        var topicIds = reportingTopicIds.Distinct().ToList();
+        var existingTopicCount = await context.ReportingTopics.CountAsync(
+            topic => topicIds.Contains(topic.Id) && topic.IsActive,
+            cancellationToken);
+
+        if (existingTopicCount != topicIds.Count)
+        {
+            throw new InvalidOperationException("Material version topics must exist and be active.");
+        }
     }
 }
 

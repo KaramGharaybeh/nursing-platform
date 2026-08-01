@@ -88,6 +88,49 @@ public sealed class PackageAnalyticalReportPersistencePostgreSqlTests : IAsyncLi
         Assert.True(duplicateContext.IsUniquePackageAnalyticalReportSessionViolation(exception));
     }
 
+    [Fact]
+    public async Task PackageAnalyticalReportPersistence_WhenConcurrentFirstRequests_RecoversToOneExpiredPackageReportWithoutConsumingRight()
+    {
+        if (ShouldSkipPostgreSqlTest())
+        {
+            return;
+        }
+
+        var seed = await SeedReportPrerequisitesAsync(expiredEntitlement: true);
+
+        var firstRequest = PersistOrRecoverReportAsync(seed, DateTime.UtcNow);
+        var secondRequest = PersistOrRecoverReportAsync(seed, DateTime.UtcNow.AddMilliseconds(1));
+        var reports = await Task.WhenAll(firstRequest, secondRequest);
+
+        await using var context = CreateContext();
+        var persisted = await context.PackageAnalyticalReports
+            .AsNoTracking()
+            .Include(report => report.TopicResults)
+            .Include(report => report.GuidanceItems)
+            .SingleAsync(report => report.ExamSessionId == seed.SessionId);
+        var reportRight = await context.PackageBenefitRights.AsNoTracking()
+            .SingleAsync(right => right.PackagePurchaseEntitlementId == seed.EntitlementId
+                && right.RightType == PackageBenefitRightType.ReportEligibility);
+
+        Assert.Equal(reports[0], reports[1]);
+        Assert.Equal(persisted.Id, reports[0]);
+        Assert.True(seed.AccessEndsAt < DateTime.UtcNow);
+        Assert.Equal(1, await context.PackageAnalyticalReports.CountAsync(report => report.ExamSessionId == seed.SessionId));
+        Assert.Equal(1, await context.PackageAnalyticalReportTopicResults.CountAsync(topic => topic.PackageAnalyticalReportId == persisted.Id));
+        Assert.Equal(2, await context.PackageAnalyticalReportGuidanceItems.CountAsync(item => item.PackageAnalyticalReportId == persisted.Id));
+        var topicResult = Assert.Single(persisted.TopicResults);
+        Assert.Equal(seed.TopicId, topicResult.ReportingTopicId);
+        Assert.Equal(1, topicResult.ScoredQuestionCount);
+        Assert.Equal(1, topicResult.CorrectCount);
+        Assert.Equal(1, topicResult.EarnedPoints);
+        Assert.Equal(1, topicResult.AvailablePoints);
+        Assert.Equal(100m, topicResult.Percentage);
+        Assert.Contains(persisted.GuidanceItems, item => item.SourceType == PackageReportGuidanceSourceType.StudyMaterialVersion && item.SourceVersionId == seed.MaterialVersionId);
+        Assert.Contains(persisted.GuidanceItems, item => item.SourceType == PackageReportGuidanceSourceType.PracticeCollectionVersion && item.SourceVersionId == seed.PracticeCollectionVersionId);
+        Assert.Equal(PackageBenefitRightStatus.Dormant, reportRight.Status);
+        Assert.Null(reportRight.ConsumedAt);
+    }
+
     public async Task InitializeAsync()
     {
         if (_skip)
@@ -130,14 +173,14 @@ public sealed class PackageAnalyticalReportPersistencePostgreSqlTests : IAsyncLi
         }
     }
 
-    private async Task<ReportSeed> SeedReportPrerequisitesAsync()
+    private async Task<ReportSeed> SeedReportPrerequisitesAsync(bool expiredEntitlement = false)
     {
         if (_skip)
         {
             throw new InvalidOperationException($"Set {ConnectionStringEnvironmentVariable} to run PostgreSQL package report persistence tests.");
         }
 
-        var now = DateTime.UtcNow.AddDays(-2);
+        var now = DateTime.UtcNow.AddDays(expiredEntitlement ? -31 : -2);
         await using var context = CreateContext();
         var country = new Country { Id = Guid.NewGuid(), Name = $"Country {Guid.NewGuid():N}", Code = Guid.NewGuid().ToString("N")[..2].ToUpperInvariant() };
         var category = new ExamCategory { Id = Guid.NewGuid(), CountryId = country.Id, Name = $"Category {Guid.NewGuid():N}", Slug = Guid.NewGuid().ToString("N"), DisplayOrder = 1 };
@@ -305,6 +348,34 @@ public sealed class PackageAnalyticalReportPersistencePostgreSqlTests : IAsyncLi
         report.AddTopicResult(seed.TopicId, "Topic", null, 1, 1, 1, 1, 100m, 1);
         report.AddGuidanceItem(seed.TopicId, PackageReportGuidanceSourceType.StudyMaterialVersion, seed.MaterialVersionId, "Material", "FormattedText", 2);
         return report;
+    }
+
+    private static PackageAnalyticalReport CreateReportWithPracticeGuidance(ReportSeed seed, DateTime generatedAt)
+    {
+        var report = CreateReport(seed, generatedAt);
+        report.AddGuidanceItem(seed.TopicId, PackageReportGuidanceSourceType.PracticeCollectionVersion, seed.PracticeCollectionVersionId, "Practice", "PracticeCollectionVersion", 3);
+        return report;
+    }
+
+    private async Task<Guid> PersistOrRecoverReportAsync(ReportSeed seed, DateTime generatedAt)
+    {
+        await using var context = CreateContext();
+        var report = CreateReportWithPracticeGuidance(seed, generatedAt);
+        context.PackageAnalyticalReports.Add(report);
+
+        try
+        {
+            await context.SaveChangesAsync();
+            return report.Id;
+        }
+        catch (DbUpdateException exception) when (context.IsUniquePackageAnalyticalReportSessionViolation(exception))
+        {
+            return await context.PackageAnalyticalReports
+                .AsNoTracking()
+                .Where(existing => existing.ExamSessionId == seed.SessionId)
+                .Select(existing => existing.Id)
+                .SingleAsync();
+        }
     }
 
     private ApplicationDbContext CreateContext()

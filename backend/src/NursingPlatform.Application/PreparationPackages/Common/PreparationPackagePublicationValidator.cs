@@ -140,6 +140,21 @@ internal sealed class PreparationPackagePublicationValidator
 
         var examVersion = await _context.ExamVersions.FirstOrDefaultAsync(v => v.Id == profile.ExamVersionId, cancellationToken)
             ?? throw new KeyNotFoundException("Exam version was not found.");
+        if (examVersion.Status != ExamVersionStatus.Published)
+        {
+            throw new InvalidOperationException("Reporting profile publication requires a published exam version.");
+        }
+
+        var publishedProfileExists = await _context.ReportingProfilePublications.AnyAsync(
+            p => p.Id != profile.Id
+                && p.ExamVersionId == profile.ExamVersionId
+                && p.Status == PublicationStatus.Published,
+            cancellationToken);
+        if (publishedProfileExists)
+        {
+            throw new InvalidOperationException("A published reporting profile already exists for this exam version.");
+        }
+
         var exam = await _context.Exams.FirstOrDefaultAsync(e => e.Id == examVersion.ExamId, cancellationToken)
             ?? throw new KeyNotFoundException("Exam was not found.");
         var questionIds = await _context.ExamQuestions

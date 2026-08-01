@@ -65,6 +65,59 @@ public class PreparationPackageHandlerTests
     }
 
     [Fact]
+    public async Task Handle_PublishReportingProfile_WhenExamVersionIsNotPublished_ThrowsInvalidOperationException()
+    {
+        var exam = CreateExam();
+        var version = CreateExamVersion(exam.Id, ExamVersionStatus.Draft);
+        var question = CreateQuestion(version.Id);
+        var topic = ReportingTopic.Create(exam.ExamCategoryId!.Value, "Topic", "topic", null);
+        var profile = ReportingProfilePublication.CreateDraft(version.Id, "Profile");
+        SetupContext(exams: [exam], versions: [version], questions: [question], topics: [topic], profiles: [profile]);
+        var handler = new PublishAdminReportingProfileCommandHandler(_contextMock.Object);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new PublishAdminReportingProfileCommand
+        {
+            Id = profile.Id,
+            Request = new PublishAdminReportingProfileRequest
+            {
+                Assignments = [new ReportingProfileQuestionAssignmentRequest { ExamQuestionId = question.Id, ReportingTopicId = topic.Id }]
+            }
+        }, CancellationToken.None));
+
+        Assert.Equal("Reporting profile publication requires a published exam version.", exception.Message);
+        Assert.Equal(PublicationStatus.Draft, profile.Status);
+        Assert.Empty(profile.Assignments);
+    }
+
+    [Fact]
+    public async Task Handle_PublishReportingProfile_WhenPublishedProfileAlreadyExistsForExamVersion_ThrowsInvalidOperationException()
+    {
+        var exam = CreateExam();
+        var version = CreateExamVersion(exam.Id, ExamVersionStatus.Published);
+        var question = CreateQuestion(version.Id);
+        var topic = ReportingTopic.Create(exam.ExamCategoryId!.Value, "Topic", "topic", null);
+        var existing = ReportingProfilePublication.CreateDraft(version.Id, "Existing profile");
+        existing.AssignQuestion(question.Id, topic.Id);
+        existing.Publish(new DateTime(2026, 7, 27, 9, 0, 0, DateTimeKind.Utc));
+        var draft = ReportingProfilePublication.CreateDraft(version.Id, "Replacement profile");
+        SetupContext(exams: [exam], versions: [version], questions: [question], topics: [topic], profiles: [existing, draft]);
+        var handler = new PublishAdminReportingProfileCommandHandler(_contextMock.Object);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new PublishAdminReportingProfileCommand
+        {
+            Id = draft.Id,
+            Request = new PublishAdminReportingProfileRequest
+            {
+                Assignments = [new ReportingProfileQuestionAssignmentRequest { ExamQuestionId = question.Id, ReportingTopicId = topic.Id }]
+            }
+        }, CancellationToken.None));
+
+        Assert.Equal("A published reporting profile already exists for this exam version.", exception.Message);
+        Assert.Equal(PublicationStatus.Draft, draft.Status);
+        Assert.Empty(draft.Assignments);
+    }
+
+    [Fact]
     public async Task Handle_PublishReportingProfile_WhenTopicCategoryMismatch_ThrowsInvalidOperationException()
     {
         var exam = CreateExam();

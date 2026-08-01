@@ -252,6 +252,137 @@ public class PreparationPackageHandlerTests
     }
 
     [Fact]
+    public async Task Handle_CreatePracticeCollectionVersion_WhenReportingTopicIsMissing_ThrowsInvalidOperationException()
+    {
+        var collection = PracticeCollection.Create("Practice", "practice", null);
+        var versions = new List<PracticeCollectionVersion>();
+        SetupContext(practiceCollections: [collection], practiceVersions: versions, topics: []);
+        var handler = new CreateAdminPracticeCollectionVersionCommandHandler(_contextMock.Object);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new CreateAdminPracticeCollectionVersionCommand
+        {
+            PracticeCollectionId = collection.Id,
+            Request = new CreateAdminPracticeCollectionVersionRequest
+            {
+                Items =
+                [
+                    new UpsertAdminPracticeItemRequest
+                    {
+                        ReportingTopicId = Guid.NewGuid(),
+                        Prompt = "Independent practice prompt",
+                        ImmediateFeedback = "Independent practice feedback",
+                        DisplayOrder = 1,
+                        AnswerOptions =
+                        [
+                            new UpsertAdminPracticeAnswerOptionRequest { OptionText = "Correct", IsCorrect = true, DisplayOrder = 1 },
+                            new UpsertAdminPracticeAnswerOptionRequest { OptionText = "Incorrect", IsCorrect = false, DisplayOrder = 2 }
+                        ]
+                    }
+                ]
+            }
+        }, CancellationToken.None));
+
+        Assert.Equal("Practice item topics must exist and be active.", exception.Message);
+        Assert.Empty(versions);
+        _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_UpdatePracticeCollectionVersion_WhenReportingTopicIsInactive_ThrowsInvalidOperationExceptionAndPreservesDraft()
+    {
+        var collection = PracticeCollection.Create("Practice", "practice", null);
+        var originalTopic = ReportingTopic.Create(Guid.NewGuid(), "Original", "original", null);
+        var inactiveTopic = ReportingTopic.Create(originalTopic.ExamCategoryId, "Inactive", "inactive", null);
+        inactiveTopic.Archive();
+        var version = PracticeCollectionVersion.CreateDraft(collection.Id, 1);
+        var original = PracticeItem.Create(originalTopic.Id, "Original prompt", "Original feedback", 1);
+        original.AddAnswerOption("A", true, 1);
+        original.AddAnswerOption("B", false, 2);
+        version.AddPracticeItem(original);
+        SetupContext(topics: [originalTopic, inactiveTopic], practiceCollections: [collection], practiceVersions: [version]);
+        var handler = new UpdateAdminPracticeCollectionVersionCommandHandler(_contextMock.Object);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new UpdateAdminPracticeCollectionVersionCommand
+        {
+            PracticeCollectionId = collection.Id,
+            VersionId = version.Id,
+            Request = new UpdateAdminPracticeCollectionVersionRequest
+            {
+                Items =
+                [
+                    new UpsertAdminPracticeItemRequest
+                    {
+                        ReportingTopicId = inactiveTopic.Id,
+                        Prompt = "Replacement prompt",
+                        ImmediateFeedback = "Replacement feedback",
+                        DisplayOrder = 1,
+                        AnswerOptions =
+                        [
+                            new UpsertAdminPracticeAnswerOptionRequest { OptionText = "Correct", IsCorrect = true, DisplayOrder = 1 },
+                            new UpsertAdminPracticeAnswerOptionRequest { OptionText = "Incorrect", IsCorrect = false, DisplayOrder = 2 }
+                        ]
+                    }
+                ]
+            }
+        }, CancellationToken.None));
+
+        Assert.Equal("Practice item topics must exist and be active.", exception.Message);
+        var item = Assert.Single(version.Items);
+        Assert.Equal(originalTopic.Id, item.ReportingTopicId);
+        Assert.Equal("Original prompt", item.Prompt);
+        Assert.Equal("Original feedback", item.ImmediateFeedback);
+        _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_CreatePracticeCollectionVersion_AfterPublishedVersionCreatesNextDraftWithoutMutatingPublishedVersion()
+    {
+        var collection = PracticeCollection.Create("Practice", "practice", null);
+        var topic = ReportingTopic.Create(Guid.NewGuid(), "Topic", "topic", null);
+        var published = PracticeCollectionVersion.CreateDraft(collection.Id, 1);
+        var publishedItem = PracticeItem.Create(topic.Id, "Published prompt", "Published feedback", 1);
+        publishedItem.AddAnswerOption("Published correct", true, 1);
+        publishedItem.AddAnswerOption("Published incorrect", false, 2);
+        published.AddPracticeItem(publishedItem);
+        published.Publish(new DateTime(2026, 7, 27, 9, 0, 0, DateTimeKind.Utc));
+        var versions = new List<PracticeCollectionVersion> { published };
+        SetupContext(topics: [topic], practiceCollections: [collection], practiceVersions: versions);
+        var handler = new CreateAdminPracticeCollectionVersionCommandHandler(_contextMock.Object);
+
+        var result = await handler.Handle(new CreateAdminPracticeCollectionVersionCommand
+        {
+            PracticeCollectionId = collection.Id,
+            Request = new CreateAdminPracticeCollectionVersionRequest
+            {
+                Items =
+                [
+                    new UpsertAdminPracticeItemRequest
+                    {
+                        ReportingTopicId = topic.Id,
+                        Prompt = "Revision prompt",
+                        ImmediateFeedback = "Revision feedback",
+                        DisplayOrder = 1,
+                        AnswerOptions =
+                        [
+                            new UpsertAdminPracticeAnswerOptionRequest { OptionText = "Revision correct", IsCorrect = true, DisplayOrder = 1 },
+                            new UpsertAdminPracticeAnswerOptionRequest { OptionText = "Revision incorrect", IsCorrect = false, DisplayOrder = 2 }
+                        ]
+                    }
+                ]
+            }
+        }, CancellationToken.None);
+
+        Assert.Equal(2, result.VersionNumber);
+        Assert.Equal("Draft", result.Status);
+        Assert.Equal(PublicationStatus.Published, published.Status);
+        var unchangedItem = Assert.Single(published.Items);
+        Assert.Equal(topic.Id, unchangedItem.ReportingTopicId);
+        Assert.Equal("Published prompt", unchangedItem.Prompt);
+        Assert.Equal("Published feedback", unchangedItem.ImmediateFeedback);
+        Assert.Equal(2, versions.Count);
+    }
+
+    [Fact]
     public async Task Handle_UpdatePracticeCollectionVersion_WhenDraft_ReplacesPracticeItems()
     {
         var collection = PracticeCollection.Create("Practice", "practice", null);

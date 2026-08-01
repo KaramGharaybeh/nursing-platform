@@ -195,6 +195,7 @@ public class CreateAdminPracticeCollectionVersionCommandHandler : IRequestHandle
     {
         var collectionExists = await _context.PracticeCollections.AnyAsync(c => c.Id == request.PracticeCollectionId, cancellationToken);
         if (!collectionExists) throw new KeyNotFoundException("Practice collection was not found.");
+        await PracticeItemTopicValidator.EnsureTopicsExistAndAreActiveAsync(_context, request.Request.Items.Select(item => item.ReportingTopicId), cancellationToken);
         var nextVersion = await _context.PracticeCollectionVersions.Where(v => v.PracticeCollectionId == request.PracticeCollectionId).Select(v => v.VersionNumber).DefaultIfEmpty().MaxAsync(cancellationToken) + 1;
         var version = PracticeCollectionVersion.CreateDraft(request.PracticeCollectionId, nextVersion);
         AddPracticeItems(version, request.Request.Items);
@@ -226,11 +227,31 @@ public class UpdateAdminPracticeCollectionVersionCommandHandler : IRequestHandle
     {
         var version = await _context.PracticeCollectionVersions.FirstOrDefaultAsync(v => v.Id == request.VersionId && v.PracticeCollectionId == request.PracticeCollectionId, cancellationToken)
             ?? throw new KeyNotFoundException("Practice collection version was not found.");
+        await PracticeItemTopicValidator.EnsureTopicsExistAndAreActiveAsync(_context, request.Request.Items.Select(item => item.ReportingTopicId), cancellationToken);
         var replacement = PracticeCollectionVersion.CreateDraft(version.PracticeCollectionId, version.VersionNumber);
         CreateAdminPracticeCollectionVersionCommandHandler.AddPracticeItems(replacement, request.Request.Items);
         version.ReplaceDraftItems(replacement.Items);
         await _context.SaveChangesAsync(cancellationToken);
         return PreparationPackageMapping.ToPracticeCollectionVersionDto(version);
+    }
+}
+
+internal static class PracticeItemTopicValidator
+{
+    public static async Task EnsureTopicsExistAndAreActiveAsync(
+        IApplicationDbContext context,
+        IEnumerable<Guid> reportingTopicIds,
+        CancellationToken cancellationToken)
+    {
+        var topicIds = reportingTopicIds.Distinct().ToList();
+        var existingTopicCount = await context.ReportingTopics.CountAsync(
+            topic => topicIds.Contains(topic.Id) && topic.IsActive,
+            cancellationToken);
+
+        if (existingTopicCount != topicIds.Count)
+        {
+            throw new InvalidOperationException("Practice item topics must exist and be active.");
+        }
     }
 }
 

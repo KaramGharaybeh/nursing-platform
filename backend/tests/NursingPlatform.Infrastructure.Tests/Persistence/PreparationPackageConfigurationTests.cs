@@ -229,6 +229,55 @@ public class PreparationPackageConfigurationTests
     }
 
     [Fact]
+    public void PracticeItemAndAnswerOptionConfiguration_DoNotReferenceOfficialExamContentOrSessions()
+    {
+        var context = CreateDbContext();
+        var practiceItemEntity = context.Model.FindEntityType(typeof(PracticeItem))!;
+        var practiceAnswerOptionEntity = context.Model.FindEntityType(typeof(PracticeAnswerOption))!;
+
+        var forbiddenPropertyNames = new[]
+        {
+            "ExamQuestionId",
+            "ExamAnswerOptionId",
+            "ExamSessionId",
+            "QuestionTextSnapshot",
+            "OptionTextSnapshot",
+            "ExplanationSnapshot"
+        };
+
+        var propertyNames = practiceItemEntity.GetProperties()
+            .Concat(practiceAnswerOptionEntity.GetProperties())
+            .Select(property => property.Name)
+            .ToList();
+
+        Assert.All(propertyNames, propertyName =>
+        {
+            Assert.DoesNotContain(forbiddenPropertyNames, forbidden =>
+                propertyName.Contains(forbidden, StringComparison.OrdinalIgnoreCase));
+        });
+
+        var forbiddenPrincipalNames = new[]
+        {
+            "ExamQuestion",
+            "ExamAnswerOption",
+            "ExamSession",
+            "ExamSessionQuestion",
+            "ExamSessionAnswerOption"
+        };
+
+        var principalNames = practiceItemEntity.GetForeignKeys()
+            .Concat(practiceAnswerOptionEntity.GetForeignKeys())
+            .Select(foreignKey => foreignKey.PrincipalEntityType.ClrType.Name)
+            .ToList();
+
+        Assert.All(principalNames, principalName =>
+        {
+            Assert.DoesNotContain(forbiddenPrincipalNames, forbidden =>
+                principalName.Equals(forbidden, StringComparison.OrdinalIgnoreCase));
+        });
+    }
+
+    [Fact]
     public void PackageAnalyticalReportConfiguration_ConfiguresRequiredSnapshotFieldsAndPrecision()
     {
         var reportEntity = CreateDbContext().Model.FindEntityType(typeof(PackageAnalyticalReport))!;

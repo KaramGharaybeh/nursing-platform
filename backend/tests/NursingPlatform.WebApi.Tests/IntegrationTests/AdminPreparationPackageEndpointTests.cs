@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using MediatR;
 using Moq;
 using NursingPlatform.Application.Authorization;
@@ -10,6 +11,7 @@ using NursingPlatform.Application.Exams.Queries.ListExams;
 using NursingPlatform.Application.Common.Models;
 using NursingPlatform.Application.PreparationPackages.Admin.PackageOffers;
 using NursingPlatform.Application.PreparationPackages.Admin.PackageVersions;
+using NursingPlatform.Application.PreparationPackages.Admin.PracticeCollections;
 using NursingPlatform.Application.PreparationPackages.Admin.ReportingTopics;
 using NursingPlatform.Application.PreparationPackages.DTOs;
 
@@ -136,6 +138,81 @@ public class AdminPreparationPackageEndpointTests
         var okResponse = await _client.PostAsync($"/api/v1/admin/preparation-package/offers/{offerId}/activate", null);
 
         Assert.Equal(HttpStatusCode.OK, okResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminPracticeCollectionVersionCreate_DoesNotExposeOfficialExamIdentifiersOrSnapshotsInJson()
+    {
+        AuthorizeWith(Permissions.PracticeCollections.Manage);
+        var collectionId = Guid.NewGuid();
+        var versionId = Guid.NewGuid();
+        var topicId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<CreateAdminPracticeCollectionVersionCommand>(c => c.PracticeCollectionId == collectionId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AdminPracticeCollectionVersionDto
+            {
+                Id = versionId,
+                PracticeCollectionId = collectionId,
+                VersionNumber = 1,
+                Status = "Draft",
+                Items =
+                [
+                    new AdminPracticeItemDto
+                    {
+                        Id = Guid.NewGuid(),
+                        ReportingTopicId = topicId,
+                        Prompt = "Independent practice prompt",
+                        ImmediateFeedback = "Independent practice feedback",
+                        DisplayOrder = 1,
+                        Options =
+                        [
+                            new AdminPracticeAnswerOptionDto { Id = Guid.NewGuid(), OptionText = "Practice option A", DisplayOrder = 1, IsCorrect = true },
+                            new AdminPracticeAnswerOptionDto { Id = Guid.NewGuid(), OptionText = "Practice option B", DisplayOrder = 2, IsCorrect = false }
+                        ]
+                    }
+                ]
+            });
+
+        var response = await _client.PostAsJsonAsync($"/api/v1/admin/preparation-package/practice-collections/{collectionId}/versions", new
+        {
+            items = new[]
+            {
+                new
+                {
+                    reportingTopicId = topicId,
+                    prompt = "Independent practice prompt",
+                    immediateFeedback = "Independent practice feedback",
+                    displayOrder = 1,
+                    answerOptions = new[]
+                    {
+                        new { optionText = "Practice option A", isCorrect = true, displayOrder = 1 },
+                        new { optionText = "Practice option B", isCorrect = false, displayOrder = 2 }
+                    }
+                }
+            }
+        });
+
+        var json = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.DoesNotContain("examQuestionId", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("examAnswerOptionId", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("examSessionId", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("questionTextSnapshot", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("optionTextSnapshot", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("explanationSnapshot", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("answerKey", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("rationale", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("correctAnswer", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("correctOption", json, StringComparison.OrdinalIgnoreCase);
+
+        var body = JsonSerializer.Deserialize<AdminPracticeCollectionVersionDto>(
+            json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        Assert.NotNull(body);
+        Assert.Equal(versionId, body.Id);
+        Assert.Equal(topicId, Assert.Single(body.Items).ReportingTopicId);
     }
 
     [Theory]

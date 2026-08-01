@@ -1,4 +1,5 @@
 using System.Reflection;
+using NursingPlatform.Application.PreparationPackages.Admin.PracticeCollections;
 using NursingPlatform.Application.PreparationPackages.DTOs;
 
 namespace NursingPlatform.Application.Tests.PreparationPackages;
@@ -120,6 +121,41 @@ public class PreparationPackageDtoSecurityTests
         };
 
         Assert.All(reportDtoTypes.SelectMany(GetPublicPropertyNames), propertyName =>
+        {
+            Assert.DoesNotContain(forbiddenTerms, term =>
+                propertyName.Contains(term, StringComparison.OrdinalIgnoreCase));
+        });
+    }
+
+    [Fact]
+    public void PracticeItemAuthoringContractsAndDtos_ShouldNotExposeOfficialExamIdentifiersOrSnapshots()
+    {
+        var practiceContractTypes = new[]
+        {
+            typeof(CreateAdminPracticeCollectionVersionRequest),
+            typeof(UpdateAdminPracticeCollectionVersionRequest),
+            typeof(UpsertAdminPracticeItemRequest),
+            typeof(UpsertAdminPracticeAnswerOptionRequest),
+            typeof(AdminPracticeCollectionVersionDto),
+            typeof(AdminPracticeItemDto),
+            typeof(AdminPracticeAnswerOptionDto)
+        };
+
+        var forbiddenTerms = new[]
+        {
+            "ExamQuestionId",
+            "ExamAnswerOptionId",
+            "ExamSessionId",
+            "QuestionTextSnapshot",
+            "OptionTextSnapshot",
+            "ExplanationSnapshot",
+            "AnswerKey",
+            "Rationale",
+            "CorrectAnswer",
+            "CorrectOption"
+        };
+
+        Assert.All(practiceContractTypes.SelectMany(GetPublicPropertyNames), propertyName =>
         {
             Assert.DoesNotContain(forbiddenTerms, term =>
                 propertyName.Contains(term, StringComparison.OrdinalIgnoreCase));

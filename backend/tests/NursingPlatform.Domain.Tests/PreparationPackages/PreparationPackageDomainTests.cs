@@ -1,3 +1,4 @@
+using System.Reflection;
 using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.Domain.Tests.PreparationPackages;
@@ -316,6 +317,34 @@ public class PreparationPackageDomainTests
         version.AddPracticeItem(item);
 
         Assert.Throws<InvalidOperationException>(() => version.Publish(new DateTime(2026, 7, 27, 9, 0, 0, DateTimeKind.Utc)));
+    }
+
+    [Fact]
+    public void PracticeItemAndAnswerOption_DoNotExposeOfficialExamIdentifiersOrSnapshots()
+    {
+        var forbiddenTerms = new[]
+        {
+            "ExamQuestionId",
+            "ExamAnswerOptionId",
+            "ExamSessionId",
+            "QuestionTextSnapshot",
+            "OptionTextSnapshot",
+            "ExplanationSnapshot"
+        };
+
+        var exposedNames = new[] { typeof(PracticeItem), typeof(PracticeAnswerOption) }
+            .SelectMany(type => type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Select(property => property.Name)
+                .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Select(field => field.Name))
+                .Concat(type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                    .SelectMany(method => method.GetParameters().Select(parameter => parameter.Name ?? string.Empty))))
+            .ToList();
+
+        Assert.All(exposedNames, name =>
+        {
+            Assert.DoesNotContain(forbiddenTerms, term =>
+                name.Contains(term, StringComparison.OrdinalIgnoreCase));
+        });
     }
 
     [Theory]

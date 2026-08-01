@@ -207,6 +207,23 @@ public class PreparationPackageDomainTests
     }
 
     [Fact]
+    public void ReportingTopic_Update_WithDifferentExamCategory_ThrowsInvalidOperationException()
+    {
+        var originalCategoryId = Guid.NewGuid();
+        var otherCategoryId = Guid.NewGuid();
+        var topic = ReportingTopic.Create(originalCategoryId, "Pharmacology", "pharmacology", "Initial");
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            topic.Update(otherCategoryId, "Updated Pharmacology", "updated-pharmacology", "Updated"));
+
+        Assert.Equal("Reporting topic exam category cannot be changed.", exception.Message);
+        Assert.Equal(originalCategoryId, topic.ExamCategoryId);
+        Assert.Equal("Pharmacology", topic.Name);
+        Assert.Equal("pharmacology", topic.Slug);
+        Assert.Equal("Initial", topic.Description);
+    }
+
+    [Fact]
     public void PreparationPackageDefinition_Update_ChangesEditableCatalogFieldsAndPreservesIdentity()
     {
         var countryId = Guid.NewGuid();

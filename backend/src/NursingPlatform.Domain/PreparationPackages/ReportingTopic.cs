@@ -40,7 +40,11 @@ public class ReportingTopic : AuditableEntity
             throw new InvalidOperationException("examCategoryId is required.");
         }
 
-        ExamCategoryId = examCategoryId;
+        if (examCategoryId != ExamCategoryId)
+        {
+            throw new InvalidOperationException("Reporting topic exam category cannot be changed.");
+        }
+
         Name = NormalizeRequired(name, nameof(name));
         Slug = NormalizeRequired(slug, nameof(slug));
         Description = NormalizeOptional(description);

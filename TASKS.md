@@ -276,15 +276,15 @@ Existing standalone paid-exam, free-exam, and grant-authorized exam session beha
 
 - [x] Umbrella architecture-decisions draft created
 - [x] Umbrella architecture-decisions specification reviewed and approved
-- [ ] Stage 1 — Content, Package Catalog, and Reporting Profile staged specification
+- [x] Stage 1 — Content, Package Catalog, and Reporting Profile staged specification
 - [x] Stage 2 — Commerce, Fulfillment, Entitlements, and Benefit Rights staged specification
 - [x] Stage 3 — Package-Attempt Authorization, Session Provenance, Concurrency, and Legacy Compatibility staged specification
 - [x] Stage 4 — Analytical-Report Generation and Access staged specification
 
 ## Stage 1 — Content, Package Catalog, and Reporting Profile
 
-- [ ] Stage 1 staged specification reviewed and approved
-- [ ] Stage 1 implementation plan reviewed and approved
+- [x] Stage 1 staged specification reviewed and approved
+- [x] Stage 1 implementation plan reviewed and approved
 - [ ] Reporting-topic taxonomy authoring/publication rules: every Reporting Topic belongs to exactly one existing ExamCategory and inherits country scope through it; no global, exam-specific, cross-category, separate-skill, or separate-difficulty taxonomy in v1; difficulty-based report analysis remains outside v1
 - [ ] Separate immutable reporting-profile publication bound to one exact published exam version
 - [ ] Managed study-material authoring and immutable published versions (including material-version-to-Reporting-Topic mapping)

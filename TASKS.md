@@ -268,7 +268,7 @@ The numbered phases remain historically accurate. The Preparation Package Workst
 
 # Preparation Package Workstream (Planned)
 
-This workstream introduces the paid preparation package product described in `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md`. It is an explicitly authorized additive workstream. Starting it does not mark, skip, or complete Phases 9–11. Stage 2 backend capabilities are complete through package offer payment order creation, Sandbox package completion, purchased-offer snapshots, package purchase entitlements, and benefit-right authorization/read models. Stage 3 backend capabilities are complete through package-attempt exam start, session provenance, atomic attempt consumption, PostgreSQL concurrency/idempotency coverage, WebApi endpoint coverage, and compatibility/scope guards. Stage 4 order remains mandatory; no later stage may start before Stage 4 is specified, planned, implemented, verified, and approved. Each remaining stage requires a separately reviewed staged specification and implementation plan before implementation begins.
+This workstream introduces the paid preparation package product described in `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md`. It is an explicitly authorized additive workstream. Starting it does not mark, skip, or complete Phases 9–11. Stage 2 backend capabilities are complete through package offer payment order creation, Sandbox package completion, purchased-offer snapshots, package purchase entitlements, and benefit-right authorization/read models. Stage 3 backend capabilities are complete through package-attempt exam start, session provenance, atomic attempt consumption, PostgreSQL concurrency/idempotency coverage, WebApi endpoint coverage, and compatibility/scope guards. Stage 4 backend capabilities are complete through lazy/on-demand package analytical report generation, direct nurse-owned report access, report persistence/idempotency/concurrency recovery, purchased-content guidance references, and security/scope guards. Each remaining stage requires a separately reviewed staged specification and implementation plan before implementation begins.
 
 Existing standalone paid-exam, free-exam, and grant-authorized exam session behavior must be preserved throughout this workstream.
 
@@ -279,7 +279,7 @@ Existing standalone paid-exam, free-exam, and grant-authorized exam session beha
 - [ ] Stage 1 — Content, Package Catalog, and Reporting Profile staged specification
 - [x] Stage 2 — Commerce, Fulfillment, Entitlements, and Benefit Rights staged specification
 - [x] Stage 3 — Package-Attempt Authorization, Session Provenance, Concurrency, and Legacy Compatibility staged specification
-- [ ] Stage 4 — Analytical-Report Generation and Access staged specification
+- [x] Stage 4 — Analytical-Report Generation and Access staged specification
 
 ## Stage 1 — Content, Package Catalog, and Reporting Profile
 
@@ -339,7 +339,7 @@ Existing standalone paid-exam, free-exam, and grant-authorized exam session beha
 
 Stage 2 remains bounded to package fulfillment and entitlement/read-model behavior. Package exam start, package attempt consumption, exam session provenance, report generation/access, workspace runtime, and employer package data remain deferred to later approved stages.
 
-Stage 3 is complete. Next recommended work is Stage 4 planning/review only. Stage 4 implementation must not begin until its staged specification and implementation plan are explicitly reviewed and approved.
+Stage 3 is complete. Stage 4 is also complete through package analytical report generation and direct access. Remaining non-Stage-4 work stays deferred until separately specified, planned, approved, implemented, and verified.
 
 ## Stage 3 — Package-Attempt Authorization, Session Provenance, Concurrency, Legacy Compatibility
 
@@ -365,22 +365,26 @@ Stage 3 is complete. Next recommended work is Stage 4 planning/review only. Stag
 
 Stage 3 final verification: Domain filtered 21/21 passed; Application filtered 97/97 passed; WebApi filtered 35/35 passed; Infrastructure filtered 15/15 passed with local PostgreSQL; build succeeded with 0 warnings and 0 errors; EF reported no pending model changes; final idempotent migration script generated at `/tmp/opencode/preparation-package-stage3-final.sql` with size 100156 bytes; `git diff --check` was clean. Stage 3 did not implement report generation/access, workspace/dashboard, employer package behavior, or frontend/design work.
 
-Next recommended work is Stage 4 planning/review only. Stage 4 package report generation/recovery/access/guidance implementation must not begin until its staged specification and implementation plan are explicitly reviewed and approved.
+Stage 4 package report generation/recovery/access/guidance implementation is complete through the reviewed Stage 4 slices. Remaining non-Stage-4 work stays deferred until separately specified, planned, approved, implemented, and verified.
 
 ## Stage 4 — Analytical-Report Generation and Access
 
-- [ ] Stage 4 staged specification reviewed and approved
-- [ ] Stage 4 implementation plan reviewed and approved
-- [ ] Submitted and automatically finalized/scored package sessions qualify for the report; abandoned sessions do not qualify
-- [ ] Report benefit right exists after fulfillment but remains dormant until a qualifying package session exists
-- [ ] Immutable analytical-report snapshot captures package-purchase/session provenance, scored topic results, classification labels, and mapped purchased material/practice content
-- [ ] Generation recovery and retry (report-generation failure does not invalidate scoring, does not permanently consume the report right, and does not require an exam retake)
-- [ ] Insufficient topic evidence may be displayed but must not receive a confident weak/neutral/strong classification
-- [ ] Report persistence after entitlement expiry (nurse-owned, remains readable)
-- [ ] Nurse-owned report access only in v1; admin report access is deferred
-- [ ] Deterministic guidance presentation restricted to the material versions and Practice Collection version included in the purchased Package Version (no question text, correct-answer identifiers, protected options, rationales, or per-question exam review exposed; deterministic, not an AI recommendation)
-- [ ] Stage 4 migration
-- [ ] Stage 4 tests
+- [x] Stage 4 staged specification reviewed and approved
+- [x] Stage 4 implementation plan reviewed and approved
+- [x] Submitted and automatically finalized/scored package sessions qualify for the report; abandoned sessions do not qualify
+- [x] Report benefit right exists after fulfillment and remains dormant/unconsumed in v1 while qualifying package sessions can generate/read reports
+- [x] Immutable analytical-report snapshot captures package-purchase/session provenance, scored topic results, and mapped purchased material/practice content without performance bands or labels
+- [x] Generation recovery and retry (report-generation failure does not invalidate scoring, does not permanently consume the report right, and does not require an exam retake)
+- [x] Performance bands, labels, and weak/neutral/strong classifications remain deferred in v1; reports return counts and percentages only
+- [x] Report persistence after entitlement expiry (nurse-owned, remains readable)
+- [x] Nurse-owned report access only in v1; admin report access is deferred
+- [x] Deterministic guidance presentation restricted to the material versions and Practice Collection version included in the purchased Package Version (no question text, correct-answer identifiers, protected options, rationales, or per-question exam review exposed; deterministic, not an AI recommendation)
+- [x] Stage 4 migration
+- [x] Stage 4 tests
+
+Stage 4 completed commits: `b1a9c5b`, `3a8b84d`, `32451ec`, `12d247d`, `3058604`.
+
+Stage 4 final verification: WebApi package report tests passed; broader WebApi package tests passed; Application package/session tests passed; Infrastructure package report/configuration tests passed; PostgreSQL package report/concurrency tests passed; Domain report/right/session/provenance tests passed; build succeeded with 0 warnings and 0 errors; EF reported no pending model changes; final idempotent migration script generated successfully; `git diff --check` was clean. Stage 4 did not implement a report list endpoint, frontend/design work, workspace/dashboard runtime, employer report visibility, admin report access, AI guidance, performance bands/labels/classifications, or protected question/answer/correct option/rationale/key exposure.
 
 ## Launch-Readiness Configuration
 

@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 3 Package Exam Attempt Sessions Complete
+Preparation Package — Stage 4 Package Analytical Reports Complete
 
 Status:
-Preparation Package Stage 3 — Package Exam Attempt Sessions is implemented, verified, and stopped for review. Stage 3 adds package-specific exam start, atomic attempt consumption, immutable exam-session source/provenance, deterministic idempotency/conflict behavior, and compatibility/scope guards while preserving existing free and standalone paid-exam behavior.
+Preparation Package Stage 4 — Package Analytical Reports is implemented, verified, and stopped for review. Stage 4 adds lazy/on-demand direct nurse-owned package analytical report generation and access for finalized package attempt sessions while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, and exam analytics behavior.
 
-Stage 3 verification completed on branch `feature/preparation-package-foundation` at `11d340b test: guard exam session source compatibility`. Task 8 was verification/status-update only and produced no commit.
+Stage 4 implementation completed on branch `feature/preparation-package-foundation` through commits `b1a9c5b`, `3a8b84d`, `32451ec`, `12d247d`, and `3058604`. Slice 7 is documentation/status finalization only and does not authorize runtime changes.
 
 ---
 
@@ -61,9 +61,36 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Stage 3 completion status update. Stage 3 implementation and verification are complete; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or Stage 4 work is authorized by this update.
+The current authorized task is the documentation-only Stage 4 completion status update. Stage 4 implementation and verification are complete; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
-Known unrelated frontend/design worktree changes remain preserved and outside this backend Stage 3 completion update.
+Known unrelated frontend/design worktree changes remain preserved and outside this backend Stage 4 completion update.
+
+### Stage 4 Implementation Status
+
+Stage 4 — Package Analytical Reports is complete through seven slices:
+
+- Slice 1 — domain report snapshot model and domain tests.
+- Slice 2 — Application DTO, security, and behavior contracts.
+- Slice 3 — Application lazy generation/direct access workflow.
+- Slice 4 — persistence configuration, EF migration, and configuration tests.
+- Slice 5 — WebApi direct nurse-owned report endpoint and integration tests.
+- Slice 6 — PostgreSQL concurrency/recovery verification.
+- Slice 7 — final verification and Stage 4 completion status update.
+
+Implemented Stage 4 capabilities:
+
+- Lazy/on-demand package analytical report generation.
+- Direct nurse-owned endpoint: `GET /api/v1/me/nurse-profile/preparation-packages/exam-sessions/{sessionId}/report`.
+- No report list endpoint in v1.
+- Report generation only for finalized package attempt sessions.
+- Existing reports are returned idempotently.
+- Concurrent first requests converge to one report.
+- Reports remain accessible after package entitlement expiry.
+- Report evidence comes from exam session snapshots only.
+- Practice progress is excluded from report evidence.
+- Guidance references purchased study material versions and the purchased practice collection version.
+- The report right remains dormant/unconsumed in v1.
+- No protected question, answer, correct option, rationale, answer key, provider secret, token, password hash, internal authorization state, or internal benefit-right id exposure.
 
 ### Stage 3 Implementation Status
 
@@ -165,6 +192,11 @@ Next recommended work is Stage 3 planning/review only. Stage 3 implementation is
 - [x] Preparation Package Stage 3 package exam-session WebApi endpoint.
 - [x] Preparation Package Stage 3 PostgreSQL concurrency/idempotency coverage.
 - [x] Preparation Package Stage 3 compatibility and scope guards.
+- [x] Preparation Package Stage 4 package analytical report domain model.
+- [x] Preparation Package Stage 4 lazy/on-demand report generation workflow.
+- [x] Preparation Package Stage 4 report persistence and uniqueness protection.
+- [x] Preparation Package Stage 4 direct nurse-owned report endpoint.
+- [x] Preparation Package Stage 4 PostgreSQL concurrency/recovery coverage.
 
 ---
 
@@ -215,6 +247,22 @@ The following snapshot records the final Stage 3 Task 8 verification evidence:
 - Sensitive/internal-field grep: matches are existing auth/payment/security code/tests and package endpoint negative forbidden-pattern assertions; Stage 3 public DTOs do not expose package benefit right ids or provenance internals.
 - Worktree: only known unrelated frontend/design changes plus this Stage 3 status update remained after verification.
 
+## Stage 4 Final Verification Snapshot
+
+The following snapshot records the final Stage 4 Slice 7 verification evidence:
+
+- WebApi package report tests: passed.
+- Broader WebApi package tests: passed.
+- Application package/session tests: passed.
+- Infrastructure package report/configuration tests: passed.
+- PostgreSQL package report/concurrency tests: passed.
+- Domain report/right/session/provenance tests: passed.
+- Build: 0 warnings, 0 errors.
+- EF: no pending model changes. The known design-time `HostAbortedException` may appear when EF still completes the intended check with `No changes have been made to the model since the last migration.`
+- Final idempotent migration script generated successfully.
+- `git diff --check`: clean.
+- Worktree: only known unrelated frontend/design changes plus this Stage 4 status update remained after verification.
+
 ---
 
 ## Deferred Work
@@ -227,7 +275,6 @@ The following work remains deferred relative to the baseline. Do not mark these 
 - Production-grade object storage.
 - Operational/production hardening.
 - Frontend implementation.
-- Preparation Package Stage 4 report generation and report access.
 - Preparation Package workspace runtime.
 - Employer package purchase/report/practice-progress data.
 

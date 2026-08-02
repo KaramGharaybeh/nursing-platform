@@ -51,6 +51,8 @@ public interface IApplicationDbContext
     DbSet<PackageOrderItemSnapshot> PackageOrderItemSnapshots { get; }
     DbSet<PackagePurchaseEntitlement> PackagePurchaseEntitlements { get; }
     DbSet<PackageBenefitRight> PackageBenefitRights { get; }
+    DbSet<PackagePracticeProgress> PackagePracticeProgresses => throw new NotSupportedException(
+        "This IApplicationDbContext implementation does not expose package practice progress persistence.");
     DbSet<PackageAnalyticalReport> PackageAnalyticalReports => throw new NotSupportedException(
         "This IApplicationDbContext implementation does not expose package analytical report persistence.");
     DbSet<PackageAnalyticalReportTopicResult> PackageAnalyticalReportTopicResults => throw new NotSupportedException(

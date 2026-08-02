@@ -23,6 +23,7 @@ public class PreparationPackageConfigurationTests
     [InlineData(typeof(ReportingProfileQuestionAssignment), "ReportingProfileQuestionAssignments")]
     [InlineData(typeof(PackagePurchaseEntitlement), "PackagePurchaseEntitlements")]
     [InlineData(typeof(PackageBenefitRight), "PackageBenefitRights")]
+    [InlineData(typeof(PackagePracticeProgress), "PackagePracticeProgresses")]
     [InlineData(typeof(PackageAnalyticalReport), "PackageAnalyticalReports")]
     [InlineData(typeof(PackageAnalyticalReportTopicResult), "PackageAnalyticalReportTopicResults")]
     [InlineData(typeof(PackageAnalyticalReportGuidanceItem), "PackageAnalyticalReportGuidanceItems")]
@@ -92,6 +93,10 @@ public class PreparationPackageConfigurationTests
             nameof(PackageBenefitRight.PackagePurchaseEntitlementId), nameof(PackageBenefitRight.RightType));
         AssertHasIndex<PackageBenefitRight>(context, false,
             nameof(PackageBenefitRight.PackagePurchaseEntitlementId), nameof(PackageBenefitRight.RightType), nameof(PackageBenefitRight.Status));
+        AssertHasIndex<PackagePracticeProgress>(context, true,
+            nameof(PackagePracticeProgress.PackagePurchaseEntitlementId), nameof(PackagePracticeProgress.PracticeItemId));
+        AssertHasIndex<PackagePracticeProgress>(context, false,
+            nameof(PackagePracticeProgress.NurseProfileId), nameof(PackagePracticeProgress.PackagePurchaseEntitlementId), nameof(PackagePracticeProgress.PracticeCollectionVersionId));
         AssertHasIndex<PackageAnalyticalReport>(context, true,
             nameof(PackageAnalyticalReport.ExamSessionId));
         AssertHasIndex<PackageAnalyticalReport>(context, false,
@@ -114,6 +119,7 @@ public class PreparationPackageConfigurationTests
     [InlineData(typeof(PackagePurchaseEntitlement), nameof(PackagePurchaseEntitlement.Status))]
     [InlineData(typeof(PackageBenefitRight), nameof(PackageBenefitRight.RightType))]
     [InlineData(typeof(PackageBenefitRight), nameof(PackageBenefitRight.Status))]
+    [InlineData(typeof(PackagePracticeProgress), nameof(PackagePracticeProgress.State))]
     [InlineData(typeof(PackageAnalyticalReportGuidanceItem), nameof(PackageAnalyticalReportGuidanceItem.SourceType))]
     public void PreparationPackageEnums_AreStoredAsStringsWithMaxLength(Type entityType, string propertyName)
     {
@@ -142,6 +148,7 @@ public class PreparationPackageConfigurationTests
             typeof(ReportingProfileQuestionAssignment),
             typeof(PackagePurchaseEntitlement),
             typeof(PackageBenefitRight),
+            typeof(PackagePracticeProgress),
             typeof(PackageAnalyticalReport),
             typeof(PackageAnalyticalReportTopicResult),
             typeof(PackageAnalyticalReportGuidanceItem)
@@ -196,6 +203,87 @@ public class PreparationPackageConfigurationTests
 
         Assert.NotNull(property);
         Assert.True(property.IsNullable);
+    }
+
+    [Fact]
+    public void PackagePracticeProgressConfiguration_PersistsAnsweredRowsWithRestrictivePracticeRelationships()
+    {
+        var context = CreateDbContext();
+        var entity = context.Model.FindEntityType(typeof(PackagePracticeProgress))!;
+        var foreignKeys = entity.GetForeignKeys().ToList();
+
+        Assert.False(entity.FindProperty(nameof(PackagePracticeProgress.NurseProfileId))!.IsNullable);
+        Assert.False(entity.FindProperty(nameof(PackagePracticeProgress.PackagePurchaseEntitlementId))!.IsNullable);
+        Assert.False(entity.FindProperty(nameof(PackagePracticeProgress.PracticeCollectionVersionId))!.IsNullable);
+        Assert.False(entity.FindProperty(nameof(PackagePracticeProgress.PracticeItemId))!.IsNullable);
+        Assert.False(entity.FindProperty(nameof(PackagePracticeProgress.SelectedPracticeAnswerOptionId))!.IsNullable);
+        Assert.False(entity.FindProperty(nameof(PackagePracticeProgress.IsCorrect))!.IsNullable);
+        Assert.False(entity.FindProperty(nameof(PackagePracticeProgress.LastAnsweredAt))!.IsNullable);
+
+        Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType.Name == "NurseProfile"
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackagePracticeProgress.NurseProfileId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType == typeof(PackagePurchaseEntitlement)
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackagePracticeProgress.PackagePurchaseEntitlementId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType == typeof(PracticeCollectionVersion)
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackagePracticeProgress.PracticeCollectionVersionId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType == typeof(PracticeItem)
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackagePracticeProgress.PracticeItemId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+        Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType == typeof(PracticeAnswerOption)
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackagePracticeProgress.SelectedPracticeAnswerOptionId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
+    }
+
+    [Fact]
+    public void PackagePracticeProgressConfiguration_DoesNotReferenceOfficialExamContentOrSessions()
+    {
+        var entity = CreateDbContext().Model.FindEntityType(typeof(PackagePracticeProgress))!;
+
+        var forbiddenPropertyNames = new[]
+        {
+            "ExamQuestionId",
+            "ExamAnswerOptionId",
+            "ExamSessionId",
+            "QuestionTextSnapshot",
+            "OptionTextSnapshot",
+            "CorrectAnswer",
+            "CorrectOption",
+            "AnswerKey",
+            "Rationale",
+            "ExplanationSnapshot"
+        };
+
+        var propertyNames = entity.GetProperties()
+            .Select(property => property.Name)
+            .ToList();
+
+        Assert.All(propertyNames, propertyName =>
+        {
+            Assert.DoesNotContain(forbiddenPropertyNames, forbidden =>
+                propertyName.Contains(forbidden, StringComparison.OrdinalIgnoreCase));
+        });
+
+        var forbiddenPrincipalNames = new[]
+        {
+            "ExamQuestion",
+            "ExamAnswerOption",
+            "ExamSession",
+            "ExamSessionQuestion",
+            "ExamSessionAnswerOption"
+        };
+
+        var principalNames = entity.GetForeignKeys()
+            .Select(foreignKey => foreignKey.PrincipalEntityType.ClrType.Name)
+            .ToList();
+
+        Assert.All(principalNames, principalName =>
+        {
+            Assert.DoesNotContain(forbiddenPrincipalNames, forbidden =>
+                principalName.Equals(forbidden, StringComparison.OrdinalIgnoreCase));
+        });
     }
 
     [Fact]
@@ -307,6 +395,7 @@ public class PreparationPackageConfigurationTests
         Assert.Contains("AddPreparationPackageStage1CatalogAuthoring", migrations);
         Assert.Contains("AddPreparationPackageStage2Persistence", migrations);
         Assert.Contains("AddPreparationPackageStage4AnalyticalReports", migrations);
+        Assert.Contains("AddPackagePracticeProgress", migrations);
         Assert.DoesNotContain(migrations, name => name.Contains("Workspace", StringComparison.OrdinalIgnoreCase));
         Assert.DoesNotContain(migrations, name => name.Contains("ReportGeneration", StringComparison.OrdinalIgnoreCase));
         Assert.DoesNotContain(migrations, name => name.Contains("ReportAccess", StringComparison.OrdinalIgnoreCase));

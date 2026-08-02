@@ -59,6 +59,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<PackageOrderItemSnapshot> PackageOrderItemSnapshots => Set<PackageOrderItemSnapshot>();
     public DbSet<PackagePurchaseEntitlement> PackagePurchaseEntitlements => Set<PackagePurchaseEntitlement>();
     public DbSet<PackageBenefitRight> PackageBenefitRights => Set<PackageBenefitRight>();
+    public DbSet<PackagePracticeProgress> PackagePracticeProgresses => Set<PackagePracticeProgress>();
     public DbSet<PackageAnalyticalReport> PackageAnalyticalReports => Set<PackageAnalyticalReport>();
     public DbSet<PackageAnalyticalReportTopicResult> PackageAnalyticalReportTopicResults => Set<PackageAnalyticalReportTopicResult>();
     public DbSet<PackageAnalyticalReportGuidanceItem> PackageAnalyticalReportGuidanceItems => Set<PackageAnalyticalReportGuidanceItem>();

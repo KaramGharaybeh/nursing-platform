@@ -374,3 +374,49 @@ public class PackageBenefitRightConfiguration : IEntityTypeConfiguration<Package
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
+
+public class PackagePracticeProgressConfiguration : IEntityTypeConfiguration<PackagePracticeProgress>
+{
+    public void Configure(EntityTypeBuilder<PackagePracticeProgress> builder)
+    {
+        builder.ToTable("PackagePracticeProgresses");
+        builder.HasKey(progress => progress.Id);
+        builder.HasIndex(progress => new { progress.PackagePurchaseEntitlementId, progress.PracticeItemId }).IsUnique();
+        builder.HasIndex(progress => new
+        {
+            progress.NurseProfileId,
+            progress.PackagePurchaseEntitlementId,
+            progress.PracticeCollectionVersionId
+        });
+
+        builder.Property(progress => progress.NurseProfileId).IsRequired();
+        builder.Property(progress => progress.PackagePurchaseEntitlementId).IsRequired();
+        builder.Property(progress => progress.PracticeCollectionVersionId).IsRequired();
+        builder.Property(progress => progress.PracticeItemId).IsRequired();
+        builder.Property(progress => progress.SelectedPracticeAnswerOptionId).IsRequired();
+        builder.Property(progress => progress.State).HasConversion<string>().IsRequired().HasMaxLength(32);
+        builder.Property(progress => progress.IsCorrect).IsRequired();
+        builder.Property(progress => progress.LastAnsweredAt).IsRequired();
+
+        builder.HasOne<NursingPlatform.Domain.Nurses.NurseProfile>()
+            .WithMany()
+            .HasForeignKey(progress => progress.NurseProfileId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PackagePurchaseEntitlement>()
+            .WithMany()
+            .HasForeignKey(progress => progress.PackagePurchaseEntitlementId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PracticeCollectionVersion>()
+            .WithMany()
+            .HasForeignKey(progress => progress.PracticeCollectionVersionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PracticeItem>()
+            .WithMany()
+            .HasForeignKey(progress => progress.PracticeItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PracticeAnswerOption>()
+            .WithMany()
+            .HasForeignKey(progress => progress.SelectedPracticeAnswerOptionId)
+            .OnDelete(DeleteBehavior.Restrict);
+    }
+}

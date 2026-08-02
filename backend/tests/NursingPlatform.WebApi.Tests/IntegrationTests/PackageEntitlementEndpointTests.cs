@@ -130,7 +130,6 @@ public class PackageEntitlementEndpointTests
     [Theory]
     [InlineData("POST", "/api/v1/employer/preparation-packages/purchases")]
     [InlineData("GET", "/api/v1/employer/preparation-packages/reports")]
-    [InlineData("GET", "/api/v1/me/nurse-profile/preparation-packages/entitlements/11111111-1111-1111-1111-111111111111/practice-progress")]
     public async Task PackageStage2EndpointScope_DoesNotMapEmployerPackagePurchaseReportOrPracticeProgressRoutes(string method, string path)
     {
         NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());

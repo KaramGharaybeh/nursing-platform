@@ -15,6 +15,8 @@ using NursingPlatform.Application.PreparationPackages.Entitlements.GetMyPackageE
 using NursingPlatform.Application.PreparationPackages.Entitlements.ListMyPackageEntitlements;
 using NursingPlatform.Application.PreparationPackages.ExamSessions.DTOs;
 using NursingPlatform.Application.PreparationPackages.ExamSessions.StartPackageExamSession;
+using NursingPlatform.Application.PreparationPackages.PracticeProgress;
+using NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs;
 using NursingPlatform.Application.PreparationPackages.Reports.DTOs;
 using NursingPlatform.Application.PreparationPackages.Reports.GetPackageAnalyticalReport;
 
@@ -73,6 +75,35 @@ public static class PreparationPackageEndpointExtensions
         .WithNurseEntitlementMetadata<PackageExamSessionStartDto>(
             "Start package exam session",
             "Starts the exam attempt for one owned preparation package entitlement.",
+            includeNotFound: true,
+            includeConflict: true)
+        .RequireAuthorization();
+
+        entitlements.MapGet("/{entitlementId:guid}/practice-progress", async (Guid entitlementId, ISender sender) =>
+        {
+            var result = await sender.Send(new GetPackagePracticeProgressQuery(entitlementId));
+            return Results.Ok(result);
+        })
+        .WithName("GetPackagePracticeProgress")
+        .WithNurseEntitlementMetadata<PackagePracticeProgressSummaryDto>(
+            "Get package practice progress",
+            "Gets practice progress for one owned preparation package entitlement.",
+            includeNotFound: true)
+        .RequireAuthorization();
+
+        entitlements.MapPost("/{entitlementId:guid}/practice-progress/items/{practiceItemId:guid}/answer", async (
+            Guid entitlementId,
+            Guid practiceItemId,
+            SubmitPackagePracticeAnswerRequest request,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new SubmitPackagePracticeAnswerCommand(entitlementId, practiceItemId, request));
+            return Results.Ok(result);
+        })
+        .WithName("SubmitPackagePracticeAnswer")
+        .WithNurseEntitlementMetadata<PackagePracticeAnswerSubmissionDto>(
+            "Submit package practice answer",
+            "Records or updates one practice answer for one owned preparation package entitlement.",
             includeNotFound: true,
             includeConflict: true)
         .RequireAuthorization();

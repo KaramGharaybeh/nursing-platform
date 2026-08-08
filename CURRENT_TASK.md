@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Practice Progress Complete
+Preparation Package — Stage 1 Runtime Practice Retry/Retraining Authorization Verification Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Practice Progress is implemented, verified, and stopped for review. Practice Progress adds nurse-owned package practice progress tracking for purchased practice collection versions while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Practice Retry/Retraining Authorization Verification is complete and stopped for review. Verification confirmed the completed Practice Progress implementation already satisfies the Stage 1 runtime retry/retraining authorization item without new implementation while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Practice Progress implementation completed on branch `feature/preparation-package-foundation` through commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, and `cffc846`. Slice 7 is documentation/status finalization only and does not authorize runtime changes.
+Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is documentation-only and does not authorize runtime changes.
 
 ---
 
@@ -61,9 +61,9 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Practice Progress completion status update. Practice Progress implementation and verification are complete; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
+The current authorized task is the documentation-only Practice Retry/Retraining Authorization completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the completed Practice Progress behavior; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
-Known unrelated frontend/design worktree changes remain preserved and outside this backend Practice Progress completion update.
+Known unrelated frontend/design worktree changes remain preserved and outside this backend Practice Retry/Retraining Authorization completion update.
 
 ### Stage 1 Runtime Practice Progress Implementation Status
 
@@ -88,6 +88,19 @@ Implemented Practice Progress capabilities:
 - Practice progress is isolated from official exam sessions, official exam questions, official exam answer options, official snapshots, package exam attempt consumption, and Stage 4 analytical report evidence.
 - Nurse-owned endpoints are available at `GET /api/v1/me/nurse-profile/preparation-packages/entitlements/{entitlementId}/practice-progress` and `POST /api/v1/me/nurse-profile/preparation-packages/entitlements/{entitlementId}/practice-progress/items/{practiceItemId}/answer`.
 - No employer or admin practice-progress endpoints exist in v1.
+
+Verified Practice Retry/Retraining Authorization status:
+
+- Re-answer/retry while package access is active is allowed through the existing submit-answer workflow.
+- Re-answering overwrites the latest answer, correctness state, and answered timestamp.
+- Expired submit/re-answer/write attempts are rejected.
+- Expired owners can still read historical practice progress.
+- Practice retry/re-answer does not consume the package exam attempt.
+- No retry history is stored in v1.
+- No spaced repetition/retraining workflow is implemented in v1.
+- No adaptive practice workflow is implemented in v1.
+- No employer or admin practice-progress routes exist in v1.
+- Stage 4 analytical reports do not read practice progress.
 
 Deferred Practice Progress items remain outside v1:
 
@@ -312,6 +325,17 @@ The following snapshot records the final Practice Progress Slice 6 verification 
 - Build: 0 warnings, 0 errors.
 - EF: no pending model changes. The known design-time `HostAbortedException` appeared, and EF still completed the intended check with `No changes have been made to the model since the last migration.`
 - Stage 4 compatibility: analytical report generator/query code does not read practice progress, and practice progress is not report classification evidence.
+
+## Practice Retry/Retraining Authorization Verification Snapshot
+
+The following snapshot records the Practice Retry/Retraining Authorization verification evidence. No new implementation was added for this item.
+
+- Application focused PracticeProgress tests: 20 passed, 0 failed.
+- WebApi focused PracticeProgress tests: 23 passed, 0 failed.
+- Domain focused PackagePracticeProgress tests: 9 passed, 0 failed.
+- Build: 0 warnings, 0 errors.
+- Stage 4 compatibility: package analytical reports do not read practice progress.
+- Attempt compatibility: practice retry/re-answer does not consume the package exam attempt.
 
 ---
 

@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 4 Package Analytical Reports Complete
+Preparation Package — Stage 1 Runtime Practice Progress Complete
 
 Status:
-Preparation Package Stage 4 — Package Analytical Reports is implemented, verified, and stopped for review. Stage 4 adds lazy/on-demand direct nurse-owned package analytical report generation and access for finalized package attempt sessions while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Practice Progress is implemented, verified, and stopped for review. Practice Progress adds nurse-owned package practice progress tracking for purchased practice collection versions while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Stage 4 implementation completed on branch `feature/preparation-package-foundation` through commits `b1a9c5b`, `3a8b84d`, `32451ec`, `12d247d`, and `3058604`. Slice 7 is documentation/status finalization only and does not authorize runtime changes.
+Practice Progress implementation completed on branch `feature/preparation-package-foundation` through commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, and `cffc846`. Slice 7 is documentation/status finalization only and does not authorize runtime changes.
 
 ---
 
@@ -61,9 +61,45 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Stage 4 completion status update. Stage 4 implementation and verification are complete; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
+The current authorized task is the documentation-only Practice Progress completion status update. Practice Progress implementation and verification are complete; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
-Known unrelated frontend/design worktree changes remain preserved and outside this backend Stage 4 completion update.
+Known unrelated frontend/design worktree changes remain preserved and outside this backend Practice Progress completion update.
+
+### Stage 1 Runtime Practice Progress Implementation Status
+
+Stage 1 Runtime — Practice Progress is complete through seven slices:
+
+- Slice 1 — domain model and domain tests.
+- Slice 2 — Application contracts, DTOs, validators, and contract tests.
+- Slice 3 — Application nurse-owned read/write workflow.
+- Slice 4 — persistence configuration, EF migration, and configuration tests.
+- Slice 5 — WebApi nurse-owned practice progress endpoints and integration tests.
+- Slice 6 — integration, security, and compatibility verification.
+- Slice 7 — documentation/status finalization.
+
+Implemented Practice Progress capabilities:
+
+- Nurse-owned package practice progress for one package purchase entitlement and its purchased practice collection version.
+- Answered rows distinguish `AnsweredCorrect` and `AnsweredIncorrect`; `Unanswered` is derived from missing rows.
+- Re-answering while active overwrites latest selected practice answer option, correctness state, and answered timestamp.
+- Historical owner reads remain available after entitlement expiry.
+- Writes require active entitlement access and active `PracticeAccess` authorization.
+- Derived counters include total, answered, unanswered, correct, and incorrect counts; no aggregate counter table is stored.
+- Practice progress is isolated from official exam sessions, official exam questions, official exam answer options, official snapshots, package exam attempt consumption, and Stage 4 analytical report evidence.
+- Nurse-owned endpoints are available at `GET /api/v1/me/nurse-profile/preparation-packages/entitlements/{entitlementId}/practice-progress` and `POST /api/v1/me/nurse-profile/preparation-packages/entitlements/{entitlementId}/practice-progress/items/{practiceItemId}/answer`.
+- No employer or admin practice-progress endpoints exist in v1.
+
+Deferred Practice Progress items remain outside v1:
+
+- retry history;
+- spaced repetition or retraining algorithms;
+- adaptive practice;
+- workspace or dashboard aggregation;
+- employer visibility;
+- practice progress as analytical-report evidence;
+- offline sync;
+- progress export;
+- cross-package progress merging.
 
 ### Stage 4 Implementation Status
 
@@ -197,6 +233,7 @@ Next recommended work is Stage 3 planning/review only. Stage 3 implementation is
 - [x] Preparation Package Stage 4 report persistence and uniqueness protection.
 - [x] Preparation Package Stage 4 direct nurse-owned report endpoint.
 - [x] Preparation Package Stage 4 PostgreSQL concurrency/recovery coverage.
+- [x] Preparation Package Stage 1 Runtime practice progress domain model, Application workflow, persistence, and nurse-owned WebApi endpoints.
 
 ---
 
@@ -262,6 +299,19 @@ The following snapshot records the final Stage 4 Slice 7 verification evidence:
 - Final idempotent migration script generated successfully.
 - `git diff --check`: clean.
 - Worktree: only known unrelated frontend/design changes plus this Stage 4 status update remained after verification.
+
+## Practice Progress Final Verification Snapshot
+
+The following snapshot records the final Practice Progress Slice 6 verification evidence:
+
+- Domain full tests: 139 passed, 0 failed.
+- Application full tests: 579 passed, 0 failed.
+- Infrastructure focused practice-progress/configuration tests: 42 passed, 0 failed.
+- Infrastructure non-PostgreSQL tests: 168 passed, 0 failed.
+- WebApi full tests: 337 passed, 0 failed.
+- Build: 0 warnings, 0 errors.
+- EF: no pending model changes. The known design-time `HostAbortedException` appeared, and EF still completed the intended check with `No changes have been made to the model since the last migration.`
+- Stage 4 compatibility: analytical report generator/query code does not read practice progress, and practice progress is not report classification evidence.
 
 ---
 

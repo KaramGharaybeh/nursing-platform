@@ -268,7 +268,7 @@ The numbered phases remain historically accurate. The Preparation Package Workst
 
 # Preparation Package Workstream (Planned)
 
-This workstream introduces the paid preparation package product described in `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md`. It is an explicitly authorized additive workstream. Starting it does not mark, skip, or complete Phases 9–11. Stage 2 backend capabilities are complete through package offer payment order creation, Sandbox package completion, purchased-offer snapshots, package purchase entitlements, and benefit-right authorization/read models. Stage 3 backend capabilities are complete through package-attempt exam start, session provenance, atomic attempt consumption, PostgreSQL concurrency/idempotency coverage, WebApi endpoint coverage, and compatibility/scope guards. Stage 4 backend capabilities are complete through lazy/on-demand package analytical report generation, direct nurse-owned report access, report persistence/idempotency/concurrency recovery, purchased-content guidance references, and security/scope guards. Each remaining stage requires a separately reviewed staged specification and implementation plan before implementation begins.
+This workstream introduces the paid preparation package product described in `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md`. It is an explicitly authorized additive workstream. Starting it does not mark, skip, or complete Phases 9–11. Stage 1 runtime practice progress is complete through nurse-owned entitlement-scoped progress tracking, active `PracticeAccess` writes, historical owner reads, persistence, nurse-owned APIs, and Stage 4 compatibility verification. Stage 2 backend capabilities are complete through package offer payment order creation, Sandbox package completion, purchased-offer snapshots, package purchase entitlements, and benefit-right authorization/read models. Stage 3 backend capabilities are complete through package-attempt exam start, session provenance, atomic attempt consumption, PostgreSQL concurrency/idempotency coverage, WebApi endpoint coverage, and compatibility/scope guards. Stage 4 backend capabilities are complete through lazy/on-demand package analytical report generation, direct nurse-owned report access, report persistence/idempotency/concurrency recovery, purchased-content guidance references, and security/scope guards. Each remaining stage requires a separately reviewed staged specification and implementation plan before implementation begins.
 
 Existing standalone paid-exam, free-exam, and grant-authorized exam session behavior must be preserved throughout this workstream.
 
@@ -290,7 +290,7 @@ Existing standalone paid-exam, free-exam, and grant-authorized exam session beha
 - [ ] Managed study-material authoring and immutable published versions (including material-version-to-Reporting-Topic mapping)
 - [ ] Reusable Practice Collection authoring and immutable published versions (including practice-item-to-Reporting-Topic mapping)
 - [ ] Practice Items remain logically distinct from ExamQuestion and are selected, published, accessed, and protected independently, even if lower-level authoring infrastructure is later reused
-- [ ] Basic practice progress distinguishes unanswered from answered items and, for answered items, correct from incorrect; concrete persistence and counters remain deferred to Stage 1 design
+- [x] Basic practice progress distinguishes unanswered from answered items and, for answered items, correct from incorrect; concrete persistence and counters remain deferred to Stage 1 design
 - [ ] Practice retry/retraining allowed only while package access is active; retries never consume the package exam attempt; after expiry no further practice authorization is granted while historical progress may remain visible
 - [ ] Practice runtime and package-publication isolation prevent practice content from reading, exposing, or revealing the included published Exam Version's protected question content, answer identifiers, options, explanations, rationales, answer keys, or snapshots
 - [ ] Practice administration and material administration use dedicated permissions separate from existing exam-content permissions; concrete permission names remain deferred to Stage 1 design
@@ -309,6 +309,12 @@ Existing standalone paid-exam, free-exam, and grant-authorized exam session beha
 - [ ] Package catalog APIs
 - [ ] Stage 1 migration
 - [ ] Stage 1 tests
+
+Stage 1 runtime Practice Progress completed commits: `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`.
+
+Stage 1 runtime Practice Progress final verification: Domain full tests 139 passed; Application full tests 579 passed; Infrastructure focused practice-progress/configuration tests 42 passed; Infrastructure non-PostgreSQL tests 168 passed; WebApi full tests 337 passed; build succeeded with 0 warnings and 0 errors; EF reported no pending model changes; Stage 4 analytical reports do not read practice progress and practice progress is not report classification evidence.
+
+Practice Progress deferred items remain retry history, spaced repetition/retraining, adaptive practice, workspace/dashboard aggregation, employer visibility, practice progress in analytical report evidence, offline sync, progress export, and cross-package progress merging.
 
 ## Stage 2 — Commerce, Fulfillment, Entitlements, and Benefit Rights
 

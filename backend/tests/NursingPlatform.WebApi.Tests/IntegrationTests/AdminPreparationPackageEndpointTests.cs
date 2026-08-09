@@ -12,6 +12,7 @@ using NursingPlatform.Application.Common.Models;
 using NursingPlatform.Application.PreparationPackages.Admin.PackageOffers;
 using NursingPlatform.Application.PreparationPackages.Admin.PackageVersions;
 using NursingPlatform.Application.PreparationPackages.Admin.PracticeCollections;
+using NursingPlatform.Application.PreparationPackages.Admin.ReportingProfiles;
 using NursingPlatform.Application.PreparationPackages.Admin.ReportingTopics;
 using NursingPlatform.Application.PreparationPackages.Admin.StudyMaterials;
 using NursingPlatform.Application.PreparationPackages.DTOs;
@@ -92,6 +93,57 @@ public class AdminPreparationPackageEndpointTests
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal($"/api/v1/admin/preparation-package/reporting-topics/{topicId}", response.Headers.Location?.ToString());
+    }
+
+    [Fact]
+    public async Task AdminReportingProfileCreate_Returns401WithoutJwt()
+    {
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/reporting-profiles", CreateReportingProfileRequest());
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminReportingProfileCreate_Returns403WithoutReportingProfilesManagePermission()
+    {
+        AuthorizeWith();
+
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/reporting-profiles", CreateReportingProfileRequest());
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminReportingProfileCreate_Returns201WithReportingProfilesManagePermission()
+    {
+        AuthorizeWith(Permissions.ReportingProfiles.Manage);
+        var profileId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<CreateAdminReportingProfileCommand>(c => c.Request.Name == "NCLEX reporting profile"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AdminReportingProfilePublicationDto
+            {
+                Id = profileId,
+                ExamVersionId = Guid.NewGuid(),
+                Name = "NCLEX reporting profile",
+                Status = "Draft"
+            });
+
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/reporting-profiles", CreateReportingProfileRequest());
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal($"/api/v1/admin/preparation-package/reporting-profiles/{profileId}", response.Headers.Location?.ToString());
+    }
+
+    [Theory]
+    [InlineData(Permissions.Exams.Edit)]
+    [InlineData(Permissions.Questions.Manage)]
+    public async Task AdminReportingProfileCreate_WithExamOrQuestionPermissionOnly_Returns403(string permission)
+    {
+        AuthorizeWith(permission);
+
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/reporting-profiles", CreateReportingProfileRequest());
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
@@ -361,6 +413,12 @@ public class AdminPreparationPackageEndpointTests
         title = "Practice Safety Set",
         slug = "practice-safety-set",
         description = "Independent safety practice."
+    };
+
+    private static object CreateReportingProfileRequest() => new
+    {
+        examVersionId = Guid.NewGuid(),
+        name = "NCLEX reporting profile"
     };
 
     private static HttpRequestMessage CreateRequest(string method, string path)

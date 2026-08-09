@@ -13,6 +13,7 @@ using NursingPlatform.Application.PreparationPackages.Admin.PackageOffers;
 using NursingPlatform.Application.PreparationPackages.Admin.PackageVersions;
 using NursingPlatform.Application.PreparationPackages.Admin.PracticeCollections;
 using NursingPlatform.Application.PreparationPackages.Admin.ReportingTopics;
+using NursingPlatform.Application.PreparationPackages.Admin.StudyMaterials;
 using NursingPlatform.Application.PreparationPackages.DTOs;
 
 namespace NursingPlatform.WebApi.Tests.IntegrationTests;
@@ -91,6 +92,96 @@ public class AdminPreparationPackageEndpointTests
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal($"/api/v1/admin/preparation-package/reporting-topics/{topicId}", response.Headers.Location?.ToString());
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialCreate_Returns401WithoutJwt()
+    {
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/materials", CreateStudyMaterialRequest());
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialCreate_Returns403WithoutStudyMaterialsManagePermission()
+    {
+        AuthorizeWith(Permissions.PreparationPackages.Manage);
+
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/materials", CreateStudyMaterialRequest());
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialCreate_Returns201WithStudyMaterialsManagePermission()
+    {
+        AuthorizeWith(Permissions.StudyMaterials.Manage);
+        var materialId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<CreateAdminStudyMaterialCommand>(c => c.Request.Title == "Clinical Safety Guide"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AdminStudyMaterialDto { Id = materialId, Title = "Clinical Safety Guide", Slug = "clinical-safety-guide", Description = "Medication and safety review." });
+
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/materials", CreateStudyMaterialRequest());
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal($"/api/v1/admin/preparation-package/materials/{materialId}", response.Headers.Location?.ToString());
+    }
+
+    [Theory]
+    [InlineData(Permissions.Exams.Edit)]
+    [InlineData(Permissions.Questions.Manage)]
+    public async Task AdminStudyMaterialCreate_WithExamOrQuestionPermissionOnly_Returns403(string permission)
+    {
+        AuthorizeWith(permission);
+
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/materials", CreateStudyMaterialRequest());
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminPracticeCollectionCreate_Returns401WithoutJwt()
+    {
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/practice-collections", CreatePracticeCollectionRequest());
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminPracticeCollectionCreate_Returns403WithoutPracticeCollectionsManagePermission()
+    {
+        AuthorizeWith(Permissions.PreparationPackages.Manage);
+
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/practice-collections", CreatePracticeCollectionRequest());
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminPracticeCollectionCreate_Returns201WithPracticeCollectionsManagePermission()
+    {
+        AuthorizeWith(Permissions.PracticeCollections.Manage);
+        var collectionId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(It.Is<CreateAdminPracticeCollectionCommand>(c => c.Request.Title == "Practice Safety Set"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AdminPracticeCollectionDto { Id = collectionId, Title = "Practice Safety Set", Slug = "practice-safety-set", Description = "Independent safety practice." });
+
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/practice-collections", CreatePracticeCollectionRequest());
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal($"/api/v1/admin/preparation-package/practice-collections/{collectionId}", response.Headers.Location?.ToString());
+    }
+
+    [Theory]
+    [InlineData(Permissions.Exams.Edit)]
+    [InlineData(Permissions.Questions.Manage)]
+    public async Task AdminPracticeCollectionCreate_WithExamOrQuestionPermissionOnly_Returns403(string permission)
+    {
+        AuthorizeWith(permission);
+
+        var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/practice-collections", CreatePracticeCollectionRequest());
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
@@ -257,6 +348,20 @@ public class AdminPreparationPackageEndpointTests
             .Setup(s => s.GetUserPermissionsAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(permissions.ToHashSet());
     }
+
+    private static object CreateStudyMaterialRequest() => new
+    {
+        title = "Clinical Safety Guide",
+        slug = "clinical-safety-guide",
+        description = "Medication and safety review."
+    };
+
+    private static object CreatePracticeCollectionRequest() => new
+    {
+        title = "Practice Safety Set",
+        slug = "practice-safety-set",
+        description = "Independent safety practice."
+    };
 
     private static HttpRequestMessage CreateRequest(string method, string path)
     {

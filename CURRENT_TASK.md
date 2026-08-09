@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Reporting Topic Taxonomy Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Reporting Profile Publication Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Reporting Topic Taxonomy Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and tests already satisfy the Stage 1 runtime reporting-topic taxonomy item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Reporting Profile Publication Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and committed WebApi authorization coverage already satisfy the Stage 1 runtime reporting-profile publication item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. This Reporting Topic Taxonomy Docs Status Finalization is documentation-only and does not authorize runtime changes.
+Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. This Reporting Profile Publication Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
 ---
 
@@ -61,9 +61,9 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Reporting Topic Taxonomy completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation and tests; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
+The current authorized task is the documentation-only Reporting Profile Publication completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation and committed WebApi authorization coverage; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
-Known unrelated frontend/design worktree changes remain preserved and outside this Reporting Topic Taxonomy completion update.
+Known unrelated frontend/design worktree changes remain preserved and outside this Reporting Profile Publication completion update.
 
 ### Stage 1 Runtime Practice Progress Implementation Status
 
@@ -147,6 +147,23 @@ Verified Reporting Topic Taxonomy status:
 - Infrastructure focused tests passed 42/42.
 - WebApi focused tests passed 81/81.
 - Build retry succeeded with 0 warnings and 0 errors.
+
+Verified Reporting Profile Publication status:
+
+- Completion is based on existing implementation plus committed WebApi authorization coverage, not new implementation.
+- Relevant evidence includes `7cd06e9 feat: enforce reporting profile publication rules` and `16a3f4e test: cover reporting profile dedicated permission`.
+- `ReportingProfilePublication` is separate from `ExamVersion`, bound to one exact immutable `ExamVersionId`, and requires a published ExamVersion.
+- Duplicate published profiles for the same ExamVersion are rejected.
+- Published and retired profiles reject assignment changes.
+- Assignments map active scored exam-version questions to Reporting Topics and reject missing, foreign-version, wrong-category, and inactive-topic cases.
+- Reporting-profile operations read the bound ExamVersion and do not mutate it.
+- Persistence requires restrictive exact ExamVersion and assignment relationships, with unique profile-name-per-version and question-assignment-per-profile constraints.
+- Reporting-profile endpoints require `ReportingProfiles.Manage`; `Exams.Edit` and `Questions.Manage` do not authorize them.
+- Domain focused tests passed 63/63.
+- Application focused tests passed 118/118.
+- Infrastructure non-PostgreSQL fallback tests passed 43/43; the PostgreSQL-only test was blocked only by missing `NURSING_PLATFORM_TEST_POSTGRES_CONNECTION_STRING`.
+- WebApi focused tests passed 86/86.
+- Build succeeded with 0 warnings and 0 errors.
 
 Deferred Practice Progress items remain outside v1:
 

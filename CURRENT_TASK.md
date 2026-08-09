@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Practice Exam-Content Isolation Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Dedicated Administration Permissions Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Practice Exam-Content Isolation Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation/tests already satisfy the Stage 1 runtime practice runtime and package-publication exam-content isolation item without new implementation while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Dedicated Administration Permissions Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and added WebApi test coverage already satisfy the Stage 1 runtime dedicated practice/material administration permission item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. This Practice Exam-Content Isolation Docs Status Finalization is documentation-only and does not authorize runtime changes.
+Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. This Dedicated Administration Permissions Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
 ---
 
@@ -61,9 +61,9 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Practice Exam-Content Isolation completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation/tests; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
+The current authorized task is the documentation-only Dedicated Administration Permissions completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation and committed WebApi test coverage; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
-Known unrelated frontend/design worktree changes remain preserved and outside this Practice Exam-Content Isolation completion update.
+Known unrelated frontend/design worktree changes remain preserved and outside this Dedicated Administration Permissions completion update.
 
 ### Stage 1 Runtime Practice Progress Implementation Status
 
@@ -116,6 +116,20 @@ Verified Practice Exam-Content Isolation status:
 - Build succeeded with 0 warnings and 0 errors.
 - Stage 4 reports do not read `PracticeProgress`.
 - Practice runtime/package-publication isolation grep found no defect and showed only existing guard tests, official exam/report paths, migrations/model snapshots, and unrelated payment/package snapshot references.
+
+Verified Dedicated Administration Permissions status:
+
+- Practice administration and material administration use dedicated permissions separate from existing exam-content permissions.
+- Completion is based on existing implementation plus added WebApi test coverage in `17e38eb test: cover package administration dedicated permissions`.
+- `StudyMaterials.Manage` and `PracticeCollections.Manage` are dedicated permissions.
+- Dedicated permissions are seeded in reference data.
+- Study material admin endpoints require `StudyMaterials.Manage`.
+- Practice collection admin endpoints require `PracticeCollections.Manage`.
+- `Exams.Edit` and `Questions.Manage` do not authorize study material or practice collection administration.
+- WebApi focused permission tests passed 81/81.
+- Infrastructure permission/seeding tests passed 11/11.
+- Application focused tests passed 140/140.
+- Build succeeded with 0 warnings and 0 errors.
 
 Deferred Practice Progress items remain outside v1:
 
@@ -363,6 +377,17 @@ The following snapshot records the Practice Exam-Content Isolation verification 
 - Build: 0 warnings, 0 errors.
 - Stage 4 compatibility: package analytical reports do not read `PracticeProgress`.
 - Isolation grep: practice runtime/package-publication isolation grep found no defect.
+
+## Dedicated Administration Permissions Verification Snapshot
+
+The following snapshot records the Dedicated Administration Permissions verification evidence.
+
+- WebApi focused permission tests: 81 passed, 0 failed.
+- Infrastructure permission/seeding tests: 11 passed, 0 failed.
+- Application focused tests: 140 passed, 0 failed.
+- Build: 0 warnings, 0 errors.
+- Dedicated permissions: `StudyMaterials.Manage` and `PracticeCollections.Manage`.
+- Isolation: `Exams.Edit` and `Questions.Manage` do not authorize study material or practice collection administration.
 
 ---
 

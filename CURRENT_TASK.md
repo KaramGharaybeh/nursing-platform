@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Reporting Profile Publication Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Study Material Authoring Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Reporting Profile Publication Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and committed WebApi authorization coverage already satisfy the Stage 1 runtime reporting-profile publication item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Study Material Authoring Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and tests already satisfy the Stage 1 runtime study-material authoring item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. This Reporting Profile Publication Docs Status Finalization is documentation-only and does not authorize runtime changes.
+Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material authoring evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, and `b85059c`. This Study Material Authoring Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
 ---
 
@@ -61,9 +61,9 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Reporting Profile Publication completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation and committed WebApi authorization coverage; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
+The current authorized task is the documentation-only Study Material Authoring completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation and tests; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
-Known unrelated frontend/design worktree changes remain preserved and outside this Reporting Profile Publication completion update.
+Known unrelated frontend/design worktree changes remain preserved and outside this Study Material Authoring completion update.
 
 ### Stage 1 Runtime Practice Progress Implementation Status
 
@@ -164,6 +164,22 @@ Verified Reporting Profile Publication status:
 - Infrastructure non-PostgreSQL fallback tests passed 43/43; the PostgreSQL-only test was blocked only by missing `NURSING_PLATFORM_TEST_POSTGRES_CONNECTION_STRING`.
 - WebApi focused tests passed 86/86.
 - Build succeeded with 0 warnings and 0 errors.
+
+Verified Study Material Authoring status:
+
+- Completion is based on verification of existing implementation and tests, not new implementation.
+- Relevant evidence includes `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`.
+- Study materials have stable managed identities; versioned content and Reporting Topic mappings are separate.
+- Published and retired material versions are immutable; revisions create the next draft without mutating published content.
+- Validators enforce material-type content requirements and at least one existing active Reporting Topic mapping.
+- Persistence has restrictive material/version/topic relationships and unique material-version and version-topic constraints.
+- Material endpoints require `StudyMaterials.Manage`; `Exams.Edit` and `Questions.Manage` do not authorize them.
+- Domain focused tests passed 62/62.
+- Application focused tests passed 117/117.
+- Infrastructure focused tests passed 42/42.
+- WebApi focused tests passed 86/86.
+- Build succeeded with 0 warnings and 0 errors.
+- No material delivery/download, storage-provider, entitlement, package-composition, or workspace behavior is included in this item.
 
 Deferred Practice Progress items remain outside v1:
 

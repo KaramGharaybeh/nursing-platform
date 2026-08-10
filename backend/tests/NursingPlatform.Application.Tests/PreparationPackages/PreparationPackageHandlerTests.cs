@@ -426,6 +426,78 @@ public class PreparationPackageHandlerTests
     }
 
     [Fact]
+    public async Task Handle_CreatePackageVersion_WithPublishedExactComponents_PersistsSelectedReferencesAndMaterialOrdering()
+    {
+        var graph = CreateValidPackageGraph();
+        var firstMaterialVersion = graph.MaterialVersion!;
+        var secondMaterialVersion = StudyMaterialVersion.CreateDraft(
+            Guid.NewGuid(),
+            StudyMaterialType.FormattedText,
+            "Second study content",
+            null,
+            null,
+            null,
+            [graph.Topic.Id],
+            2);
+        secondMaterialVersion.Publish(DateTime.UtcNow);
+        var materialVersions = new List<StudyMaterialVersion> { firstMaterialVersion, secondMaterialVersion };
+        var practiceVersions = new List<PracticeCollectionVersion> { graph.PracticeVersion };
+        var packageVersions = new List<PreparationPackageVersion>();
+        SetupContext(
+            definitions: [graph.Definition],
+            exams: [graph.Exam],
+            versions: [graph.ExamVersion],
+            questions: graph.Questions,
+            topics: [graph.Topic],
+            profiles: [graph.Profile],
+            materialVersions: materialVersions,
+            practiceVersions: practiceVersions,
+            packageVersions: packageVersions);
+        var handler = new CreateAdminPreparationPackageVersionCommandHandler(_contextMock.Object);
+
+        var result = await handler.Handle(new CreateAdminPreparationPackageVersionCommand
+        {
+            PreparationPackageDefinitionId = graph.Definition.Id,
+            Request = new CreateAdminPreparationPackageVersionRequest
+            {
+                ExamVersionId = graph.ExamVersion.Id,
+                ReportingProfilePublicationId = graph.Profile.Id,
+                PracticeCollectionVersionId = graph.PracticeVersion.Id,
+                Materials =
+                [
+                    new PreparationPackageVersionMaterialRequest { StudyMaterialVersionId = secondMaterialVersion.Id, SortOrder = 2 },
+                    new PreparationPackageVersionMaterialRequest { StudyMaterialVersionId = firstMaterialVersion.Id, SortOrder = 1 }
+                ]
+            }
+        }, CancellationToken.None);
+
+        var persisted = Assert.Single(packageVersions);
+        Assert.Equal(result.Id, persisted.Id);
+        Assert.Equal(graph.Definition.Id, persisted.PreparationPackageDefinitionId);
+        Assert.Equal(graph.ExamVersion.Id, persisted.ExamVersionId);
+        Assert.Equal(graph.Profile.Id, persisted.ReportingProfilePublicationId);
+        Assert.Equal(graph.PracticeVersion.Id, persisted.PracticeCollectionVersionId);
+        Assert.Collection(
+            persisted.GetOrderedMaterials(),
+            first =>
+            {
+                Assert.Equal(firstMaterialVersion.Id, first.StudyMaterialVersionId);
+                Assert.Equal(1, first.SortOrder);
+            },
+            second =>
+            {
+                Assert.Equal(secondMaterialVersion.Id, second.StudyMaterialVersionId);
+                Assert.Equal(2, second.SortOrder);
+            });
+        Assert.Equal(2, materialVersions.Count);
+        Assert.Equal("Study content", firstMaterialVersion.FormattedTextContent);
+        Assert.Equal("Second study content", secondMaterialVersion.FormattedTextContent);
+        Assert.Single(practiceVersions);
+        Assert.Single(graph.PracticeVersion.Items);
+        _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task Handle_PublishPackageVersion_WhenMaterialIsMissing_ThrowsInvalidOperationException()
     {
         var graph = CreateValidPackageGraph(includeMaterial: false);

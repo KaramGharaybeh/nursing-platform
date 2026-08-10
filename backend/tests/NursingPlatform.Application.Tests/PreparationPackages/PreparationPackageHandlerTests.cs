@@ -474,6 +474,35 @@ public class PreparationPackageHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ActivateOffer_WhenReferencedMaterialVersionIsRetired_ThrowsInvalidOperationException()
+    {
+        var graph = CreateValidPackageGraph();
+        graph.MaterialVersion!.Retire(DateTime.UtcNow);
+        var packageVersion = PreparationPackageVersion.CreateDraft(graph.Definition.Id, graph.ExamVersion.Id, graph.Profile.Id, graph.PracticeVersion.Id);
+        packageVersion.AddMaterialVersion(graph.MaterialVersion.Id, 1);
+        packageVersion.ConfirmContentIsolation();
+        packageVersion.Publish(DateTime.UtcNow);
+        var offer = PreparationPackageOffer.CreateDraft(graph.Definition.Id, packageVersion.Id, "Offer", "offer", null, 1000, "USD", 30);
+        SetupContext(
+            definitions: [graph.Definition],
+            exams: [graph.Exam],
+            versions: [graph.ExamVersion],
+            questions: graph.Questions,
+            topics: [graph.Topic],
+            profiles: [graph.Profile],
+            materialVersions: [graph.MaterialVersion],
+            practiceVersions: [graph.PracticeVersion],
+            packageVersions: [packageVersion],
+            offers: [offer]);
+        var handler = new ActivateAdminPreparationPackageOfferCommandHandler(_contextMock.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new ActivateAdminPreparationPackageOfferCommand { Id = offer.Id }, CancellationToken.None));
+
+        Assert.Equal(PreparationPackageOfferStatus.Draft, offer.Status);
+        _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_ActivateOffer_WhenAnotherOfferIsActiveForSamePackageDefinition_ThrowsInvalidOperationException()
     {
         var graph = CreateValidPackageGraph();

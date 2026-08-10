@@ -155,6 +155,13 @@ public class ActivateAdminPreparationPackageOfferCommandHandler : IRequestHandle
             throw new InvalidOperationException("Only published package versions can be activated for sale.");
         }
 
+        var eligibility = await new PreparationPackagePublicationValidator(_context)
+            .ValidatePackageVersionAsync(version, cancellationToken);
+        if (!eligibility.IsValid)
+        {
+            throw new InvalidOperationException(eligibility.Issues[0].Message);
+        }
+
         if (offer.PriceAmountMinor < 0 || offer.Currency.Length != 3 || offer.AccessDurationDays < 1)
         {
             throw new InvalidOperationException("Package offer commercial configuration is invalid.");

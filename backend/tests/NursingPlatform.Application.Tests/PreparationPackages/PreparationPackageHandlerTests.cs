@@ -621,6 +621,29 @@ public class PreparationPackageHandlerTests
     }
 
     [Fact]
+    public async Task Handle_DeactivateOffer_WhenOfferIsActive_DeactivatesWithoutMutatingPublishedPackageVersion()
+    {
+        var graph = CreateValidPackageGraph();
+        var packageVersion = PreparationPackageVersion.CreateDraft(graph.Definition.Id, graph.ExamVersion.Id, graph.Profile.Id, graph.PracticeVersion.Id);
+        packageVersion.AddMaterialVersion(graph.MaterialVersion!.Id, 1);
+        packageVersion.ConfirmContentIsolation();
+        packageVersion.Publish(DateTime.UtcNow);
+        var offer = PreparationPackageOffer.CreateDraft(graph.Definition.Id, packageVersion.Id, "Offer", "offer", null, 1000, "USD", 30);
+        offer.Activate(DateTime.UtcNow);
+        SetupContext(definitions: [graph.Definition], materialVersions: [graph.MaterialVersion], packageVersions: [packageVersion], offers: [offer]);
+        var handler = new DeactivateAdminPreparationPackageOfferCommandHandler(_contextMock.Object);
+
+        var result = await handler.Handle(new DeactivateAdminPreparationPackageOfferCommand { Id = offer.Id }, CancellationToken.None);
+
+        Assert.Equal("Inactive", result.Status);
+        Assert.Equal(PreparationPackageOfferStatus.Inactive, offer.Status);
+        Assert.NotNull(offer.DeactivatedAt);
+        Assert.Equal(PreparationPackageVersionStatus.Published, packageVersion.Status);
+        Assert.Equal(graph.MaterialVersion.Id, Assert.Single(packageVersion.Materials).StudyMaterialVersionId);
+        _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task Handle_ListCatalogOffers_ReturnsOnlyActiveEligibleOffersWithSafeSellingFields()
     {
         var graph = CreateValidPackageGraph();

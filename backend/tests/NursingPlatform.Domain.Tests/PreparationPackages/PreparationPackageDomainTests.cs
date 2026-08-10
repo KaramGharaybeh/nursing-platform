@@ -350,6 +350,32 @@ public class PreparationPackageDomainTests
     }
 
     [Fact]
+    public void ActivePackageOffer_Deactivate_ChangesOnlyOfferLifecycleState()
+    {
+        var definition = PreparationPackageDefinition.Create(Guid.NewGuid(), Guid.NewGuid(), "NCLEX Prep", "nclex-prep", "Definition");
+        var packageVersion = PreparationPackageVersion.CreateDraft(definition.Id, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        var materialVersionId = Guid.NewGuid();
+        packageVersion.AddMaterialVersion(materialVersionId, 1);
+        packageVersion.ConfirmContentIsolation();
+        packageVersion.Publish(new DateTime(2026, 8, 10, 9, 0, 0, DateTimeKind.Utc));
+        var offer = PreparationPackageOffer.CreateDraft(definition.Id, packageVersion.Id, "Offer", "offer", "Summary", 1000, "USD", 30);
+        var activatedAt = new DateTime(2026, 8, 10, 10, 0, 0, DateTimeKind.Utc);
+        var deactivatedAt = activatedAt.AddHours(1);
+        offer.Activate(activatedAt);
+
+        offer.Deactivate(deactivatedAt);
+
+        Assert.Equal(PreparationPackageOfferStatus.Inactive, offer.Status);
+        Assert.Equal(activatedAt, offer.ActivatedAt);
+        Assert.Equal(deactivatedAt, offer.DeactivatedAt);
+        Assert.Equal(definition.Id, offer.PreparationPackageDefinitionId);
+        Assert.Equal(packageVersion.Id, offer.PreparationPackageVersionId);
+        Assert.Equal("NCLEX Prep", definition.Title);
+        Assert.Equal(PreparationPackageVersionStatus.Published, packageVersion.Status);
+        Assert.Equal(materialVersionId, Assert.Single(packageVersion.Materials).StudyMaterialVersionId);
+    }
+
+    [Fact]
     public void PracticeCollectionVersion_CannotPublishWithoutPracticeItems()
     {
         var version = PracticeCollectionVersion.CreateDraft(Guid.NewGuid(), 1);

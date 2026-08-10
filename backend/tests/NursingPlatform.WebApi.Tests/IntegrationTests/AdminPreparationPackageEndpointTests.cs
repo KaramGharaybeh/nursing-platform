@@ -396,6 +396,38 @@ public class AdminPreparationPackageEndpointTests
     }
 
     [Fact]
+    public async Task AdminOfferDeactivate_Returns401WithoutJwt()
+    {
+        var response = await _client.PostAsync($"/api/v1/admin/preparation-package/offers/{Guid.NewGuid()}/deactivate", null);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminOfferDeactivate_Returns403WithoutPreparationPackageOffersManagePermission()
+    {
+        AuthorizeWith(Permissions.PreparationPackages.Publish);
+
+        var response = await _client.PostAsync($"/api/v1/admin/preparation-package/offers/{Guid.NewGuid()}/deactivate", null);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminOfferDeactivate_Returns200WithPreparationPackageOffersManagePermission()
+    {
+        var offerId = Guid.NewGuid();
+        AuthorizeWith(Permissions.PreparationPackageOffers.Manage);
+        _senderMock
+            .Setup(s => s.Send(It.Is<DeactivateAdminPreparationPackageOfferCommand>(c => c.Id == offerId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AdminPreparationPackageOfferDto { Id = offerId, Status = "Inactive", Title = "Package", Slug = "package", Currency = "USD", AccessDurationDays = 90 });
+
+        var response = await _client.PostAsync($"/api/v1/admin/preparation-package/offers/{offerId}/deactivate", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
     public async Task AdminPracticeCollectionVersionCreate_DoesNotExposeOfficialExamIdentifiersOrSnapshotsInJson()
     {
         AuthorizeWith(Permissions.PracticeCollections.Manage);

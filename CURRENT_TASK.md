@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Material Authorization Access-Window Verification and Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Materials Metadata Visibility Ordering Reuse Verification and Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Material Authorization Access-Window Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing entitlement and benefit-right implementation satisfies the Stage 1 material authorization access-window item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Materials Metadata Visibility Ordering Reuse Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing material authoring, publication, ordering, and reuse implementation satisfies the Stage 1 materials metadata/visibility item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`; draft-content package-publication guard evidence is represented by `8b46581`. This Material Authorization Access-Window Docs Status Finalization is documentation-only and does not authorize runtime changes.
+Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`; draft-content package-publication guard evidence is represented by `8b46581`; material-version reuse evidence is represented by `849a453`. This Materials Metadata Visibility Ordering Reuse Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
 ---
 
@@ -207,6 +207,16 @@ Verified Material Authorization Access-Window status:
 - Persistence requires entitlement and benefit-right access-window fields.
 - No nurse material delivery/download route exists; the existing file-storage service is used only by nurse CV workflows. No storage-provider, file-provider, offline-access, workspace, frontend, or unrelated package behavior is introduced or marked complete.
 - Domain focused tests passed 65/65; Application focused tests passed 86/86; Infrastructure configuration tests passed 42/42; WebApi focused tests passed 58/58; build succeeded with 0 warnings and 0 errors.
+
+Verified Materials Metadata Visibility Ordering Reuse status:
+
+- Completion is based on the existing material authoring/publication implementation plus `849a453 test: cover material version reuse`.
+- Study materials are stable managed records with title, slug, and optional description. Material versions carry type-specific content, reporting-topic mappings, and draft/published/retired publication status.
+- One published material version is reusable by two distinct published package versions without content duplication or mutation.
+- Package material references require unique positive sort orders and return deterministic ordering.
+- Concrete metadata fields and visibility representation remain deferred beyond the approved identity, authoring, and publication rules.
+- Application focused tests passed 122/122; Application full tests passed 584/584; Infrastructure focused tests passed 42/42; WebApi focused tests passed 99/99; build succeeded with 0 warnings and 0 errors.
+- No storage-provider, delivery, download, file-provider, offline-access, workspace, frontend, entitlement-access, or unrelated package behavior is introduced or marked complete by this item.
 
 Verified V1 Material Types status:
 

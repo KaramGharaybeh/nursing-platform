@@ -2,10 +2,10 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Package Definition Version Offer Lifecycle Verification and Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Package Version Composition Administration Verification and Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Package Definition Version Offer Lifecycle Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing package definition, immutable package version, and offer lifecycle implementation satisfies the Stage 1 lifecycle item, including direct package-version component-persistence coverage, while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Package Version Composition Administration Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing composition flow selects and persists exact component identifiers, validates published eligible compatible references before publication, and freezes published package versions while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
 Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`; draft-content package-publication guard evidence is represented by `8b46581`; material-version reuse evidence is represented by `849a453`; offer-deactivation evidence is represented by `e95545c`; direct package-version component-persistence evidence is represented by `0381045`. This Package Definition Version Offer Lifecycle Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
@@ -61,9 +61,9 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Package Definition Version Offer Lifecycle verification and status update. Verification confirmed this Stage 1 runtime item is satisfied by the existing Stage 1 runtime implementation and regression coverage, including direct package-version component-persistence coverage; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
+The current authorized task is the documentation-only Package Version Composition Administration verification and status update. Verification confirmed this Stage 1 runtime item is satisfied by the existing Stage 1 runtime implementation and regression coverage, including direct exact-component persistence coverage; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
-Known unrelated frontend/design worktree changes remain preserved and outside this Package Definition Version Offer Lifecycle completion update.
+Known unrelated frontend/design worktree changes remain preserved and outside this Package Version Composition Administration completion update.
 
 ### Stage 1 Runtime Practice Progress Implementation Status
 
@@ -227,6 +227,15 @@ Verified Package Definition Version Offer Lifecycle status:
 - Package/version endpoints use `PreparationPackages.View`, `PreparationPackages.Manage`, and `PreparationPackages.Publish`; offer endpoints use `PreparationPackageOffers.Manage`.
 - Domain focused tests passed 68/68; Application focused tests passed 134/134; Infrastructure focused tests passed 44/44; WebApi focused tests passed 105/105; build succeeded with 0 warnings and 0 errors.
 - No payment, entitlement, purchase, workspace, frontend, or unrelated package behavior is introduced or marked complete by this item.
+
+Verified Package Version Composition Administration status:
+
+- Completion is based on the existing version-composition, publication-validation, persistence, and authorized admin-route implementation plus `0381045 test: cover package version component persistence`.
+- The create command persists the exact selected `ExamVersionId`, `ReportingProfilePublicationId`, `PracticeCollectionVersionId`, and positive uniquely ordered `StudyMaterialVersionId` references. It does not duplicate or mutate material or practice content.
+- Publication validates that the exact referenced exam, reporting profile, practice collection, and materials are published, eligible, and compatible; the reporting profile must be bound to the exact selected exam version.
+- Published package versions reject composition mutation. Package-version create/validation routes require `PreparationPackages.Manage` or `PreparationPackages.View`, and publication requires `PreparationPackages.Publish`.
+- Domain focused tests passed 66/66; Application focused tests passed 124/124; Infrastructure focused tests passed 44/44; WebApi focused tests passed 102/102; build succeeded with 0 warnings and 0 errors.
+- No offer/payment, entitlement, purchase, workspace, frontend, or unrelated package behavior is introduced or marked complete by this item.
 
 Verified V1 Material Types status:
 

@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Material Lifecycle Verification and Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Draft Content Package Publication Guard Verification and Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Material Lifecycle Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and regression coverage satisfy the Stage 1 material lifecycle item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Draft Content Package Publication Guard Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and regression coverage satisfy the Stage 1 draft-content package-publication guard item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`. This Material Lifecycle Docs Status Finalization is documentation-only and does not authorize runtime changes.
+Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`; draft-content package-publication guard evidence is represented by `8b46581`. This Draft Content Package Publication Guard Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
 ---
 
@@ -191,6 +191,14 @@ Verified Material Lifecycle status:
 - Material lifecycle endpoints require `StudyMaterials.Manage`; focused WebApi coverage proves `401` unauthenticated, `403` without that permission, authorized success, and denial for `Exams.Edit` and `Questions.Manage` on lifecycle updates.
 - Domain focused tests passed 65/65; Application focused tests passed 120/120; WebApi focused tests passed 97/97; Application full tests passed 582/582; WebApi full tests passed 363/363; build succeeded with 0 warnings and 0 errors.
 - No storage, delivery, entitlement-access, workspace, frontend, or unrelated package behavior is introduced or marked complete by this item.
+
+Verified Draft Content Package Publication Guard status:
+
+- Completion is based on the existing publication validator and catalog-route scope plus `8b46581 test: cover draft package content guards`.
+- Package publication rejects draft material versions and draft Practice Collection versions; only published material and practice collection versions can be included in a published Package Version.
+- Draft material content is not exposed through public catalog routes, and no nurse material-content route exists: the attempted nurse path returns `404` for both anonymous and authenticated requests.
+- Application focused tests passed 121/121; WebApi focused tests passed 99/99; Application full tests passed 583/583; WebApi full tests passed 365/365; build succeeded with 0 warnings and 0 errors.
+- No material delivery/download, storage-provider, file-provider, offline-access, entitlement-access, workspace, frontend, or unrelated package behavior is introduced or marked complete by this item.
 
 Verified V1 Material Types status:
 

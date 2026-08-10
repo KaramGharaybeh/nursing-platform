@@ -115,14 +115,23 @@ public class CreateAdminPreparationPackageOfferCommandHandler : IRequestHandler<
     public CreateAdminPreparationPackageOfferCommandHandler(IApplicationDbContext context) => _context = context;
     public async Task<AdminPreparationPackageOfferDto> Handle(CreateAdminPreparationPackageOfferCommand request, CancellationToken cancellationToken)
     {
-        var definitionExists = await _context.PreparationPackageDefinitions.AnyAsync(d => d.Id == request.Request.PreparationPackageDefinitionId, cancellationToken);
-        if (!definitionExists) throw new KeyNotFoundException("Preparation package definition was not found.");
-        var versionExists = await _context.PreparationPackageVersions.AnyAsync(v => v.Id == request.Request.PreparationPackageVersionId && v.PreparationPackageDefinitionId == request.Request.PreparationPackageDefinitionId, cancellationToken);
-        if (!versionExists) throw new KeyNotFoundException("Preparation package version was not found.");
+        await ValidatePackageVersionAsync(request.Request.PreparationPackageDefinitionId, request.Request.PreparationPackageVersionId, cancellationToken);
         var offer = PreparationPackageOffer.CreateDraft(request.Request.PreparationPackageDefinitionId, request.Request.PreparationPackageVersionId, request.Request.Title, request.Request.Slug, request.Request.Summary, request.Request.PriceAmountMinor, request.Request.Currency, request.Request.AccessDurationDays);
         _context.PreparationPackageOffers.Add(offer);
         await _context.SaveChangesAsync(cancellationToken);
         return PreparationPackageMapping.ToPackageOfferDto(offer);
+    }
+
+    private async Task ValidatePackageVersionAsync(Guid definitionId, Guid versionId, CancellationToken cancellationToken)
+    {
+        var definitionExists = await _context.PreparationPackageDefinitions.AnyAsync(d => d.Id == definitionId, cancellationToken);
+        if (!definitionExists) throw new KeyNotFoundException("Preparation package definition was not found.");
+        var version = await _context.PreparationPackageVersions.FirstOrDefaultAsync(v => v.Id == versionId && v.PreparationPackageDefinitionId == definitionId, cancellationToken)
+            ?? throw new KeyNotFoundException("Preparation package version was not found.");
+        if (version.Status != PreparationPackageVersionStatus.Published)
+        {
+            throw new InvalidOperationException("Only published package versions can be referenced by an offer.");
+        }
     }
 }
 
@@ -134,9 +143,22 @@ public class UpdateAdminPreparationPackageOfferCommandHandler : IRequestHandler<
     {
         var offer = await _context.PreparationPackageOffers.FirstOrDefaultAsync(o => o.Id == request.Id, cancellationToken)
             ?? throw new KeyNotFoundException("Preparation package offer was not found.");
+        await ValidatePackageVersionAsync(request.Request.PreparationPackageDefinitionId, request.Request.PreparationPackageVersionId, cancellationToken);
         offer.UpdateDraft(request.Request.PreparationPackageDefinitionId, request.Request.PreparationPackageVersionId, request.Request.Title, request.Request.Slug, request.Request.Summary, request.Request.PriceAmountMinor, request.Request.Currency, request.Request.AccessDurationDays);
         await _context.SaveChangesAsync(cancellationToken);
         return PreparationPackageMapping.ToPackageOfferDto(offer);
+    }
+
+    private async Task ValidatePackageVersionAsync(Guid definitionId, Guid versionId, CancellationToken cancellationToken)
+    {
+        var definitionExists = await _context.PreparationPackageDefinitions.AnyAsync(d => d.Id == definitionId, cancellationToken);
+        if (!definitionExists) throw new KeyNotFoundException("Preparation package definition was not found.");
+        var version = await _context.PreparationPackageVersions.FirstOrDefaultAsync(v => v.Id == versionId && v.PreparationPackageDefinitionId == definitionId, cancellationToken)
+            ?? throw new KeyNotFoundException("Preparation package version was not found.");
+        if (version.Status != PreparationPackageVersionStatus.Published)
+        {
+            throw new InvalidOperationException("Only published package versions can be referenced by an offer.");
+        }
     }
 }
 

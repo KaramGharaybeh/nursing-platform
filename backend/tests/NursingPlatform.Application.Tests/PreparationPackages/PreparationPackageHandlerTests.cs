@@ -635,6 +635,115 @@ public class PreparationPackageHandlerTests
     }
 
     [Fact]
+    public async Task Handle_CreateOffer_WithExistingPackageVersion_PersistsCommercialFieldsWithoutMutatingComposition()
+    {
+        var graph = CreateValidPackageGraph();
+        var packageVersion = PreparationPackageVersion.CreateDraft(graph.Definition.Id, graph.ExamVersion.Id, graph.Profile.Id, graph.PracticeVersion.Id);
+        packageVersion.AddMaterialVersion(graph.MaterialVersion!.Id, 1);
+        packageVersion.ConfirmContentIsolation();
+        packageVersion.Publish(DateTime.UtcNow);
+        var offers = new List<PreparationPackageOffer>();
+        SetupContext(definitions: [graph.Definition], packageVersions: [packageVersion], offers: offers);
+        var handler = new CreateAdminPreparationPackageOfferCommandHandler(_contextMock.Object);
+
+        var result = await handler.Handle(new CreateAdminPreparationPackageOfferCommand
+        {
+            Request = new CreateAdminPreparationPackageOfferRequest
+            {
+                PreparationPackageDefinitionId = graph.Definition.Id,
+                PreparationPackageVersionId = packageVersion.Id,
+                Title = "Offer", Slug = "offer", Summary = "Summary", PriceAmountMinor = 9900, Currency = "USD", AccessDurationDays = 90
+            }
+        }, CancellationToken.None);
+
+        var persisted = Assert.Single(offers);
+        Assert.Equal(result.Id, persisted.Id);
+        Assert.Equal(graph.Definition.Id, persisted.PreparationPackageDefinitionId);
+        Assert.Equal(packageVersion.Id, persisted.PreparationPackageVersionId);
+        Assert.Equal(9900, persisted.PriceAmountMinor);
+        Assert.Equal("USD", persisted.Currency);
+        Assert.Equal(90, persisted.AccessDurationDays);
+        Assert.Equal(graph.ExamVersion.Id, packageVersion.ExamVersionId);
+        Assert.Equal(graph.Profile.Id, packageVersion.ReportingProfilePublicationId);
+        Assert.Equal(graph.PracticeVersion.Id, packageVersion.PracticeCollectionVersionId);
+        Assert.Equal(graph.MaterialVersion.Id, Assert.Single(packageVersion.Materials).StudyMaterialVersionId);
+    }
+
+    [Fact]
+    public async Task Handle_UpdateOffer_ChangesOfferFieldsWithoutMutatingPackageDefinitionOrComposition()
+    {
+        var graph = CreateValidPackageGraph();
+        var packageVersion = PreparationPackageVersion.CreateDraft(graph.Definition.Id, graph.ExamVersion.Id, graph.Profile.Id, graph.PracticeVersion.Id);
+        packageVersion.AddMaterialVersion(graph.MaterialVersion!.Id, 1);
+        packageVersion.ConfirmContentIsolation();
+        packageVersion.Publish(DateTime.UtcNow);
+        var offer = PreparationPackageOffer.CreateDraft(graph.Definition.Id, packageVersion.Id, "Offer", "offer", null, 9900, "USD", 90);
+        SetupContext(definitions: [graph.Definition], packageVersions: [packageVersion], offers: [offer]);
+        var handler = new UpdateAdminPreparationPackageOfferCommandHandler(_contextMock.Object);
+
+        await handler.Handle(new UpdateAdminPreparationPackageOfferCommand
+        {
+            Id = offer.Id,
+            Request = new UpdateAdminPreparationPackageOfferRequest
+            {
+                PreparationPackageDefinitionId = graph.Definition.Id,
+                PreparationPackageVersionId = packageVersion.Id,
+                Title = "Updated", Slug = "updated", Summary = "Updated summary", PriceAmountMinor = 10900, Currency = "CAD", AccessDurationDays = 120
+            }
+        }, CancellationToken.None);
+
+        Assert.Equal("Updated", offer.Title);
+        Assert.Equal(10900, offer.PriceAmountMinor);
+        Assert.Equal("CAD", offer.Currency);
+        Assert.Equal(120, offer.AccessDurationDays);
+        Assert.Equal(graph.Definition.Id, offer.PreparationPackageDefinitionId);
+        Assert.Equal(packageVersion.Id, offer.PreparationPackageVersionId);
+        Assert.Equal(graph.ExamVersion.Id, packageVersion.ExamVersionId);
+        Assert.Equal(graph.Profile.Id, packageVersion.ReportingProfilePublicationId);
+        Assert.Equal(graph.PracticeVersion.Id, packageVersion.PracticeCollectionVersionId);
+        Assert.Equal(graph.MaterialVersion.Id, Assert.Single(packageVersion.Materials).StudyMaterialVersionId);
+    }
+
+    [Fact]
+    public async Task Handle_CreateOffer_WhenPackageVersionIsDraft_ThrowsInvalidOperationException()
+    {
+        var definition = PreparationPackageDefinition.Create(Guid.NewGuid(), Guid.NewGuid(), "Package", "package", null);
+        var otherDefinition = PreparationPackageDefinition.Create(Guid.NewGuid(), Guid.NewGuid(), "Other", "other", null);
+        var version = PreparationPackageVersion.CreateDraft(definition.Id, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        SetupContext(definitions: [definition], packageVersions: [version]);
+        var handler = new CreateAdminPreparationPackageOfferCommandHandler(_contextMock.Object);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new CreateAdminPreparationPackageOfferCommand { Request = new CreateAdminPreparationPackageOfferRequest { PreparationPackageDefinitionId = definition.Id, PreparationPackageVersionId = version.Id, Title = "Offer", Slug = "offer", PriceAmountMinor = 100, Currency = "USD", AccessDurationDays = 30 } }, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_UpdateOffer_WhenPackageVersionIsDraft_ThrowsInvalidOperationException()
+    {
+        var definition = PreparationPackageDefinition.Create(Guid.NewGuid(), Guid.NewGuid(), "Package", "package", null);
+        var version = PreparationPackageVersion.CreateDraft(definition.Id, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        var offer = PreparationPackageOffer.CreateDraft(definition.Id, version.Id, "Offer", "offer", null, 100, "USD", 30);
+        SetupContext(definitions: [definition], packageVersions: [version], offers: [offer]);
+        var handler = new UpdateAdminPreparationPackageOfferCommandHandler(_contextMock.Object);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new UpdateAdminPreparationPackageOfferCommand { Id = offer.Id, Request = new UpdateAdminPreparationPackageOfferRequest { PreparationPackageDefinitionId = definition.Id, PreparationPackageVersionId = version.Id, Title = "Offer", Slug = "offer", PriceAmountMinor = 100, Currency = "USD", AccessDurationDays = 30 } }, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_UpdateOffer_WhenDefinitionOrVersionIsInvalid_ThrowsKeyNotFoundException()
+    {
+        var definition = PreparationPackageDefinition.Create(Guid.NewGuid(), Guid.NewGuid(), "Package", "package", null);
+        var otherDefinition = PreparationPackageDefinition.Create(Guid.NewGuid(), Guid.NewGuid(), "Other", "other", null);
+        var version = PreparationPackageVersion.CreateDraft(definition.Id, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        version.ConfirmContentIsolation();
+        version.AddMaterialVersion(Guid.NewGuid(), 1);
+        version.Publish(DateTime.UtcNow);
+        var offer = PreparationPackageOffer.CreateDraft(definition.Id, version.Id, "Offer", "offer", null, 100, "USD", 30);
+        SetupContext(definitions: [definition], packageVersions: [version], offers: [offer]);
+        var handler = new UpdateAdminPreparationPackageOfferCommandHandler(_contextMock.Object);
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => handler.Handle(new UpdateAdminPreparationPackageOfferCommand { Id = offer.Id, Request = new UpdateAdminPreparationPackageOfferRequest { PreparationPackageDefinitionId = otherDefinition.Id, PreparationPackageVersionId = version.Id, Title = "Offer", Slug = "offer", PriceAmountMinor = 100, Currency = "USD", AccessDurationDays = 30 } }, CancellationToken.None));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => handler.Handle(new UpdateAdminPreparationPackageOfferCommand { Id = offer.Id, Request = new UpdateAdminPreparationPackageOfferRequest { PreparationPackageDefinitionId = Guid.NewGuid(), PreparationPackageVersionId = version.Id, Title = "Offer", Slug = "offer", PriceAmountMinor = 100, Currency = "USD", AccessDurationDays = 30 } }, CancellationToken.None));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => handler.Handle(new UpdateAdminPreparationPackageOfferCommand { Id = offer.Id, Request = new UpdateAdminPreparationPackageOfferRequest { PreparationPackageDefinitionId = definition.Id, PreparationPackageVersionId = Guid.NewGuid(), Title = "Offer", Slug = "offer", PriceAmountMinor = 100, Currency = "USD", AccessDurationDays = 30 } }, CancellationToken.None));
+    }
+
+    [Fact]
     public async Task Handle_ActivateOffer_WhenPackageVersionIsUnpublished_ThrowsInvalidOperationException()
     {
         var definition = PreparationPackageDefinition.Create(Guid.NewGuid(), Guid.NewGuid(), "Package", "package", null);

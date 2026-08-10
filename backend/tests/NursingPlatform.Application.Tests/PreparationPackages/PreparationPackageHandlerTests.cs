@@ -581,6 +581,37 @@ public class PreparationPackageHandlerTests
     }
 
     [Fact]
+    public async Task Handle_PublishPackageVersion_WhenMaterialTopicIsNotAssignedByReportingProfile_ThrowsInvalidOperationException()
+    {
+        var graph = CreateValidPackageGraph();
+        var unassignedTopic = ReportingTopic.Create(graph.Category.Id, "Unassigned", "unassigned", null);
+        var material = StudyMaterialVersion.CreateDraft(Guid.NewGuid(), StudyMaterialType.FormattedText, "Content", null, null, null, [unassignedTopic.Id]);
+        material.Publish(DateTime.UtcNow);
+        var packageVersion = PreparationPackageVersion.CreateDraft(graph.Definition.Id, graph.ExamVersion.Id, graph.Profile.Id, graph.PracticeVersion.Id);
+        packageVersion.AddMaterialVersion(material.Id, 1);
+        packageVersion.ConfirmContentIsolation();
+        SetupContext(definitions: [graph.Definition], exams: [graph.Exam], versions: [graph.ExamVersion], questions: graph.Questions, topics: [graph.Topic, unassignedTopic], profiles: [graph.Profile], materialVersions: [material], practiceVersions: [graph.PracticeVersion], packageVersions: [packageVersion]);
+        var handler = new PublishAdminPreparationPackageVersionCommandHandler(_contextMock.Object);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new PublishAdminPreparationPackageVersionCommand { PreparationPackageDefinitionId = graph.Definition.Id, VersionId = packageVersion.Id }, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task Handle_PublishPackageVersion_WhenPracticeTopicIsNotAssignedByReportingProfile_ThrowsInvalidOperationException()
+    {
+        var graph = CreateValidPackageGraph();
+        var unassignedTopic = ReportingTopic.Create(graph.Category.Id, "Unassigned", "unassigned", null);
+        var practice = PracticeCollectionVersion.CreateDraft(Guid.NewGuid(), 2);
+        var item = PracticeItem.Create(unassignedTopic.Id, "Prompt", "Feedback", 1);
+        item.AddAnswerOption("Correct", true, 1); item.AddAnswerOption("Incorrect", false, 2);
+        practice.AddPracticeItem(item); practice.Publish(DateTime.UtcNow);
+        var packageVersion = PreparationPackageVersion.CreateDraft(graph.Definition.Id, graph.ExamVersion.Id, graph.Profile.Id, practice.Id);
+        packageVersion.AddMaterialVersion(graph.MaterialVersion!.Id, 1); packageVersion.ConfirmContentIsolation();
+        SetupContext(definitions: [graph.Definition], exams: [graph.Exam], versions: [graph.ExamVersion], questions: graph.Questions, topics: [graph.Topic, unassignedTopic], profiles: [graph.Profile], materialVersions: [graph.MaterialVersion], practiceVersions: [practice], packageVersions: [packageVersion]);
+        var handler = new PublishAdminPreparationPackageVersionCommandHandler(_contextMock.Object);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new PublishAdminPreparationPackageVersionCommand { PreparationPackageDefinitionId = graph.Definition.Id, VersionId = packageVersion.Id }, CancellationToken.None));
+    }
+
+    [Fact]
     public async Task Handle_PublishPackageVersion_WhenComponentsAreValid_PublishesVersion()
     {
         var graph = CreateValidPackageGraph();

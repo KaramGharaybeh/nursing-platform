@@ -42,6 +42,7 @@ internal sealed class PreparationPackagePublicationValidator
         }
 
         var profile = await _context.ReportingProfilePublications.FirstOrDefaultAsync(p => p.Id == version.ReportingProfilePublicationId, cancellationToken);
+        var allowedTopicIds = profile?.Assignments.Select(assignment => assignment.ReportingTopicId).ToHashSet() ?? [];
         if (profile is null || profile.Status != PublicationStatus.Published)
         {
             Add(issues, "ReportingProfileNotPublished", "Referenced reporting profile must be published.");
@@ -76,6 +77,10 @@ internal sealed class PreparationPackagePublicationValidator
                 if (item.ReportingTopicId == Guid.Empty)
                 {
                     Add(issues, "PracticeItemTopicMissing", "Every practice item must map to a reporting topic.");
+                }
+                else if (!allowedTopicIds.Contains(item.ReportingTopicId))
+                {
+                    Add(issues, "PracticeItemTopicNotInReportingProfile", "Practice item reporting topics must be assigned by the referenced reporting profile.");
                 }
 
                 if (item.AnswerOptions.Count(option => option.IsCorrect) != 1)
@@ -116,6 +121,10 @@ internal sealed class PreparationPackagePublicationValidator
                 if (topic is null || topic.ExamCategoryId != definition.ExamCategoryId || !topic.IsActive)
                 {
                     Add(issues, "MaterialTopicContextMismatch", "Material reporting topics must belong to the package exam category context.");
+                }
+                else if (!allowedTopicIds.Contains(topicId))
+                {
+                    Add(issues, "MaterialTopicNotInReportingProfile", "Material reporting topics must be assigned by the referenced reporting profile.");
                 }
             }
         }

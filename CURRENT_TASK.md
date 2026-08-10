@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Draft Content Package Publication Guard Verification and Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Material Authorization Access-Window Verification and Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Draft Content Package Publication Guard Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and regression coverage satisfy the Stage 1 draft-content package-publication guard item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Material Authorization Access-Window Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing entitlement and benefit-right implementation satisfies the Stage 1 material authorization access-window item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`; draft-content package-publication guard evidence is represented by `8b46581`. This Draft Content Package Publication Guard Docs Status Finalization is documentation-only and does not authorize runtime changes.
+Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`; draft-content package-publication guard evidence is represented by `8b46581`. This Material Authorization Access-Window Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
 ---
 
@@ -199,6 +199,14 @@ Verified Draft Content Package Publication Guard status:
 - Draft material content is not exposed through public catalog routes, and no nurse material-content route exists: the attempted nurse path returns `404` for both anonymous and authenticated requests.
 - Application focused tests passed 121/121; WebApi focused tests passed 99/99; Application full tests passed 583/583; WebApi full tests passed 365/365; build succeeded with 0 warnings and 0 errors.
 - No material delivery/download, storage-provider, file-provider, offline-access, entitlement-access, workspace, frontend, or unrelated package behavior is introduced or marked complete by this item.
+
+Verified Material Authorization Access-Window status:
+
+- Completion is based on verification of the existing package entitlement and `MaterialsAccess` benefit-right implementation and tests, not new implementation.
+- `MaterialsAccess` has the same start/end window as the package entitlement; authorization allows access only while both windows are active and rejects expired access.
+- Persistence requires entitlement and benefit-right access-window fields.
+- No nurse material delivery/download route exists; the existing file-storage service is used only by nurse CV workflows. No storage-provider, file-provider, offline-access, workspace, frontend, or unrelated package behavior is introduced or marked complete.
+- Domain focused tests passed 65/65; Application focused tests passed 86/86; Infrastructure configuration tests passed 42/42; WebApi focused tests passed 58/58; build succeeded with 0 warnings and 0 errors.
 
 Verified V1 Material Types status:
 

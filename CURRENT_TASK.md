@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime V1 Material Types Verification and Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Material Lifecycle Verification and Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — V1 Material Types Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and tests already satisfy the four Stage 1 V1 study material types while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Material Lifecycle Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and regression coverage satisfy the Stage 1 material lifecycle item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. This V1 Material Types Docs Status Finalization is documentation-only and does not authorize runtime changes.
+Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`. This Material Lifecycle Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
 ---
 
@@ -61,7 +61,7 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only V1 Material Types completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation and tests; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
+The current authorized task is the documentation-only Material Lifecycle completion status update. Verification confirmed this Stage 1 runtime item is satisfied by the existing Stage 1 runtime implementation and regression coverage; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
 Known unrelated frontend/design worktree changes remain preserved and outside this Practice Item Independence completion update.
 
@@ -180,6 +180,17 @@ Verified Study Material Authoring status:
 - WebApi focused tests passed 86/86.
 - Build succeeded with 0 warnings and 0 errors.
 - No material delivery/download, storage-provider, entitlement, package-composition, or workspace behavior is included in this item.
+
+Verified Material Lifecycle status:
+
+- Completion is based on the existing implementation plus `1f31e88 fix: reject offers for retired package materials` and `a4b28bb test: cover material lifecycle guards`.
+- Draft material versions are editable; published and retired material versions are immutable.
+- Revisions create the next draft version without mutating published content.
+- Package publication rejects draft and retired material versions; offer activation rejects package versions that reference retired or otherwise non-published material versions.
+- Material retirement does not mutate published package versions, purchased snapshots, package purchase entitlements, or benefit rights; historical purchaser protections remain unchanged.
+- Material lifecycle endpoints require `StudyMaterials.Manage`; focused WebApi coverage proves `401` unauthenticated, `403` without that permission, authorized success, and denial for `Exams.Edit` and `Questions.Manage` on lifecycle updates.
+- Domain focused tests passed 65/65; Application focused tests passed 120/120; WebApi focused tests passed 97/97; Application full tests passed 582/582; WebApi full tests passed 363/363; build succeeded with 0 warnings and 0 errors.
+- No storage, delivery, entitlement-access, workspace, frontend, or unrelated package behavior is introduced or marked complete by this item.
 
 Verified V1 Material Types status:
 

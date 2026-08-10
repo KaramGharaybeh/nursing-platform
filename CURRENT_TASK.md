@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Practice Item Independence Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime V1 Material Types Verification and Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Practice Item Independence Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and guard tests already satisfy the Stage 1 runtime practice item independence item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — V1 Material Types Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and tests already satisfy the four Stage 1 V1 study material types while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material authoring evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, and `b85059c`. This Study Material Authoring Docs Status Finalization is documentation-only and does not authorize runtime changes.
+Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. This V1 Material Types Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
 ---
 
@@ -61,7 +61,7 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Practice Item Independence completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation and guard tests; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
+The current authorized task is the documentation-only V1 Material Types completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation and tests; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
 Known unrelated frontend/design worktree changes remain preserved and outside this Practice Item Independence completion update.
 
@@ -180,6 +180,17 @@ Verified Study Material Authoring status:
 - WebApi focused tests passed 86/86.
 - Build succeeded with 0 warnings and 0 errors.
 - No material delivery/download, storage-provider, entitlement, package-composition, or workspace behavior is included in this item.
+
+Verified V1 Material Types status:
+
+- Completion is based on verification of existing implementation and tests, not new implementation.
+- Relevant evidence includes `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`.
+- `StudyMaterialType` contains exactly `File`, `ExternalLink`, `Video`, and `FormattedText`; unsupported enum values are rejected.
+- Validator and domain rules require exactly one matching content field: `FileStorageKey`, `ExternalUrl`, `VideoUrl`, or `FormattedTextContent`, and reject incompatible combinations.
+- Persistence stores the type and the four bounded type-specific fields; admin DTOs, mappings, and endpoints support all four types.
+- Material administration requires `StudyMaterials.Manage`; WebApi tests cover `401` unauthenticated, `403` without permission, success with the dedicated permission, and denial for `Exams.Edit` and `Questions.Manage`.
+- Domain focused tests passed 62/62; Application focused tests passed 117/117; Infrastructure focused tests passed 42/42; WebApi focused tests passed 86/86; build succeeded with 0 warnings and 0 errors.
+- No storage-provider, upload/download/delivery, entitlement-access, package-composition, workspace, or frontend behavior is included in this item.
 
 Deferred Practice Progress items remain outside v1:
 

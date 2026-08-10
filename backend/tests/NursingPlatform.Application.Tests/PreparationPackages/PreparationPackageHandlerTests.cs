@@ -529,6 +529,40 @@ public class PreparationPackageHandlerTests
     }
 
     [Fact]
+    public async Task Handle_PublishPackageVersions_WhenSamePublishedMaterialVersionIsReferenced_PublishesBothWithoutMutatingMaterial()
+    {
+        var graph = CreateValidPackageGraph();
+        var firstPackageVersion = PreparationPackageVersion.CreateDraft(graph.Definition.Id, graph.ExamVersion.Id, graph.Profile.Id, graph.PracticeVersion.Id);
+        firstPackageVersion.AddMaterialVersion(graph.MaterialVersion!.Id, 1);
+        firstPackageVersion.ConfirmContentIsolation();
+        var secondPackageVersion = PreparationPackageVersion.CreateDraft(graph.Definition.Id, graph.ExamVersion.Id, graph.Profile.Id, graph.PracticeVersion.Id);
+        secondPackageVersion.AddMaterialVersion(graph.MaterialVersion.Id, 1);
+        secondPackageVersion.ConfirmContentIsolation();
+        SetupContext(definitions: [graph.Definition], exams: [graph.Exam], versions: [graph.ExamVersion], questions: graph.Questions, topics: [graph.Topic], profiles: [graph.Profile], materialVersions: [graph.MaterialVersion], practiceVersions: [graph.PracticeVersion], packageVersions: [firstPackageVersion, secondPackageVersion]);
+        var handler = new PublishAdminPreparationPackageVersionCommandHandler(_contextMock.Object);
+
+        await handler.Handle(new PublishAdminPreparationPackageVersionCommand
+        {
+            PreparationPackageDefinitionId = graph.Definition.Id,
+            VersionId = firstPackageVersion.Id
+        }, CancellationToken.None);
+        await handler.Handle(new PublishAdminPreparationPackageVersionCommand
+        {
+            PreparationPackageDefinitionId = graph.Definition.Id,
+            VersionId = secondPackageVersion.Id
+        }, CancellationToken.None);
+
+        Assert.Equal(PreparationPackageVersionStatus.Published, firstPackageVersion.Status);
+        Assert.Equal(PreparationPackageVersionStatus.Published, secondPackageVersion.Status);
+        Assert.Equal(graph.MaterialVersion.Id, Assert.Single(firstPackageVersion.GetOrderedMaterials()).StudyMaterialVersionId);
+        Assert.Equal(graph.MaterialVersion.Id, Assert.Single(secondPackageVersion.GetOrderedMaterials()).StudyMaterialVersionId);
+        Assert.Equal(PublicationStatus.Published, graph.MaterialVersion.Status);
+        Assert.Equal("Study content", graph.MaterialVersion.FormattedTextContent);
+        Assert.Equal(graph.Topic.Id, Assert.Single(graph.MaterialVersion.Topics).ReportingTopicId);
+        _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
     public async Task Handle_ActivateOffer_WhenPackageVersionIsUnpublished_ThrowsInvalidOperationException()
     {
         var definition = PreparationPackageDefinition.Create(Guid.NewGuid(), Guid.NewGuid(), "Package", "package", null);

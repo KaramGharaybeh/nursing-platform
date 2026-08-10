@@ -30,6 +30,91 @@ public class PreparationPackageDomainTests
     }
 
     [Fact]
+    public void DraftMaterialVersion_CanUpdateDraftContent()
+    {
+        var version = StudyMaterialVersion.CreateDraft(
+            Guid.NewGuid(),
+            StudyMaterialType.FormattedText,
+            "Original content",
+            null,
+            null,
+            null,
+            [Guid.NewGuid()]);
+        var replacementTopicId = Guid.NewGuid();
+
+        version.UpdateDraftContent(
+            StudyMaterialType.ExternalLink,
+            null,
+            null,
+            "https://example.test/revised-material",
+            null,
+            [replacementTopicId]);
+
+        Assert.Equal(PublicationStatus.Draft, version.Status);
+        Assert.Equal(StudyMaterialType.ExternalLink, version.MaterialType);
+        Assert.Null(version.FormattedTextContent);
+        Assert.Equal("https://example.test/revised-material", version.ExternalUrl);
+        Assert.Equal(replacementTopicId, Assert.Single(version.Topics).ReportingTopicId);
+    }
+
+    [Fact]
+    public void RetiredMaterialVersion_IsImmutable()
+    {
+        var version = StudyMaterialVersion.CreateDraft(
+            Guid.NewGuid(),
+            StudyMaterialType.FormattedText,
+            "Published content",
+            null,
+            null,
+            null,
+            [Guid.NewGuid()]);
+        version.Publish(new DateTime(2026, 8, 10, 9, 0, 0, DateTimeKind.Utc));
+        version.Retire(new DateTime(2026, 8, 10, 10, 0, 0, DateTimeKind.Utc));
+
+        Assert.Throws<InvalidOperationException>(() => version.UpdateDraftContent(
+            StudyMaterialType.FormattedText,
+            "Changed content",
+            null,
+            null,
+            null,
+            [Guid.NewGuid()]));
+    }
+
+    [Fact]
+    public void RetiringMaterialVersion_DoesNotMutatePublishedPackageVersionOrHistoricalPurchaseFacts()
+    {
+        var material = StudyMaterialVersion.CreateDraft(
+            Guid.NewGuid(),
+            StudyMaterialType.FormattedText,
+            "Historical content",
+            null,
+            null,
+            null,
+            [Guid.NewGuid()]);
+        material.Publish(new DateTime(2026, 8, 10, 9, 0, 0, DateTimeKind.Utc));
+        var packageVersion = PreparationPackageVersion.CreateDraft(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        packageVersion.AddMaterialVersion(material.Id, 1);
+        packageVersion.ConfirmContentIsolation();
+        packageVersion.Publish(new DateTime(2026, 8, 10, 9, 0, 0, DateTimeKind.Utc));
+        var snapshot = CreatePackageSnapshot(studyMaterialVersionIds: [material.Id]);
+        var entitlement = PackagePurchaseEntitlement.CreateFromSnapshot(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            snapshot.PaymentOrderItemId,
+            snapshot,
+            new DateTime(2026, 8, 10, 9, 0, 0, DateTimeKind.Utc));
+        var originalRights = entitlement.Rights.Select(right => (right.RightType, right.Status)).ToList();
+
+        material.Retire(new DateTime(2026, 8, 10, 10, 0, 0, DateTimeKind.Utc));
+
+        Assert.Equal(PreparationPackageVersionStatus.Published, packageVersion.Status);
+        Assert.Equal(material.Id, Assert.Single(packageVersion.Materials).StudyMaterialVersionId);
+        Assert.Equal([material.Id], snapshot.StudyMaterialVersionIds);
+        Assert.Equal([material.Id], entitlement.StudyMaterialVersionIds);
+        Assert.Equal(originalRights, entitlement.Rights.Select(right => (right.RightType, right.Status)).ToList());
+    }
+
+    [Fact]
     public void PublishedPracticeCollectionVersion_IsImmutableAfterPublish()
     {
         var version = PracticeCollectionVersion.CreateDraft(Guid.NewGuid(), 1);
@@ -543,7 +628,8 @@ public class PreparationPackageDomainTests
 
     private static PackageOrderItemSnapshot CreatePackageSnapshot(
         Guid? paymentOrderItemId = null,
-        int accessDurationDays = 90)
+        int accessDurationDays = 90,
+        IReadOnlyList<Guid>? studyMaterialVersionIds = null)
     {
         var snapshot = PackageOrderItemSnapshot.Create(
             packageOfferId: Guid.NewGuid(),
@@ -562,7 +648,7 @@ public class PreparationPackageDomainTests
             includedExamTitle: "NCLEX RN",
             reportingProfilePublicationId: Guid.NewGuid(),
             practiceCollectionVersionId: Guid.NewGuid(),
-            studyMaterialVersionIds: [Guid.NewGuid(), Guid.NewGuid()],
+            studyMaterialVersionIds: studyMaterialVersionIds ?? [Guid.NewGuid(), Guid.NewGuid()],
             priceAmountMinor: 14900,
             currency: "usd",
             accessDurationDays: accessDurationDays,

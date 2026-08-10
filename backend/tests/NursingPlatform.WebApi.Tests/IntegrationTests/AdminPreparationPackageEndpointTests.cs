@@ -16,6 +16,7 @@ using NursingPlatform.Application.PreparationPackages.Admin.ReportingProfiles;
 using NursingPlatform.Application.PreparationPackages.Admin.ReportingTopics;
 using NursingPlatform.Application.PreparationPackages.Admin.StudyMaterials;
 using NursingPlatform.Application.PreparationPackages.DTOs;
+using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.WebApi.Tests.IntegrationTests;
 
@@ -189,6 +190,117 @@ public class AdminPreparationPackageEndpointTests
         var response = await _client.PostAsJsonAsync("/api/v1/admin/preparation-package/materials", CreateStudyMaterialRequest());
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialVersionUpdate_Returns401WithoutJwt()
+    {
+        var response = await _client.PutAsJsonAsync($"/api/v1/admin/preparation-package/materials/{Guid.NewGuid()}/versions/{Guid.NewGuid()}", CreateStudyMaterialVersionRequest());
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialVersionUpdate_Returns403WithoutStudyMaterialsManagePermission()
+    {
+        AuthorizeWith(Permissions.PreparationPackages.Manage);
+
+        var response = await _client.PutAsJsonAsync($"/api/v1/admin/preparation-package/materials/{Guid.NewGuid()}/versions/{Guid.NewGuid()}", CreateStudyMaterialVersionRequest());
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(Permissions.Exams.Edit)]
+    [InlineData(Permissions.Questions.Manage)]
+    public async Task AdminStudyMaterialVersionUpdate_WithExamOrQuestionPermissionOnly_Returns403(string permission)
+    {
+        AuthorizeWith(permission);
+
+        var response = await _client.PutAsJsonAsync($"/api/v1/admin/preparation-package/materials/{Guid.NewGuid()}/versions/{Guid.NewGuid()}", CreateStudyMaterialVersionRequest());
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialVersionUpdate_Returns200WithStudyMaterialsManagePermission()
+    {
+        var materialId = Guid.NewGuid();
+        var versionId = Guid.NewGuid();
+        AuthorizeWith(Permissions.StudyMaterials.Manage);
+        _senderMock
+            .Setup(s => s.Send(It.Is<UpdateAdminStudyMaterialVersionCommand>(c => c.StudyMaterialId == materialId && c.VersionId == versionId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateStudyMaterialVersionDto(materialId, versionId, "Draft"));
+
+        var response = await _client.PutAsJsonAsync($"/api/v1/admin/preparation-package/materials/{materialId}/versions/{versionId}", CreateStudyMaterialVersionRequest());
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialVersionPublish_Returns401WithoutJwt()
+    {
+        var response = await _client.PostAsync($"/api/v1/admin/preparation-package/materials/{Guid.NewGuid()}/versions/{Guid.NewGuid()}/publish", null);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialVersionPublish_Returns403WithoutStudyMaterialsManagePermission()
+    {
+        AuthorizeWith(Permissions.PreparationPackages.Manage);
+
+        var response = await _client.PostAsync($"/api/v1/admin/preparation-package/materials/{Guid.NewGuid()}/versions/{Guid.NewGuid()}/publish", null);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialVersionPublish_Returns200WithStudyMaterialsManagePermission()
+    {
+        var materialId = Guid.NewGuid();
+        var versionId = Guid.NewGuid();
+        AuthorizeWith(Permissions.StudyMaterials.Manage);
+        _senderMock
+            .Setup(s => s.Send(It.Is<PublishAdminStudyMaterialVersionCommand>(c => c.StudyMaterialId == materialId && c.VersionId == versionId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateStudyMaterialVersionDto(materialId, versionId, "Published"));
+
+        var response = await _client.PostAsync($"/api/v1/admin/preparation-package/materials/{materialId}/versions/{versionId}/publish", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialVersionRetire_Returns401WithoutJwt()
+    {
+        var response = await _client.PostAsync($"/api/v1/admin/preparation-package/materials/{Guid.NewGuid()}/versions/{Guid.NewGuid()}/retire", null);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialVersionRetire_Returns403WithoutStudyMaterialsManagePermission()
+    {
+        AuthorizeWith(Permissions.PreparationPackages.Manage);
+
+        var response = await _client.PostAsync($"/api/v1/admin/preparation-package/materials/{Guid.NewGuid()}/versions/{Guid.NewGuid()}/retire", null);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminStudyMaterialVersionRetire_Returns200WithStudyMaterialsManagePermission()
+    {
+        var materialId = Guid.NewGuid();
+        var versionId = Guid.NewGuid();
+        AuthorizeWith(Permissions.StudyMaterials.Manage);
+        _senderMock
+            .Setup(s => s.Send(It.Is<RetireAdminStudyMaterialVersionCommand>(c => c.StudyMaterialId == materialId && c.VersionId == versionId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateStudyMaterialVersionDto(materialId, versionId, "Retired"));
+
+        var response = await _client.PostAsync($"/api/v1/admin/preparation-package/materials/{materialId}/versions/{versionId}/retire", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
@@ -406,6 +518,24 @@ public class AdminPreparationPackageEndpointTests
         title = "Clinical Safety Guide",
         slug = "clinical-safety-guide",
         description = "Medication and safety review."
+    };
+
+    private static object CreateStudyMaterialVersionRequest() => new
+    {
+        materialType = StudyMaterialType.FormattedText,
+        formattedTextContent = "Updated clinical safety content.",
+        reportingTopicIds = new[] { Guid.NewGuid() }
+    };
+
+    private static AdminStudyMaterialVersionDto CreateStudyMaterialVersionDto(Guid materialId, Guid versionId, string status) => new()
+    {
+        Id = versionId,
+        StudyMaterialId = materialId,
+        VersionNumber = 1,
+        MaterialType = "FormattedText",
+        Status = status,
+        FormattedTextContent = "Updated clinical safety content.",
+        ReportingTopicIds = [Guid.NewGuid()]
     };
 
     private static object CreatePracticeCollectionRequest() => new

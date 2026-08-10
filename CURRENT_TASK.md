@@ -2,12 +2,12 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Materials Metadata Visibility Ordering Reuse Verification and Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Package Definition Version Offer Lifecycle Verification and Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Materials Metadata Visibility Ordering Reuse Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing material authoring, publication, ordering, and reuse implementation satisfies the Stage 1 materials metadata/visibility item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Package Definition Version Offer Lifecycle Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed the existing package definition, immutable package version, and offer lifecycle implementation satisfies the Stage 1 lifecycle item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
-Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`; draft-content package-publication guard evidence is represented by `8b46581`; material-version reuse evidence is represented by `849a453`. This Materials Metadata Visibility Ordering Reuse Docs Status Finalization is documentation-only and does not authorize runtime changes.
+Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`; draft-content package-publication guard evidence is represented by `8b46581`; material-version reuse evidence is represented by `849a453`; offer-deactivation evidence is represented by `e95545c`. This Package Definition Version Offer Lifecycle Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
 ---
 
@@ -217,6 +217,16 @@ Verified Materials Metadata Visibility Ordering Reuse status:
 - Concrete metadata fields and visibility representation remain deferred beyond the approved identity, authoring, and publication rules.
 - Application focused tests passed 122/122; Application full tests passed 584/584; Infrastructure focused tests passed 42/42; WebApi focused tests passed 99/99; build succeeded with 0 warnings and 0 errors.
 - No storage-provider, delivery, download, file-provider, offline-access, workspace, frontend, entitlement-access, or unrelated package behavior is introduced or marked complete by this item.
+
+Verified Package Definition Version Offer Lifecycle status:
+
+- Completion is based on the existing package definition/version/offer implementation plus `e95545c test: cover package offer deactivation`.
+- Package definitions are stable country/category-scoped catalog identities. Published package versions preserve exact references and reject composition mutation.
+- Offers carry only package definition/version references and commercial configuration; draft update, activation, deactivation, and the one-active-offer-per-definition rule are enforced.
+- Deactivation transitions an active offer to inactive without mutating the package definition or published package-version content.
+- Package/version endpoints use `PreparationPackages.View`, `PreparationPackages.Manage`, and `PreparationPackages.Publish`; offer endpoints use `PreparationPackageOffers.Manage`.
+- Domain focused tests passed 68/68; Application focused tests passed 133/133; Infrastructure focused tests passed 44/44; WebApi focused tests passed 105/105; build succeeded with 0 warnings and 0 errors.
+- No payment, entitlement, purchase, workspace, frontend, or unrelated package behavior is introduced or marked complete by this item.
 
 Verified V1 Material Types status:
 

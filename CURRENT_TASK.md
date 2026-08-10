@@ -2,10 +2,10 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Study Material Authoring Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Practice Collection Authoring Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Study Material Authoring Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and tests already satisfy the Stage 1 runtime study-material authoring item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Practice Collection Authoring Docs Status Finalization is complete and stopped for review. Verification confirmed the existing implementation and tests already satisfy the Stage 1 runtime practice collection authoring item while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
 Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material authoring evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, and `b85059c`. This Study Material Authoring Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
@@ -61,9 +61,9 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Study Material Authoring completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation and tests; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
+The current authorized task is the documentation-only Practice Collection Authoring completion status update. Verification confirmed this Stage 1 runtime item is already satisfied by the existing Stage 1 runtime implementation and tests; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
-Known unrelated frontend/design worktree changes remain preserved and outside this Study Material Authoring completion update.
+Known unrelated frontend/design worktree changes remain preserved and outside this Practice Collection Authoring completion update.
 
 ### Stage 1 Runtime Practice Progress Implementation Status
 

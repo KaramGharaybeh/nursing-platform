@@ -481,6 +481,21 @@ public class AdminPreparationPackageEndpointTests
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task NurseOrAnonymousMaterialContentRoute_ReturnsNotFound(bool authenticated)
+    {
+        if (authenticated)
+        {
+            AuthorizeWith();
+        }
+
+        var response = await _client.GetAsync($"/api/v1/me/nurse-profile/preparation-packages/entitlements/{Guid.NewGuid()}/materials/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     [Fact]
     public async Task ExistingExamCatalogAndStartEndpoints_RemainBackwardCompatible()
     {

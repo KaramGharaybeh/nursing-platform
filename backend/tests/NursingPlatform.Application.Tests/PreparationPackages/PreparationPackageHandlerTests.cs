@@ -484,6 +484,31 @@ public class PreparationPackageHandlerTests
     }
 
     [Fact]
+    public async Task Handle_PublishPackageVersion_WhenReferencedPracticeCollectionVersionIsDraft_ThrowsInvalidOperationException()
+    {
+        var graph = CreateValidPackageGraph();
+        var draftPracticeVersion = PracticeCollectionVersion.CreateDraft(Guid.NewGuid(), 2);
+        var practiceItem = PracticeItem.Create(graph.Topic.Id, "Draft practice prompt", "Draft practice feedback", 1);
+        practiceItem.AddAnswerOption("Correct", true, 1);
+        practiceItem.AddAnswerOption("Incorrect", false, 2);
+        draftPracticeVersion.AddPracticeItem(practiceItem);
+        var packageVersion = PreparationPackageVersion.CreateDraft(graph.Definition.Id, graph.ExamVersion.Id, graph.Profile.Id, draftPracticeVersion.Id);
+        packageVersion.AddMaterialVersion(graph.MaterialVersion!.Id, 1);
+        packageVersion.ConfirmContentIsolation();
+        SetupContext(definitions: [graph.Definition], exams: [graph.Exam], versions: [graph.ExamVersion], questions: graph.Questions, topics: [graph.Topic], profiles: [graph.Profile], materialVersions: [graph.MaterialVersion], practiceVersions: [draftPracticeVersion], packageVersions: [packageVersion]);
+        var handler = new PublishAdminPreparationPackageVersionCommandHandler(_contextMock.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new PublishAdminPreparationPackageVersionCommand
+        {
+            PreparationPackageDefinitionId = graph.Definition.Id,
+            VersionId = packageVersion.Id
+        }, CancellationToken.None));
+
+        Assert.Equal(PreparationPackageVersionStatus.Draft, packageVersion.Status);
+        _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_PublishPackageVersion_WhenComponentsAreValid_PublishesVersion()
     {
         var graph = CreateValidPackageGraph();

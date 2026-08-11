@@ -10,7 +10,8 @@ This document does not define temporary phase scope, visual design, acceptance c
 
 Separate documents own those decisions:
 
-- Approved Figma artifacts own final visual design decisions within the security, accessibility, and architecture constraints in this document.
+- Approved Penpot artifacts own final visual design decisions. Penpot is the official visual design authority and single source of truth within the security, accessibility, and architecture constraints in this document.
+- Figma is non-authoritative unless Karam explicitly records a future decision changing the Penpot-only authority.
 - Future approved frontend design specifications own phase scope, behavior, and acceptance criteria.
 - Future approved implementation plans own execution steps, task sequencing, verification commands, and commit strategy.
 - `CURRENT_TASK.md` and `TASKS.md` are updated only when explicitly approved.
@@ -45,7 +46,7 @@ The approved frontend foundation is:
 - Angular Material.
 - Angular CDK where required by Angular Material or explicitly justified application behavior.
 - SCSS as the approved styling language and stylesheet strategy.
-- A project-owned Angular Material theme derived from approved Figma design tokens.
+- A project-owned Angular Material theme derived from approved Penpot design tokens.
 - Angular Router.
 - Feature-based architecture.
 - Angular SPA for the initial product architecture.
@@ -318,11 +319,11 @@ Composition operators such as `switchMap` SHOULD be preferred over nested subscr
 
 Long-lived subscriptions require explicit ownership and cleanup documentation.
 
-## Figma And Visual Design Boundary
+## Penpot And Visual Design Boundary
 
-Visual design is handled separately through Figma.
+Visual design is handled separately through approved Penpot artifacts. Penpot is the official visual design authority and single source of truth for approved visual design decisions.
 
-Approved Figma artifacts and approved design tokens become authoritative for:
+Approved Penpot artifacts and approved design tokens become authoritative for:
 
 - brand colors;
 - typography;
@@ -335,15 +336,15 @@ Approved Figma artifacts and approved design tokens become authoritative for:
 - illustrations;
 - interaction appearance.
 
-Figma decisions MUST operate within repository security, accessibility, performance, and architecture rules. Figma artifacts MUST NOT override WCAG requirements, backend trust boundaries, token-handling rules, or sensitive-data handling.
+Penpot decisions MUST operate within repository security, accessibility, performance, and architecture rules. Penpot artifacts MUST NOT override WCAG requirements, backend trust boundaries, token-handling rules, or sensitive-data handling.
 
-When an approved Figma design conflicts with accessibility, security, privacy, performance, backend contracts, or permanent architecture rules, implementation MUST stop and request design review.
+When an approved Penpot design conflicts with accessibility, security, privacy, performance, backend contracts, or permanent architecture rules, implementation MUST stop and request explicit design and engineering review.
 
-SCSS and the project-owned Angular Material theme are the implementation mechanisms for approved visual design. They are not independent sources of final visual-design decisions.
+SCSS and the project-owned Angular Material theme are executable mappings of approved Penpot visual intent. They are not independent sources of final visual-design decisions and MUST NOT silently override that intent.
 
 Frontend implementation agents MUST NOT invent final visual design.
 
-Before approved Figma designs exist, frontend work MAY use only neutral structural UI to verify:
+Before approved Penpot designs exist, frontend work MAY use only neutral structural UI to verify:
 
 - routing;
 - authentication;
@@ -365,7 +366,7 @@ The frontend MUST NOT create a broad global `MaterialModule` that imports or exp
 
 Features SHOULD use Angular Material components when they satisfy the required behavior and accessibility contract.
 
-The project MUST NOT wrap every Material component automatically. A project-owned wrapper is justified only when it establishes a repeated Nursing Platform behavior, stable design contract, security rule, accessibility rule, or shared Figma customization.
+The project MUST NOT wrap every Material component automatically. A project-owned wrapper is justified only when it establishes a repeated Nursing Platform behavior, stable design contract, security rule, accessibility rule, or shared Penpot customization.
 
 Application business logic MUST NOT be placed inside Material wrappers.
 
@@ -375,9 +376,9 @@ Angular Material customization MUST use supported theming APIs, design tokens, C
 
 The existing prohibition on `::ng-deep` remains enforceable.
 
-Figma-approved visual intent and the project theme determine colors, typography, density, shape, spacing, and component appearance within accessibility and architecture constraints.
+Penpot-approved visual intent and the project theme determine colors, typography, density, shape, spacing, and component appearance within accessibility and architecture constraints.
 
-Final colors, typography values, density values, elevations, breakpoints, and dark-mode behavior MUST be defined only through later approved Figma and feature or foundation design scope.
+Final colors, typography values, density values, elevations, breakpoints, and dark-mode behavior MUST be defined only through later approved Penpot and feature or foundation design scope.
 
 ## SCSS Architecture
 
@@ -426,7 +427,7 @@ Stylesheet optimization MUST NOT reduce accessibility, focus visibility, readabl
 
 The Nursing Platform owns one internal application theme system. The initial foundation MUST NOT create a separately published design-system npm package.
 
-The theme maps approved Figma tokens into Angular Material theming and application-level SCSS tokens.
+The theme maps approved Penpot tokens into Angular Material theming and application-level SCSS tokens.
 
 There MUST be one authoritative token source for each visual decision. Material theme configuration and application tokens MUST NOT drift into separate conflicting values.
 
@@ -438,9 +439,9 @@ Theme changes MUST be reviewable and testable.
 
 Future light, dark, high-contrast, brand, or tenant variants require approved design scope. This architecture does not promise dark mode.
 
-Figma remains the source of approved visual intent. The repository theme implementation becomes the executable mapping of that approved intent.
+Penpot remains the official visual design authority and source of approved visual intent. The repository theme implementation becomes the executable mapping of that approved intent.
 
-A Figma design MUST NOT override accessibility, security, privacy, performance, backend contracts, or permanent architecture rules.
+A Penpot design MUST NOT override accessibility, security, privacy, performance, backend contracts, or permanent architecture rules.
 
 ## Accessibility
 
@@ -457,6 +458,8 @@ Frontend implementation MUST use:
 - form errors associated with their fields;
 - non-color-only communication;
 - reduced-motion support when animation is introduced.
+
+Actual interactive targets MUST be at least 44 × 44px. A 48 × 48px target is preferred for mobile when layout and density allow it. A smaller visible icon or visual surface is permitted only when enclosed by an actual interactive target of at least 44 × 44px.
 
 Accessibility MUST be designed into components and workflows from the beginning, not added only after implementation.
 
@@ -790,7 +793,7 @@ Features:
 
 The project-owned feedback API SHOULD support typed kinds such as success, information, warning, and error.
 
-Final durations, positions, colors, icons, animation values, and responsive layout MUST remain deferred until approved Figma and design-specification work.
+Final durations, positions, colors, icons, animation values, and responsive layout MUST remain deferred until approved Penpot and design-specification work.
 
 Duplicate equivalent feedback SHOULD be deduplicated. Queue size and simultaneous visibility MUST be bounded.
 
@@ -1121,7 +1124,7 @@ Frontend agents MUST NOT:
 
 - change the approved stack without explicit approval;
 - introduce a state library or UI library without explicit approval;
-- invent visual design that belongs to Figma;
+- invent visual design that belongs to Penpot;
 - edit generated API code manually;
 - modify backend code to make frontend work easier unless the task explicitly authorizes backend changes;
 - mix unrelated features into a foundation task;
@@ -1148,7 +1151,7 @@ The following decisions remain intentionally deferred:
 
 - exact Node.js version;
 - exact OpenAPI generator;
-- final Figma colors, typography, spacing, layouts, and component appearance;
+- final Penpot colors, typography, spacing, layouts, and component appearance;
 - SSR, SSG, hybrid rendering, PWA, and offline support;
 - full Arabic localization and full RTL implementation;
 - production refresh-token storage strategy;

@@ -30,6 +30,7 @@ Only explicit decisions from Karam or approved repository authorities may be rec
 | DEC-PH0-012 | No Phase 1 work begins automatically after this reconciliation. | Stop-for-review requirement, 2026-07-23 | Gate G0 and the next task packet require explicit review and authorization. |
 | DEC-PH0-013 | Reconcile the frontend/design evidence baseline to backend handoff commit `8439511`. | Current authorized task, 2026-08-11 | Records Preparation Package backend-ready and deferred boundaries without authorizing Phase 1, page specifications, Penpot, or Angular work. |
 | DEC-PH0-014 | G0 is not accepted on existing evidence alone. | G0 requires explicit Karam acceptance; no acceptance record exists | Human review remains the sole route to accept or reject G0. |
+| DEC-PH0-015 | Authorize documentation-only frontend/design conflict resolution and screen-continuation readiness mapping. | Karam, 2026-08-12 | May reconcile documented authority, target-size, scope, baseline, and readiness wording from recorded evidence; does not accept G0 or authorize page specifications, Penpot writes, Angular implementation, or backend changes. |
 
 ## Reconciled architecture direction
 

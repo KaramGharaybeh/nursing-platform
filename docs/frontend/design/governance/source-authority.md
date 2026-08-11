@@ -2,11 +2,12 @@
 
 ```yaml
 document_id: NPS-DES-GOV-SOURCE-001
-version: 1.1
+version: 1.2
 status: phase-0-reentry-reconciliation
-recorded_at: 2026-08-11
+recorded_at: 2026-08-12
 timezone: Asia/Amman
-repository_commit: 8439511
+backend_evidence_commit: 8439511
+design_governance_baseline: 1c22b59
 repository_branch: feature/preparation-package-foundation
 penpot_file_id: 01813f71-6684-8025-8008-5d0437a49666
 ```
@@ -28,7 +29,7 @@ Use sources in this order:
 7. Penpot for approved visual geometry, composition, styling, and hierarchy.
 8. Agent inference is never authoritative.
 
-Penpot is the sole visual authority. It cannot override repository security, accessibility, privacy, backend-contract, or architecture rules. A live Penpot artifact is evidence until it passes the applicable manager gate and Karam explicitly grants visual approval.
+Penpot is the sole visual authority. Figma is non-authoritative unless Karam explicitly records a future decision changing that rule. Penpot cannot override repository security, accessibility, privacy, backend-contract, or architecture rules. A live Penpot artifact is evidence until it passes the applicable manager gate and Karam explicitly grants visual approval.
 
 ## Repository snapshot
 
@@ -36,7 +37,8 @@ Penpot is the sole visual authority. It cannot override repository security, acc
 |---|---|---|
 | Repository | `/home/karam/development/nursing-platform` | Live Nursing Platform repository |
 | Branch | `feature/preparation-package-foundation` | Re-entry evidence branch |
-| Commit | `8439511` | Preparation Package Stage 1 runtime handoff evidence revision |
+| Backend evidence commit | `8439511` | Preparation Package Stage 1–4 backend handoff evidence baseline |
+| Design-governance baseline | `1c22b59` | Current committed design-governance baseline; not approval for Angular or Penpot writes |
 | Remote relation | Not evaluated in this documentation-only re-entry task | Not required for frontend contract evidence |
 | Frontend runtime | `frontend/` is uninitialized | Angular 22 is approved architecture, not implemented evidence |
 | Active milestone | Preparation Package Stage 1 runtime complete; Stage 2–4 package runtime handoff remains implemented | Does not independently authorize frontend implementation |
@@ -51,7 +53,11 @@ The working tree already contained the following changes before the approved Pha
 ?? docs/frontend/design/
 ```
 
-These changes are uncommitted evidence. Phase 0 does not approve them automatically. The existing `docs/frontend/frontend-architecture.md` change already replaces Figma references with Penpot and resolves the 44px/48px target-size wording, but it remains an unstaged working-tree change pending normal review.
+These changes are uncommitted evidence. Phase 0 does not approve them automatically. The existing `docs/frontend/frontend-architecture.md` change reconciles prior historical Figma wording to Penpot-only authority and records the 44px actual-target minimum with a 48px preferred mobile/touch default; it remains an unstaged working-tree change pending normal review.
+
+## Local runtime evidence
+
+On 2026-08-12, the local Penpot frontend, backend, exporter, and MCP containers were observed running; the frontend is published at `http://localhost:9001`. This runtime availability is evidence only: it does not approve a Penpot artifact, authorize a write, accept G0, or authorize Angular implementation. The observed library gaps (zero local components/colors, incomplete token coverage, and no token theme) remain unresolved evidence.
 
 ## Preparation Package Backend Handoff
 

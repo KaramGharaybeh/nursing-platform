@@ -2,15 +2,15 @@
 
 ```yaml
 document_id: NPS-DES-STATE-001
-version: 1.2
-updated_at: 2026-08-11
+version: 1.3
+updated_at: 2026-08-12
 timezone: Asia/Amman
 manager_model: openai/gpt-5.6-sol
 design_authority: Penpot
 viewport_scope: Desktop browser
 current_phase: PHASE-0-REENTRY-RECONCILIATION
-current_batch: NPS-DES-PH0-REENTRY-8439511
-overall_status: g0-not-accepted-awaiting-human-review
+current_batch: NPS-DES-PH0-CONFLICT-RESOLUTION-20260812
+overall_status: g0-not-accepted-conflict-resolution-in-review
 ```
 
 ## Goal
@@ -55,7 +55,7 @@ Create evidence-backed Markdown specifications and approved Penpot Desktop desig
 ## Current findings
 
 1. The live repository is the evidence source; the earlier uploaded documentation dump is historical and insufficient for page specifications.
-2. Penpot is the sole visual authority. The live unstaged frontend architecture reflects this decision, while committed `HEAD` still contains prior Figma wording.
+2. Penpot is the sole visual authority; Figma is non-authoritative unless Karam records a future decision changing that rule. The working copy reconciles the prior historical Figma wording; integration remains subject to review.
 3. Angular 22, Angular Material/CDK where required, Signals, RxJS, SCSS, and a project-owned Material theme are approved architecture; the frontend workspace is not initialized.
 4. The current milestone and roadmap do not authorize frontend implementation. Karam separately authorized only this bounded documentation-only Phase 0 reconciliation.
 5. Eleven live Penpot pages exist from `00` through `10`. Their presence and exports are evidence, not approval.
@@ -90,7 +90,7 @@ The detailed object IDs, library inventory, and discrepancy evidence are central
 | Phase | Status | Gate | Notes |
 |---|---|---|---|
 | Planning baseline | Complete | — | Master plan and durable goal state created |
-| Phase 0 — Authority/live-repository reconciliation | Not accepted | G0 | Re-entry baseline reconciled to `8439511`; explicit human acceptance remains required |
+| Phase 0 — Authority/live-repository reconciliation | In review; not accepted | G0 | Backend evidence baseline `8439511`; design-governance baseline `1c22b59`; explicit human acceptance remains required |
 | Phase 1 — Evidence packs | Not started | G1 | Blocked until G0 is explicitly accepted and a Phase 1 packet is authorized |
 | Phase 2 — Shared design/test foundation | Not started | G2 | Existing decisions/assets require live verification |
 | Phase 3 — Canonical page inventory | Not started | G3 | Provisional families only |
@@ -138,6 +138,7 @@ actual_pilot_usage: not-measured
 ## Current blockers
 
 - Gate G0 awaits Karam's review of the complete five-file reconciliation diff.
+- The 2026-08-12 conflict-resolution and screen-continuation mapping is in review; it does not accept G0.
 - No Phase 1 packet is authorized.
 - The canonical route-level page inventory remains a Phase 3 deliverable; the 11-page Penpot inventory is not a canonical page registry.
 - Penpot findings remain evidence only and grant no visual approval.
@@ -172,7 +173,8 @@ Do not modify Penpot, AUTH-001, Page 09, .agent/goal-state.md, CURRENT_TASK.md, 
 | 2026-07-23 | Phase 0 documentation-only reconciliation authorized | `NPS-DES-PH0-G0-RECONCILE` |
 | 2026-07-23 | Authority, decision, and discrepancy registers created | `NPS-DES-GOV-SOURCE-001`, `NPS-DES-GOV-DECISION-001`, `NPS-DES-GOV-OPEN-001` |
 | 2026-07-23 | Phase 0 reconciliation stopped for review | Gate G0 not yet accepted |
-| 2026-08-11 | Backend handoff re-entry reconciled | Baseline advanced to `8439511`; G0 remains not accepted pending Karam review |
+| 2026-08-11 | Backend handoff re-entry reconciled | Backend evidence baseline advanced to `8439511`; G0 remains not accepted pending Karam review |
+| 2026-08-12 | Conflict resolution and screen-continuation readiness mapping | Documentation-only reconciliation in review; design-governance baseline is `1c22b59`; G0 remains not accepted |
 
 ## Proposed Phase 1 Preparation Package Evidence Packet
 

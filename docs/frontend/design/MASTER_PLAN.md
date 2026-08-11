@@ -1064,7 +1064,7 @@ The program is done when:
 
 ## 27. Current review checkpoint
 
-Phase 0 re-entry reconciliation is implemented in the approved five-file write set and is awaiting review.
+Phase 0 re-entry reconciliation and the 2026-08-12 documentation-only conflict-resolution/screen-continuation mapping are awaiting review. G0 remains not accepted.
 
 ```text
 TASK: NPS-DES-PH0-REENTRY-8439511
@@ -1079,7 +1079,7 @@ REVIEW:
 - docs/frontend/design/governance/open-questions.md
 
 NEXT ACTION:
-- Karam reviews the complete diff and Git status against backend handoff commit `8439511`.
+- Karam reviews the complete diff and Git status against backend evidence baseline `8439511` and design-governance baseline `1c22b59`.
 - Gate G0 is not accepted until Karam explicitly approves this reconciliation.
 - If accepted, separately authorize a bounded Preparation Package Phase 1 evidence packet for the implemented backend-ready areas only.
 

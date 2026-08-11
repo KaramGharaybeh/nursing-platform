@@ -2,10 +2,10 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Offer Administration Verification and Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Package Publication Validation Verification and Docs Status Finalization Complete
 
 Status:
-Preparation Package Stage 1 Runtime — Offer Administration Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed offer create/update requires an existing linked published package version and preserves package-version composition while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Package Publication Validation Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed package publication requires published compatible components and restricts material/practice Reporting Topics to the referenced reporting-profile assignment set while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
 Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`; draft-content package-publication guard evidence is represented by `8b46581`; material-version reuse evidence is represented by `849a453`; offer-deactivation evidence is represented by `e95545c`; direct package-version component-persistence evidence is represented by `0381045`. This Package Definition Version Offer Lifecycle Docs Status Finalization is documentation-only and does not authorize runtime changes.
 

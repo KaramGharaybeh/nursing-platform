@@ -2,9 +2,9 @@
 
 ```yaml
 document_id: NPS-DES-GOV-OPEN-001
-version: 1.1
-status: phase-0-reentry-reconciliation
-recorded_at: 2026-08-11
+version: 1.2
+status: g0-accepted-phase-1-contract-questions-open
+recorded_at: 2026-08-12
 timezone: Asia/Amman
 ```
 
@@ -65,8 +65,8 @@ These questions are explicitly owned by Phase 1. Phase 0 does not answer them.
 
 | ID | Question | Owner | Status |
 |---|---|---|---|
-| OPEN-G0-001 | Does the five-file re-entry reconciliation accurately record authority, scope, `8439511` handoff status, Penpot evidence, and discrepancy ownership? | Karam | Not accepted; blocks G0 acceptance and any Phase 1 packet |
+| OPEN-G0-001 | Does the five-file re-entry reconciliation accurately record authority, scope, `8439511` handoff status, Penpot evidence, and discrepancy ownership? | Karam acceptance, 2026-08-12; DEC-PH0-016 | Resolved; G0 governance/re-entry baseline accepted. Does not authorize Phase 1 without a separate task. |
 
 ## Proposed Phase 1 Preparation Package Evidence Packet
 
-If and only if G0 is explicitly accepted, a separately authorized Phase 1 packet may extract routes, exact permissions, DTOs, validation, Problem Details, ownership, and tested states for the implemented Preparation Package backend-ready areas: reporting topics/profiles, materials, practice collections, package composition/offers, entitlement reads, practice progress, package exam start, and analytical report reads. It must not create page specifications or design artifacts, and it must exclude storage/delivery, offline access, workspace aggregation, adaptive practice, retraining, and employer package visibility.
+G0 is accepted. A separately authorized Phase 1 packet may extract routes, exact permissions, DTOs, validation, Problem Details, ownership, and tested states for the implemented Preparation Package backend-ready areas: reporting topics/profiles, materials, practice collections, package composition/offers, entitlement reads, practice progress, package exam start, and analytical report reads. It must not create page specifications or design artifacts, and it must exclude storage/delivery, offline access, workspace aggregation, adaptive practice, retraining, and employer package visibility.

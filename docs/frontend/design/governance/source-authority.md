@@ -2,13 +2,13 @@
 
 ```yaml
 document_id: NPS-DES-GOV-SOURCE-001
-version: 1.2
-status: phase-0-reentry-reconciliation
+version: 1.3
+status: g0-accepted-governance-only
 recorded_at: 2026-08-12
 timezone: Asia/Amman
 backend_evidence_commit: 8439511
-design_governance_baseline: 1c22b59
-repository_branch: feature/preparation-package-foundation
+design_governance_baseline: 1f17718
+repository_branch: feature/frontend-design-evidence-foundation
 penpot_file_id: 01813f71-6684-8025-8008-5d0437a49666
 ```
 
@@ -36,9 +36,9 @@ Penpot is the sole visual authority. Figma is non-authoritative unless Karam exp
 | Item | Recorded value | Interpretation |
 |---|---|---|
 | Repository | `/home/karam/development/nursing-platform` | Live Nursing Platform repository |
-| Branch | `feature/preparation-package-foundation` | Re-entry evidence branch |
+| Branch | `feature/frontend-design-evidence-foundation` | Accepted governance/evidence-foundation branch |
 | Backend evidence commit | `8439511` | Preparation Package Stage 1–4 backend handoff evidence baseline |
-| Design-governance baseline | `1c22b59` | Current committed design-governance baseline; not approval for Angular or Penpot writes |
+| Frontend governance conflict-resolution baseline | `1f17718` | Accepted G0 governance/re-entry baseline; not approval for Angular or Penpot writes |
 | Remote relation | Not evaluated in this documentation-only re-entry task | Not required for frontend contract evidence |
 | Frontend runtime | `frontend/` is uninitialized | Angular 22 is approved architecture, not implemented evidence |
 | Active milestone | Preparation Package Stage 1 runtime complete; Stage 2–4 package runtime handoff remains implemented | Does not independently authorize frontend implementation |
@@ -57,7 +57,11 @@ These changes are uncommitted evidence. Phase 0 does not approve them automatica
 
 ## Local runtime evidence
 
-On 2026-08-12, the local Penpot frontend, backend, exporter, and MCP containers were observed running; the frontend is published at `http://localhost:9001`. This runtime availability is evidence only: it does not approve a Penpot artifact, authorize a write, accept G0, or authorize Angular implementation. The observed library gaps (zero local components/colors, incomplete token coverage, and no token theme) remain unresolved evidence.
+On 2026-08-12, the local Penpot frontend, backend, exporter, and MCP containers were observed running; the frontend is published at `http://localhost:9001`. This runtime availability is evidence only: it does not itself approve a Penpot artifact, authorize a write, or authorize Angular implementation. The observed library gaps (zero local components/colors, incomplete token coverage, and no token theme) remain unresolved evidence.
+
+## G0 acceptance scope
+
+Karam accepted G0 on 2026-08-12 as the governance/re-entry baseline for backend evidence `8439511` and frontend governance conflict resolution `1f17718` on `feature/frontend-design-evidence-foundation`. This acceptance authorizes only a separately scoped Phase 1 evidence-packet task. It does not authorize Angular implementation, Penpot writes, page specifications, a final route registry, backend changes, or visual approval.
 
 ## Preparation Package Backend Handoff
 

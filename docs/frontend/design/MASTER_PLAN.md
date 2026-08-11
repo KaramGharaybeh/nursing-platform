@@ -1064,11 +1064,11 @@ The program is done when:
 
 ## 27. Current review checkpoint
 
-Phase 0 re-entry reconciliation and the 2026-08-12 documentation-only conflict-resolution/screen-continuation mapping are awaiting review. G0 remains not accepted.
+Karam accepted G0 on 2026-08-12 as a frontend design governance/re-entry baseline only. Phase 1 remains a separately authorized evidence-packet task; no implementation or Penpot activity is authorized.
 
 ```text
-TASK: NPS-DES-PH0-REENTRY-8439511
-STATUS: G0 not accepted; awaiting human review
+TASK: NPS-DES-G0-ACCEPTANCE-20260812
+STATUS: G0 accepted for governance/re-entry only; Phase 1 not authorized
 MANAGER: openai/gpt-5.6-sol
 
 REVIEW:
@@ -1078,11 +1078,13 @@ REVIEW:
 - docs/frontend/design/governance/decision-log.md
 - docs/frontend/design/governance/open-questions.md
 
-NEXT ACTION:
-- Karam reviews the complete diff and Git status against backend evidence baseline `8439511` and design-governance baseline `1c22b59`.
-- Gate G0 is not accepted until Karam explicitly approves this reconciliation.
-- If accepted, separately authorize a bounded Preparation Package Phase 1 evidence packet for the implemented backend-ready areas only.
+ACCEPTED BASELINE:
+- Backend Preparation Package evidence: `8439511`.
+- Frontend governance conflict resolution: `1f17718` on `feature/frontend-design-evidence-foundation`.
 
-NO PENPOT WRITES. NO PAGE SPECS. NO ANGULAR OR BACKEND CODE.
+NEXT ACTION:
+- Separately authorize a bounded Preparation Package Phase 1 evidence packet for the implemented backend-ready areas only.
+
+NO PENPOT WRITES. NO PAGE SPECS. NO ROUTE REGISTRY. NO ANGULAR OR BACKEND CODE.
 NO STAGING OR COMMIT UNTIL EXPLICITLY AUTHORIZED.
 ```

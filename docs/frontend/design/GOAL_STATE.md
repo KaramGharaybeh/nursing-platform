@@ -2,15 +2,15 @@
 
 ```yaml
 document_id: NPS-DES-STATE-001
-version: 1.3
+version: 1.4
 updated_at: 2026-08-12
 timezone: Asia/Amman
 manager_model: openai/gpt-5.6-sol
 design_authority: Penpot
 viewport_scope: Desktop browser
-current_phase: PHASE-0-REENTRY-RECONCILIATION
-current_batch: NPS-DES-PH0-CONFLICT-RESOLUTION-20260812
-overall_status: g0-not-accepted-conflict-resolution-in-review
+current_phase: PHASE-1-EVIDENCE-PACKET-AWAITING-AUTHORIZATION
+current_batch: none
+overall_status: g0-accepted-governance-only-phase-1-not-authorized
 ```
 
 ## Goal
@@ -57,7 +57,7 @@ Create evidence-backed Markdown specifications and approved Penpot Desktop desig
 1. The live repository is the evidence source; the earlier uploaded documentation dump is historical and insufficient for page specifications.
 2. Penpot is the sole visual authority; Figma is non-authoritative unless Karam records a future decision changing that rule. The working copy reconciles the prior historical Figma wording; integration remains subject to review.
 3. Angular 22, Angular Material/CDK where required, Signals, RxJS, SCSS, and a project-owned Material theme are approved architecture; the frontend workspace is not initialized.
-4. The current milestone and roadmap do not authorize frontend implementation. Karam separately authorized only this bounded documentation-only Phase 0 reconciliation.
+4. Karam accepted G0 on 2026-08-12 as a governance/re-entry baseline only. The current milestone and roadmap still do not authorize frontend implementation, Penpot writes, page specifications, or a route registry.
 5. Eleven live Penpot pages exist from `00` through `10`. Their presence and exports are evidence, not approval.
 6. Page 07 contains overlapping legacy boards that require classification.
 7. Page 10 is incomplete relative to its legacy package claims: Desktop content exists, Tablet/Mobile branding is clipped, and RTL boards are empty. Tablet, Mobile, and RTL are not current program deliverables.
@@ -90,8 +90,8 @@ The detailed object IDs, library inventory, and discrepancy evidence are central
 | Phase | Status | Gate | Notes |
 |---|---|---|---|
 | Planning baseline | Complete | — | Master plan and durable goal state created |
-| Phase 0 — Authority/live-repository reconciliation | In review; not accepted | G0 | Backend evidence baseline `8439511`; design-governance baseline `1c22b59`; explicit human acceptance remains required |
-| Phase 1 — Evidence packs | Not started | G1 | Blocked until G0 is explicitly accepted and a Phase 1 packet is authorized |
+| Phase 0 — Authority/live-repository reconciliation | Accepted | G0 | Karam accepted the governance/re-entry baseline on 2026-08-12; backend evidence baseline `8439511`; frontend governance conflict-resolution baseline `1f17718` |
+| Phase 1 — Evidence packs | Not started; awaiting separate authorization | G1 | A bounded Preparation Package evidence-packet task is the next allowed work |
 | Phase 2 — Shared design/test foundation | Not started | G2 | Existing decisions/assets require live verification |
 | Phase 3 — Canonical page inventory | Not started | G3 | Provisional families only |
 | Phase 4 — Two-page documentation pilot | Not started | G4 | Choose one simple and one high-risk page after G3 |
@@ -137,27 +137,25 @@ actual_pilot_usage: not-measured
 
 ## Current blockers
 
-- Gate G0 awaits Karam's review of the complete five-file reconciliation diff.
-- The 2026-08-12 conflict-resolution and screen-continuation mapping is in review; it does not accept G0.
-- No Phase 1 packet is authorized.
+- G0 is accepted as a governance/re-entry baseline only; it does not authorize implementation or Penpot writes.
+- No Phase 1 evidence-packet task is authorized yet.
 - The canonical route-level page inventory remains a Phase 3 deliverable; the 11-page Penpot inventory is not a canonical page registry.
 - Penpot findings remain evidence only and grant no visual approval.
 - All unresolved source, Penpot, and contract discrepancies remain assigned in `governance/open-questions.md`.
 
 ## Exact next action
 
-Karam reviews the complete diff and final Git status for `NPS-DES-PH0-REENTRY-8439511`, then explicitly accepts or rejects G0.
+Authorize a bounded Preparation Package Phase 1 Evidence Packet that records the current backend/OpenAPI contract evidence for implemented package areas only.
 
-Do not accept G0, begin Phase 1, create page specifications, modify Penpot, or change frontend/backend source until separately authorized.
+Do not create page specifications, modify Penpot, or change frontend/backend source until separately authorized.
 
 ## Resume instruction
 
 ```text
 Read docs/frontend/design/MASTER_PLAN.md and docs/frontend/design/GOAL_STATE.md.
 Read the three files under docs/frontend/design/governance/.
-Confirm whether Karam accepted or rejected Gate G0 after reviewing the Phase 0 diff.
-If G0 is not explicitly accepted, make no further changes.
-If G0 is accepted, require a separately approved Phase 1 task packet before evidence-pack work.
+Confirm the recorded G0 acceptance and the current source revision.
+Require a separately approved Phase 1 task packet before evidence-pack work.
 Do not modify Penpot, AUTH-001, Page 09, .agent/goal-state.md, CURRENT_TASK.md, or TASKS.md without explicit scope.
 ```
 
@@ -175,7 +173,8 @@ Do not modify Penpot, AUTH-001, Page 09, .agent/goal-state.md, CURRENT_TASK.md, 
 | 2026-07-23 | Phase 0 reconciliation stopped for review | Gate G0 not yet accepted |
 | 2026-08-11 | Backend handoff re-entry reconciled | Backend evidence baseline advanced to `8439511`; G0 remains not accepted pending Karam review |
 | 2026-08-12 | Conflict resolution and screen-continuation readiness mapping | Documentation-only reconciliation in review; design-governance baseline is `1c22b59`; G0 remains not accepted |
+| 2026-08-12 | G0 governance/re-entry acceptance | Karam accepted G0 only for the backend evidence baseline `8439511` and frontend governance conflict-resolution baseline `1f17718`; Phase 1 remains separately authorized work |
 
 ## Proposed Phase 1 Preparation Package Evidence Packet
 
-Do not create this packet or any page specification until G0 is explicitly accepted and a separate task authorizes Phase 1. The bounded packet must record the `8439511` source revision and extract only implemented Preparation Package contracts for: admin reporting topics, reporting-profile publication, study materials, practice collections, package definition/version/composition, offers, nurse entitlement reads, practice progress, package exam-session start, and analytical-report reads. It must explicitly exclude storage provider, material delivery, offline access, workspace/dashboard aggregation, adaptive practice, retraining, and employer package visibility.
+G0 is accepted. Do not create this packet or any page specification until a separate task authorizes Phase 1. The bounded packet must record the `8439511` source revision and extract only implemented Preparation Package contracts for: admin reporting topics, reporting-profile publication, study materials, practice collections, package definition/version/composition, offers, nurse entitlement reads, practice progress, package exam-session start, and analytical-report reads. It must explicitly exclude storage provider, material delivery, offline access, workspace/dashboard aggregation, adaptive practice, retraining, and employer package visibility.

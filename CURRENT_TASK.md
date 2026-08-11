@@ -2,10 +2,10 @@
 
 ## Current Milestone
 
-Preparation Package — Stage 1 Runtime Package Publication Validation Verification and Docs Status Finalization Complete
+Preparation Package — Stage 1 Runtime Catalog Completion Verification and Frontend Handoff Ready
 
 Status:
-Preparation Package Stage 1 Runtime — Package Publication Validation Verification and Docs Status Finalization is complete and stopped for review. Verification confirmed package publication requires published compatible components and restricts material/practice Reporting Topics to the referenced reporting-profile assignment set while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
+Preparation Package Stage 1 Runtime — Catalog Completion Verification is complete and stopped for review. Verification confirmed published exam versions require a compatible published reporting profile and remaining publication requirements for package eligibility; dependent offers are excluded from new sales when a required component becomes ineligible without mutating historical package/purchase facts; dedicated package permissions protect administration; safe anonymous catalog APIs expose active eligible offers only; the Stage 1 EF migration is present; and full backend validation passed while preserving existing free, standalone paid-exam, payment, entitlement, package exam-session, package analytical report, and exam analytics behavior.
 
 Practice Progress implementation and docs/status completion on branch `feature/preparation-package-foundation` are represented by commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, and `8b964ae`. The Practice Retry/Retraining Authorization status finalization is represented by commit `54c61a5`. Practice exam-content isolation evidence includes existing guard commit `695cfbf`. Dedicated administration permissions test coverage is represented by commit `17e38eb`. Reporting-topic taxonomy implementation evidence is represented by `3f3cd66`. Reporting-profile publication evidence is represented by `7cd06e9` and `16a3f4e`. Study-material and V1 material-type implementation evidence is represented by `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Material lifecycle guard and regression evidence is represented by `1f31e88` and `a4b28bb`; draft-content package-publication guard evidence is represented by `8b46581`; material-version reuse evidence is represented by `849a453`; offer-deactivation evidence is represented by `e95545c`; direct package-version component-persistence evidence is represented by `0381045`. This Package Definition Version Offer Lifecycle Docs Status Finalization is documentation-only and does not authorize runtime changes.
 
@@ -61,7 +61,7 @@ Approved decisions summary:
 
 ### Current Authorized Task
 
-The current authorized task is the documentation-only Package Version Composition Administration verification and status update. Verification confirmed this Stage 1 runtime item is satisfied by the existing Stage 1 runtime implementation and regression coverage, including direct exact-component persistence coverage; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
+The current authorized task is the documentation-only Stage 1 runtime catalog completion verification and frontend handoff status update. Verification confirmed checklist items 306–311 are satisfied by existing Stage 1 runtime implementation and regression coverage; no backend runtime code, tests, migrations, frontend/design files, staging, committing, pushing, or later-stage work is authorized by this update.
 
 Known unrelated frontend/design worktree changes remain preserved and outside this Package Version Composition Administration completion update.
 

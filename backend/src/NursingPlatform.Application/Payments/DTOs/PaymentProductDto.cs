@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace NursingPlatform.Application.Payments.DTOs;
 
 public class PaymentProductDto
@@ -9,6 +11,7 @@ public class PaymentProductDto
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string Currency { get; set; } = string.Empty;
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long UnitAmountMinor { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }

@@ -60,6 +60,7 @@ using NursingPlatform.Application.Payments.Commands.CancelMyPaymentOrder;
 using NursingPlatform.Application.Payments.Commands.CompleteSandboxPaymentCheckout;
 using NursingPlatform.Application.Payments.Commands.CreateMyPaymentOrder;
 using NursingPlatform.Application.Payments.Commands.StartMyPaymentCheckout;
+using NursingPlatform.Application.Payments.DTOs;
 using NursingPlatform.Application.Payments.Queries.GetMyPaymentOrder;
 using NursingPlatform.Application.Payments.Queries.GetPaymentProduct;
 using NursingPlatform.Application.Payments.Queries.ListMyPaymentOrders;
@@ -1101,7 +1102,12 @@ public static class ApplicationBuilderExtensions
             var result = await sender.Send(new CreateMyPaymentOrderCommand { Request = request });
             return Results.Created($"/api/v1/me/nurse-profile/payment/orders/{result.Id}", result);
         })
-        .WithName("CreateMyPaymentOrder");
+        .WithName("CreateMyPaymentOrder")
+        .Produces<PaymentOrderDto>(StatusCodes.Status201Created)
+        .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
 
         nurseProfile.MapGet("/payment/orders", async (
             int? page,
@@ -1148,7 +1154,13 @@ public static class ApplicationBuilderExtensions
             httpContext.Response.Headers.CacheControl = "no-store";
             return Results.Ok(result);
         })
-        .WithName("StartMyPaymentCheckout");
+        .WithName("StartMyPaymentCheckout")
+        .Produces<PaymentCheckoutSessionDto>(StatusCodes.Status200OK)
+        .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict)
+        .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
 
         if (app.Environment.IsDevelopment() || string.Equals(app.Environment.EnvironmentName, "Test", StringComparison.OrdinalIgnoreCase))
         {
@@ -1166,6 +1178,12 @@ public static class ApplicationBuilderExtensions
                 return Results.Ok(result);
             })
             .WithName("CompleteSandboxPaymentCheckout")
+            .Produces<PaymentCompletionDto>(StatusCodes.Status200OK)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status503ServiceUnavailable)
             .RequireAuthorization();
         }
 

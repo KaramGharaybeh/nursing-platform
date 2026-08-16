@@ -6,6 +6,7 @@ using NursingPlatform.Application.Common.Models;
 using NursingPlatform.Application.PreparationPackages.Common;
 using NursingPlatform.Application.PreparationPackages.DTOs;
 using NursingPlatform.Domain.PreparationPackages;
+using System.Text.Json.Serialization;
 
 namespace NursingPlatform.Application.PreparationPackages.Admin.PackageOffers;
 
@@ -16,6 +17,7 @@ public class CreateAdminPreparationPackageOfferRequest
     public string Title { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public string? Summary { get; set; }
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long PriceAmountMinor { get; set; }
     public string Currency { get; set; } = string.Empty;
     public int AccessDurationDays { get; set; }

@@ -80,6 +80,21 @@ public class PreparationPackageCatalogEndpointTests
         Assert.Single(body.Items);
     }
 
+    [Theory]
+    [InlineData("page=0")]
+    [InlineData("page=1&pageSize=101")]
+    public async Task GetCatalogOffers_InvalidPagination_ReturnsBadRequestWithoutCallingHandler(string query)
+    {
+        var response = await _client.GetAsync($"/api/v1/preparation-packages/offers?{query}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        _senderMock.Verify(
+            sender => sender.Send(
+                It.IsAny<ListPreparationPackageOffersQuery>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     [Fact]
     public async Task GetCatalogOffer_DoesNotExposePasswordHashTokensProtectedExamContentCorrectAnswersOrInternalAuthorizationState()
     {

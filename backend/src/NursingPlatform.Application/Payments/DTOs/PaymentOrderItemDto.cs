@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace NursingPlatform.Application.Payments.DTOs;
 
 public class PaymentOrderItemDto
@@ -8,8 +10,10 @@ public class PaymentOrderItemDto
     public string ProductType { get; set; } = string.Empty;
     public Guid ExamId { get; set; }
     public string Currency { get; set; } = string.Empty;
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long UnitAmountMinor { get; set; }
     public int Quantity { get; set; }
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long LineTotalAmountMinor { get; set; }
     public string SourceType { get; set; } = string.Empty;
     public Guid SourceId { get; set; }
@@ -35,6 +39,7 @@ public class PaymentPackageSnapshotDto
     public Guid ReportingProfilePublicationId { get; set; }
     public Guid PracticeCollectionVersionId { get; set; }
     public List<Guid> StudyMaterialVersionIds { get; set; } = [];
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long PriceAmountMinor { get; set; }
     public string Currency { get; set; } = string.Empty;
     public int AccessDurationDays { get; set; }

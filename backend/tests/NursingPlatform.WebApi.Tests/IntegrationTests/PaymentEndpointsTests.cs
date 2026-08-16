@@ -170,13 +170,17 @@ public class PaymentEndpointsTests
     {
         NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
         var productId = Guid.NewGuid();
+        var order = CreateOrderDto();
         _senderMock
             .Setup(s => s.Send(It.Is<CreateMyPaymentOrderCommand>(c => c.Request.ProductId == productId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateOrderDto());
+            .ReturnsAsync(order);
 
         var response = await _client.PostAsJsonAsync("/api/v1/me/nurse-profile/payment/orders", new { productId });
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal(
+            $"/api/v1/me/nurse-profile/payment/orders/{order.Id}",
+            response.Headers.Location?.ToString());
     }
 
     [Fact]

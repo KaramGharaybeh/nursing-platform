@@ -7,6 +7,7 @@ using NursingPlatform.Application.Payments.Common;
 using NursingPlatform.Application.Payments.DTOs;
 using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Payments;
+using System.Text.Json.Serialization;
 
 namespace NursingPlatform.Application.Payments.Admin.Products;
 
@@ -17,6 +18,7 @@ public class CreateAdminPaymentProductRequest
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string Currency { get; set; } = string.Empty;
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long UnitAmountMinor { get; set; }
     public bool IsActive { get; set; } = true;
 }
@@ -26,6 +28,7 @@ public class UpdateAdminPaymentProductRequest
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string Currency { get; set; } = string.Empty;
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long UnitAmountMinor { get; set; }
 }
 

@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using NursingPlatform.Application.Authorization;
 using NursingPlatform.Application.Common.Models;
@@ -131,15 +132,19 @@ public static class PreparationPackageEndpointExtensions
             int? pageSize,
             Guid? countryId,
             Guid? examCategoryId,
+            IValidator<ListPreparationPackageOffersQuery> validator,
             ISender sender) =>
         {
-            var result = await sender.Send(new ListPreparationPackageOffersQuery
+            var query = new ListPreparationPackageOffersQuery
             {
                 Page = page ?? 1,
                 PageSize = pageSize ?? 20,
                 CountryId = countryId,
                 ExamCategoryId = examCategoryId
-            });
+            };
+
+            await validator.ValidateAndThrowAsync(query);
+            var result = await sender.Send(query);
 
             return Results.Ok(result);
         })

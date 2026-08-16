@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace NursingPlatform.Application.PreparationPackages.Entitlements.DTOs;
 
 public class PackageEntitlementListItemDto
@@ -32,6 +34,7 @@ public class PackageEntitlementSnapshotDto
     public Guid ReportingProfilePublicationId { get; set; }
     public Guid PracticeCollectionVersionId { get; set; }
     public List<Guid> StudyMaterialVersionIds { get; set; } = [];
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long PriceAmountMinor { get; set; }
     public string Currency { get; set; } = string.Empty;
     public int AccessDurationDays { get; set; }

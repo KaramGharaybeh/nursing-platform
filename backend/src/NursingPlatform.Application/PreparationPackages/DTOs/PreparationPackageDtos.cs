@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace NursingPlatform.Application.PreparationPackages.DTOs;
 
 public class PreparationPackageCatalogComponentSummaryDto
@@ -22,6 +24,7 @@ public class PreparationPackageOfferListItemDto
     public int MaterialCount { get; set; }
     public int PracticeItemCount { get; set; }
     public int AccessDurationDays { get; set; }
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long PriceAmountMinor { get; set; }
     public string Currency { get; set; } = string.Empty;
 }
@@ -156,6 +159,7 @@ public class AdminPreparationPackageOfferDto
     public string Title { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public string? Summary { get; set; }
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long PriceAmountMinor { get; set; }
     public string Currency { get; set; } = string.Empty;
     public int AccessDurationDays { get; set; }

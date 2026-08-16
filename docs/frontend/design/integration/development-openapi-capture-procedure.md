@@ -28,7 +28,7 @@ This document records OpenAPI capture evidence and a safe capture decision for f
 
 `backend/src/NursingPlatform.WebApi/appsettings.Development.json` configures:
 
-- PostgreSQL: `Host=localhost;Port=5432;Database=nursing_platform;Username=postgres;Password=postgres`.
+- PostgreSQL: `Host=localhost;Port=5432;Database=nursing_platform;Username=nursing_admin;Password=ChangeMe_Development_2026`.
 - Redis: `localhost:6379`.
 - SMTP: `localhost:1025`.
 - Sandbox payment public base URL: `https://localhost:5001/sandbox-payments`.

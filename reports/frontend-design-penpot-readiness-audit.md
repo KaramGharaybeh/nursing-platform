@@ -21,7 +21,7 @@ The uncommitted architecture wording change correctly makes Penpot the sole visu
 
 ## 3. Design governance status
 
-**G0 is not accepted.** `GOAL_STATE.md`, `MASTER_PLAN.md`, and the decision log explicitly record that human acceptance by Karam is required and no acceptance record exists. The current task authorizes readiness assessment only; it does not constitute G0 acceptance.
+**G0 was accepted on 2026-08-12 as a governance/re-entry baseline only, as recorded in `docs/frontend/design/governance/decision-log.md` (DEC-PH0-016).** The decision log, `GOAL_STATE.md`, and `MASTER_PLAN.md` confirm that this acceptance authorizes only a separately scoped Phase 1 evidence-packet task. It does not authorize Angular implementation, Penpot writes, page specifications, a route registry, or visual approval.
 
 The governance program is internally coherent about authority and sequencing: Penpot is the sole visual authority, current design-documentation scope is Desktop only, and no Penpot writes, page specs, or Angular implementation may begin before the required gates. The architecture remains responsive and RTL-ready, which is compatible with the narrower current Desktop design-documentation scope.
 

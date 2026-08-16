@@ -33,7 +33,7 @@ No Angular implementation, including scaffolding, may start until all of the fol
 - Penpot source status and approval status are confirmed.
 - The npm/package-manager policy and Angular project-creation command are explicitly approved.
 
-G0 is currently not accepted. A later approval must not be inferred from this document, a running Penpot container, a draft board, or backend readiness.
+G0 was accepted on 2026-08-12 as a governance/re-entry baseline only, as recorded in `docs/frontend/design/governance/decision-log.md` (DEC-PH0-016) and `docs/frontend/design/GOAL_STATE.md`. A later implementation approval must not be inferred from this document, a running Penpot container, a draft board, or backend readiness.
 
 ## 3. Angular stack rules
 

@@ -19,9 +19,9 @@ This is a repository evidence index for frontend-design integration. It is not a
 
 ## 3. OpenAPI status
 
-`ServiceCollectionExtensions.cs` calls `AddOpenApi`; `ApplicationBuilderExtensions.cs` calls `MapOpenApi()` only when `app.Environment.IsDevelopment()`. The repository search found OpenAPI runtime assemblies in existing build output but no generated Development OpenAPI JSON/YAML artifact, no recorded artifact revision, and no documented safe read-only capture command.
+`ServiceCollectionExtensions.cs` calls `AddOpenApi`; `ApplicationBuilderExtensions.cs` calls `MapOpenApi()` only when `app.Environment.IsDevelopment()`. The authorized Development capture from the uncommitted contract-stabilization working tree based on `7768f27` produced OpenAPI `3.1.1` from `http://localhost:5167/openapi/v1.json`, temporary artifact `/tmp/opencode/development-openapi-stabilized.json`, SHA-256 `c0c4f965215c0b58bcbf59d07db9e85c2fcc6b5a0dd91dc43f8bdd6b3f4e95a1`.
 
-**OpenAPI capture still required.** It cannot be considered current from this repository evidence. The safe capture procedure, artifact path, and revision must be established in a separate authorized task; this task did not start a server or change configuration. This keeps `OPEN-PH1-002` and `OPEN-PH1-005` open.
+The captured document verifies the Preparation Package operation paths, typed payment success schemas, `CreateMyPaymentOrder` as `201` with `Location`, checkout/Sandbox `Cache-Control`, and operation-level Bearer requirements for protected endpoints. It does not resolve Problem Details extensions, numeric schema unions, or required-property metadata. Governance status for `OPEN-PH1-002` and `OPEN-PH1-005` must be updated only in a separately authorized governance task.
 
 ## 4. API operation index
 
@@ -62,7 +62,7 @@ All paths are relative to `/api/v1`. Endpoint status declarations are from the m
 
 ## 6. Validation evidence
 
-Validators are registered with `services.AddValidatorsFromAssembly(...)` in `Application/DependencyInjection.cs`. Repository inspection found no `IPipelineBehavior`, endpoint filter, or WebApi validation invocation calling validators; `ExceptionMiddleware` can serialize a thrown `ValidationException`, but registration alone does not prove request-time execution.
+Validators are registered with `services.AddValidatorsFromAssembly(...)` in `Application/DependencyInjection.cs`. The public Preparation Package catalog list endpoint now resolves `IValidator<ListPreparationPackageOffersQuery>` and invokes it before `ISender.Send`. Focused endpoint tests prove invalid pagination does not invoke the handler. Live verification proves `page=0` and `pageSize=101` return `400 application/problem+json`, while valid pagination returns `200`.
 
 | Operation group | Validator / source | Rules evidenced | Frontend implication / gap |
 |---|---|---|---|
@@ -73,7 +73,7 @@ Validators are registered with `services.AddValidatorsFromAssembly(...)` in `App
 | Report/entitlement detail | `GetPackageAnalyticalReportQueryValidator`, `GetMyPackageEntitlementQueryValidator` | Path ids non-empty | Route constraints may reject malformed values before validator; exact outcome is not established. |
 | Admin authoring | validators in `Admin/**Operations.cs`, plus `PreparationPackageValidatorTests` | Topic fields, assignments, material type/content/topics, practice item/topic/correct option, package ordering, offer price/currency/duration | Admin form contracts require per-operation extraction before UI. |
 
-**`OPEN-PH1-001` remains open.** Validator registration and validator unit tests are evidenced; runtime invocation for Minimal API requests is not evidenced by the inspected pipeline/source/tests.
+Runtime FluentValidation invocation is verified for the public Preparation Package catalog pagination operation only. Other Minimal API command/query validators remain outside this bounded stabilization and must not be inferred as active.
 
 ## 7. Error and Problem Details evidence
 
@@ -115,11 +115,11 @@ Page specifications remain blocked by a current OpenAPI capture, proven runtime 
 
 ## 10. Open questions carried forward
 
-- `OPEN-PH1-001`: remains open; validators are registered but runtime invocation is not proven.
-- `OPEN-PH1-002`: remains open; no generated Development artifact or safe capture procedure was found.
+- `OPEN-PH1-001`: narrowed; runtime invocation is proven for public catalog pagination only, not repository-wide.
+- `OPEN-PH1-002`: generated Development artifact captured; governance closure is not performed by this implementation task.
 - `OPEN-PH1-003`: remains open; no `422` mapping/evidence was found.
 - `OPEN-PH1-004`: remains open; administration payment operations are outside this package endpoint scope.
-- `OPEN-PH1-005`: remains open; no generated OpenAPI revision can yet evidence package operations.
+- `OPEN-PH1-005`: generated revision now evidences package operation paths/security and payment success contracts; governance closure remains separate because other schema discrepancies persist.
 - Packet-local: Verify the current Development OpenAPI endpoint/artifact procedure, exact request JSON naming/nullability, and runtime validation pipeline before any page specification.
 
 This task evaluates evidence only; it does not update or close governance questions.

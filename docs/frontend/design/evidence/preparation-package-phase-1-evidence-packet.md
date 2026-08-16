@@ -20,7 +20,7 @@ This packet records deterministic repository evidence for future frontend design
 
 Implemented backend evidence covers public catalog offers, nurse-owned entitlements, package payment order creation and Development/Test Sandbox completion, entitlement benefit-right summaries, practice progress, package exam-session start, report read/generation, and permission-protected administration.
 
-Known gaps remain: no generated Development OpenAPI artifact was found in repository/documentation searches; no nurse package material delivery route exists; no workspace aggregate route exists; and no page, route, visual, or frontend runtime contract is approved.
+The Development OpenAPI document was captured from the authorized uncommitted contract-stabilization working tree based on `7768f27`: `http://localhost:5167/openapi/v1.json`, OpenAPI `3.1.1`, temporary artifact `/tmp/opencode/development-openapi-stabilized.json`, SHA-256 `c0c4f965215c0b58bcbf59d07db9e85c2fcc6b5a0dd91dc43f8bdd6b3f4e95a1`. The capture verifies Preparation Package paths, typed payment response schemas, payment response headers, and Bearer requirements for protected operations. Remaining gaps include Problem Details extensions, numeric schema unions, required-property metadata, no nurse package material delivery route, no workspace aggregate route, and no approved page, route, visual, or frontend runtime contract.
 
 ## 4. Implemented capability evidence
 
@@ -235,7 +235,7 @@ FluentValidation validators are present in payment commands, package admin opera
 
 - Existing: `OPEN-PH1-001` runtime FluentValidation invocation; `OPEN-PH1-002` OpenAPI artifact/capture; `OPEN-PH1-003` `422`; `OPEN-PH1-004` administration payment permissions; `OPEN-PH1-005` package operation OpenAPI/source extract.
 - Existing design foundation: `OPEN-001`–`OPEN-009` and applicable `DISC-PEN-*` / `DISC-REP-001`.
-- Packet-local: No generated Development OpenAPI artifact was found. **OpenAPI capture still required.** Existing docs establish OpenAPI/Swagger as required but do not provide a documented safe read-only capture command; investigate the generated Development artifact/capture procedure in a separately scoped task without starting servers or changing configuration.
+- Packet-local: A generated Development OpenAPI artifact is now captured for revision `7768f27`, but it is not sufficient for TypeScript generation while Problem Details extensions, numeric unions, and required/nullability metadata remain unresolved.
 - Packet-local: Package material entitlement metadata is evidenced, but nurse content retrieval/delivery is not; do not design a material-reader screen as implemented.
 
 ## 12. Recommended next step

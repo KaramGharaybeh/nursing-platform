@@ -8,8 +8,10 @@ This packet records deterministic repository evidence for future frontend design
 
 | Item | Evidence |
 |---|---|
-| Branch / HEAD | `feature/frontend-design-evidence-foundation` / `4073154 docs: record frontend design G0 acceptance` |
+| Branch / HEAD | `feature/frontend-design-evidence-foundation` / `f962370 docs: resolve and document Phase 1 API integration open questions` |
 | Backend Preparation Package evidence baseline | `8439511` |
+| CST contract stabilization commit | `77cc3b7 feat: stabilize preparation package OpenAPI contracts` |
+| Development OpenAPI artifact | `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` (OpenAPI 3.1.1, SHA-256 `aa96da71259c9fc8c91d54b42e17741b6988fdaa7e5308128e3da26b08497f99`) |
 | G0 governance baseline | `4073154` |
 | G0 scope | Accepted governance/re-entry only; Phase 1 evidence extraction is authorized, not implementation. |
 | Endpoint source | `backend/src/NursingPlatform.WebApi/Extensions/PreparationPackageEndpointExtensions.cs` |
@@ -21,6 +23,8 @@ This packet records deterministic repository evidence for future frontend design
 Implemented backend evidence covers public catalog offers, nurse-owned entitlements, package payment order creation and Development/Test Sandbox completion, entitlement benefit-right summaries, practice progress, package exam-session start, report read/generation, and permission-protected administration.
 
 The Development OpenAPI document was captured from the authorized uncommitted contract-stabilization working tree based on `7768f27`: `http://localhost:5167/openapi/v1.json`, OpenAPI `3.1.1`, temporary artifact `/tmp/opencode/development-openapi-stabilized.json`, SHA-256 `c0c4f965215c0b58bcbf59d07db9e85c2fcc6b5a0dd91dc43f8bdd6b3f4e95a1`. The capture verifies Preparation Package paths, typed payment response schemas, payment response headers, and Bearer requirements for protected operations. Remaining gaps include Problem Details extensions, numeric schema unions, required-property metadata, no nurse package material delivery route, no workspace aggregate route, and no approved page, route, visual, or frontend runtime contract.
+
+CST-001–008 contract stabilization was committed at `77cc3b7` and the finalized artifact is now stored at `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` (OpenAPI 3.1.1, SHA-256 `aa96da71259c9fc8c91d54b42e17741b6988fdaa7e5308128e3da26b08497f99`). This committed artifact supersedes the temporary capture and reflects all CST stabilization fixes: typed payment response schemas, Bearer security requirement, Problem Details variants, numeric string transport for minor-unit longs, required/nullable metadata, and exception middleware fixes.
 
 ## 4. Implemented capability evidence
 
@@ -197,7 +201,7 @@ All paths above are relative to `/api/v1`.
 
 FluentValidation validators are present in payment commands, package admin operations, practice answer commands, and report query paths. Concrete tested examples include page >= 1 and page size 1–100; non-empty identifiers; reporting-topic category/name/slug; non-empty reporting-profile assignments; compatible material type/content with at least one topic; practice item topic and exactly one correct option; unique positive package material order; and non-negative price, uppercase currency, positive duration.
 
-`ExceptionMiddleware.cs` maps validation to `400` with `errors`, missing resources to `404`, forbidden to `403`, unauthorized to `401`, package session/report and `InvalidOperationException` conflicts to `409`, provider unavailable to `503`, and unhandled failures to `500`. `422` behavior remains `OPEN-PH1-003`; it is not evidenced here. Rate limiting/`429` is not evidenced for these package endpoints.
+`ExceptionMiddleware.cs` maps validation to `400` with `errors`, missing resources to `404`, forbidden to `403`, unauthorized to `401`, package session/report and `InvalidOperationException` conflicts to `409`, provider unavailable to `503`, and unhandled failures to `500`. **`422` is not used.** `OPEN-PH1-003` diagnostic confirms: `ExceptionMiddleware.cs:45` maps `FluentValidation.ValidationException` to **400 Bad Request** (not 422). No `ValidationExceptionHandler`, `ProblemDetailsExceptionMapping`, `IExceptionHandler`, or `UseExceptionHandler()` exists. `ExceptionMiddleware` is the sole exception handling mechanism in the pipeline (registered first/outermost at `ApplicationBuilderExtensions.cs:90`). The `Status422UnprocessableEntity` constant is never referenced anywhere in the codebase. Rate limiting/`429` is not evidenced for these package endpoints.
 
 ## 8. Business state model evidence
 
@@ -212,14 +216,14 @@ FluentValidation validators are present in payment commands, package admin opera
 
 | Candidate area | Actor / goal | Evidence readiness | Blockers | Deferred exclusions | Candidate registry after review |
 |---|---|---|---|---|---|
-| Public package catalog / offer detail | Public user discovers eligible package | Needs OpenAPI confirmation | `OPEN-PH1-002`, `005` | No checkout completion claim | Yes |
-| Package order / Sandbox handoff | Nurse starts order and receives Sandbox outcome | Needs OpenAPI/payment evidence | `OPEN-PH1-002`, `004`, `007` | No production provider/webhooks/refunds | Yes, after review |
-| Entitlements / rights | Nurse sees purchased access and right availability | Needs OpenAPI confirmation | `OPEN-PH1-002`, `005` | No workspace aggregate | Yes |
+| Public package catalog / offer detail | Public user discovers eligible package | **OpenAPI captured and committed** | `OPEN-PH1-001` (validation invocation gap) | No checkout completion claim | Yes |
+| Package order / Sandbox handoff | Nurse starts order and receives Sandbox outcome | **OpenAPI captured and committed** | `OPEN-PH1-004` (consumer auth is JWT-only, admin uses `Permissions.Exams.*`), `OPEN-007` | No production provider/webhooks/refunds | Yes, after review |
+| Entitlements / rights | Nurse sees purchased access and right availability | **OpenAPI captured and committed** | None — resolved | No workspace aggregate | Yes |
 | Materials access state | Nurse understands MaterialsAccess availability | Blocked by missing delivery/read route | Delivery contract absent | No storage/upload/download/delivery | No |
-| Practice progress | Nurse reviews and updates practice progress | Needs OpenAPI confirmation | `OPEN-PH1-002`, `005` | No adaptive/retraining | Yes |
-| Package exam start/resume | Nurse starts or resumes package attempt | Needs OpenAPI/exam-contract confirmation | `OPEN-PH1-002`, `005`, `OPEN-009` | No attempt reset | Yes, after review |
-| Analytical report | Nurse reads diagnostic report | Needs OpenAPI confirmation | `OPEN-PH1-002`, `005` | No employer/admin report view | Yes |
-| Admin package authoring | Admin manages topics, profiles, materials, practice, package composition, offers | Needs OpenAPI confirmation | `OPEN-PH1-002`, `005` | No material delivery/employer data | Yes |
+| Practice progress | Nurse reviews and updates practice progress | **OpenAPI captured and committed** | None — resolved | No adaptive/retraining | Yes |
+| Package exam start/resume | Nurse starts or resumes package attempt | **OpenAPI captured and committed** | `OPEN-009` | No attempt reset | Yes, after review |
+| Analytical report | Nurse reads diagnostic report | **OpenAPI captured and committed** | None — resolved | No employer/admin report view | Yes |
+| Admin package authoring | Admin manages topics, profiles, materials, practice, package composition, offers | **OpenAPI captured and committed** | `OPEN-PH1-004` (admin uses `Permissions.Exams.*`) | No material delivery/employer data | Yes |
 
 ## 10. Explicitly deferred or forbidden-as-implemented
 
@@ -233,9 +237,12 @@ FluentValidation validators are present in payment commands, package admin opera
 
 ## 11. Open questions to carry forward
 
-- Existing: `OPEN-PH1-001` runtime FluentValidation invocation; `OPEN-PH1-002` OpenAPI artifact/capture; `OPEN-PH1-003` `422`; `OPEN-PH1-004` administration payment permissions; `OPEN-PH1-005` package operation OpenAPI/source extract.
+- **Resolved:** `OPEN-PH1-002` — Development OpenAPI artifact captured and committed at `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` (OpenAPI 3.1.1, SHA-256 `aa96da...`). Capture procedure documented in `development-openapi-capture-procedure.md`.
+- **Resolved:** `OPEN-PH1-005` — CST-001–008 stabilization committed at `77cc3b7`; captured artifact reflects stabilized contracts. Frontend contract baseline (`preparation-package-frontend-contract-baseline.md`) sections 8–12 unresolved items now covered by the committed OpenAPI.
+- **Open — diagnostic documented:** `OPEN-PH1-001` — FluentValidation is invoked via explicit manual injection only (`PreparationPackageEndpointExtensions.cs:146`); no MediatR Pipeline Behaviors, no `IPipelineBehavior`, no `IActionFilter` for validation exist. ~50+ validators registered via `AddValidatorsFromAssembly` but effectively dead code — never invoked at runtime. Validation index must account for this gap.
+- **Open — diagnostic documented:** `OPEN-PH1-003` — No `422` mapping exists. `ExceptionMiddleware.cs:45` maps `FluentValidation.ValidationException` to **400 Bad Request** (not 422). No `ValidationExceptionHandler`, `ProblemDetailsExceptionMapping`, `IExceptionHandler`, or `UseExceptionHandler()` exists. `ExceptionMiddleware` is the sole exception handling mechanism (first/outermost middleware at `ApplicationBuilderExtensions.cs:90`).
+- **Open — diagnostic documented:** `OPEN-PH1-004` — Two-tier authorization: admin payment endpoints (`/admin/payment/products/*`) use `RequirePermission(...)` with `Permissions.Exams.View` (reads) and `Permissions.Exams.Edit` (writes); consumer/nurse payment endpoints (`/api/v1/payment/products/*`, `/api/v1/me/nurse-profile/payment/orders/*`) use only `.RequireAuthorization()` — no permission check; any authenticated user passes.
 - Existing design foundation: `OPEN-001`–`OPEN-009` and applicable `DISC-PEN-*` / `DISC-REP-001`.
-- Packet-local: A generated Development OpenAPI artifact is now captured for revision `7768f27`, but it is not sufficient for TypeScript generation while Problem Details extensions, numeric unions, and required/nullability metadata remain unresolved.
 - Packet-local: Package material entitlement metadata is evidenced, but nurse content retrieval/delivery is not; do not design a material-reader screen as implemented.
 
 ## 12. Recommended next step

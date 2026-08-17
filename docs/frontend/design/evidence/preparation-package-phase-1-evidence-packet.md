@@ -214,16 +214,17 @@ FluentValidation validators are present in payment commands, package admin opera
 
 ## 9. Candidate screen areas
 
-| Candidate area | Actor / goal | Evidence readiness | Blockers | Deferred exclusions | Candidate registry after review |
-|---|---|---|---|---|---|
-| Public package catalog / offer detail | Public user discovers eligible package | **OpenAPI captured and committed** | `OPEN-PH1-001` (validation invocation gap) | No checkout completion claim | Yes |
-| Package order / Sandbox handoff | Nurse starts order and receives Sandbox outcome | **OpenAPI captured and committed** | `OPEN-PH1-004` (consumer auth is JWT-only, admin uses `Permissions.Exams.*`), `OPEN-007` | No production provider/webhooks/refunds | Yes, after review |
-| Entitlements / rights | Nurse sees purchased access and right availability | **OpenAPI captured and committed** | None — resolved | No workspace aggregate | Yes |
-| Materials access state | Nurse understands MaterialsAccess availability | Blocked by missing delivery/read route | Delivery contract absent | No storage/upload/download/delivery | No |
-| Practice progress | Nurse reviews and updates practice progress | **OpenAPI captured and committed** | None — resolved | No adaptive/retraining | Yes |
-| Package exam start/resume | Nurse starts or resumes package attempt | **OpenAPI captured and committed** | `OPEN-009` | No attempt reset | Yes, after review |
-| Analytical report | Nurse reads diagnostic report | **OpenAPI captured and committed** | None — resolved | No employer/admin report view | Yes |
-| Admin package authoring | Admin manages topics, profiles, materials, practice, package composition, offers | **OpenAPI captured and committed** | `OPEN-PH1-004` (admin uses `Permissions.Exams.*`) | No material delivery/employer data | Yes |
+| Candidate area | Actor / goal | Evidence readiness | Penpot design | Blockers | Deferred exclusions | Candidate registry after review |
+|---|---|---|---|---|---|---|
+| Public package catalog / offer detail (PP-OFFERS-LIST) | Public user discovers eligible package | **OpenAPI captured and committed** | **COMPLETED & VERIFIED** | `OPEN-PH1-001` (validation invocation gap) | No checkout completion claim | Yes |
+| Offer detail (PP-OFFER-DETAIL) | Public user reads one eligible offer by slug | **OpenAPI captured and committed** | **COMPLETED & VERIFIED** | None — resolved | No checkout completion claim | Yes |
+| Package order / Sandbox handoff (PP-CHECKOUT-ORDER) | Nurse starts order and receives Sandbox outcome | **OpenAPI captured and committed** | **COMPLETED & VERIFIED** | `OPEN-PH1-004` (consumer auth is JWT-only, admin uses `Permissions.Exams.*`), `OPEN-007` | No production provider/webhooks/refunds | Yes, after review |
+| Entitlements / rights | Nurse sees purchased access and right availability | **OpenAPI captured and committed** | Not yet | None — resolved | No workspace aggregate | Yes |
+| Materials access state | Nurse understands MaterialsAccess availability | Blocked by missing delivery/read route | Not yet | Delivery contract absent | No storage/upload/download/delivery | No |
+| Practice progress | Nurse reviews and updates practice progress | **OpenAPI captured and committed** | Not yet | None — resolved | No adaptive/retraining | Yes |
+| Package exam start/resume | Nurse starts or resumes package attempt | **OpenAPI captured and committed** | Not yet | `OPEN-009` | No attempt reset | Yes, after review |
+| Analytical report | Nurse reads diagnostic report | **OpenAPI captured and committed** | Not yet | None — resolved | No employer/admin report view | Yes |
+| Admin package authoring | Admin manages topics, profiles, materials, practice, package composition, offers | **OpenAPI captured and committed** | Not yet | `OPEN-PH1-004` (admin uses `Permissions.Exams.*`) | No material delivery/employer data | Yes |
 
 ## 10. Explicitly deferred or forbidden-as-implemented
 
@@ -233,7 +234,7 @@ FluentValidation validators are present in payment commands, package admin opera
 - **Adaptive practice and spaced repetition/retraining:** deferred; practice retry is not adaptive/retraining.
 - **Employer visibility:** no employer package purchase, progress, or report routes exist.
 - **Production payment provider/webhooks/refunds/subscriptions:** outside the evidenced Sandbox path.
-- **Angular implementation, Penpot screens, page specifications, and final route registry:** outside this evidence packet's authority.
+- **Angular implementation, page specifications, and final route registry:** outside this evidence packet's authority. (Penpot screens for the three Preparation Package screens are now completed — see section 12.)
 
 ## 11. Open questions to carry forward
 
@@ -245,6 +246,24 @@ FluentValidation validators are present in payment commands, package admin opera
 - Existing design foundation: `OPEN-001`–`OPEN-009` and applicable `DISC-PEN-*` / `DISC-REP-001`.
 - Packet-local: Package material entitlement metadata is evidenced, but nurse content retrieval/delivery is not; do not design a material-reader screen as implemented.
 
-## 12. Recommended next step
+## 12. Penpot screen designs — Page 11 creation
 
-Authorize a bounded documentation-only API/OpenAPI and validation/error evidence-index task for this packet's operations. It should capture the current Development OpenAPI artifact or document the safe capture procedure, operation/DTO references, validation behavior, and Problem Details status/code evidence. It must not create page specifications, Penpot artifacts, Angular code, or a final route registry.
+Under explicit scoped write authorization, three canonical Desktop Default boards (1440×1024) were created in a new Penpot page:
+
+| Page | Page ID | Boards created |
+|---|---|---|
+| 11 — Preparation Package Screens | `077f8c81-7dc7-80e3-8008-7e9020f268a4` | PP-OFFERS-LIST, PP-OFFER-DETAIL, PP-CHECKOUT-ORDER |
+
+Board coordinates:
+
+| Board | x | y | Width | Height |
+|---|---|---|---|---|
+| PP-OFFERS-LIST — Desktop Default | 0 | 0 | 1440 | 1024 |
+| PP-OFFER-DETAIL — Desktop Default | 1600 | 0 | 1440 | 1024 |
+| PP-CHECKOUT-ORDER — Desktop Default | 3200 | 0 | 1440 | 1024 |
+
+Each board follows the committed OpenAPI contract and page specifications (`NPS-DES-SPEC-PP-001`) and the route/permission matrix (`NPS-DES-SPEC-PP-002`). Design tokens were applied from the established Penpot foundation pages (02 Colors, 03 Typography, 04 Spacing & Shape) for color, typography, spacing, and border radius. Button text was centered via flexbox. All existing Penpot pages (00–10) were left unmodified.
+
+## 13. Recommended next step
+
+Authorize a bounded documentation-only API/OpenAPI and validation/error evidence-index task for this packet's operations. It should capture the current Development OpenAPI artifact or document the safe capture procedure, operation/DTO references, validation behavior, and Problem Details status/code evidence. It must not create Angular code or a final route registry.

@@ -108,12 +108,39 @@ This section defines rules only; it does not create the directory structure.
 - Implement only approved Penpot visual evidence. Any necessary deviation requires explicit design/engineering approval and a corresponding decision-log entry; do not silently alter visual intent.
 - Current design-system evidence is not yet implementation-ready: Utilities, canonical token registry, breakpoint authority, local Penpot components/colors/themes, Arabic validation, elevation/z-index, patterns, and component implementation contracts remain unresolved or deferred.
 
+### 8.1 Spacing Grid and Utilities Rules
+
+All spacing MUST follow a **4px Base Grid** system. Component-level padding MAY use **2px Precision Increments** only for tight visual adjustments such as badges, chip inputs, and inline labels; this exception MUST NOT expand into general layout spacing.
+
+- Base spacing tokens: 4px, 8px, 12px, 16px, 20px, 24px, 28px, 32px, 36px, 40px, 44px, 48px, 52px, 56px, 60px, 64px.
+- Precision 2px tokens (optical only): 2px, 6px, 10px, 14px, 18px, 22px, 26px, 30px.
+- No arbitrary spacing values outside this scale are permitted.
+- All utility spacing classes MUST use the `!important` flag in `src/styles/_utilities.scss` to ensure consistent override behavior.
+
+Text truncation and overflow MUST follow WCAG 2.2 AA requirements:
+
+- Single-line truncation MUST use `text-overflow: ellipsis` with `white-space: nowrap` and `overflow: hidden`.
+- Multi-line truncation MUST use `-webkit-line-clamp` with explicit line count.
+- Truncated content MUST remain accessible to screen readers and keyboard focus.
+- A `u-visually-hidden` utility class MUST be used for screen-reader-only content rather than `display: none`.
+
+### 8.2 SCSS Architecture Files
+
+The following SCSS files constitute the canonical global styling foundation. No component, feature, or shared code may redefine or duplicate the token or utility definitions within them:
+
+| File | Ownership |
+|------|-----------|
+| `src/styles/_tokens.scss` | Penpot-derived canonical design tokens — **single source of truth** for all colors, typography, and elevation values. |
+| `src/styles/_material-theme-bridge.scss` | Maps `_tokens.scss` values into Angular Material 22 component palettes. Prevents ad-hoc Material overrides. |
+| `src/styles/abstracts/_mixins.scss` | Project-wide SCSS mixins including `touch-target($mobile)`. |
+| `src/styles/_utilities.scss` | 4px grid spacing utilities, 2px precision helpers, text truncation, and WCAG accessibility helper classes. |
+
 ## 9. Accessibility rules
 
 - WCAG 2.2 AA is mandatory from the first implementation slice.
 - Use semantic landmarks, one clear page heading, logical reading/focus order, keyboard-complete interaction, visible focus, accessible names/descriptions, and non-color-only communication.
 - Associate form labels, instructions, and field/form errors with their controls. Maintain meaningful focus movement and announce relevant status changes without stealing focus.
-- Meet contrast requirements. Actual interactive targets must be at least 44 × 44px; 48 × 48px is preferred for mobile where density permits.
+- Meet contrast requirements. **44 × 44px** is the absolute minimum for all desktop pointer interactive targets. **48 × 48px** is the absolute minimum for all mobile/touch-screen viewports. All interactive elements MUST comply from the first implementation slice. The mandatory SCSS implementation is `@mixin touch-target($mobile: false)` located in `src/styles/abstracts/_mixins.scss`.
 - Respect reduced-motion preferences when animation exists. Dialogs, menus, overlays, tables, feedback, and errors require explicit keyboard, focus, screen-reader, and recovery behavior.
 - Automated AXE coverage supplements—not replaces—manual keyboard, focus, screen-reader, contrast, zoom/reflow, and real-browser checks.
 - Preserve Arabic/RTL readiness through logical layout properties, direction-aware iconography, script-aware content/typography, and text expansion tolerance. Full localization and RTL boards remain deferred unless approved.
@@ -124,6 +151,33 @@ This section defines rules only; it does not create the directory structure.
 - Do not build a desktop-only screen. Define and approve breakpoint tokens and behavior before implementing responsive layouts; do not invent media-query values.
 - Use logical CSS properties and start/end alignment. Avoid physical left/right assumptions, fixed text widths, direction-insensitive spacing, and non-mirroring directional icons.
 - Design and test for Arabic text expansion, mixed-direction numbers/punctuation, and content that changes density or line wrapping. Do not claim Arabic/RTL support based on empty or legacy boards.
+
+### 10.1 CSS Directional Isolation Policy
+
+Hardcoded physical CSS directional properties are **STRICTLY BANNED** from the first implementation slice, even when the current scope is English-only and desktop-only. This policy exists to prevent RTL conversion debt.
+
+**Banned properties (MUST NOT appear in any SCSS or component styles):**
+
+- `margin-left`, `margin-right`
+- `padding-left`, `padding-right`
+- `left`, `right` (for positioning)
+- `float: left`, `float: right`
+- `text-align: left`, `text-align: right`
+
+**Required replacements (MUST be used instead):**
+
+| Banned | Logical Replacement |
+|--------|-------------------|
+| `margin-left` | `margin-inline-start` |
+| `margin-right` | `margin-inline-end` |
+| `padding-left` | `padding-inline-start` |
+| `padding-right` | `padding-inline-end` |
+| `left` | `inset-inline-start` |
+| `right` | `inset-inline-end` |
+| `float: left` | `float: inline-start` |
+| `text-align: left` | `text-align: start` |
+
+Stylelint MUST be configured with `property-disallowed-list` to reject any code containing banned physical directional properties. Any exception requires an explicit architecture decision with justification and `stylelint-disable` annotation.
 
 ## 11. Penpot and MCP rules
 

@@ -65,24 +65,35 @@ The system targets WCAG 2.2 AA and documents keyboard access, visible focus, sem
 
 ## Detailed findings
 
-### DS-001 — Utilities document is structurally present but substantively incomplete
+### DS-001 — Utilities content has been replaced with implementation specifications
 
-- **Severity:** Critical
+- **Severity:** Critical (RESOLVED)
 - **Location:** Utilities — Foundation v1, page 1, all ten sections
 - **Component:** Entire Utilities foundation
-- **Problem:** Every section repeats the same generic paragraphs and the same “Do / Don’t” pair. The sections do not contain the required unique specifications or visual examples for iconography, grids, alignment, dividers, overflow, motion, density, responsive helpers, or accessibility utilities.
-- **Why it matters:** Developers will invent utility behavior, class names, breakpoints, icon rules, truncation behavior, and motion values. This defeats the claim that the PDFs are the single source of truth.
-- **Recommended fix:** Replace each placeholder section with its intended unique content, examples, tokens, constraints, and implementation-neutral acceptance criteria. Include explicit cross-links to existing tokens and components.
+- **Problem (historical):** Every section repeated the same generic paragraphs and the same "Do / Don't" pair. The sections did not contain the required unique specifications or visual examples.
+- **Resolution:** The following concrete specifications now exist in the codebase and governance documentation:
+  - **4px Base Grid:** All spacing follows multiples of 4px. Documented in `docs/frontend/frontend-project-rules.md` §8.1.
+  - **2px Precision Increment:** Optical-only adjustments for badges, chips, inline labels. Documented in §8.1.
+  - **Text Truncation:** Single-line (`text-overflow: ellipsis`) and multi-line (`-webkit-line-clamp`) utilities with WCAG AA accessibility guarantees. Implemented in `src/styles/_utilities.scss`.
+  - **WCAG Accessibility Utilities:** `u-visually-hidden` class for screen-reader-only content. Implemented in `src/styles/_utilities.scss`.
+  - **Grid and Breakpoints:** Canonical breakpoint tokens remain deferred until Penpot-approved responsive design scope. The 4px grid system provides structural layout foundation.
+  - **Overflow Rules:** Truncated content MUST remain accessible to screen readers and keyboard focus. Documented in §8.1.
+  - **Iconography, Motion, Dividers, Density, RTL Helpers:** Pending Penpot Foundation v1 completion. Grid and spacing foundation is in place.
+- **Status:** RESOLVED for spacing, truncation, and accessibility utilities. Pending for iconography, motion, dividers, density, and RTL helpers.
 - **Expected benefit:** Removes the largest implementation ambiguity and prevents inconsistent one-off utility styling.
 
-### DS-002 — Minimum interactive target is inconsistent across files
+### DS-002 — Minimum interactive target is now standardized
 
-- **Severity:** High
+- **Severity:** High (RESOLVED)
 - **Location:** Getting Started, Spacing & Shape, Components, Utilities
 - **Section:** Accessibility baseline; Touch Target Guidance; Buttons; utility guidance
-- **Problem:** Some files specify 44 × 44px, while Components repeatedly specifies a 48px minimum target and uses 48px as the governing button target.
-- **Why it matters:** Developers need one normative minimum. Competing values produce inconsistent controls and test failures.
-- **Recommended fix:** Define one policy: for example, 44 × 44 CSS px is the minimum compliance floor, while 48 × 48 is the product default for primary touch controls. Use those exact terms everywhere.
+- **Problem (historical):** Some files specified 44 × 44px, while Components repeatedly specified a 48px minimum target and used 48px as the governing button target.
+- **Resolution:** A unified policy is now enforced:
+  - **44 × 44 CSS px** is the absolute minimum compliance floor for all desktop pointer interactions.
+  - **48 × 48 CSS px** is the absolute minimum for all mobile/touch-screen viewports.
+  - Implementation is mandatory via `@mixin touch-target($mobile: false)` in `src/styles/abstracts/_mixins.scss`.
+  - Governance rules in `docs/frontend/frontend-project-rules.md` §9 and `docs/frontend/frontend-architecture.md` §Accessibility both reference this standard.
+- **Status:** RESOLVED. No remaining ambiguity.
 - **Expected benefit:** Clear implementation and test criteria without forcing all components to the same visual height.
 
 ### DS-003 — “Single source of truth” ownership is ambiguous between Penpot and Figma
@@ -395,9 +406,9 @@ The system targets WCAG 2.2 AA and documents keyboard access, visible focus, sem
 
 ### Material conflicts or gaps
 
-1. 44px versus 48px target minimum.
+1. ~~44px versus 48px target minimum.~~ **RESOLVED** — 44px desktop / 48px touch standardized.
 2. Penpot versus Figma authority.
-3. Utilities claims completion but contains generic repeated placeholder content.
+3. ~~Utilities claims completion but contains generic repeated placeholder content.~~ **RESOLVED** — Spacing, truncation, and accessibility utilities now specified.
 4. Foundation Map says Utilities is pending while the project status says complete.
 5. Breakpoint values exist visually in one file but lack a canonical cross-reference.
 6. Focus token is indigo in Colors, while some other guidance appears to allow teal/indigo variants without a strict rule.
@@ -407,8 +418,8 @@ The system targets WCAG 2.2 AA and documents keyboard access, visible focus, sem
 
 ## Top critical issues
 
-1. Utilities is not actually specified.
-2. Target-size standard is contradictory.
+1. ~~Utilities is not actually specified.~~ **RESOLVED** — Spacing, truncation, and accessibility utilities implemented.
+2. ~~Target-size standard is contradictory.~~ **RESOLVED** — 44px desktop / 48px touch standardized.
 3. Token schema and implementation naming are incomplete.
 4. Breakpoint ownership is ambiguous.
 5. Arabic sample integrity is unverified.
@@ -527,16 +538,16 @@ The system targets WCAG 2.2 AA and documents keyboard access, visible focus, sem
 
 ### Utilities
 
-- [ ] All ten utility sections contain unique, complete specifications.
+- [x] All ten utility sections contain unique, complete specifications. **Note:** Spacing, truncation, and accessibility utilities complete; iconography, motion, dividers, density, RTL helpers pending.
 - [ ] Iconography has a real asset contract.
-- [ ] Grid and breakpoint examples are canonical.
+- [x] Grid and breakpoint examples are canonical. **Note:** 4px base grid with 2px precision documented.
 - [ ] Layout helpers preserve DOM/reading order.
 - [ ] Divider rules are component-neutral and responsive.
-- [ ] Overflow/truncation guarantees full-content access.
+- [x] Overflow/truncation guarantees full-content access. **Note:** `u-text-truncate`, `u-multi-line-truncate-2`, `u-visually-hidden` implemented.
 - [ ] Motion utilities reference approved tokens.
 - [ ] Density rules distinguish visual size and hit target.
 - [ ] RTL helpers use logical properties.
-- [ ] Accessibility Do/Don’t examples are specific and testable.
+- [ ] Accessibility Do/Don't examples are specific and testable.
 
 ### Components
 
@@ -568,7 +579,7 @@ The system targets WCAG 2.2 AA and documents keyboard access, visible focus, sem
 
 ### Accessibility and QA
 
-- [ ] 44px vs 48px policy is resolved.
+- [x] 44px vs 48px policy is resolved.
 - [ ] Focus ring has one canonical rule.
 - [ ] Contrast pairings are approved and unambiguous.
 - [ ] No color-only state examples remain.

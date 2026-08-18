@@ -417,7 +417,7 @@ Theme CSS MUST be emitted once at the correct application boundary. Angular Mate
 
 Component styles MUST rely on Angular view encapsulation and MUST NOT assume global leakage.
 
-Logical CSS properties such as `inset-inline-start`, `inset-inline-end`, `margin-inline`, and `padding-inline` SHOULD be preferred to preserve RTL readiness.
+Logical CSS properties such as `inset-inline-start`, `inset-inline-end`, `margin-inline`, and `padding-inline` MUST be used instead of physical directional equivalents. Physical properties (`margin-left`, `padding-right`, `left`, `right`) are banned. Stylelint enforces this through `property-disallowed-list`.
 
 Responsive rules MUST use approved breakpoint tokens or mixins rather than repeated arbitrary media-query values.
 
@@ -443,6 +443,42 @@ Penpot remains the official visual design authority and source of approved visua
 
 A Penpot design MUST NOT override accessibility, security, privacy, performance, backend contracts, or permanent architecture rules.
 
+## Token Bridge Architecture
+
+The Nursing Platform enforces a strict token-to-theme pipeline. No ad-hoc overrides, raw color values, or direct Material palette manipulation is permitted outside this bridge.
+
+### Token Source of Truth
+
+`src/styles/_tokens.scss` is the **sole authoritative source** for all design tokens. It contains:
+
+- Brand colors: Nursing Teal (`#006B66`), Professional Navy (`#173B57`), Exam Focus Indigo (`#4F46B8`)
+- Neutral palette: 0 through 900 scale
+- Typography: font family, font size scale
+- Elevation: shadow definitions
+
+All token values MUST originate from approved Penpot artifacts. Manual edits to `_tokens.scss` without a corresponding Penpot design decision are forbidden.
+
+### Material Theme Bridge
+
+`src/styles/_material-theme-bridge.scss` is the **mandatory intermediary** between `_tokens.scss` and Angular Material 22. It performs the following:
+
+1. Imports `_tokens.scss` via `@use`.
+2. Constructs Angular Material palettes using `mat.m2-define-palette()` with Penpot token values.
+3. Constructs a Material theme using `mat.m2-define-light-theme()`.
+4. Applies the theme via `@include mat.all-component-themes()`.
+
+Components, features, and shared code MUST NOT directly import `@angular/material` theming APIs to create competing palettes, themes, or overrides. All Material visual behavior flows through this single bridge.
+
+### Prohibited Patterns
+
+The following are forbidden under this architecture:
+
+- Component-local `mat.m2-define-palette()` or `mat.m2-define-light-theme()` calls.
+- Direct `mat-*` CSS variable overrides on component selectors.
+- Raw hex, rgb(), or hsl() color values in component SCSS.
+- Custom Material theme files outside the designated bridge.
+- Using `::ng-deep` to override Material component internal styles.
+
 ## Accessibility
 
 WCAG 2.2 AA is the permanent accessibility target.
@@ -459,7 +495,7 @@ Frontend implementation MUST use:
 - non-color-only communication;
 - reduced-motion support when animation is introduced.
 
-Actual interactive targets MUST be at least 44 × 44px. A 48 × 48px target is preferred for mobile when layout and density allow it. A smaller visible icon or visual surface is permitted only when enclosed by an actual interactive target of at least 44 × 44px.
+Actual interactive targets MUST be at least 44 × 44px. A 48 × 48px target is required for mobile/touch-screen viewports. A smaller visible icon or visual surface is permitted only when enclosed by an actual interactive target of at least 44 × 44px.
 
 Accessibility MUST be designed into components and workflows from the beginning, not added only after implementation.
 

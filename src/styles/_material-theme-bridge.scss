@@ -1,0 +1,34 @@
+@use '@angular/material' as mat;
+@use 'tokens' as tokens;
+
+// Define Angular Material Palettes mapped directly to Penpot Tokens
+$app-primary-palette: mat.m2-define-palette((
+  50: tokens.$color-nursing-teal-50,
+  500: tokens.$color-nursing-teal-500,
+  900: tokens.$color-nursing-teal-900,
+  contrast: (
+    500: tokens.$color-neutral-0
+  )
+));
+
+$app-accent-palette: mat.m2-define-palette((
+  500: tokens.$color-exam-focus-indigo-500,
+  contrast: (
+    500: tokens.$color-neutral-0
+  )
+));
+
+// Construct Light Theme
+$app-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $app-primary-palette,
+    accent: $app-accent-palette
+  ),
+  typography: mat.m2-define-typography-config(
+    $font-family: tokens.$font-family-base
+  ),
+  density: 0
+));
+
+// Apply theme to Angular Material components
+@include mat.all-component-themes($app-theme);

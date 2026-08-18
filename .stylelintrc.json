@@ -1,0 +1,16 @@
+{
+  "plugins": [
+    "stylelint-declaration-block-no-ignored-properties"
+  ],
+  "rules": {
+    "property-disallowed-list": [
+      "margin-left",
+      "margin-right",
+      "padding-left",
+      "padding-right",
+      "left",
+      "right"
+    ],
+    "comment-empty-line-before": null
+  }
+}

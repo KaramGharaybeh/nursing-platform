@@ -22,13 +22,15 @@ public class StartPackageExamSessionHandlerTests
     [Fact]
     public async Task Handle_StartPackageAttempt_WithActiveEntitlementAndAvailableRight_CreatesSessionProvenanceAndConsumesRight()
     {
-        var now = new DateTime(2026, 7, 29, 10, 0, 0, DateTimeKind.Utc);
+        var now = DateTime.UtcNow;
         await using var context = CreateContext();
         var fixture = SeedPackageAttemptFixture(context, now.AddDays(-1), now.AddDays(30));
         await context.SaveChangesAsync();
         var handler = new StartPackageExamSessionCommandHandler(context, CreateGuard(context, fixture.UserId));
 
+        var beforeExecution = DateTime.UtcNow;
         var result = await handler.Handle(new StartPackageExamSessionCommand(fixture.Entitlement.Id), default);
+        var afterExecution = DateTime.UtcNow;
 
         var session = Assert.Single(context.ExamSessions);
         Assert.Equal(ExamSessionSource.PackageAttempt, session.Source);
@@ -53,7 +55,7 @@ public class StartPackageExamSessionHandlerTests
 
         Assert.Equal(PackageBenefitRightStatus.Consumed, fixture.AttemptRight.Status);
         Assert.NotNull(fixture.AttemptRight.ConsumedAt);
-        Assert.InRange(fixture.AttemptRight.ConsumedAt.Value, now.AddSeconds(-5), DateTime.UtcNow.AddSeconds(5));
+        Assert.InRange(fixture.AttemptRight.ConsumedAt.Value, beforeExecution, afterExecution);
         Assert.Equal(fixture.AttemptRight.ConsumedAt, provenance.StartedAt);
 
         Assert.Single(context.ExamSessionQuestions);

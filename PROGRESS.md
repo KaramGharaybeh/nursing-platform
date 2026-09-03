@@ -12,10 +12,12 @@
 * **Current Phase:** Phase 1A — Angular Scaffolding & Setup
 * **Active Working Directory:** `./frontend` (All Angular CLI, linting, tests, and builds MUST run inside `./frontend`)
 * **Framework Version:** Angular 22 (Standalone Architecture, Signals, SCSS, Zoneless)
-* **Backend Baseline:** .NET WebApi (OpenAPI contract: `development-openapi-2026-08-16.json`)
-* **Global System Status:** `[RESET_READY_FOR_PHASE_1A]`
+* **Backend Baseline:** .NET WebApi (OpenAPI contract: `development-openapi-2026-09-03.json`)
+* **Global System Status:** `[READY_FOR_TECH_LEAD_REVIEW_BEFORE_PHASE_1A]`
 * **Backend Stabilization:** `[STABILIZED]` — expired Package Exam Session entitlement test fixture repaired; backend build is 0 warnings / 0 errors; full backend suite is 1302/1302 passing with PostgreSQL integration-test configuration.
-* **Next Technical Gate:** Safe OpenAPI Capture must be completed before Angular Phase 1A scaffolding.
+* **Next Technical Gate:** Technical-lead review before Angular Phase 1A scaffolding.
+* **Safe OpenAPI Capture:** `[COMPLETED]` — Development-only `--capture-openapi` skips only database initialization; normal database initialization remains unchanged; CV multipart OpenAPI description corrected; canonical snapshot `development-openapi-2026-09-03.json` verified as OpenAPI 3.1.1 with 106 paths, 142 operations, 110 schemas, and Bearer security scheme; backend build is 0 warnings / 0 errors; full backend suite is 1307/1307 passing.
+* **Phase 2C Scope Correction:** `[COMPLETED]` — Non-Development capture rejection sets non-zero exit only on the rejected `--capture-openapi` path; generic fatal startup catch behavior restored; backend build is 0 warnings / 0 errors; full backend suite remains 1307/1307 passing.
 
 ---
 
@@ -29,7 +31,7 @@
 - [x] **Logical Properties Governance:** Enforced CSS Logical Properties via `.stylelintrc.json` (`postcss-scss`).
 
 ### Phase 1A: Angular Scaffolding & Setup (PENDING — NEXT STEP)
-- [ ] **Safe OpenAPI Capture Gate:** Capture or validate a non-mutating Development OpenAPI contract before Angular scaffold.
+- [x] **Safe OpenAPI Capture Gate:** Implemented Development-only `--capture-openapi`, fixed CV multipart OpenAPI contract metadata, captured `development-openapi-2026-09-03.json`, and verified before Angular scaffold.
 - [ ] **Project Initialization:** Generate Angular 22 app via CLI into `./frontend`.
 - [ ] **Subdirectory Isolation:** Ensure all Angular source and configuration lives inside `./frontend/`.
 - [ ] **Root `.gitignore` Update:** Configure root `.gitignore` for `frontend/node_modules`, `frontend/dist`, and `frontend/.angular/cache`.
@@ -72,10 +74,10 @@
 
 ## 4. Agent Handoff Instructions
 > **Instructions for the Next Incoming Agent:**
-> 1. System state wiped clean to resolve underlying DI & provider initialization issues. Ready for fresh Phase 1A scaffolding.
+> 1. Safe OpenAPI Capture + CV Multipart Contract gate, including Phase 2C production-guard exit-scope correction, is complete. Repository is ready for technical-lead review before fresh Phase 1A scaffolding.
 > 2. `./frontend` has been deleted. Recreate it via `ng new nursing-platform-frontend` inside a temp directory and relocate, or scaffold directly.
 > 3. Backend baseline is stabilized: expired Package Exam Session test fixture repaired; full backend suite is 1302/1302 passing with PostgreSQL integration-test configuration.
-> 4. Safe OpenAPI Capture is the next technical gate before Angular scaffold.
+> 4. Do not scaffold Angular until the technical-lead review gate accepts the 2026-09-03 OpenAPI snapshot.
 > 5. Root `.gitignore` is already configured for `frontend/` paths.
 > 6. Phase 0 governance artifacts (tokens, mixins, utilities, theme bridge) were intentionally removed from repository-root `src/styles/`; review Git history and migrate/regenerate them under the future Angular workspace when Phase 1A begins.
 > 7. Always update this `/PROGRESS.md` file incrementally as sub-tasks are completed.

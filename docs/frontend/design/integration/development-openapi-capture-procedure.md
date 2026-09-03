@@ -2,25 +2,25 @@
 
 ## 1. Purpose and non-authority
 
-This document records OpenAPI capture evidence and a safe capture decision for frontend design. It is not API-client generation, Angular authorization, a page specification, a route registry, a Penpot authorization, or an approval of any API contract beyond the cited runtime/source evidence.
+This document records the canonical safe Development OpenAPI capture procedure for frontend design. It is not API-client generation, Angular authorization, a page specification, a route registry, a Penpot authorization, or an approval of any API contract beyond the cited runtime/source evidence.
 
 ## 2. Source snapshot
 
 | Item | Evidence |
 |---|---|
-| Branch / HEAD | `feature/frontend-design-evidence-foundation` / `0b5e645 docs: add preparation package API validation error index` |
-| G0 acceptance | `4073154` |
-| Phase 1 evidence packet | `fd19271` |
-| API/validation/error index | `0b5e645` |
-| Backend evidence baseline | `8439511` |
-| Capture date/time context | 2026-08-12, `Asia/Amman` |
+| Canonical snapshot | `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json` |
+| Previous snapshot retained | `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` |
+| Capture URL | `http://localhost:5167/openapi/v1.json` |
+| Capture mode | Development-only `--capture-openapi` command-line sentinel |
 
 ## 3. Repository OpenAPI configuration evidence
 
 - `backend/src/NursingPlatform.WebApi/Extensions/ServiceCollectionExtensions.cs` calls `services.AddEndpointsApiExplorer()` and `services.AddOpenApi(...)`. Its document transformer registers a JWT bearer security scheme.
 - `backend/src/NursingPlatform.WebApi/Extensions/ApplicationBuilderExtensions.cs` calls `app.MapOpenApi()` only when `app.Environment.IsDevelopment()`.
 - The same extension maps API routes under `/api/v1`, including `MapPreparationPackageEndpoints()`.
-- The repository contains OpenAPI runtime assemblies in existing build output, but discovery found no generated Development OpenAPI JSON/YAML artifact and no documented capture command or recorded artifact revision.
+- `backend/src/NursingPlatform.WebApi/Program.cs` detects the exact raw command-line sentinel `--capture-openapi`, removes only that sentinel before calling `WebApplication.CreateBuilder(...)`, and preserves other command-line arguments such as `--urls=http://localhost:5167`.
+- Capture mode is allowed only in Development. If the sentinel is present outside Development, startup fails fast with `OpenAPI capture mode is Development-only.`
+- In capture mode, startup skips only `InitializeDatabaseAsync()`. Normal startup without the sentinel still initializes the database exactly as before.
 
 ## 4. Local runtime prerequisites
 
@@ -37,50 +37,87 @@ This document records OpenAPI capture evidence and a safe capture decision for f
 
 At inspection time, `nursing-postgres`, `nursing-redis`, and `nursing-mailpit` Docker containers were running; PostgreSQL and Redis were published on the expected host ports. .NET SDK `10.0.110` and ASP.NET Core runtime `10.0.10` were available.
 
-### Startup safety blocker
+### Startup safety
 
-The existing `Program.cs` unconditionally calls `await app.InitializeDatabaseAsync()` before endpoint mapping. `InitializeDatabaseAsync` resolves `DatabaseInitializer`, whose `InitializeAsync` checks pending migrations, calls `MigrateAsync()` when any exist, runs reference-data seeding, and bootstraps an administrator.
+Normal WebApi startup calls `await app.InitializeDatabaseAsync()`. `InitializeDatabaseAsync` resolves `DatabaseInitializer`, whose `InitializeAsync` checks pending migrations, calls `MigrateAsync()` when any exist, runs reference-data seeding, and bootstraps an administrator.
 
-Because this task forbids migrations, destructive/seeding changes, configuration changes, and source changes, starting the current WebApi process is not a safe read-only capture action. No backend process was started.
+The canonical capture command must use Development capture mode so database initialization is bypassed only for the capture process. Capture should not require a usable database connection; use a deliberately unusable local value to prove OpenAPI is reachable without migration, seeding, or bootstrap execution. Do not use valuable database credentials for capture verification.
 
 ## 5. Capture procedure
 
-### Current task result
+### Canonical safe capture command pattern
 
-No safe runtime capture was executed. The likely Development OpenAPI route must not be guessed from framework defaults; source confirms only `MapOpenApi()` without a configured route template.
+Use a fixed local URL for reproducibility and terminate the backend process immediately after retrieving the document.
 
-### Preconditions for a future authorized capture task
+```bash
+ASPNETCORE_ENVIRONMENT=Development \
+ConnectionStrings__DefaultConnection="<deliberately-unusable-redacted-value>" \
+dotnet run --no-build --project backend/src/NursingPlatform.WebApi -- \
+  --capture-openapi \
+  --urls=http://localhost:5167
+```
 
-1. Establish and approve a non-mutating startup/capture mechanism that bypasses `InitializeDatabaseAsync`, or obtain explicit authorization for the existing migration/seeding initialization behavior against the local database.
-2. Start only with `ASPNETCORE_ENVIRONMENT=Development` and an explicit known local port from `launchSettings.json`.
-3. Derive the actual OpenAPI URL from runtime endpoint output or an approved source configuration; do not assume an endpoint path.
-4. Fetch the confirmed URL with `curl -f` into `docs/frontend/design/integration/openapi/development-openapi-YYYY-MM-DD.json`.
-5. Stop the backend process, validate non-empty JSON with `python3 -m json.tool`, and record the backend commit and URL.
+Fetch the document from:
 
-No command in the current repository documentation satisfies these prerequisites without triggering initialization.
+```bash
+curl -f http://localhost:5167/openapi/v1.json \
+  -o docs/frontend/design/integration/openapi/development-openapi-YYYY-MM-DD.json
+```
+
+After retrieval, stop the process and confirm no server remains running on the capture URL.
+
+### Validation and metrics
+
+Validate the captured JSON:
+
+```bash
+python3 -m json.tool \
+  docs/frontend/design/integration/openapi/development-openapi-YYYY-MM-DD.json \
+  > /tmp/development-openapi-validation.json
+```
+
+Record these metrics for every canonical snapshot:
+
+- OpenAPI version.
+- Path count.
+- Operation count.
+- Schema count.
+- Security schemes.
+- Any intentional semantic differences from the previous canonical snapshot.
+
+Snapshot files must be dated and must not overwrite previous canonical snapshots.
 
 ## 6. Captured artifact
 
-**No OpenAPI artifact captured.**
+Current canonical artifact:
 
-No artifact path, size, JSON validity result, endpoint URL, or backend runtime capture timestamp exists for this task.
+```text
+docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json
+```
+
+The previous canonical snapshot remains available at:
+
+```text
+docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json
+```
 
 ## 7. Preparation Package coverage check
 
-No captured artifact exists, so Preparation Package OpenAPI path presence cannot be confirmed. Endpoint source does map the package route group, but source mapping is not a substitute for a generated Development OpenAPI artifact. After safe capture, inspect the artifact for the `/api/v1/preparation-packages` and `/api/v1/me/nurse-profile/preparation-packages` path families and compare them to `PreparationPackageEndpointExtensions.cs`.
+Preparation Package OpenAPI path presence must be verified from the canonical dated artifact before frontend API-client generation or page implementation. Source mapping remains in `PreparationPackageEndpointExtensions.cs`, but the generated Development OpenAPI artifact is the contract evidence for frontend work.
 
 ## 8. Risks and cautions
 
-- Starting the current WebApi directly is mutating because database initialization can migrate, seed, and bootstrap an admin.
-- A future capture artifact is stale unless tied to an exact backend revision, environment, URL, and timestamp.
+- Starting the WebApi without `--capture-openapi` can be mutating because normal startup initializes the database and may migrate, seed, and bootstrap an admin.
+- `--capture-openapi` is not a generic skip-database setting and must not be represented in `appsettings`, environment variables, or production runtime configuration.
+- A capture artifact is stale unless tied to an exact backend revision, environment, URL, and timestamp.
 - Development OpenAPI is mapped only in Development; Production behavior must not be inferred.
 - An artifact does not approve API-client generation, Angular implementation, page specifications, or Penpot work.
 - Do not capture secrets or environment configuration alongside the public OpenAPI artifact.
 
 ## 9. Open questions impact
 
-`OPEN-PH1-002` remains open. The configuration evidence is sufficient to explain why capture is currently blocked, but not sufficient to close the question because no generated Development artifact or safe capture procedure has been verified. `OPEN-PH1-005` also remains open because no generated revision is available to evidence Preparation Package operations.
+`OPEN-PH1-002` can be reviewed against the Development-only safe capture procedure and canonical dated artifact. `OPEN-PH1-005` should be closed only after the frontend technical lead accepts the generated artifact as the Preparation Package contract baseline.
 
 ## 10. Recommended next step
 
-Request an explicit decision on one of two bounded options: authorize the existing local initialization behavior for a capture-only run, or authorize a separate non-mutating backend startup/capture mechanism. After that decision, perform a dedicated read-only capture task that records the artifact revision and compares Preparation Package paths to source mappings. Do not proceed to API-client generation, page specifications, Penpot, or Angular work.
+Use the canonical dated OpenAPI snapshot for technical-lead review before Angular Phase 1A. Do not proceed to API-client generation, page specifications, Penpot, or Angular work until that review gate is complete.

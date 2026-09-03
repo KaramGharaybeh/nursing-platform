@@ -6,14 +6,14 @@ version: 1.0
 status: draft-openapi-derived
 recorded_at: 2026-08-16
 timezone: Asia/Amman
-openapi_source: docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json
-openapi_sha256: aa96da71259c9fc8c91d54b42e17741b6988fdaa7e5308128e3da26b08497f99
+openapi_source: docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json
+openapi_sha256: 6ceeb0551d43bd320100f25fea3073874ad1a7df0c10f04752e16cd7b534292b
 cst_commit: 77cc3b7
 ```
 
 ## Policy
 
-These specifications are derived directly from the captured Development OpenAPI artifact. They are read-only drafts for frontend design discovery. They do not authorize Angular implementation, Penpot writes, or backend changes. All field names, types, and error contracts match the OpenAPI schema exactly.
+These specifications are derived directly from the current canonical captured Development OpenAPI artifact. They are read-only drafts for frontend design discovery. They do not authorize Angular implementation, Penpot writes, or backend changes. All field names, types, and error contracts match the OpenAPI schema exactly. Earlier `development-openapi-2026-08-16.json` references are historical and superseded for active implementation planning.
 
 ---
 

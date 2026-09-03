@@ -11,7 +11,8 @@ This packet records deterministic repository evidence for future frontend design
 | Branch / HEAD | `feature/frontend-design-evidence-foundation` / `f962370 docs: resolve and document Phase 1 API integration open questions` |
 | Backend Preparation Package evidence baseline | `8439511` |
 | CST contract stabilization commit | `77cc3b7 feat: stabilize preparation package OpenAPI contracts` |
-| Development OpenAPI artifact | `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` (OpenAPI 3.1.1, SHA-256 `aa96da71259c9fc8c91d54b42e17741b6988fdaa7e5308128e3da26b08497f99`) |
+| Historical Development OpenAPI artifact | `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` (OpenAPI 3.1.1, SHA-256 `aa96da71259c9fc8c91d54b42e17741b6988fdaa7e5308128e3da26b08497f99`); superseded for active implementation planning by `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json`. |
+| Current canonical Development OpenAPI artifact | `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json` (OpenAPI 3.1.1, SHA-256 `6ceeb0551d43bd320100f25fea3073874ad1a7df0c10f04752e16cd7b534292b`) |
 | G0 governance baseline | `4073154` |
 | G0 scope | Accepted governance/re-entry only; Phase 1 evidence extraction is authorized, not implementation. |
 | Endpoint source | `backend/src/NursingPlatform.WebApi/Extensions/PreparationPackageEndpointExtensions.cs` |
@@ -24,7 +25,7 @@ Implemented backend evidence covers public catalog offers, nurse-owned entitleme
 
 The Development OpenAPI document was captured from the authorized uncommitted contract-stabilization working tree based on `7768f27`: `http://localhost:5167/openapi/v1.json`, OpenAPI `3.1.1`, temporary artifact `/tmp/opencode/development-openapi-stabilized.json`, SHA-256 `c0c4f965215c0b58bcbf59d07db9e85c2fcc6b5a0dd91dc43f8bdd6b3f4e95a1`. The capture verifies Preparation Package paths, typed payment response schemas, payment response headers, and Bearer requirements for protected operations. Remaining gaps include Problem Details extensions, numeric schema unions, required-property metadata, no nurse package material delivery route, no workspace aggregate route, and no approved page, route, visual, or frontend runtime contract.
 
-CST-001–008 contract stabilization was committed at `77cc3b7` and the finalized artifact is now stored at `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` (OpenAPI 3.1.1, SHA-256 `aa96da71259c9fc8c91d54b42e17741b6988fdaa7e5308128e3da26b08497f99`). This committed artifact supersedes the temporary capture and reflects all CST stabilization fixes: typed payment response schemas, Bearer security requirement, Problem Details variants, numeric string transport for minor-unit longs, required/nullable metadata, and exception middleware fixes.
+CST-001–008 contract stabilization was committed at `77cc3b7` and the historical finalized artifact was stored at `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` (OpenAPI 3.1.1, SHA-256 `aa96da71259c9fc8c91d54b42e17741b6988fdaa7e5308128e3da26b08497f99`). That artifact superseded the temporary capture for the original Phase 1 evidence packet and remains historical evidence. Active frontend implementation planning now uses the current canonical `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json` artifact.
 
 ## 4. Implemented capability evidence
 
@@ -238,7 +239,7 @@ FluentValidation validators are present in payment commands, package admin opera
 
 ## 11. Open questions to carry forward
 
-- **Resolved:** `OPEN-PH1-002` — Development OpenAPI artifact captured and committed at `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` (OpenAPI 3.1.1, SHA-256 `aa96da...`). Capture procedure documented in `development-openapi-capture-procedure.md`.
+- **Resolved:** `OPEN-PH1-002` — Historical Development OpenAPI artifact captured and committed at `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` (OpenAPI 3.1.1, SHA-256 `aa96da...`). Active frontend implementation planning now uses current canonical `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json` (OpenAPI 3.1.1, SHA-256 `6ceeb0551d43bd320100f25fea3073874ad1a7df0c10f04752e16cd7b534292b`). Capture procedure documented in `development-openapi-capture-procedure.md`.
 - **Resolved:** `OPEN-PH1-005` — CST-001–008 stabilization committed at `77cc3b7`; captured artifact reflects stabilized contracts. Frontend contract baseline (`preparation-package-frontend-contract-baseline.md`) sections 8–12 unresolved items now covered by the committed OpenAPI.
 - **Open — diagnostic documented:** `OPEN-PH1-001` — FluentValidation is invoked via explicit manual injection only (`PreparationPackageEndpointExtensions.cs:146`); no MediatR Pipeline Behaviors, no `IPipelineBehavior`, no `IActionFilter` for validation exist. ~50+ validators registered via `AddValidatorsFromAssembly` but effectively dead code — never invoked at runtime. Validation index must account for this gap.
 - **Open — diagnostic documented:** `OPEN-PH1-003` — No `422` mapping exists. `ExceptionMiddleware.cs:45` maps `FluentValidation.ValidationException` to **400 Bad Request** (not 422). No `ValidationExceptionHandler`, `ProblemDetailsExceptionMapping`, `IExceptionHandler`, or `UseExceptionHandler()` exists. `ExceptionMiddleware` is the sole exception handling mechanism (first/outermost middleware at `ApplicationBuilderExtensions.cs:90`).

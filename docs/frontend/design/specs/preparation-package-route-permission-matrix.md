@@ -6,8 +6,8 @@ version: 1.0
 status: draft-openapi-derived
 recorded_at: 2026-08-16
 timezone: Asia/Amman
-openapi_source: docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json
-openapi_sha256: aa96da71259c9fc8c91d54b42e17741b6988fdaa7e5308128e3da26b08497f99
+openapi_source: docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json
+openapi_sha256: 6ceeb0551d43bd320100f25fea3073874ad1a7df0c10f04752e16cd7b534292b
 cst_commit: 77cc3b7
 page_spec_source: docs/frontend/design/specs/preparation-package-page-specs.md
 page_spec_document_id: NPS-DES-SPEC-PP-001
@@ -15,7 +15,7 @@ page_spec_document_id: NPS-DES-SPEC-PP-001
 
 ## Policy
 
-This document is derived from the captured Development OpenAPI artifact and verified backend source code. It is a read-only draft for frontend design discovery. It does not authorize Angular implementation, Penpot writes, or backend changes. All route paths, operation IDs, and authorization requirements match the OpenAPI schema and backend endpoint registration exactly.
+This document is derived from the current canonical captured Development OpenAPI artifact and verified backend source code. It is a read-only draft for frontend design discovery. It does not authorize Angular implementation, Penpot writes, or backend changes. All route paths, operation IDs, and authorization requirements match the OpenAPI schema and backend endpoint registration exactly. Earlier `development-openapi-2026-08-16.json` references are historical and superseded for active implementation planning.
 
 ---
 
@@ -68,7 +68,7 @@ This document is derived from the captured Development OpenAPI artifact and veri
 - No specific permission required — any authenticated user can create an order
 - `.RequireAuthorization()` on parent group `/me/nurse-profile` — `ApplicationBuilderExtensions.cs:805-806`
 - No `.RequirePermission(...)` on the endpoint or any parent group
-- OpenAPI: `"security": [{"Bearer": []}]` — `development-openapi-2026-08-16.json:7464-7468`
+- OpenAPI: `"security": [{"Bearer": []}]` — current canonical `development-openapi-2026-09-03.json`
 - Source: `ApplicationBuilderExtensions.cs:1100-1110`
 
 ---
@@ -110,7 +110,7 @@ PP-CHECKOUT-ORDER (Bearer JWT)
 
 | Source | File | Line/Reference |
 |--------|------|----------------|
-| OpenAPI artifact | `docs/frontend/design/integration/openapi/development-openapi-2026-08-16.json` | Lines 25-96 (offers list), 97-146 (offer detail), 7393-7468 (create order) |
+| OpenAPI artifact | `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json` | Current canonical artifact for active implementation planning |
 | Page specifications | `docs/frontend/design/specs/preparation-package-page-specs.md` | Full document (296 lines) |
 | Catalog endpoints | `backend/src/NursingPlatform.WebApi/Extensions/PreparationPackageEndpointExtensions.cs` | Lines 126-168 (public catalog) |
 | Payment endpoints | `backend/src/NursingPlatform.WebApi/Extensions/ApplicationBuilderExtensions.cs` | Lines 805-806 (group auth), 1100-1110 (create order) |

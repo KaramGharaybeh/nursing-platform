@@ -16,7 +16,7 @@ architecture_source: frontend-architecture.md
 ## 1. Preconditions & Authority
 
 - This blueprint is documentation-only. It does not authorize Angular scaffolding, code creation, or file modification.
-- All component, service, guard, and routing decisions below derive from the committed OpenAPI contract (`development-openapi-2026-08-16.json`), page specs (`NPS-DES-SPEC-PP-001`), and route matrix (`NPS-DES-SPEC-PP-002`).
+- All component, service, guard, and routing decisions below derive from the current canonical Development OpenAPI contract (`docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json`), page specs (`NPS-DES-SPEC-PP-001`), and route matrix (`NPS-DES-SPEC-PP-002`). Earlier `development-openapi-2026-08-16.json` references are historical and superseded for active implementation planning.
 - The Angular frontend does not yet exist. The `frontend/` directory is empty. All decisions reference the approved `frontend-architecture.md` and `frontend-project-rules.md` as the implementation authority.
 - Pre-implementation gates from `frontend-project-rules.md` §2 remain unsatisfied. Angular code may not begin until all gates are met.
 

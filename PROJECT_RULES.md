@@ -77,6 +77,8 @@ Whenever implementation changes architecture, behavior, or development workflow:
 
 Documentation should always describe the current implementation.
 
+Architectural, business, design, API, security, or exception decisions that affect future implementation must be persisted in repository-backed documentation. Chat history alone is not a durable project decision record.
+
 ---
 
 # Engineering Standards
@@ -165,6 +167,12 @@ The active milestone is always defined in:
 - CURRENT_TASK.md
 
 Features outside the current milestone must not be implemented.
+
+Every implementation task has an authorized scope. Agents may modify only the files/modules explicitly listed by the task plus directly necessary dependency files. Discovery of a desirable broader refactor does not authorize that refactor; stop for explicit approval before widening scope.
+
+Do not combine unrelated cleanup, modernization, dependency upgrades, formatting migrations, or architecture changes with a feature task.
+
+Once a task or feature reaches VERIFIED status, later tasks must not refactor, redesign, rename, move, or behaviorally modify that completed scope unless the new task explicitly declares it as an affected dependency or REOPENED scope. No opportunistic cleanup of verified features is allowed.
 ---
 # AI Development Rules
 
@@ -180,6 +188,8 @@ Before implementation:
 `AGENTS.md` is the authoritative document for AI behavior.
 
 Project documentation defines what should be built, while AI skills define how implementation should be carried out.
+
+Generic skills, including design, brand, design-system, ui-styling, ui-ux-pro-max, brainstorming, or similar capabilities, are subordinate to Nursing Platform repository governance, approved design evidence, backend/API contracts, business rules, security, accessibility, and task scope. A generic skill must never silently introduce Tailwind, shadcn, a second UI library, new design tokens, new business behavior, new architecture, or a conflicting visual decision.
 ---
 
 # Definition of Quality

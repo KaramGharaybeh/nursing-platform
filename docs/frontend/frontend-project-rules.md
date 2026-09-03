@@ -19,6 +19,10 @@ For frontend task execution, consult the following in order, together with expli
 
 Unresolved open questions block the affected implementation decision. Historical exports, trackers, prose, and uncommitted files are evidence only unless explicitly approved by the authority that owns the decision.
 
+Architectural, business, design, API, security, or exception decisions that affect future implementation MUST be persisted in repository-backed documentation. Chat history alone is not a durable project decision record.
+
+Generic skills, including design, brand, design-system, ui-styling, ui-ux-pro-max, brainstorming, or similar capabilities, are subordinate to Nursing Platform repository governance, approved Penpot evidence, backend/OpenAPI contracts, business rules, security, accessibility, and task scope. A generic skill MUST NOT silently introduce Tailwind, shadcn, a second UI library, new design tokens, new business behavior, new architecture, or a conflicting visual decision.
+
 ## 2. Pre-implementation gates
 
 No Angular implementation, including scaffolding, may start until all of the following are explicitly satisfied in approved task scope:
@@ -44,6 +48,7 @@ The approved planned stack is Angular 22, TypeScript strict mode, standalone arc
 - Pin a Node.js version that the official Angular 22 compatibility table supports, consistently across local development, `.nvmrc`, `package.json` engines, and CI.
 - Preserve Angular 22 zoneless-compatible defaults. Do not add `zone.js`, legacy global state libraries, another UI library, Tailwind, or a toast library without an approved architecture decision.
 - Use official Angular guidance matching the pinned version. Do not rely on stale framework knowledge.
+- Do not upgrade, replace, modernize, or rewrite an already approved frontend approach merely because another Angular pattern, dependency, API, or technique is newer or personally preferred. Changes to approved architecture require an explicit decision task.
 
 ## 4. Project structure rules
 
@@ -58,6 +63,7 @@ src/app/features/   feature-owned routes, pages, state, forms, and API adapters
 - `core` owns auth state, token lifecycle, functional HTTP interceptors, guards, global error/feedback infrastructure, configuration, and shell infrastructure; it must not own feature workflows.
 - `shared` owns reusable business-neutral components, directives, pipes, and utilities; it must not depend on `core` or features, and must not own feature APIs, state, or business logic.
 - Each feature owns its routes, lazy-loaded pages, components, forms, local state, models, validators, and API adapters. Features may use only stable public Core/Shared APIs and their own internals.
+- Each business workflow belongs to one owning feature. Features MUST NOT import another feature's internal files. Cross-feature behavior MUST go through an intentionally stable public, shared, or core abstraction. Shared MUST remain business-neutral, Core MUST NOT become a dumping ground, and generic catch-all `utils/` directories are forbidden.
 - Generated clients, if approved, remain isolated, are never manually edited, and contain no component or feature-state concerns. Feature adapters contain feature-specific workflow mapping.
 - Layout and routing compose stable feature entry points. Route guards improve navigation only; they do not enforce security.
 - Keep business workflows out of templates, generic components, Material wrappers, route definitions, interceptors, and low-level clients. Components remain presentation-focused; owning feature services/state coordinate business behavior.
@@ -90,6 +96,8 @@ This section defines rules only; it does not create the directory structure.
 ## 7. API and error-handling rules
 
 - Use generated clients only after generator approval; otherwise use confirmed typed contracts and feature adapters. Never guess DTO fields, enum values, validation limits, permission names, response shapes, or endpoint behavior.
+- Backend/OpenAPI transport DTOs MUST be represented accurately first. Do not invent response fields, silently change nullability, reinterpret enums, or alter date/time semantics. Feature adapters and view models MAY transform valid transport data for presentation, but presentation models MUST NOT pretend the backend supplied data it did not.
+- Generated API code MUST remain isolated and MUST never be manually edited. Generator output that misrepresents the canonical OpenAPI contract causes STOP AND ESCALATE. Handwritten duplicate DTO contracts require explicit exception approval.
 - Record the backend revision and Development OpenAPI capture used by each implementation slice. If source, OpenAPI, and prose conflict, stop and resolve the discrepancy.
 - Centralize HTTP behavior. Use functional interceptors with deliberate ordering; interceptors must not own feature business logic or silently retry mutations.
 - Map RFC 7807 Problem Details through status, documented structured extensions, and endpoint semantics—not human-readable `title` or `detail`. Do not expose raw exception details.
@@ -101,6 +109,10 @@ This section defines rules only; it does not create the directory structure.
 ## 8. Design system rules
 
 - Use approved design tokens before implementation. Do not introduce arbitrary colors, spacing, radii, shadows, typography values, z-indexes, breakpoints, or motion values.
+- Canonical keyboard focus ring: `focus.ring.width = 2px`, `focus.ring.offset = 4px`, and `focus.ring.shadow = 0 0 0 4 #006B66`. `border.focus = #4F46B8` is a distinct focused-border/accent token and MUST NOT be substituted for the keyboard focus ring unless a component contract explicitly uses it.
+- Canonical standard form-field/select foundation: `height = 64px`, `radius = 12px`, and minimum trailing action target `48 × 48px`. The 48px Preparation Package filter draft does not establish a compact control variant. A compact field/select variant may be created only through a later explicit design-system decision.
+- There are currently no approved canonical project motion duration/easing tokens. Do not invent or hard-code project-authored motion duration or easing values. Until canonical motion tokens are approved, prefer no custom decorative transition over arbitrary animation. Required state meaning must remain complete without animation. Framework-internal behavior is not visual authority and must not be copied into project tokens.
+- Do not invent a project numeric z-index scale. Angular CDK Overlay owns overlay stacking mechanics unless an evidenced implementation conflict requires an explicit project token. Project-owned elevation remains semantic: level-1 raised, level-2 menus/overlays, level-3 dialogs/modals, and scrim opacity `0.48`. Any custom z-index value requires an explicit architecture/design decision.
 - The project-owned Material theme and SCSS are executable mappings of approved Penpot intent, not alternate visual authorities. Emit theme CSS once at the application boundary.
 - Customize Angular Material only through supported theming APIs, approved tokens, CSS custom properties where appropriate, documented component APIs, and narrowly owned application classes. Do not use `::ng-deep`, undocumented Material DOM/classes, or a global `MaterialModule`.
 - Typography, spacing, radius, elevation, focus, disabled, and state values must follow accepted token contracts. Components use semantic token names rather than raw literals.
@@ -148,6 +160,7 @@ The following SCSS files constitute the canonical global styling foundation. No 
 ## 10. Responsive and RTL rules
 
 - Product implementation must support desktop, tablet, and mobile behavior; the current Penpot design-documentation program is Desktop-only and does not itself approve responsive boards.
+- Canonical breakpoint ranges are: mobile `<600`, tablet `600–959`, desktop `960–1279`, large `1280–1919`, and wide `1920+`. Canonical page gutters are: mobile `16px`, tablet `24px`, and desktop+ `32px`. Wide layouts additionally constrain readable/content width rather than expanding indefinitely.
 - Do not build a desktop-only screen. Define and approve breakpoint tokens and behavior before implementing responsive layouts; do not invent media-query values.
 - Use logical CSS properties and start/end alignment. Avoid physical left/right assumptions, fixed text widths, direction-insensitive spacing, and non-mirroring directional icons.
 - Design and test for Arabic text expansion, mixed-direction numbers/punctuation, and content that changes density or line wrapping. Do not claim Arabic/RTL support based on empty or legacy boards.
@@ -182,6 +195,9 @@ Stylelint MUST be configured with `property-disallowed-list` to reject any code 
 ## 11. Penpot and MCP rules
 
 - Penpot is the visual design authority only when its relevant evidence is approved. A running local service, export, geometry read, or tracker checkbox does not approve a design.
+- Approved Penpot artifacts are authoritative for visual decisions only. Backend source and the canonical OpenAPI are authoritative for routes, DTOs, nullability, enums, validation, authentication, authorization, permissions, status codes, server errors, business behavior, sensitive-data exposure, and payment/exam/entitlement trust boundaries. A design example never creates backend business behavior.
+- No current product screen is automatically implementation-approved merely because it exists in Penpot or the PDF export. This explicitly includes Sign In, Preparation Package Offers, Preparation Package Details, and Checkout.
+- Before a product screen is implemented, its task MUST identify the approved Penpot/design reference, backend/OpenAPI contract, required states, responsive behavior, RTL behavior, accessibility acceptance criteria, and unresolved design/backend conflicts. If any required input is missing, STOP AND ESCALATE.
 - Do not modify Penpot, create boards, import/export files, or use MCP write operations without explicit task authorization and the applicable design gate. Use read-only inspection only when the task permits it.
 - Record a design discrepancy in the applicable governance open-question or decision-log process; do not correct it by inference. Penpot never supplies backend/API facts.
 - Current observed local services are Penpot frontend at `http://localhost:9001`, Open Design at `127.0.0.1:7456`, and a running Penpot MCP container. These are local runtime facts, not approval or authorization.
@@ -190,7 +206,9 @@ Stylelint MUST be configured with `property-disallowed-list` to reject any code 
 ## 12. Agent task rules
 
 - Read the current task and all relevant authority, API, design, and business documentation before changing files. Load required skills before acting.
-- Obey the current task boundary exactly; make no unrelated edits, preparatory scaffolding, or deferred-feature work.
+- Obey the current task boundary exactly; make no unrelated edits, preparatory scaffolding, or deferred-feature work. Every implementation Task has an authorized scope. The Agent may modify only the files/modules explicitly listed by the Task plus directly necessary dependency files. Discovery of a desirable broader refactor does not authorize that refactor. STOP AND ESCALATE before widening scope.
+- Do not combine unrelated cleanup, modernization, dependency upgrades, formatting migrations, or architecture changes with a feature Task.
+- Once a Task or Feature reaches VERIFIED status, later tasks MUST NOT refactor, redesign, rename, move, or behaviorally modify that completed scope unless the new task explicitly declares it as an affected dependency or REOPENED scope. If a completed area must change, record why it is being reopened, identify the dependent task/decision, mark the item REOPENED, define authorized affected files/modules, rerun its acceptance/verification gates, record the new verification evidence, and return it to VERIFIED. No opportunistic cleanup of verified features.
 - Use deterministic repository/runtime evidence. Report exact files changed and execute the validation requested by the task.
 - Stop and ask for clarification when a route, permission, DTO, validation rule, business transition, visual decision, or security behavior is not evidenced.
 - Do not stage, commit, push, delete branches, or alter repository history unless explicitly instructed. Never use `git add .`.
@@ -205,6 +223,7 @@ Stylelint MUST be configured with `property-disallowed-list` to reject any code 
 - Treat screen trackers such as AUTH-001 as legacy/draft evidence unless the governing task explicitly authorizes reconciliation. Do not overwrite them to match an assumption.
 - Reports record bounded audit evidence and do not supersede source documents. Maintain exact revision/source references where a report depends on live backend or Penpot evidence.
 - Documentation/status changes must be logically scoped. If commits are later authorized, separate a documentation-only/status update from implementation when combining them would obscure review, provenance, or verification; do not create any commit without explicit instruction.
+- Detailed frontend Task/Subtask history belongs in `docs/frontend/execution/frontend-implementation-ledger.md`. `PROGRESS.md` remains the high-level canonical session and handoff memory: current Goal, current Milestone, active Task, latest verified checkpoint, blockers, next approved gate, important cross-cutting decisions, and a reference to the detailed ledger.
 
 ## 14. Testing rules
 
@@ -215,7 +234,34 @@ Future approved frontend work must include proportional tests for components and
 - Cover loading, empty, validation, authorization, conflict, rate-limit, and failure states that the approved feature contract makes applicable.
 - Do not add E2E tests, Playwright/browser execution, visual regression tooling, or real-backend integration tests unless explicitly authorized by the applicable task/specification. Do not introduce Cypress.
 
-## 15. Explicitly forbidden without authorization
+## 15. Frontend Task Definition of Done
+
+A frontend Task may be marked `VERIFIED` only when all applicable requirements pass:
+
+- requested business behavior implemented;
+- backend/OpenAPI contract respected exactly;
+- no guessed response fields/contracts;
+- architecture/dependency rules respected;
+- approved Penpot/design contract respected;
+- relevant loading/error/empty/disabled/success states implemented;
+- desktop/tablet/mobile verified where applicable;
+- RTL behavior verified where applicable;
+- keyboard/focus behavior verified;
+- WCAG requirements addressed;
+- no sensitive/raw backend/internal data leakage;
+- relevant tests pass;
+- lint/stylelint pass;
+- production build passes when applicable;
+- generated-client drift check passes when applicable;
+- no unrelated repository regression;
+- no unauthorized scope change;
+- task ledger updated with evidence;
+- `PROGRESS.md` updated when milestone/current-state changes;
+- completion commit recorded once committed.
+
+A screenshot matching Penpot alone is never sufficient Definition of Done.
+
+## 16. Explicitly forbidden without authorization
 
 - Create or scaffold the Angular project.
 - Install dependencies or change npm/package-manager policy.
@@ -226,14 +272,96 @@ Future approved frontend work must include proportional tests for components and
 - Implement deferred storage/delivery, offline, workspace, adaptive, retraining, or employer package features.
 - Stage, commit, push, delete branches, reset, clean, stash, or broadly stage files.
 
-## 16. Next required decisions
+## 17. Approved initial scaffold contract
 
-Before frontend project creation, obtain explicit decisions for:
+The approved initial scaffold contract is recorded for a future scaffold/toolchain Task only. It MUST NOT be executed until that Task is explicitly authorized.
+
+| Item | Decision |
+|---|---|
+| Angular major | 22 |
+| Angular CLI | 22.1.4 |
+| Node | 22.23.1 |
+| npm | 10.9.8 |
+| Package manager | npm |
+| Workspace | `frontend/` |
+| Routing | yes |
+| Styles | SCSS |
+| Strict | yes |
+| Standalone | yes |
+| SSR | no |
+| Zoneless | yes |
+| Test runner | Vitest |
+| Prefix | `np` |
+| Nested Git | no |
+| Interactive scaffold | no |
+
+Preferred reproducible invocation pins the CLI instead of relying on whichever global CLI happens to be installed:
+
+```bash
+npx -p @angular/cli@22.1.4 ng new nursing-platform-frontend \
+  --directory frontend \
+  --routing \
+  --style scss \
+  --test-runner vitest \
+  --standalone true \
+  --strict true \
+  --zoneless \
+  --ssr false \
+  --package-manager npm \
+  --prefix np \
+  --skip-git \
+  --commit false \
+  --defaults
+```
+
+Node/npm project pin files are created as part of the scaffold/toolchain Task, not manually before the workspace exists unless the future plan explicitly says otherwise.
+
+## 18. Future API client generator approval gate
+
+Do not select a generator during governance. The future **API CLIENT GENERATOR APPROVAL** gate MUST occur after workspace scaffold but before auth or feature API integration. It must:
+
+- test candidate generator against canonical `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json`;
+- verify nullable/required semantics;
+- verify enums;
+- verify Problem Details;
+- verify pagination;
+- verify Bearer-auth integration surface;
+- verify CV multipart binary file;
+- verify generated Angular/RxJS compatibility;
+- inspect output architecture/dependency footprint;
+- choose exact generator/version/config;
+- decide generated-code Git policy;
+- document reproducible generation command;
+- verify regeneration determinism;
+- prohibit implementation using guessed handwritten backend DTOs while this gate is unresolved.
+
+Until that gate passes, feature/API integration is BLOCKED.
+
+## 19. Future screen implementation approval gate
+
+Before implementing a product screen, the future **SCREEN IMPLEMENTATION APPROVAL** gate MUST record:
+
+- screen ID;
+- status upgraded from draft/planned as appropriate;
+- approved design/Penpot reference;
+- all required states;
+- backend/OpenAPI mapping;
+- responsive contract;
+- RTL contract;
+- accessibility contract;
+- resolved design/backend conflicts;
+- acceptance criteria.
+
+No agent may upgrade a Penpot screen's approval status by itself.
+
+## 20. Next required decisions
+
+Before frontend project creation and implementation planning, obtain explicit decisions for:
 
 1. G0 acceptance by Karam.
-2. The final approved Angular project-creation command and its npm assumptions.
-3. The Angular-22-compatible Node.js/npm versions and whether SSR is excluded or separately approved.
-4. The generated Development OpenAPI capture command, source revision, and API client-generation strategy.
+2. The final approved Goal → Milestone → Task → Subtask implementation plan.
+3. The generated Development OpenAPI capture command and source revision for the implementation slice.
+4. The API client-generation strategy through the API CLIENT GENERATOR APPROVAL gate.
 5. The canonical route registry and initial approved design/implementation slice.
 6. The accepted design-token source, token registry, Material-theme mapping, component contracts, breakpoints, and responsive/RTL rules.
 7. The Penpot update/write policy after the required design gates.

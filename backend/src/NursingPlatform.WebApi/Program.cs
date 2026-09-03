@@ -1,3 +1,4 @@
+using NursingPlatform.WebApi;
 using NursingPlatform.WebApi.Extensions;
 using Serilog;
 
@@ -7,7 +8,14 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    var builder = WebApplication.CreateBuilder(args);
+    var openApiCaptureMode = OpenApiCaptureMode.FromRawArguments(args);
+    var builder = WebApplication.CreateBuilder(openApiCaptureMode.RemainingArguments);
+
+    if (openApiCaptureMode.IsEnabled && !builder.Environment.IsDevelopment())
+    {
+        Environment.ExitCode = 1;
+        openApiCaptureMode.EnsureDevelopmentOnly(isDevelopment: false);
+    }
 
     builder.Host.UseSerilog((context, config) =>
         config.ReadFrom.Configuration(context.Configuration));
@@ -18,7 +26,10 @@ try
 
     app.UseApplicationPipeline();
 
-    await app.InitializeDatabaseAsync();
+    if (!openApiCaptureMode.IsEnabled)
+    {
+        await app.InitializeDatabaseAsync();
+    }
 
     app.MapGet("/", () =>
     {

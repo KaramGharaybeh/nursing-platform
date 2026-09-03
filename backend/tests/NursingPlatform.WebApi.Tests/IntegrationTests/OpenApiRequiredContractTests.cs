@@ -47,6 +47,35 @@ public class OpenApiRequiredContractTests
         AssertOptional(schemas, "PaymentCompletionDto", "paidAt");
     }
 
+    [Fact]
+    public async Task DevelopmentOpenApi_UploadNurseCv_RequiresMultipartFileRequestBody()
+    {
+        var response = await _client.GetAsync("/openapi/v1.json");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+        var operation = document.RootElement
+            .GetProperty("paths")
+            .GetProperty("/api/v1/me/nurse-profile/cv")
+            .GetProperty("post");
+        var requestBody = operation.GetProperty("requestBody");
+        var content = requestBody.GetProperty("content");
+        var multipart = content.GetProperty("multipart/form-data");
+        var schema = multipart.GetProperty("schema");
+        var fileSchema = schema.GetProperty("properties").GetProperty("file");
+        var required = schema.GetProperty("required")
+            .EnumerateArray()
+            .Select(item => item.GetString())
+            .ToHashSet(StringComparer.Ordinal);
+
+        Assert.True(requestBody.GetProperty("required").GetBoolean());
+        Assert.Equal("object", schema.GetProperty("type").GetString());
+        Assert.Contains("file", required);
+        Assert.Equal("string", fileSchema.GetProperty("type").GetString());
+        Assert.Equal("binary", fileSchema.GetProperty("format").GetString());
+    }
+
     private static void AssertRequired(JsonElement schemas, string schemaName, params string[] properties)
     {
         var required = GetRequiredProperties(schemas, schemaName);

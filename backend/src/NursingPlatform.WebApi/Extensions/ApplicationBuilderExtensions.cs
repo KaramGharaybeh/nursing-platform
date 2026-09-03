@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.OpenApi;
 using NursingPlatform.Application.Authorization;
 using NursingPlatform.Application.Employers.Commands.UpsertMyEmployerOrganization;
 using NursingPlatform.Application.Employers.Commands.UpsertMyEmployerProfile;
@@ -1219,7 +1220,35 @@ public static class ApplicationBuilderExtensions
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("UploadNurseCv");
+        .WithName("UploadNurseCv")
+        .AddOpenApiOperationTransformer((operation, _, _) =>
+        {
+            operation.RequestBody = new OpenApiRequestBody
+            {
+                Required = true,
+                Content = new Dictionary<string, OpenApiMediaType>
+                {
+                    ["multipart/form-data"] = new OpenApiMediaType
+                    {
+                        Schema = new OpenApiSchema
+                        {
+                            Type = JsonSchemaType.Object,
+                            Required = new HashSet<string>(StringComparer.Ordinal) { "file" },
+                            Properties = new Dictionary<string, IOpenApiSchema>
+                            {
+                                ["file"] = new OpenApiSchema
+                                {
+                                    Type = JsonSchemaType.String,
+                                    Format = "binary"
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            return Task.CompletedTask;
+        });
 
         nurseProfile.MapDelete("/cv", async (ISender sender) =>
         {

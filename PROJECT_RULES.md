@@ -193,3 +193,11 @@ A change is considered complete only when:
 - Tests pass when applicable.
 - No unnecessary complexity has been introduced.
 - The implementation is production-ready.
+
+---
+
+# Memory Bank Governance
+
+* `/PROGRESS.md` is the canonical single source of truth for project status, current roadmap, and agent handoffs.
+* All planned features or structural changes MUST be documented in `/PROGRESS.md` prior to code implementation.
+* Broad staging (`git add .`) is prohibited. Updates to `/PROGRESS.md` must be staged alongside corresponding code changes.

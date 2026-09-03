@@ -20,6 +20,15 @@ These project instructions take precedence over convenience. Prototype implement
 
 ---
 
+# RULE 0: MANDATORY MEMORY BANK & DYNAMIC PLANNING PROTOCOL
+
+- **Startup:** The Agent MUST read `/PROGRESS.md` before executing any commands or code changes.
+- **Dynamic Planning:** Whenever a new task or step is planned in conversation, the Agent MUST write it to `/PROGRESS.md` BEFORE writing any code.
+- **Incremental Status:** Update task progress incrementally (`[x]` for done, `[/]` for partial/in-progress, `[ ]` for pending). Do not wait for 100% completion.
+- **Shutdown:** Update `/PROGRESS.md` with explicit handoff instructions before ending the session.
+
+---
+
 # Mandatory AI Workflow
 
 This project adopts the Superpowers workflow for structured software development.

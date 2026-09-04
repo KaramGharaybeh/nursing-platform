@@ -798,21 +798,24 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-002` — Pin Node/npm/toolchain
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_date: 2026-09-04
 - scope_summary: Added only root Node/npm metadata required for the already-scaffolded Angular workspace. Created repository-root `.nvmrc` with exact Node version `22.23.1`. Added exact `engines.node` value `22.23.1` and exact `engines.npm` value `11.6.0` to `frontend/package.json` while preserving `packageManager: npm@11.6.0`.
 - exclusion_summary: Did not change package name, version, scripts, dependencies, devDependencies, Angular version ranges, `frontend/package-lock.json`, Angular source/configuration, backend files, canonical OpenAPI files, Penpot assets, or task-scope files for later frontend tasks. Did not run npm install/ci/update/upgrade, Angular CLI generation, build, tests, lint, stylelint, Playwright, or OpenAPI generation.
 - review_note: `T-FE-003` remains `NOT STARTED` and requires later explicit authorization.
+- closure_evidence: Technical-lead verdict `PASS`; completion_commit `7545c18`; completion_commit_subject `chore(frontend): pin Node and npm metadata`; verified_metadata `.nvmrc = 22.23.1`, `frontend/package.json packageManager = npm@11.6.0`, `frontend/package.json engines.node = 22.23.1`, `frontend/package.json engines.npm = 11.6.0`; dependency_integrity dependencies unchanged, devDependencies unchanged, Angular ranges unchanged, `frontend/package-lock.json` unchanged; toolchain_uniqueness no `frontend/.nvmrc`, no `.node-version`, no `frontend/.node-version`, no `.npmrc`, no `frontend/.npmrc`.
 
 ### `ST-FE-002` — Pin and verify Node/npm toolchain metadata
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_summary: Root `.nvmrc` and `frontend/package.json` engines now pin Node `22.23.1` and npm `11.6.0`. Existing generated `packageManager` metadata remains `npm@11.6.0`.
+- closure_evidence: Technical-lead verdict `PASS`; completion commit `7545c18 chore(frontend): pin Node and npm metadata`; subtask accepted as complete. `T-FE-003` remains `NOT STARTED`.
 
 ### `GATE-FE-T002`
 
-- status_result: `READY FOR REVIEW`
+- status_result: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_summary: Pre-task gate observed HEAD `b4af58a`, clean working tree, Node `v22.23.1`, npm `11.6.0`, and NVM tool paths. Final metadata verification observed `.nvmrc` content `22.23.1\n`, `engines.node` `22.23.1`, `engines.npm` `11.6.0`, and `packageManager` `npm@11.6.0`. `git diff -- frontend/package-lock.json` produced no output, confirming the lockfile was not modified. No install/build/test commands were run for this metadata-only task.
+- closure_evidence: Technical-lead review accepted completion commit `7545c18 chore(frontend): pin Node and npm metadata`; committed file scope was `.nvmrc`, `frontend/package.json`, `PROGRESS.md`, and `docs/frontend/execution/frontend-implementation-ledger.md`; `frontend/package-lock.json`, Angular source/configuration, backend files, canonical OpenAPI, and Penpot/design source were not changed. Gate is closed as `VERIFIED`; `T-FE-003` remains `NOT STARTED` and requires explicit authorization.

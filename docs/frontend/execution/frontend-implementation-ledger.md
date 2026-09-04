@@ -795,3 +795,24 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Gate evidence is incomplete because package installation failed and the npm lockfile is missing. Observed partial positives: `frontend/` exists, no nested `frontend/.git` exists, generated app filenames use the 2025 style (`app.ts`, `app.html`, `app.scss`, `app.spec.ts`, `app.config.ts`, `app.routes.ts`), no generated Angular AI config files were found in the generated top-level workspace, and no unauthorized MCP/Agent-Skill repository configuration was added.
 - clean_retry_evidence: Gate evidence is ready for technical-lead review after clean retry: exact command succeeded, package installation succeeded, npm `10.9.8` Arborist `edgesOut` failure did not recur under npm `11.6.0`, workspace exists only under `frontend/`, no nested Git exists, package-lock exists, lockfileVersion is `3`, packageManager metadata is `npm@11.6.0`, Router/SCSS/strict/standalone/zoneless-compatible no-zone scaffold/Vitest/prefix `np` are present, SSR is not configured, AI config generation is none, and 2025 filenames are present. The Agent has not marked the gate `VERIFIED`.
 - closure_evidence: Technical-lead review accepted exact approved `ng new` invocation, workspace at `./frontend`, package installation success under npm `11.6.0`, committed `package-lock.json`, no nested Git, Router enabled, SCSS, strict configuration, standalone architecture, zoneless-compatible no-zone scaffold, SSR disabled, Vitest, prefix `np`, npm package manager, `--ai-config=none` honored, 2025 filename style honored, no unauthorized dependencies, no backend/OpenAPI/Penpot changes, and no `T-FE-002` execution.
+
+### `T-FE-002` — Pin Node/npm/toolchain
+
+- status: `READY FOR REVIEW`
+- blocker_types: `DEPENDENCY`
+- evidence_date: 2026-09-04
+- scope_summary: Added only root Node/npm metadata required for the already-scaffolded Angular workspace. Created repository-root `.nvmrc` with exact Node version `22.23.1`. Added exact `engines.node` value `22.23.1` and exact `engines.npm` value `11.6.0` to `frontend/package.json` while preserving `packageManager: npm@11.6.0`.
+- exclusion_summary: Did not change package name, version, scripts, dependencies, devDependencies, Angular version ranges, `frontend/package-lock.json`, Angular source/configuration, backend files, canonical OpenAPI files, Penpot assets, or task-scope files for later frontend tasks. Did not run npm install/ci/update/upgrade, Angular CLI generation, build, tests, lint, stylelint, Playwright, or OpenAPI generation.
+- review_note: `T-FE-003` remains `NOT STARTED` and requires later explicit authorization.
+
+### `ST-FE-002` — Pin and verify Node/npm toolchain metadata
+
+- status: `READY FOR REVIEW`
+- blocker_types: `DEPENDENCY`
+- evidence_summary: Root `.nvmrc` and `frontend/package.json` engines now pin Node `22.23.1` and npm `11.6.0`. Existing generated `packageManager` metadata remains `npm@11.6.0`.
+
+### `GATE-FE-T002`
+
+- status_result: `READY FOR REVIEW`
+- blocker_types: `DEPENDENCY`
+- evidence_summary: Pre-task gate observed HEAD `b4af58a`, clean working tree, Node `v22.23.1`, npm `11.6.0`, and NVM tool paths. Final metadata verification observed `.nvmrc` content `22.23.1\n`, `engines.node` `22.23.1`, `engines.npm` `11.6.0`, and `packageManager` `npm@11.6.0`. `git diff -- frontend/package-lock.json` produced no output, confirming the lockfile was not modified. No install/build/test commands were run for this metadata-only task.

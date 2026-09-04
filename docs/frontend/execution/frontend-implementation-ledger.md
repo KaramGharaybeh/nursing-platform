@@ -770,22 +770,25 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-001` — Scaffold Angular workspace
 
-- status: `REOPENED`
+- status: `READY FOR REVIEW`
 - blocker_types: `DEPENDENCY`
 - evidence_date: 2026-09-04
 - prior_blocked_attempt: The exact approved Angular CLI command using `@angular/cli@22.1.4` accepted the approved options and generated the initial `frontend/` workspace files, but the scaffold workflow failed during its normal npm package installation step with `npm error Cannot read properties of null (reading 'edgesOut')`. The npm debug log path reported by npm was `/home/karam/.npm/_logs/2026-09-04T03_36_38_783Z-debug-0.log`.
 - prior_scope_summary: Generated files were located under `frontend/`; `frontend/.git` was not created; `frontend/package-lock.json` was not created because package installation failed; no backend, canonical OpenAPI, Penpot, API client generation, Material/CDK setup, lint/stylelint setup, AXE setup, Playwright setup, auth implementation, or product implementation was performed.
 - reopen_history: Previous status `BLOCKED`; previous blocker_type `DEPENDENCY`; root-cause classification `NPM_10_9_8_ARBORIST_DEFECT`; approved recovery `npm 11.6.0`. The exact generated package graph reproduced the npm `10.9.8` Arborist failure in isolation, npm `11.6.0` resolved the same graph successfully under Node `v22.23.1`, and diagnostic `--legacy-peer-deps` also bypassed the failure but is NOT an approved Nursing Platform install policy. This is an npm resolver defect classification, not an Angular dependency-graph conflict.
 - retry_contract: Future clean retry must use Node `v22.23.1`, npm `11.6.0`, package manager `npm`, and the exact scaffold generator executable pinned through `npx -p @angular/cli@22.1.4 ng new ...` with the approved flags. Stock Angular CLI-generated dependency ranges must not be manually rewritten merely to force every installed Angular package to patch version `22.1.4`; `package-lock.json` will be the reproducibility authority for actual resolved package versions after successful scaffold installation.
+- clean_retry_evidence: Clean retry completed with Node `v22.23.1`, npm `11.6.0`, package manager `npm`, and scaffold generator `@angular/cli@22.1.4`; packages installed successfully; `frontend/package.json`, `frontend/package-lock.json`, and `frontend/node_modules` exist; `frontend/.git` is absent; `package-lock.json` lockfileVersion is `3`; generated packageManager metadata is `npm@11.6.0`; generated application files use 2025 names (`app.ts`, `app.html`, `app.scss`, `app.spec.ts`, `app.config.ts`, `app.routes.ts`); no Angular-generated AI instruction/config files were found outside installed package internals; no SSR target/server source was generated; no `zone.js` dependency/lock entry or `provideZoneChangeDetection` configuration was generated; Router, SCSS, standalone bootstrap, Vitest, and prefix `np` are present; direct dependencies remain stock Angular CLI scaffold dependencies only.
 
 ### `ST-FE-001` — Execute exact approved Angular scaffold command
 
-- status: `REOPENED`
+- status: `READY FOR REVIEW`
 - blocker_types: `DEPENDENCY`
 - evidence_summary: The exact command was executed without changing CLI version or approved flags. Generation reached file creation but did not complete package installation. No additional install, upgrade, downgrade, cleanup, or guessed alternative command was run.
+- clean_retry_evidence: Exact approved scaffold command was rerun from a clean absent `frontend/` path after npm `11.6.0` recovery. The command completed successfully including normal npm installation. No `--legacy-peer-deps`, `--skip-install`, alternate Angular CLI version, or manual dependency edit was used.
 
 ### `GATE-FE-T001`
 
-- status_result: `REOPENED`
+- status_result: `READY FOR REVIEW`
 - blocker_types: `DEPENDENCY`
 - evidence_summary: Gate evidence is incomplete because package installation failed and the npm lockfile is missing. Observed partial positives: `frontend/` exists, no nested `frontend/.git` exists, generated app filenames use the 2025 style (`app.ts`, `app.html`, `app.scss`, `app.spec.ts`, `app.config.ts`, `app.routes.ts`), no generated Angular AI config files were found in the generated top-level workspace, and no unauthorized MCP/Agent-Skill repository configuration was added.
+- clean_retry_evidence: Gate evidence is ready for technical-lead review after clean retry: exact command succeeded, package installation succeeded, npm `10.9.8` Arborist `edgesOut` failure did not recur under npm `11.6.0`, workspace exists only under `frontend/`, no nested Git exists, package-lock exists, lockfileVersion is `3`, packageManager metadata is `npm@11.6.0`, Router/SCSS/strict/standalone/zoneless-compatible no-zone scaffold/Vitest/prefix `np` are present, SSR is not configured, AI config generation is none, and 2025 filenames are present. The Agent has not marked the gate `VERIFIED`.

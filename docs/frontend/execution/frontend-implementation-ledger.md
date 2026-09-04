@@ -213,7 +213,7 @@ All Tasks have initial `status: NOT STARTED`.
 | task_id | milestone_id | name | dependencies | scope/contract/design summary | blocker_types |
 |---|---|---|---|---|---|
 | `T-FE-001` | `M-FE-001` | Scaffold Angular workspace | explicit future authorization | exact scaffold command into `frontend/` with `--ai-config=none` and `--file-name-style-guide=2025`; no product code | `SCOPE`,`DEPENDENCY` |
-| `T-FE-002` | `M-FE-001` | Pin Node/npm/toolchain | `GATE-FE-T001` | Node `22.23.1`, npm `10.9.8` | `DEPENDENCY` |
+| `T-FE-002` | `M-FE-001` | Pin Node/npm/toolchain | `GATE-FE-T001` | Node `22.23.1`, npm `11.6.0` | `DEPENDENCY` |
 | `T-FE-003` | `M-FE-001` | Baseline install/build/test | `GATE-FE-T002` | generated workspace baseline only | `DEPENDENCY` |
 | `T-FE-004` | `M-FE-002` | Dependency guardrails | `GATE-FE-T003` | block unapproved deps | `DEPENDENCY` |
 | `T-FE-005` | `M-FE-002` | TypeScript/Angular lint setup | `GATE-FE-T003` | tooling approval if needed | `TOOLING_APPROVAL` |
@@ -765,3 +765,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - Do not modify completed `VERIFIED` scope unless an approved Task explicitly marks it `REOPENED`.
 - Do not use this ledger to expand task scope during implementation.
 - Do not treat a `NOT STARTED` entry as approval to code.
+
+## 18. Execution Status Records
+
+### `T-FE-001` — Scaffold Angular workspace
+
+- status: `REOPENED`
+- blocker_types: `DEPENDENCY`
+- evidence_date: 2026-09-04
+- prior_blocked_attempt: The exact approved Angular CLI command using `@angular/cli@22.1.4` accepted the approved options and generated the initial `frontend/` workspace files, but the scaffold workflow failed during its normal npm package installation step with `npm error Cannot read properties of null (reading 'edgesOut')`. The npm debug log path reported by npm was `/home/karam/.npm/_logs/2026-09-04T03_36_38_783Z-debug-0.log`.
+- prior_scope_summary: Generated files were located under `frontend/`; `frontend/.git` was not created; `frontend/package-lock.json` was not created because package installation failed; no backend, canonical OpenAPI, Penpot, API client generation, Material/CDK setup, lint/stylelint setup, AXE setup, Playwright setup, auth implementation, or product implementation was performed.
+- reopen_history: Previous status `BLOCKED`; previous blocker_type `DEPENDENCY`; root-cause classification `NPM_10_9_8_ARBORIST_DEFECT`; approved recovery `npm 11.6.0`. The exact generated package graph reproduced the npm `10.9.8` Arborist failure in isolation, npm `11.6.0` resolved the same graph successfully under Node `v22.23.1`, and diagnostic `--legacy-peer-deps` also bypassed the failure but is NOT an approved Nursing Platform install policy. This is an npm resolver defect classification, not an Angular dependency-graph conflict.
+- retry_contract: Future clean retry must use Node `v22.23.1`, npm `11.6.0`, package manager `npm`, and the exact scaffold generator executable pinned through `npx -p @angular/cli@22.1.4 ng new ...` with the approved flags. Stock Angular CLI-generated dependency ranges must not be manually rewritten merely to force every installed Angular package to patch version `22.1.4`; `package-lock.json` will be the reproducibility authority for actual resolved package versions after successful scaffold installation.
+
+### `ST-FE-001` — Execute exact approved Angular scaffold command
+
+- status: `REOPENED`
+- blocker_types: `DEPENDENCY`
+- evidence_summary: The exact command was executed without changing CLI version or approved flags. Generation reached file creation but did not complete package installation. No additional install, upgrade, downgrade, cleanup, or guessed alternative command was run.
+
+### `GATE-FE-T001`
+
+- status_result: `REOPENED`
+- blocker_types: `DEPENDENCY`
+- evidence_summary: Gate evidence is incomplete because package installation failed and the npm lockfile is missing. Observed partial positives: `frontend/` exists, no nested `frontend/.git` exists, generated app filenames use the 2025 style (`app.ts`, `app.html`, `app.scss`, `app.spec.ts`, `app.config.ts`, `app.routes.ts`), no generated Angular AI config files were found in the generated top-level workspace, and no unauthorized MCP/Agent-Skill repository configuration was added.

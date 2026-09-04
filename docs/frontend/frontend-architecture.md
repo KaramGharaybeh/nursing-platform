@@ -167,7 +167,7 @@ Lockfile changes MUST be attributable to an approved dependency or package-manag
 
 Wholesale deletion or regeneration of `package-lock.json` merely to bypass conflicts is forbidden.
 
-Local development and CI MUST use the pinned Node.js and npm policy once those executable files are established.
+Local development and CI MUST use the pinned Node.js and npm policy once those executable files are established. The current approved frontend toolchain pin is Node `v22.23.1` with npm `11.6.0`; npm `10.9.8` is rejected for this workspace because its Arborist peer-resolution path reproducibly throws `Cannot read properties of null (reading 'edgesOut')` for the stock Angular 22 scaffold dependency graph, while npm `11.6.0` resolves the same graph successfully under Node `v22.23.1`. This is not an Angular dependency-graph conflict. `--legacy-peer-deps` is not an approved normal install policy.
 
 ## Architecture Goals
 

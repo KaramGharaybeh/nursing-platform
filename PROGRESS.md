@@ -9,13 +9,13 @@
 ---
 
 ## 1. Active Context & System State
-* **Current Phase:** Phase 4C — Angular Official AI Guidance Addendum (documentation/governance alignment)
-* **Active Working Directory:** repository root for documentation-only governance alignment; `./frontend` MUST remain absent until explicit `T-FE-001` authorization.
+* **Current Phase:** GOAL-FE-001 / M-FE-001 — T-FE-001 toolchain recovery amendment approved; scaffold retry not started.
+* **Active Working Directory:** repository root for recovery-baseline documentation/toolchain update only; no frontend workspace currently exists after cleanup.
 * **Framework Version:** Angular 22 (Standalone Architecture, Signals, SCSS, Zoneless)
 * **Backend Baseline:** .NET WebApi (OpenAPI contract: `development-openapi-2026-09-03.json`)
 * **Global System Status:** `[GOAL_FE_001_ROADMAP_PERSISTED_READY_FOR_T_FE_001_AUTHORIZATION]`
 * **Backend Stabilization:** `[STABILIZED]` — expired Package Exam Session entitlement test fixture repaired; backend build is 0 warnings / 0 errors; full backend suite is 1302/1302 passing with PostgreSQL integration-test configuration.
-* **Next Technical Gate:** Explicit authorization for `T-FE-001` Angular workspace scaffold. Do not begin `T-FE-001` without that authorization.
+* **Next Technical Gate:** Explicit authorization to re-execute `T-FE-001` cleanly with Node `v22.23.1`, npm `11.6.0`, Angular scaffold CLI `@angular/cli@22.1.4`, and package manager npm.
 * **Safe OpenAPI Capture:** `[COMPLETED]` — Development-only `--capture-openapi` skips only database initialization; normal database initialization remains unchanged; CV multipart OpenAPI description corrected; canonical snapshot `development-openapi-2026-09-03.json` verified as OpenAPI 3.1.1 with 106 paths, 142 operations, 110 schemas, and Bearer security scheme; backend build is 0 warnings / 0 errors; full backend suite is 1307/1307 passing.
 * **Phase 2C Scope Correction:** `[COMPLETED]` — Non-Development capture rejection sets non-zero exit only on the rejected `--capture-openapi` path; generic fatal startup catch behavior restored; backend build is 0 warnings / 0 errors; full backend suite remains 1307/1307 passing.
 
@@ -54,7 +54,7 @@
 - [x] **Phase 4B Persistence:** Detailed Goal → Milestone → Task → Subtask → Verification Gate roadmap persisted to `docs/frontend/execution/frontend-implementation-ledger.md`.
 - [x] **Vertical Slice Sequencing:** Recorded approved sequencing: Slice A (`AUTH-001` → session/bootstrap → protected shell → `GET /api/v1/me` → read-only Nurse Profile Overview), then Slice B (`NUR-012` CV management → multipart `file`).
 - [x] **Angular Official AI Guidance Addendum:** Reconciled Nursing Platform frontend governance with official Angular v22 AI guidance before scaffold; `T-FE-001` remains not started.
-- [ ] **Next Implementation Gate:** Await explicit authorization to begin `T-FE-001`; no Angular workspace exists and no implementation has started.
+- [/] **T-FE-001 Angular Workspace Scaffold:** Initial attempt with npm `10.9.8` blocked on reproducible npm Arborist `edgesOut` defect; npm `11.6.0` approved as replacement pin; failed partial scaffold removed; T-FE-001 reopened and ready for separately authorized clean re-execution. No frontend workspace currently exists; `T-FE-002` not started.
 
 ### Phase 1B: Core Infrastructure & Network Interceptors (PENDING)
 - [ ] **HTTP Interceptors (`frontend/src/app/core/interceptors/`):**
@@ -81,7 +81,7 @@
 ---
 
 ## 3. Known Technical Constraints & Active Blockers
-* **[ACTIVE CONSTRAINT]:** Do not scaffold Angular, create `frontend/`, install dependencies, generate an API client, modify backend source, modify Penpot, stage files, commit, or push until a later explicit approval authorizes the specific Task.
+* **[ACTIVE CONSTRAINT]:** Do not scaffold Angular, create `frontend/`, install project dependencies, generate an API client, modify backend source, modify Penpot, stage files, commit, or push until a later explicit approval authorizes the specific Task.
 * **[ACTIVE CONSTRAINT]:** After future scaffold approval, all frontend CLI commands MUST run from inside `./frontend`.
 * **[ACTIVE CONSTRAINT]:** `PROGRESS.md` remains the high-level canonical session/handoff memory; detailed frontend Goal/Milestone/Task/Subtask history belongs in `docs/frontend/execution/frontend-implementation-ledger.md`.
 * **[ACTIVE CONSTRAINT]:** `docs/frontend/execution/frontend-implementation-ledger.md` is the detailed authority for `GOAL-FE-001`; `PROGRESS.md` must not duplicate the 137 Tasks or 74-screen matrix.
@@ -94,8 +94,8 @@
 ## 4. Agent Handoff Instructions
 > **Instructions for the Next Incoming Agent:**
 > 1. `GOAL-FE-001` frontend implementation roadmap is persisted in `docs/frontend/execution/frontend-implementation-ledger.md`; use that ledger as the detailed authority.
-> 2. Do not begin `T-FE-001`, scaffold Angular, or create `./frontend` until explicit authorization is issued for `T-FE-001`. The approved scaffold contract is documented in `docs/frontend/frontend-project-rules.md` for future use only.
-> 2a. The approved future scaffold command now includes `--ai-config=none` and `--file-name-style-guide=2025`; do not execute it until `T-FE-001` is explicitly authorized.
+> 2. `T-FE-001` was explicitly authorized and attempted with the exact approved scaffold command. The first attempt with npm `10.9.8` failed during normal npm install with the reproducible npm Arborist `edgesOut` defect; npm `11.6.0` is now the approved replacement pin under Node `v22.23.1`.
+> 2a. The failed partial `./frontend` scaffold was removed under explicit recovery authorization. `T-FE-001` is `REOPENED` for a later clean retry, but do not rerun the scaffold, run project npm install/update/upgrade, or proceed to `T-FE-002` without explicit authorization.
 > 3. Backend baseline is stabilized: expired Package Exam Session test fixture repaired; full backend suite is 1302/1302 passing with PostgreSQL integration-test configuration.
 > 4. Active frontend planning must use canonical OpenAPI snapshot `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json`; `2026-08-16` is historical/superseded for implementation planning.
 > 5. Keep `PROGRESS.md` high-level and update it only for session/current-state handoff; do not duplicate the detailed roadmap here.

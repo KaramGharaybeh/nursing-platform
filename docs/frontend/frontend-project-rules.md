@@ -318,7 +318,7 @@ The approved initial scaffold contract is recorded for a future scaffold/toolcha
 | Angular major | 22 |
 | Angular CLI | 22.1.4 |
 | Node | 22.23.1 |
-| npm | 10.9.8 |
+| npm | 11.6.0 |
 | Package manager | npm |
 | Workspace | `frontend/` |
 | Routing | yes |
@@ -354,6 +354,12 @@ npx -p @angular/cli@22.1.4 ng new nursing-platform-frontend \
   --ai-config=none \
   --file-name-style-guide=2025
 ```
+
+The scaffold generator executable is pinned exactly to `@angular/cli@22.1.4` through `npx -p @angular/cli@22.1.4 ng new ...`. Stock Angular CLI-generated `package.json` dependency ranges MUST NOT be manually rewritten merely to force every installed Angular package to patch version `22.1.4`; legitimate stock ranges may include entries such as `@angular/cli: ^22.1.4`, `@angular/build: ^22.1.4`, and `@angular/core: ^22.1.0`. After successful scaffold installation, `package-lock.json` is the reproducibility authority for actual resolved package versions, and CI later uses `npm ci`. Angular major remains locked to 22 unless separately approved.
+
+The current approved npm pin is `11.6.0`. npm `10.9.8` is rejected for this workspace because its Arborist peer-resolution path reproducibly throws `Cannot read properties of null (reading 'edgesOut')` for the stock Angular 22 scaffold dependency graph. npm `11.6.0` was locally isolated and verified to resolve the same graph successfully under Node `v22.23.1`. This is an npm resolver defect classification, not an Angular dependency-graph conflict.
+
+`--legacy-peer-deps` is NOT an approved Nursing Platform install policy. Its successful diagnostic result helped isolate the npm `10.9.8` resolver defect only. Future normal installs MUST NOT rely on it unless a separate technical-lead decision explicitly authorizes an exception.
 
 The explicit `--ai-config=none` setting prevents Angular CLI from generating additional AI-tool rule/config files that could duplicate or conflict with `AGENTS.md`, `PROJECT_RULES.md`, frontend architecture/rules, or the implementation ledger. Official Angular AI guidance is incorporated intentionally into Nursing Platform governance instead.
 

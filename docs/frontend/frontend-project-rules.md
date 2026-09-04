@@ -23,6 +23,15 @@ Architectural, business, design, API, security, or exception decisions that affe
 
 Generic skills, including design, brand, design-system, ui-styling, ui-ux-pro-max, brainstorming, or similar capabilities, are subordinate to Nursing Platform repository governance, approved Penpot evidence, backend/OpenAPI contracts, business rules, security, accessibility, and task scope. A generic skill MUST NOT silently introduce Tailwind, shadcn, a second UI library, new design tokens, new business behavior, new architecture, or a conflicting visual decision.
 
+Official Angular documentation and Angular-maintained AI guidance are framework guidance only. They are subordinate to explicit Nursing Platform decisions, repository governance, backend/OpenAPI business and security contracts, approved Penpot visual evidence, and active task scope. For Angular framework implementation questions, prefer current official Angular documentation and official Angular-maintained AI guidance compatible with the project's locked Angular major/version, including:
+
+- `https://angular.dev/ai/develop-with-ai`
+- `https://angular.dev/ai/agent-skills`
+- `https://angular.dev/ai/mcp`
+- `https://angular.dev/cli/new`
+
+Do not treat generic web tutorials, StackOverflow answers, generic coding skills, or model memory as higher authority than official Angular documentation. The project targets Angular 22. Do not silently adopt APIs or behavior from a later Angular major. If current Angular documentation describes a patch-sensitive API or CLI behavior whose availability in the installed/pinned Angular version is uncertain, verify it against the actual installed/pinned version, do not upgrade Angular merely to use it, and STOP AND ESCALATE if the desired guidance is incompatible with the locked project version.
+
 ## 2. Pre-implementation gates
 
 No Angular implementation, including scaffolding, may start until all of the following are explicitly satisfied in approved task scope:
@@ -48,7 +57,27 @@ The approved planned stack is Angular 22, TypeScript strict mode, standalone arc
 - Pin a Node.js version that the official Angular 22 compatibility table supports, consistently across local development, `.nvmrc`, `package.json` engines, and CI.
 - Preserve Angular 22 zoneless-compatible defaults. Do not add `zone.js`, legacy global state libraries, another UI library, Tailwind, or a toast library without an approved architecture decision.
 - Use official Angular guidance matching the pinned version. Do not rely on stale framework knowledge.
+- Use standalone Angular architecture. Do not explicitly write redundant `standalone: true` metadata inside new component/directive decorators for Angular 22. Do not introduce NgModules for new feature architecture unless a concrete compatibility requirement is documented and approved.
+- Do not mechanically add `changeDetection: ChangeDetectionStrategy.OnPush` to every new component when Angular 22 already supplies the intended default behavior. Do not perform change-detection modernization outside active Task scope.
+- Prefer `inject()` over constructor injection for new Angular code. Keep services narrowly responsible.
+- Prefer signal-based component APIs: `input()`, `output()`, and `model()`. Use `model()` for genuine component two-way binding instead of manually pairing an input and output.
+- Use signals for local/component state where appropriate. Use `computed()` for derived read-only state and `linkedSignal()` when writable/derived state must remain synchronized with reactive source changes and that behavior is semantically appropriate. Do not use signal `mutate`; use `set()` and `update()` with predictable, pure state transformations. Do not introduce a global state library merely because signals exist.
+- Use Angular native control flow (`@if`, `@for`, `@switch`) for new templates when appropriate. Keep business/workflow logic out of templates. Use `async` pipe for Observable template consumption where appropriate rather than unmanaged manual subscriptions. Do not assume JavaScript globals are directly available inside Angular templates.
+- Prefer Angular class/style bindings (`[class...]`, `[style...]`) for new code. Do not use `ngClass` or `ngStyle` as the default approach when normal bindings express the behavior.
+- Use component/directive `host` metadata for host bindings and listeners in new code rather than `@HostBinding` or `@HostListener` by default.
+- Feature routes should be lazy-loaded by default when they represent independently navigable feature boundaries. Do not lazy-load merely to satisfy a rule where it makes route architecture worse. Canonical Nursing Platform route registry and permission governance remain authoritative.
+- Use `NgOptimizedImage` for appropriate static images. Do not apply it blindly to unsupported cases such as inline base64 images. Privacy/security rules still apply to user/private imagery.
 - Do not upgrade, replace, modernize, or rewrite an already approved frontend approach merely because another Angular pattern, dependency, API, or technique is newer or personally preferred. Changes to approved architecture require an explicit decision task.
+
+### 3.1 Official Angular Agent Skills and CLI MCP
+
+Angular publishes official Agent Skills including `angular-developer` and `angular-new-app`. If an official Angular-maintained Agent Skill is already available in the execution environment, the Agent should use it when relevant to Angular work. Do not install an Agent Skill as part of a normal implementation Task, and do not run `npx skills add` without explicit tooling/dependency authorization. Angular skills are advisory and subordinate to Nursing Platform governance; they cannot authorize architecture, dependency, UI-library, business-rule, backend-contract, or design changes. Absence of an Angular Agent Skill is not by itself a project blocker.
+
+Angular provides an official Angular CLI MCP server. When Angular CLI MCP is already available to the Agent, prefer its read-only framework-information capabilities for Angular-specific questions, especially `get_best_practices`, `search_documentation`, and `list_projects`. For normal Nursing Platform work, read-only usage is preferred unless the active Task explicitly authorizes a write-capable MCP operation. Do not add MCP configuration files to the repository, install/configure MCP globally, run migration/modernization/write-capable MCP tools merely because they are available, or use MCP to widen Task scope unless explicitly authorized. If Angular MCP is unavailable, use official `angular.dev` documentation instead. MCP availability is not a default implementation blocker.
+
+### 3.2 `@Service()` Compatibility Check
+
+Current Angular v22 documentation recommends the new `@Service()` decorator for new singleton services. Do not make this a blindly applied project rule before the actual installed `@angular/core` version is verified after scaffold. After `T-FE-001` creates the Angular workspace, verify whether the installed Angular 22 package version exposes the official `Service` decorator. If confirmed compatible, prefer `@Service()` for new singleton services according to Angular v22 guidance. If not available in the installed locked version, use the supported documented singleton-service mechanism, do not upgrade Angular merely for `@Service`, and record the compatibility result. This check belongs to later Angular coding/toolchain verification, not governance-only documentation work.
 
 ## 4. Project structure rules
 
@@ -234,6 +263,14 @@ Future approved frontend work must include proportional tests for components and
 - Cover loading, empty, validation, authorization, conflict, rate-limit, and failure states that the approved feature contract makes applicable.
 - Do not add E2E tests, Playwright/browser execution, visual regression tooling, or real-backend integration tests unless explicitly authorized by the applicable task/specification. Do not introduce Cypress.
 
+## 14.1 Angular Forms Policy
+
+For new Nursing Platform forms, Signal Forms are the preferred Angular-native option when they satisfy Angular Material/control compatibility, required accessibility behavior, server-validation mapping, async validation behavior, typed backend-contract integration, and required UX behavior.
+
+Do not force Signal Forms when a required Angular Material/custom-control workflow is incompatible or materially less reliable. When Signal Forms are not appropriate, prefer strictly typed Reactive Forms. Template-driven Forms are not the default architecture for production feature forms.
+
+Before the first product form implementation, the owning form/pattern Task must verify the chosen form approach against the actual Angular 22 + Angular Material implementation. Do not introduce mixed form architectures casually. Do not duplicate backend validation rules as frontend business truth.
+
 ## 15. Frontend Task Definition of Done
 
 A frontend Task may be marked `VERIFIED` only when all applicable requirements pass:
@@ -294,6 +331,8 @@ The approved initial scaffold contract is recorded for a future scaffold/toolcha
 | Prefix | `np` |
 | Nested Git | no |
 | Interactive scaffold | no |
+| AI config generation | none |
+| File name style guide | 2025 |
 
 Preferred reproducible invocation pins the CLI instead of relying on whichever global CLI happens to be installed:
 
@@ -311,8 +350,18 @@ npx -p @angular/cli@22.1.4 ng new nursing-platform-frontend \
   --prefix np \
   --skip-git \
   --commit false \
-  --defaults
+  --defaults \
+  --ai-config=none \
+  --file-name-style-guide=2025
 ```
+
+The explicit `--ai-config=none` setting prevents Angular CLI from generating additional AI-tool rule/config files that could duplicate or conflict with `AGENTS.md`, `PROJECT_RULES.md`, frontend architecture/rules, or the implementation ledger. Official Angular AI guidance is incorporated intentionally into Nursing Platform governance instead.
+
+The explicit `--file-name-style-guide=2025` setting preserves Angular's current CLI naming style. Expected generated root filenames may use forms such as `app.ts`, `app.html`, `app.scss`, and `app.spec.ts`. Do not rename generated files to older `app.component.ts` style merely from historical Angular convention. Future generated Angular artifacts should follow the approved workspace naming convention unless repository architecture explicitly defines a different name.
+
+If the exact pinned Angular CLI `22.1.4` is later shown not to support `--ai-config=none` or `--file-name-style-guide=2025`, STOP AND ESCALATE. Do not remove either flag silently and do not substitute a newer CLI without explicit approval.
+
+Future `T-FE-001` verification must confirm that no Angular scaffold-generated AI config/rules files were created, 2025 filename style is used, generated files were not renamed to historical Angular naming, no unauthorized MCP/Agent-Skill configuration was generated, and existing Nursing Platform governance remains the only repository AI authority.
 
 Node/npm project pin files are created as part of the scaffold/toolchain Task, not manually before the workspace exists unless the future plan explicitly says otherwise.
 
@@ -356,15 +405,17 @@ No agent may upgrade a Penpot screen's approval status by itself.
 
 ## 20. Next required decisions
 
-Before frontend project creation and implementation planning, obtain explicit decisions for:
+`GOAL-FE-001` and the detailed Goal → Milestone → Task → Subtask → Verification Gate roadmap are persisted in `docs/frontend/execution/frontend-implementation-ledger.md`. Before frontend project creation or implementation work proceeds, obtain only the next explicit task authorization and any task-local approvals required by that ledger.
 
-1. G0 acceptance by Karam.
-2. The final approved Goal → Milestone → Task → Subtask implementation plan.
-3. The generated Development OpenAPI capture command and source revision for the implementation slice.
-4. The API client-generation strategy through the API CLIENT GENERATOR APPROVAL gate.
-5. The canonical route registry and initial approved design/implementation slice.
-6. The accepted design-token source, token registry, Material-theme mapping, component contracts, breakpoints, and responsive/RTL rules.
-7. The Penpot update/write policy after the required design gates.
-8. The scoped review and commit strategy for the current uncommitted architecture, legacy tracker, design-system audit, and report files.
+Known future decisions include:
 
-Until these decisions and pre-implementation gates are satisfied, frontend work remains documentation/evidence-only.
+1. Explicit authorization to begin `T-FE-001`.
+2. API client-generation strategy through the API CLIENT GENERATOR APPROVAL gate.
+3. Screen-specific implementation approvals through the applicable SCREEN APPROVAL PACKET REVIEW gates.
+4. Production auth/session posture.
+5. Production payment scope.
+6. Browser support matrix.
+7. Visual-regression tolerance and approval process.
+8. Whether confirmed backend-gap screens create backend backlog work or remain outside frontend scope.
+
+Until the applicable decision and pre-implementation gates are satisfied, frontend work remains documentation/evidence-only.

@@ -52,6 +52,35 @@ Do not create status values such as `BLOCKED BY DESIGN`, `CONTRACT CLARIFICATION
 - out_of_scope_until_explicitly_authorized: Angular scaffold, `frontend/` creation, dependency install, API client generation, backend changes, canonical OpenAPI changes, Penpot changes, staging, committing, pushing.
 - canonical_openapi: `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json` (`3.1.1`, 106 paths, 142 operations, 110 schemas, Bearer JWT, CV multipart field `file`).
 
+### Angular Official AI Guidance Addendum
+
+Official Angular documentation and Angular-maintained AI guidance are framework guidance only. They are subordinate to explicit Nursing Platform decisions, repository governance, backend/OpenAPI business and security contracts, approved Penpot visual evidence, and active task scope. Use official Angular v22-compatible guidance for Angular framework questions; do not silently adopt later-major APIs or behaviors.
+
+Official Angular Agent Skills (`angular-developer`, `angular-new-app`) and Angular CLI MCP are optional advisory aids only when already available and explicitly allowed by the active Task. Do not install skills, add MCP configuration, run write-capable MCP operations, or widen Task scope because a tool suggests it. Absence of those tools is not a blocker.
+
+The approved future `T-FE-001` scaffold command is:
+
+```bash
+npx -p @angular/cli@22.1.4 ng new nursing-platform-frontend \
+  --directory frontend \
+  --routing \
+  --style scss \
+  --test-runner vitest \
+  --standalone true \
+  --strict true \
+  --zoneless \
+  --ssr false \
+  --package-manager npm \
+  --prefix np \
+  --skip-git \
+  --commit false \
+  --defaults \
+  --ai-config=none \
+  --file-name-style-guide=2025
+```
+
+Do not execute this command until `T-FE-001` is explicitly authorized. If pinned Angular CLI `22.1.4` is later shown not to support `--ai-config=none` or `--file-name-style-guide=2025`, STOP AND ESCALATE; do not remove the flags silently and do not substitute a newer CLI without explicit approval.
+
 ## 4. Milestone Registry
 
 Milestones are organizational groupings. Task/Gate dependency declarations are authoritative and must remain a DAG.
@@ -183,7 +212,7 @@ All Tasks have initial `status: NOT STARTED`.
 
 | task_id | milestone_id | name | dependencies | scope/contract/design summary | blocker_types |
 |---|---|---|---|---|---|
-| `T-FE-001` | `M-FE-001` | Scaffold Angular workspace | explicit future authorization | exact scaffold command into `frontend/`; no product code | `SCOPE`,`DEPENDENCY` |
+| `T-FE-001` | `M-FE-001` | Scaffold Angular workspace | explicit future authorization | exact scaffold command into `frontend/` with `--ai-config=none` and `--file-name-style-guide=2025`; no product code | `SCOPE`,`DEPENDENCY` |
 | `T-FE-002` | `M-FE-001` | Pin Node/npm/toolchain | `GATE-FE-T001` | Node `22.23.1`, npm `10.9.8` | `DEPENDENCY` |
 | `T-FE-003` | `M-FE-001` | Baseline install/build/test | `GATE-FE-T002` | generated workspace baseline only | `DEPENDENCY` |
 | `T-FE-004` | `M-FE-002` | Dependency guardrails | `GATE-FE-T003` | block unapproved deps | `DEPENDENCY` |
@@ -327,7 +356,7 @@ All Subtasks initially have `status: NOT STARTED`. Each Subtask inherits its par
 
 | subtask_id | parent_task | purpose |
 |---|---|---|
-| `ST-FE-001` | `T-FE-001` | Execute exact approved Angular scaffold command and verify isolation. |
+| `ST-FE-001` | `T-FE-001` | Execute exact approved Angular scaffold command with `--ai-config=none` and `--file-name-style-guide=2025`; verify isolation, 2025 root filenames, no generated AI/MCP config, and no historical filename renames. |
 | `ST-FE-002` | `T-FE-002` | Pin and verify Node/npm toolchain metadata. |
 | `ST-FE-003` | `T-FE-003` | Run baseline install/test/build evidence. |
 | `ST-FE-004` | `T-FE-004` | Add dependency approval/denylist guard. |
@@ -486,7 +515,7 @@ All Gates initially have `status_result: NOT STARTED`. Every Gate must use the c
 
 | gate_id | parent_task | predecessor_gate_ids | task_specific_evidence | blocker_types |
 |---|---|---|---|---|
-| `GATE-FE-T001` | `T-FE-001` | explicit scaffold approval | CLI output, tree, no nested Git, status | `SCOPE`,`DEPENDENCY` |
+| `GATE-FE-T001` | `T-FE-001` | explicit scaffold approval | CLI output, tree, no nested Git, no generated AI-config/rules files, no unauthorized MCP/Agent-Skill configuration, 2025 filename style evidence, generated files not renamed to historical Angular naming, existing Nursing Platform governance remains sole repository AI authority, status | `SCOPE`,`DEPENDENCY` |
 | `GATE-FE-T002` | `T-FE-002` | `GATE-FE-T001` | Node/npm output | `DEPENDENCY` |
 | `GATE-FE-T003` | `T-FE-003` | `GATE-FE-T002` | `npm ci`, test, prod build | `DEPENDENCY` |
 | `GATE-FE-T004` | `T-FE-004` | `GATE-FE-T003` | dependency guard output | `DEPENDENCY` |

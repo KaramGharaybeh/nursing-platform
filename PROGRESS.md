@@ -9,8 +9,8 @@
 ---
 
 ## 1. Active Context & System State
-* **Current Phase:** Phase 4B — Approved Frontend Implementation Roadmap Persisted (documentation-only)
-* **Active Working Directory:** repository root for documentation-only roadmap persistence; `./frontend` MUST remain absent until explicit `T-FE-001` authorization.
+* **Current Phase:** Phase 4C — Angular Official AI Guidance Addendum (documentation/governance alignment)
+* **Active Working Directory:** repository root for documentation-only governance alignment; `./frontend` MUST remain absent until explicit `T-FE-001` authorization.
 * **Framework Version:** Angular 22 (Standalone Architecture, Signals, SCSS, Zoneless)
 * **Backend Baseline:** .NET WebApi (OpenAPI contract: `development-openapi-2026-09-03.json`)
 * **Global System Status:** `[GOAL_FE_001_ROADMAP_PERSISTED_READY_FOR_T_FE_001_AUTHORIZATION]`
@@ -53,6 +53,7 @@
 - [x] **Phase 4A Technical Planning:** Complete `GOAL-FE-001 — Production-Quality Nursing Platform Angular Frontend` roadmap reviewed through Phase 4A.2.
 - [x] **Phase 4B Persistence:** Detailed Goal → Milestone → Task → Subtask → Verification Gate roadmap persisted to `docs/frontend/execution/frontend-implementation-ledger.md`.
 - [x] **Vertical Slice Sequencing:** Recorded approved sequencing: Slice A (`AUTH-001` → session/bootstrap → protected shell → `GET /api/v1/me` → read-only Nurse Profile Overview), then Slice B (`NUR-012` CV management → multipart `file`).
+- [x] **Angular Official AI Guidance Addendum:** Reconciled Nursing Platform frontend governance with official Angular v22 AI guidance before scaffold; `T-FE-001` remains not started.
 - [ ] **Next Implementation Gate:** Await explicit authorization to begin `T-FE-001`; no Angular workspace exists and no implementation has started.
 
 ### Phase 1B: Core Infrastructure & Network Interceptors (PENDING)
@@ -84,6 +85,7 @@
 * **[ACTIVE CONSTRAINT]:** After future scaffold approval, all frontend CLI commands MUST run from inside `./frontend`.
 * **[ACTIVE CONSTRAINT]:** `PROGRESS.md` remains the high-level canonical session/handoff memory; detailed frontend Goal/Milestone/Task/Subtask history belongs in `docs/frontend/execution/frontend-implementation-ledger.md`.
 * **[ACTIVE CONSTRAINT]:** `docs/frontend/execution/frontend-implementation-ledger.md` is the detailed authority for `GOAL-FE-001`; `PROGRESS.md` must not duplicate the 137 Tasks or 74-screen matrix.
+* **[ACTIVE CONSTRAINT]:** Official Angular guidance, Agent Skills, and Angular CLI MCP are framework guidance only and remain subordinate to Nursing Platform governance, backend/OpenAPI contracts, approved Penpot evidence, and task scope.
 * **[ACTIVE BLOCKER]:** Production backend dependencies remain unresolved for production payment provider/webhook/refund/subscription flows.
 * **[ACTIVE BLOCKER]:** Penpot Page 07 Root Frame is 0.01x0.01 — requires manual Penpot UI resize.
 
@@ -93,6 +95,7 @@
 > **Instructions for the Next Incoming Agent:**
 > 1. `GOAL-FE-001` frontend implementation roadmap is persisted in `docs/frontend/execution/frontend-implementation-ledger.md`; use that ledger as the detailed authority.
 > 2. Do not begin `T-FE-001`, scaffold Angular, or create `./frontend` until explicit authorization is issued for `T-FE-001`. The approved scaffold contract is documented in `docs/frontend/frontend-project-rules.md` for future use only.
+> 2a. The approved future scaffold command now includes `--ai-config=none` and `--file-name-style-guide=2025`; do not execute it until `T-FE-001` is explicitly authorized.
 > 3. Backend baseline is stabilized: expired Package Exam Session test fixture repaired; full backend suite is 1302/1302 passing with PostgreSQL integration-test configuration.
 > 4. Active frontend planning must use canonical OpenAPI snapshot `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json`; `2026-08-16` is historical/superseded for implementation planning.
 > 5. Keep `PROGRESS.md` high-level and update it only for session/current-state handoff; do not duplicate the detailed roadmap here.

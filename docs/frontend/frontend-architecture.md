@@ -26,7 +26,9 @@ Implemented backend source and the generated Development OpenAPI document are th
 
 Approved Penpot artifacts are authoritative for visual decisions only. Backend source and the canonical OpenAPI are authoritative for routes, DTOs, nullability, enums, validation, authentication, authorization, permissions, status codes, server errors, business behavior, sensitive-data exposure, and payment/exam/entitlement trust boundaries. A design example never creates backend business behavior.
 
-Official Angular documentation matching the Angular version pinned in the workspace is the authority for Angular APIs, compatibility, defaults, tooling, and recommended patterns.
+Official Angular documentation and Angular-maintained AI guidance matching the Angular version pinned in the workspace are the preferred authority for Angular APIs, compatibility, defaults, tooling, and recommended patterns. Relevant official framework guidance includes `https://angular.dev/ai/develop-with-ai`, `https://angular.dev/ai/agent-skills`, `https://angular.dev/ai/mcp`, and `https://angular.dev/cli/new`.
+
+Official Angular guidance is framework guidance only. It is subordinate to explicit Nursing Platform decisions, repository governance, backend/OpenAPI business and security contracts, approved Penpot visual evidence, and active task scope. Do not silently adopt APIs or behavior from a later Angular major. If current Angular documentation describes a patch-sensitive API or CLI behavior whose availability in the installed/pinned Angular version is uncertain, verify it against the actual installed/pinned version, do not upgrade Angular merely to use it, and STOP AND ESCALATE if incompatible.
 
 Endpoint fields, validation limits, content types, status behavior, and other volatile contract details MUST be verified against the implemented backend and generated Development OpenAPI during each feature design and implementation phase.
 
@@ -42,8 +44,8 @@ The approved frontend foundation is:
 - TypeScript.
 - Angular standalone application architecture.
 - Angular Signals.
-- Signal Forms as the default first choice for new forms.
-- Strictly typed Reactive Forms as the documented fallback when Signal Forms are unsuitable or risky for a workflow.
+- Signal Forms as the preferred Angular-native first choice for new forms when they satisfy the workflow's compatibility, accessibility, validation, backend-contract, and UX requirements.
+- Strictly typed Reactive Forms as the documented fallback when Signal Forms are unsuitable, incompatible, or materially less reliable for a workflow.
 - RxJS.
 - Angular Material.
 - Angular CDK where required by Angular Material or explicitly justified application behavior.
@@ -89,13 +91,15 @@ Source files SHOULD keep one primary Angular concept per file.
 
 Filenames MUST use hyphens between words. Tests MUST use the same base filename as the unit under test with the `.spec.ts` suffix.
 
+The initial Angular CLI scaffold MUST use the 2025 file-name style guide. Expected generated root filenames may use forms such as `app.ts`, `app.html`, `app.scss`, and `app.spec.ts`. Do not rename generated files to older `app.component.ts` style merely from historical convention. Future generated Angular artifacts SHOULD follow the approved workspace naming convention unless repository architecture explicitly defines a different name.
+
 Code MUST be organized by feature or domain rather than global type-only folders. Vague catch-all files such as `helpers.ts`, `utils.ts`, and `common.ts` MUST NOT be introduced; files MUST communicate focused ownership.
 
 New component APIs MUST use `input()`, `output()`, and `model()` rather than legacy decorator APIs. Angular-created input, output, model, and query properties SHOULD be declared `readonly`.
 
 Dependency injection SHOULD use `inject()` rather than constructor injection for new code.
 
-Signals MUST be preferred for local synchronous component state. Derived state MUST use `computed()`, and signal transformations MUST remain pure.
+Signals MUST be preferred for local synchronous component state where appropriate. Derived read-only state MUST use `computed()`. Use `linkedSignal()` when writable/derived state must remain synchronized with reactive source changes and that behavior is semantically appropriate. Signal transformations MUST remain pure.
 
 Signals MUST be changed with `set()` or `update()`. Legacy mutation patterns that modify signal-held state without notifying Angular MUST NOT be used.
 
@@ -111,9 +115,11 @@ Templates MUST remain simple and MUST NOT contain business workflows or expensiv
 
 External component template and style paths MUST be relative to the component TypeScript file.
 
-`NgOptimizedImage` MUST be used for supported static images. The frontend MUST NOT introduce `::ng-deep`.
+`NgOptimizedImage` MUST be used for appropriate supported static images. Do not apply it blindly to unsupported cases such as inline base64 images. Privacy and security rules still apply to user/private imagery. The frontend MUST NOT introduce `::ng-deep`.
 
 Services MUST be focused and single-responsibility. Asynchronous template values SHOULD use `AsyncPipe` or deliberate signal interop rather than unmanaged subscriptions.
+
+Current Angular v22 documentation recommends the new `@Service()` decorator for new singleton services. Do not make this a blindly applied project rule before the installed `@angular/core` version is verified after scaffold. After `T-FE-001` creates the Angular workspace, verify whether the installed Angular 22 package version exposes the official `Service` decorator. If confirmed compatible, prefer `@Service()` for new singleton services according to Angular v22 guidance. If not available in the installed locked version, use the supported documented singleton-service mechanism, do not upgrade Angular merely for `@Service`, and record the compatibility result.
 
 Uncertain external boundaries MUST use `unknown` and explicit narrowing. `any` MUST be avoided and requires narrow, documented justification when unavoidable.
 
@@ -133,9 +139,9 @@ When agents use Angular AI assistance, they MUST prefer official Angular context
 
 Cached AI knowledge MUST NOT be assumed to match the Angular version pinned in the workspace. A vendored copy of Angular AI context MUST NOT become permanent authority without an explicit update and compatibility policy.
 
-The official `angular-developer` and `angular-new-app` skills SHOULD be available to agents when the active environment supports them.
+The official `angular-developer` and `angular-new-app` skills SHOULD be used by agents when they are already available in the active environment and relevant to Angular work. Do not install an Agent Skill as part of a normal implementation Task, and do not run `npx skills add` without explicit tooling/dependency authorization. Angular skills are advisory and subordinate to Nursing Platform governance; they cannot authorize architecture, dependency, UI-library, business-rule, backend-contract, or design changes. Absence of an Angular Agent Skill is not by itself a project blocker.
 
-Angular CLI MCP SHOULD be evaluated during approved scaffold work. MCP MUST run from the Angular CLI version pinned by the project and MUST NOT silently download or execute an unpinned future major version.
+Angular CLI MCP MAY be used when it is already available to the Agent. Prefer read-only framework-information capabilities for Angular-specific questions, especially `get_best_practices`, `search_documentation`, and `list_projects`. Do not add MCP configuration files to the repository, install/configure MCP globally, run migration/modernization/write-capable MCP tools merely because they are available, or use MCP to widen Task scope unless explicitly authorized. If Angular MCP is unavailable, use official `angular.dev` documentation instead. MCP availability is not a default implementation blocker. MCP MUST run from the Angular CLI version pinned by the project and MUST NOT silently download or execute an unpinned future major version.
 
 Read-only audits SHOULD use read-only MCP capabilities. MCP write operations MUST NOT bypass isolated-worktree, TDD, approval, review, or verification requirements.
 
@@ -927,13 +933,15 @@ Components MUST NOT generate or replace payment idempotency keys independently o
 
 ## Forms
 
-Signal Forms are the default first choice for new application forms.
+Signal Forms are the preferred Angular-native first choice for new Nursing Platform forms when they satisfy Angular Material/control compatibility, required accessibility behavior, server-validation mapping, async validation behavior, typed backend-contract integration, and required UX behavior.
 
-Strictly typed Reactive Forms are the approved fallback for compatibility gaps or workflows where Signal Forms are unsuitable or risky. A feature selecting Reactive Forms MUST document that reason in its approved design specification or implementation plan.
+Do not force Signal Forms when a required Angular Material/custom-control workflow is incompatible or materially less reliable. Strictly typed Reactive Forms are the approved fallback for compatibility gaps or workflows where Signal Forms are unsuitable or risky. A feature selecting Reactive Forms MUST document that reason in its approved design specification or implementation plan.
 
 Template-driven Forms MUST NOT be used for application workflows.
 
 A single workflow MUST NOT mix form systems arbitrarily. The chosen form system MUST have clear ownership for value, validation, submission, and server-error state.
+
+Before the first product form implementation, the owning form/pattern Task MUST verify the chosen form approach against the actual Angular 22 + Angular Material implementation.
 
 Client validation improves user experience but never replaces backend validation.
 

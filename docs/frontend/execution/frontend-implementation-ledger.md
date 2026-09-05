@@ -874,3 +874,30 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DEPENDENCY`
 - evidence_summary: Gate evidence is ready for technical-lead review. Final positive dependency guard output passed with `POSITIVE_EXIT=0`; cwd-independent invocations passed from repository root and unrelated temporary cwd; all required negative dependency cases and invalid policy cases exited non-zero with actionable messages; exact direct dependency declarations remain unchanged from `b4fa41f`; `frontend/package-lock.json` checksum is unchanged from committed baseline; source/config/backend/OpenAPI/Penpot drift checks produced no output; no files are staged; no commit or push was made. `T-FE-005`, `T-FE-006`, and `T-FE-007` remain `NOT STARTED`.
 - closure_evidence: Technical-lead review accepted completion commit `0f75b43 chore(frontend): add dependency guardrails`; committed file scope was `PROGRESS.md`, `docs/frontend/execution/frontend-implementation-ledger.md`, `frontend/dependency-policy.json`, `frontend/package.json`, and `frontend/scripts/check-dependencies.mjs`. `frontend/package-lock.json`, `frontend/angular.json`, frontend source, `frontend/tsconfig*.json`, `.nvmrc`, backend files, canonical OpenAPI, and Penpot/design content were not changed. Gate is closed as `VERIFIED`; `T-FE-005`, `T-FE-006`, and `T-FE-007` remain `NOT STARTED`.
+
+### `T-FE-005` — TypeScript/Angular lint setup
+
+- status: `READY FOR REVIEW`
+- blocker_types: `TOOLING_APPROVAL`
+- evidence_date: 2026-09-05
+- baseline_head: `df688a1`
+- tooling_approval: Technical lead approved exact `angular-eslint@22.1.0`, ESLint flat config, npm `11.6.0`, and the official schematic's direct lint dependency declarations: `@eslint/js: ^10.0.1`, `angular-eslint: 22.1.0`, `eslint: ^10.6.0`, and `typescript-eslint: 8.62.1`.
+- scope_summary: The approved local Angular CLI schematic generated `frontend/eslint.config.js`, added only `lint: ng lint` and the four approved direct lint dev dependencies to `frontend/package.json`, added the `angular-eslint` schematic collection and `@angular-eslint/builder:lint` target for `src/**/*.ts` and `src/**/*.html` to `frontend/angular.json`, updated `frontend/package-lock.json`, and extended `frontend/dependency-policy.json` with the exact generated declarations.
+- lockfile_semantics_note: Initial execution paused because the execution prompt incorrectly assumed schematic `--skip-install` prevents the outer `ng add` collection acquisition from changing `package-lock.json`. Technical-lead clarification accepted that early mutation as expected outer `ng add` behavior, not an angular-eslint incompatibility. Work resumed from the preserved generated artifacts without rerunning `ng add`. SHA-256 values: original `0e5a064f6e9a8eb0f05f30f4fde41bfe12c2b826ba1246b60bd0696c6c8d3986`; after `ng add` `6ec4d595017dc9831e37f1990b315689ab0ffcfa457be45de610446654f5c4b9`; final `b0b67e0b41ceed80d80bfa36b8cf30553a6282cd66668fd216873fcfb57316bd`.
+- install_summary: Exact `npm install` under npm `11.6.0` added 32 packages, changed 4 packages, audited 623 packages, and reported 0 vulnerabilities; no `--legacy-peer-deps`, `--force`, update, upgrade, or audit-fix command was used.
+- resolved_versions: `@eslint/js@10.0.1`, `angular-eslint@22.1.0`, `eslint@10.10.0`, and `typescript-eslint@8.62.1`. Existing direct framework/test/toolchain resolved versions remained unchanged: Angular build/CLI `22.1.7`; Angular packages/compiler-cli `22.1.5`; jsdom `28.1.0`; RxJS `7.8.2`; TypeScript `6.0.3`; Vitest `4.1.11`.
+- verification_summary: `npm run check:dependencies` passed before and after install; temporary-manifest checks rejected `left-pad` before install and rejected `primeng`, `@ngrx/store`, `tailwindcss`, `@angular/material`, and `left-pad` after install, all with exit `1`. `npm run lint` exited `0` with `All files pass linting.` and no warnings or errors. Machine checks returned `PACKAGE_LOCK_SCOPE_PASS` and `ANGULAR_CONFIG_SCOPE_PASS`; lockfile root metadata exactly matches package declarations and lockfileVersion remains `3`.
+- review_note: Independent deterministic verification and Git/scope audit returned `PASS`. The configured independent deep-review model was unavailable because the provider reports it as end-of-life; no unapproved technical-review model was substituted. Documentation review feedback to rewrite historical `T-FE-004` closure statements was rejected because those statements correctly preserve the state at the time `T-FE-004` closed. Final acceptance remains with the technical lead.
+- exclusion_summary: No application source, TypeScript config, `.nvmrc`, backend, canonical OpenAPI, Penpot/design, stylelint, AXE setup, Playwright, Material/CDK, API generation, CI, Git hook, source lint fix, suppression, staging, commit, push, or later Task work occurred. `T-FE-006`, `T-FE-007`, and `T-FE-014` remain `NOT STARTED`.
+
+### `ST-FE-005` — Approve/configure TypeScript/Angular lint command
+
+- status: `READY FOR REVIEW`
+- blocker_types: `TOOLING_APPROVAL`
+- evidence_summary: Exact approved angular-eslint tooling is installed and configured with the stock flat ESLint baseline, Angular TypeScript and inline-template processing, HTML template recommended/accessibility rules, project selector rules, Angular CLI lint builder, `npm run lint`, exact dependency-policy approvals, passing dependency guards, and zero-error lint output.
+
+### `GATE-FE-T005`
+
+- status_result: `READY FOR REVIEW`
+- blocker_types: `TOOLING_APPROVAL`
+- evidence_summary: Technical-lead tooling approval is exact `angular-eslint@22.1.0`; generated flat config is `frontend/eslint.config.js`; Angular lint target and `lint: ng lint` are configured; only the four approved direct lint dev dependencies were added; normal npm `11.6.0` install completed with 0 vulnerabilities; existing direct versions did not drift; dependency policy and focused default-deny regressions passed; `npm run lint` passed with no warnings/errors; source/config/backend/OpenAPI/Penpot and later-Task exclusions passed; no files are staged and no commit or push was made.

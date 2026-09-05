@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "policyName": "nursing-platform-frontend-direct-dependencies",
+  "scope": "Direct dependency guard for frontend/package.json only. Transitive dependencies remain governed by package-lock.json.",
+  "approvedDirectDependencies": {
+    "dependencies": {
+      "@angular/common": "^22.1.0",
+      "@angular/compiler": "^22.1.0",
+      "@angular/core": "^22.1.0",
+      "@angular/forms": "^22.1.0",
+      "@angular/platform-browser": "^22.1.0",
+      "@angular/router": "^22.1.0",
+      "rxjs": "~7.8.0",
+      "tslib": "^2.3.0"
+    },
+    "devDependencies": {
+      "@angular/build": "^22.1.4",
+      "@angular/cli": "^22.1.4",
+      "@angular/compiler-cli": "^22.1.0",
+      "jsdom": "^28.0.0",
+      "prettier": "^3.8.1",
+      "typescript": "~6.0.2",
+      "vitest": "^4.0.8"
+    }
+  },
+  "deniedDirectDependencies": {
+    "primeng": "Unapproved UI component dependency for current frontend architecture.",
+    "@ngrx/store": "Unapproved state management dependency; Angular signals and approved project state patterns govern current scope.",
+    "tailwindcss": "Unapproved styling framework dependency; project-owned SCSS/theme architecture governs current scope.",
+    "@angular/material": "Architecturally permitted for future approved theme/component tasks, but not approved or installed by T-FE-004.",
+    "@angular/cdk": "Architecturally permitted for future approved accessibility/overlay tasks, but not approved or installed by T-FE-004."
+  }
+}

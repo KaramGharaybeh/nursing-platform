@@ -845,3 +845,29 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DEPENDENCY`
 - evidence_summary: Gate evidence covers clean baseline at `f163bb4`, active approved Node/npm metadata, successful `npm ci` from committed lockfile without workaround flags, identical lockfile SHA-256 before/after/final, valid direct dependency graph, successful Angular build, successful non-watch Vitest run with zero failures, no tracked frontend source/config drift, no backend/OpenAPI/Penpot drift, no unrelated tooling installation/configuration, and `T-FE-004` remaining `NOT STARTED`.
 - closure_evidence: Technical-lead review accepted completion commit `2b188b9 docs(frontend): record baseline build verification`; committed file scope was `PROGRESS.md` and `docs/frontend/execution/frontend-implementation-ledger.md`; no `frontend/**`, `.nvmrc`, backend files, canonical OpenAPI, or Penpot/design source were changed. Gate is closed as `VERIFIED`; `T-FE-004` remains `NOT STARTED` and requires explicit authorization.
+
+### `T-FE-004` — Dependency guardrails
+
+- status: `READY FOR REVIEW`
+- blocker_types: `DEPENDENCY`
+- evidence_date: 2026-09-05
+- baseline_head: `b4fa41f`
+- scope_summary: Added a Node-stdlib-only direct dependency approval/denylist guard for the Angular workspace. Created `frontend/dependency-policy.json`, created `frontend/scripts/check-dependencies.mjs`, and added only the `check:dependencies` package script to `frontend/package.json`.
+- policy_summary: `frontend/dependency-policy.json` snapshots the exact current direct runtime dependency declaration specifiers separately from exact current direct development dependency declaration specifiers. Unknown direct dependencies fail by default. Transitive dependencies are intentionally excluded from this direct guard and remain governed by `frontend/package-lock.json`.
+- guard_summary: `frontend/scripts/check-dependencies.mjs` uses only Node standard-library imports, defaults to the real `frontend/package.json` and policy regardless of shell cwd, supports alternate manifest/policy inputs for safe temporary negative verification, exits `0` only when the current manifest exactly matches policy, and exits non-zero with actionable violations for policy/dependency failures. The script does not mutate files, install packages, or require registry/network access.
+- verification_summary: Final post-review verification passed: `npm run check:dependencies` returned `POSITIVE_EXIT=0`; direct root invocation and unrelated temporary cwd invocation returned exit `0`; required negative cases rejected `primeng`, `@ngrx/store`, `tailwindcss`, `@angular/material`, `rxjs` specifier drift, runtime/dev category movement, unknown `left-pad`, removed approved `tslib`, and duplicate runtime/dev placement; invalid policy cases rejected runtime/dev duplicate approval, approved/denied overlap, and incompatible schema; unsupported `optionalDependencies` section was rejected.
+- integrity_summary: `frontend/package.json` scope check confirmed `name`, `version`, `private`, `packageManager`, `engines`, `dependencies`, and `devDependencies` unchanged from `b4fa41f`; scripts changed only by adding `check:dependencies`. `frontend/package-lock.json` final SHA-256 and committed baseline SHA-256 both equal `0e5a064f6e9a8eb0f05f30f4fde41bfe12c2b826ba1246b60bd0696c6c8d3986`; `git diff --name-only -- frontend/package-lock.json` produced no output.
+- exclusion_summary: No dependency was added, removed, installed, updated, or changed. No `npm install`, `npm ci`, `npm update`, `npm upgrade`, `npm uninstall`, Angular build/test/lint/stylelint/Playwright/AXE/OpenAPI generation, CI wiring, Git hook, backend, canonical OpenAPI, Penpot/design, Angular source, Angular config, `frontend/angular.json`, `frontend/tsconfig*.json`, `.nvmrc`, staging, commit, push, or later Task work occurred. The previous accidental `frontend/angular.json` analytics diff is absent.
+- review_note: Previous deep-reviewer route was unavailable because its configured model is end-of-life; read-only verifier/routine-worker feedback was used as supporting evidence. Reviewer low findings were incorporated: cwd-independent manifest resolution, approved/denied disjointness validation, and unsupported dependency-section rejection. Final acceptance remains with the technical lead.
+
+### `ST-FE-004` — Add dependency approval/denylist guard
+
+- status: `READY FOR REVIEW`
+- blocker_types: `DEPENDENCY`
+- evidence_summary: Implemented the direct dependency policy file, Node-only guard script, and package script. Final verification confirms exact direct dependency snapshot matching, required denylist behavior, unknown default-deny behavior, missing/specifier/category/duplicate rejection, malformed/inconsistent policy rejection, approved/denied overlap rejection, unsupported dependency-section rejection, no lockfile mutation, and no package installation.
+
+### `GATE-FE-T004`
+
+- status_result: `READY FOR REVIEW`
+- blocker_types: `DEPENDENCY`
+- evidence_summary: Gate evidence is ready for technical-lead review. Final positive dependency guard output passed with `POSITIVE_EXIT=0`; cwd-independent invocations passed from repository root and unrelated temporary cwd; all required negative dependency cases and invalid policy cases exited non-zero with actionable messages; exact direct dependency declarations remain unchanged from `b4fa41f`; `frontend/package-lock.json` checksum is unchanged from committed baseline; source/config/backend/OpenAPI/Penpot drift checks produced no output; no files are staged; no commit or push was made. `T-FE-005`, `T-FE-006`, and `T-FE-007` remain `NOT STARTED`.

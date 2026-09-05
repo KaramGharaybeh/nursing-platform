@@ -877,7 +877,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-005` — TypeScript/Angular lint setup
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `TOOLING_APPROVAL`
 - evidence_date: 2026-09-05
 - baseline_head: `df688a1`
@@ -889,15 +889,18 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - verification_summary: `npm run check:dependencies` passed before and after install; temporary-manifest checks rejected `left-pad` before install and rejected `primeng`, `@ngrx/store`, `tailwindcss`, `@angular/material`, and `left-pad` after install, all with exit `1`. `npm run lint` exited `0` with `All files pass linting.` and no warnings or errors. Machine checks returned `PACKAGE_LOCK_SCOPE_PASS` and `ANGULAR_CONFIG_SCOPE_PASS`; lockfile root metadata exactly matches package declarations and lockfileVersion remains `3`.
 - review_note: Independent deterministic verification and Git/scope audit returned `PASS`. The configured independent deep-review model was unavailable because the provider reports it as end-of-life; no unapproved technical-review model was substituted. Documentation review feedback to rewrite historical `T-FE-004` closure statements was rejected because those statements correctly preserve the state at the time `T-FE-004` closed. Final acceptance remains with the technical lead.
 - exclusion_summary: No application source, TypeScript config, `.nvmrc`, backend, canonical OpenAPI, Penpot/design, stylelint, AXE setup, Playwright, Material/CDK, API generation, CI, Git hook, source lint fix, suppression, staging, commit, push, or later Task work occurred. `T-FE-006`, `T-FE-007`, and `T-FE-014` remain `NOT STARTED`.
+- closure_evidence: Technical-lead verdict `PASS`; completion_commit `b6e51e9`; completion_commit_subject `chore(frontend): configure Angular lint tooling`; accepted T-FE-005 implementation and verification evidence preserved. `T-FE-006`, `T-FE-007`, and `T-FE-014` remain `NOT STARTED` and require explicit future authorization.
 
 ### `ST-FE-005` — Approve/configure TypeScript/Angular lint command
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `TOOLING_APPROVAL`
 - evidence_summary: Exact approved angular-eslint tooling is installed and configured with the stock flat ESLint baseline, Angular TypeScript and inline-template processing, HTML template recommended/accessibility rules, project selector rules, Angular CLI lint builder, `npm run lint`, exact dependency-policy approvals, passing dependency guards, and zero-error lint output.
+- closure_evidence: Technical-lead verdict `PASS`; completion commit `b6e51e9 chore(frontend): configure Angular lint tooling`; subtask accepted as complete.
 
 ### `GATE-FE-T005`
 
-- status_result: `READY FOR REVIEW`
+- status_result: `VERIFIED`
 - blocker_types: `TOOLING_APPROVAL`
 - evidence_summary: Technical-lead tooling approval is exact `angular-eslint@22.1.0`; generated flat config is `frontend/eslint.config.js`; Angular lint target and `lint: ng lint` are configured; only the four approved direct lint dev dependencies were added; normal npm `11.6.0` install completed with 0 vulnerabilities; existing direct versions did not drift; dependency policy and focused default-deny regressions passed; `npm run lint` passed with no warnings/errors; source/config/backend/OpenAPI/Penpot and later-Task exclusions passed; no files are staged and no commit or push was made.
+- closure_evidence: Technical-lead review accepted completion commit `b6e51e9 chore(frontend): configure Angular lint tooling`; committed file scope was `PROGRESS.md`, `docs/frontend/execution/frontend-implementation-ledger.md`, `frontend/angular.json`, `frontend/dependency-policy.json`, `frontend/eslint.config.js`, `frontend/package-lock.json`, and `frontend/package.json`. No application source, TypeScript config, `.nvmrc`, backend, canonical OpenAPI, Penpot/design, or later-Task files were changed. Gate is closed as `VERIFIED`; `T-FE-006`, `T-FE-007`, and `T-FE-014` remain `NOT STARTED`.

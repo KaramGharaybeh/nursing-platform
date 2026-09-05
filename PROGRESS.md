@@ -9,13 +9,13 @@
 ---
 
 ## 1. Active Context & System State
-* **Current Phase:** GOAL-FE-001 / M-FE-002 — T-FE-005 TypeScript/Angular lint setup READY FOR REVIEW.
+* **Current Phase:** GOAL-FE-001 / M-FE-002 — T-FE-005 TypeScript/Angular lint setup VERIFIED.
 * **Active Working Directory:** repository root; Angular workspace now exists at `./frontend`.
 * **Framework Version:** Angular 22 (Standalone Architecture, Signals, SCSS, Zoneless)
 * **Backend Baseline:** .NET WebApi (OpenAPI contract: `development-openapi-2026-09-03.json`)
 * **Global System Status:** `[GOAL_FE_001_ROADMAP_PERSISTED_READY_FOR_T_FE_001_AUTHORIZATION]`
 * **Backend Stabilization:** `[STABILIZED]` — expired Package Exam Session entitlement test fixture repaired; backend build is 0 warnings / 0 errors; full backend suite is 1302/1302 passing with PostgreSQL integration-test configuration.
-* **Next Technical Gate:** Technical-lead review of `GATE-FE-T005`; do not self-mark VERIFIED or begin `T-FE-006` without later explicit authorization.
+* **Next Technical Gate:** Explicit technical-lead authorization for `T-FE-006`; do not begin `T-FE-006` without later explicit authorization.
 * **Safe OpenAPI Capture:** `[COMPLETED]` — Development-only `--capture-openapi` skips only database initialization; normal database initialization remains unchanged; CV multipart OpenAPI description corrected; canonical snapshot `development-openapi-2026-09-03.json` verified as OpenAPI 3.1.1 with 106 paths, 142 operations, 110 schemas, and Bearer security scheme; backend build is 0 warnings / 0 errors; full backend suite is 1307/1307 passing.
 * **Phase 2C Scope Correction:** `[COMPLETED]` — Non-Development capture rejection sets non-zero exit only on the rejected `--capture-openapi` path; generic fatal startup catch behavior restored; backend build is 0 warnings / 0 errors; full backend suite remains 1307/1307 passing.
 
@@ -58,7 +58,7 @@
 - [x] **T-FE-002 Node/npm/toolchain metadata:** VERIFIED by technical-lead PASS; completion commit `7545c18 chore(frontend): pin Node and npm metadata`. Repository metadata pins Node `22.23.1` and npm `11.6.0`; `frontend/package-lock.json` remains the dependency-resolution authority. `T-FE-003` remains NOT STARTED and requires explicit technical-lead authorization.
 - [x] **T-FE-003 Clean install/build/unit-test baseline:** VERIFIED by technical-lead PASS; completion commit `2b188b9 docs(frontend): record baseline build verification`. Accepted evidence: clean install from committed lockfile, Angular build, and non-watch Vitest baseline passed from `./frontend` with Node `v22.23.1` / npm `11.6.0`. `T-FE-004` remains NOT STARTED and requires explicit technical-lead authorization.
 - [x] **T-FE-004 Dependency guardrails:** VERIFIED by technical-lead PASS; completion commit `0f75b43 chore(frontend): add dependency guardrails`. Direct dependency approval/default-deny guard is established in `frontend/`; accepted evidence confirms final dependency-guard verification passed, no dependency additions occurred, and the dependency graph/package-lock remained unchanged.
-- [/] **T-FE-005 TypeScript/Angular lint setup:** READY FOR REVIEW. Exact `angular-eslint@22.1.0` flat-config tooling and Angular CLI lint target are configured; dependency policy adds approvals only for the four newly generated lint direct dev dependencies; normal npm `11.6.0` install reported 0 vulnerabilities; existing framework/test direct resolved versions remained unchanged; dependency guard and focused default-deny regressions passed; `npm run lint` passed with no warnings/errors. The initial pause was an execution-prompt lockfile-semantics clarification, not an angular-eslint failure; work resumed without rerunning `ng add`. `T-FE-006`, `T-FE-007`, and `T-FE-014` remain NOT STARTED.
+- [x] **T-FE-005 TypeScript/Angular lint setup:** VERIFIED by technical-lead PASS; completion commit `b6e51e9 chore(frontend): configure Angular lint tooling`. Exact `angular-eslint@22.1.0` with ESLint flat config and the Angular CLI lint target are established; `npm run lint` passed with zero errors and warnings, and dependency guardrails remain enforced. `T-FE-006`, `T-FE-007`, and `T-FE-014` remain NOT STARTED and require explicit future authorization.
 
 ### Phase 1B: Core Infrastructure & Network Interceptors (PENDING)
 - [ ] **HTTP Interceptors (`frontend/src/app/core/interceptors/`):**
@@ -85,7 +85,7 @@
 ---
 
 ## 3. Known Technical Constraints & Active Blockers
-* **[ACTIVE CONSTRAINT]:** `T-FE-005` is authorized only for TypeScript/Angular lint setup using exact `angular-eslint@22.1.0`, ESLint flat config, dependency-policy update for generated direct lint dev dependencies, authorized `npm install` after required pre-install checks, and lint/dependency verification. Do not run stylelint/Playwright/AXE/OpenAPI generation, modify backend source, modify Penpot, stage files, commit, push, or begin `T-FE-006`, `T-FE-007`, `T-FE-014`, or later Tasks.
+* **[ACTIVE CONSTRAINT]:** `T-FE-005` is VERIFIED. Do not run dependency installation/update commands, lint/stylelint/Playwright/AXE/OpenAPI generation, modify backend source, modify Penpot, stage files, commit, push, or begin `T-FE-006`, `T-FE-007`, `T-FE-014`, or later Tasks until explicit approval authorizes the specific Task.
 * **[ACTIVE CONSTRAINT]:** After future scaffold approval, all frontend CLI commands MUST run from inside `./frontend`.
 * **[ACTIVE CONSTRAINT]:** `PROGRESS.md` remains the high-level canonical session/handoff memory; detailed frontend Goal/Milestone/Task/Subtask history belongs in `docs/frontend/execution/frontend-implementation-ledger.md`.
 * **[ACTIVE CONSTRAINT]:** `docs/frontend/execution/frontend-implementation-ledger.md` is the detailed authority for `GOAL-FE-001`; `PROGRESS.md` must not duplicate the 137 Tasks or 74-screen matrix.
@@ -110,4 +110,4 @@
 > 8. Vertical Slice A/B sequencing is recorded in the ledger and above; both remain subject to their Task/Gate and screen-approval prerequisites.
 > 9. Known production backend blockers remain, especially production payment provider/webhook/refund/subscription support.
 > 10. Do NOT perform bulk staging using `git add .`. Stage modified files explicitly only if explicitly instructed.
-> 11. `T-FE-005`, `ST-FE-005`, and `GATE-FE-T005` are READY FOR REVIEW. Exact `angular-eslint@22.1.0` flat-config lint setup, dependency-policy approval, normal npm `11.6.0` installation, direct-version integrity, focused default-deny regressions, and `npm run lint` passed; installation reported 0 vulnerabilities. The initial pause was resolved as expected outer `ng add` lockfile behavior, not an angular-eslint incompatibility, and `ng add` was not rerun. Do not self-mark VERIFIED, stage, commit, push, or start `T-FE-006`.
+> 11. `T-FE-005`, `ST-FE-005`, and `GATE-FE-T005` are VERIFIED by technical-lead PASS; completion commit `b6e51e9 chore(frontend): configure Angular lint tooling`. Accepted evidence preserves exact `angular-eslint@22.1.0` flat-config lint setup, dependency-policy enforcement, unchanged existing direct resolved versions, zero vulnerabilities, and `npm run lint` with zero errors/warnings. The initial pause was clarified as expected outer `ng add` lockfile behavior, not an angular-eslint incompatibility, and `ng add` was not rerun. Do not stage, commit, push, or start `T-FE-006` without explicit authorization.

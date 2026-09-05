@@ -996,3 +996,25 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DESIGN`
 - evidence_summary: Runtime token/style evidence is ready for technical-lead review. The approved subset only is implemented as 31 exact CSS custom properties in `frontend/src/styles/_tokens.scss`; `frontend/src/styles.scss` loads the source globally; no duplicate token truth or neighboring-task work was created. Final checks passed: deterministic token assertion, `npm run lint:styles`, `npm run quality`, compiled CSS token emission, package/dependency integrity, app/config/backend/OpenAPI/design integrity, `#00796B` absence from changed source, and final Git no-staging check.
 - closure_evidence: Technical-lead review accepted completion commit `99e3739 feat(frontend): add runtime design tokens`; committed file scope was `PROGRESS.md`, `docs/frontend/execution/frontend-implementation-ledger.md`, `frontend/src/styles.scss`, and `frontend/src/styles/_tokens.scss`. No package, lockfile, dependency policy, Angular/ESLint/Stylelint/TypeScript config, `.nvmrc`, `frontend/src/app`, backend, canonical OpenAPI, Penpot/design, Material/CDK bridge, accessibility automation, direction/locale, responsive helper, form-control foundation, or screen implementation files were changed. Gate is closed as `VERIFIED`; `T-FE-009` and `T-FE-014` remain `NOT STARTED`.
+
+### `T-FE-009` — Angular Material theme bridge
+
+- status: `BLOCKED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-06
+- baseline_head: `1145863`
+- technical_decisions_resolved: Future T-FE-009 implementation is approved to use exact direct pins `@angular/material@22.1.5` and `@angular/cdk@22.1.5`; `@angular/animations` is not approved and not required; theme family remains M2 using `mat.m2-define-palette(...)` and `mat.m2-define-light-theme(...)`; scope is a single light theme only; bridge path remains `frontend/src/styles/_material-theme-bridge.scss`; future integration remains through `frontend/src/styles.scss`; custom Material typography and density remain deferred unless separately approved.
+- design_blocker_summary: Implementation is blocked by missing approved design inputs, not by Angular, npm, Material/CDK version ambiguity, animations, or tooling. The unresolved inputs are Material primary/accent role mapping for `--np-color-brand-1`, `--np-color-brand-2`, and `--np-color-brand-3`; complete approved M2 hue/contrast palette data; and an approved warn/error palette or explicit Material fallback policy. Draft `#00796B` remains non-authoritative; the approved foundation value remains `#006B66` until explicit design authority supersedes it.
+- exclusion_summary: No Material packages were installed, no dependency-policy change was made, no `_material-theme-bridge.scss` was created, no theme source was implemented, no build/lint/test/quality command was rerun, no frontend/backend/OpenAPI/Penpot/design source changed, and no `T-FE-010` or later task was started.
+
+### `ST-FE-009` — Bridge tokens to single Angular Material theme
+
+- status: `BLOCKED`
+- blocker_types: `DESIGN`
+- evidence_summary: Subtask is blocked until approved design authority provides either complete M2 primary/accent/warn palettes with hue and contrast data plus role assignment, or an explicit fallback policy naming the allowed Material defaults/fallback palettes and exact Nursing Platform brand-token role mapping.
+
+### `GATE-FE-T009`
+
+- status_result: `BLOCKED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate is not ready for Material theme build/CSS evidence because the required design inputs for safe M2 palette construction are absent. `GATE-FE-T009` is not `VERIFIED`.

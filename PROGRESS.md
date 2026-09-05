@@ -9,13 +9,13 @@
 ---
 
 ## 1. Active Context & System State
-* **Current Phase:** GOAL-FE-001 / M-FE-002 — T-FE-001 through T-FE-007 VERIFIED.
+* **Current Phase:** GOAL-FE-001 / M-FE-003 — T-FE-001 through T-FE-007 VERIFIED; T-FE-008 runtime design tokens READY FOR REVIEW.
 * **Active Working Directory:** repository root; Angular workspace now exists at `./frontend`.
 * **Framework Version:** Angular 22 (Standalone Architecture, Signals, SCSS, Zoneless)
 * **Backend Baseline:** .NET WebApi (OpenAPI contract: `development-openapi-2026-09-03.json`)
 * **Global System Status:** `[GOAL_FE_001_ROADMAP_PERSISTED_READY_FOR_T_FE_001_AUTHORIZATION]`
 * **Backend Stabilization:** `[STABILIZED]` — expired Package Exam Session entitlement test fixture repaired; backend build is 0 warnings / 0 errors; full backend suite is 1302/1302 passing with PostgreSQL integration-test configuration.
-* **Next Technical Gate:** Explicit technical-lead next-task authorization; `T-FE-014` and `T-FE-008` remain NOT STARTED.
+* **Next Technical Gate:** Technical-lead review of `GATE-FE-T008` runtime design token evidence; `T-FE-014` remains NOT STARTED.
 * **Safe OpenAPI Capture:** `[COMPLETED]` — Development-only `--capture-openapi` skips only database initialization; normal database initialization remains unchanged; CV multipart OpenAPI description corrected; canonical snapshot `development-openapi-2026-09-03.json` verified as OpenAPI 3.1.1 with 106 paths, 142 operations, 110 schemas, and Bearer security scheme; backend build is 0 warnings / 0 errors; full backend suite is 1307/1307 passing.
 * **Phase 2C Scope Correction:** `[COMPLETED]` — Non-Development capture rejection sets non-zero exit only on the rejected `--capture-openapi` path; generic fatal startup catch behavior restored; backend build is 0 warnings / 0 errors; full backend suite remains 1307/1307 passing.
 
@@ -24,6 +24,7 @@
 ## 2. Comprehensive Execution Checklist
 
 - [x] **T-FE-007 verification closure:** Technical-lead verdict `PASS` recorded for completion commit `297dbdd chore(frontend): add local quality command`; `T-FE-007`, `ST-FE-007`, and `GATE-FE-T007` are VERIFIED. No implementation commands were rerun, and `T-FE-014` and `T-FE-008` remain NOT STARTED.
+- [/] **T-FE-008 runtime design tokens:** READY FOR REVIEW. Implemented the narrow approved runtime token subset only in `frontend/src/styles/_tokens.scss` and loaded it from `frontend/src/styles.scss`. Deterministic assertion found exactly 31 custom properties with no duplicates, unexpected tokens, missing tokens, or value mismatches. `npm run lint:styles` and `npm run quality` passed; compiled CSS emitted representative tokens. Preserve `T-FE-001..007 = VERIFIED`, keep `GATE-FE-T008` awaiting technical-lead review, and keep `T-FE-014 = NOT STARTED`.
 
 ### Phase 0: Governance & Architectural Remediation (COMPLETED)
 - [x] **Touch Target Standard:** Fixed 44px (Desktop) / 48px (Mobile) via `@mixin touch-target`.
@@ -89,7 +90,7 @@
 ---
 
 ## 3. Known Technical Constraints & Active Blockers
-* **[ACTIVE CONSTRAINT]:** `T-FE-001` through `T-FE-007` are VERIFIED. Do not modify their completed scope, run later-task implementation commands, stage, commit, push, or begin `T-FE-014`, `T-FE-008`, or any later Task without explicit authorization.
+* **[ACTIVE CONSTRAINT]:** `T-FE-001` through `T-FE-007` are VERIFIED. `T-FE-008` runtime design tokens are READY FOR REVIEW only and not VERIFIED. Do not modify completed scope, stage, commit, push, or begin `T-FE-009..T-FE-014` or any screen task.
 * **[ACTIVE CONSTRAINT]:** After future scaffold approval, all frontend CLI commands MUST run from inside `./frontend`.
 * **[ACTIVE CONSTRAINT]:** `PROGRESS.md` remains the high-level canonical session/handoff memory; detailed frontend Goal/Milestone/Task/Subtask history belongs in `docs/frontend/execution/frontend-implementation-ledger.md`.
 * **[ACTIVE CONSTRAINT]:** `docs/frontend/execution/frontend-implementation-ledger.md` is the detailed authority for `GOAL-FE-001`; `PROGRESS.md` must not duplicate the 137 Tasks or 74-screen matrix.
@@ -117,3 +118,4 @@
 > 11. `T-FE-005`, `ST-FE-005`, and `GATE-FE-T005` are VERIFIED by technical-lead PASS; completion commit `b6e51e9 chore(frontend): configure Angular lint tooling`. Accepted evidence preserves exact `angular-eslint@22.1.0` flat-config lint setup, dependency-policy enforcement, unchanged existing direct resolved versions, zero vulnerabilities, and `npm run lint` with zero errors/warnings. The initial pause was clarified as expected outer `ng add` lockfile behavior, not an angular-eslint incompatibility, and `ng add` was not rerun. Do not stage, commit, push, or start `T-FE-006` without explicit authorization.
 > 12. `T-FE-006`, `ST-FE-006`, and `GATE-FE-T006` are VERIFIED by technical-lead PASS; completion commit `d94cc45 chore(frontend): configure SCSS lint tooling`. Accepted evidence preserves exact Stylelint tooling, the approved empty-source exception, physical-direction enforcement, focused dependency regressions, lockfile/version integrity, successful lint/test/build evidence, and the analytics-only `frontend/angular.json` hygiene recovery with no Angular configuration change retained.
 > 13. `T-FE-007`, `ST-FE-007`, and `GATE-FE-T007` are VERIFIED by technical-lead PASS; completion commit `297dbdd chore(frontend): add local quality command`. Accepted evidence preserves the exact package.json-only `quality` aggregate command, exit 0, all five successful component checks, structural fail-fast through `&&`, unchanged lockfile/dependency policy, and no helper/CI/hook/a11y/source/config/backend/OpenAPI/Penpot or later-Task work. `T-FE-014` and `T-FE-008` remain NOT STARTED and require explicit technical-lead authorization. Do not stage, commit, push, or begin any later Task.
+> 14. `T-FE-008`, `ST-FE-008`, and `GATE-FE-T008` are READY FOR REVIEW, not VERIFIED. Runtime design tokens are limited to the approved 31 CSS custom properties in `frontend/src/styles/_tokens.scss`, loaded once by `frontend/src/styles.scss`. Evidence collected: initial baseline HEAD `205f163`, clean tree/no staged files, Node `v22.23.1`, npm `11.6.0`; RED assertion failed before token file existed; final deterministic token assertion reported `TOKEN_COUNT=31`, no duplicates, no unexpected tokens, no missing tokens, and no mismatches; `npm run lint:styles` and `npm run quality` passed; compiled CSS emitted representative tokens including `--np-color-brand-1: #006B66`; package/dependency, config, app source, backend, OpenAPI, Penpot/design, neighbor-task, and screen boundaries were preserved. Do not stage, commit, push, mark VERIFIED, or begin `T-FE-009..T-FE-014` or any screen task.

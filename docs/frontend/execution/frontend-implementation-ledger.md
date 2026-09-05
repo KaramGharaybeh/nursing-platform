@@ -822,7 +822,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-003` — Baseline install/build/test
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_date: 2026-09-04
 - scope_summary: Executed the authorized generated-workspace baseline only: clean dependency installation from the committed lockfile, existing Angular build script, existing non-watch Angular/Vitest test command, and tracked drift checks.
@@ -830,15 +830,18 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - dependency_baseline: Direct installed graph valid with `@angular/build 22.1.7`, `@angular/cli 22.1.7`, `@angular/common 22.1.5`, `@angular/compiler 22.1.5`, `@angular/compiler-cli 22.1.5`, `@angular/core 22.1.5`, `@angular/forms 22.1.5`, `@angular/platform-browser 22.1.5`, `@angular/router 22.1.5`, `jsdom 28.1.0`, `rxjs 7.8.2`, `typescript 6.0.3`, and `vitest 4.1.11`.
 - build_test_evidence: `npm run build` succeeded using the existing generated `ng build` script; Angular reported application bundle generation complete in `5.298 seconds` and output location `frontend/dist/nursing-platform-frontend`. `npm test -- --watch=false` succeeded with Vitest `4.1.11`; `1` test file passed, `2` tests passed, `0` failed, duration `1.69s`.
 - exclusion_summary: No tracked frontend package/config/source drift; no backend, canonical OpenAPI, or Penpot/design source changes; no lint/stylelint/AXE/Playwright/Material/CDK/API generation/dependency guardrail work; `T-FE-004` remains `NOT STARTED`.
+- closure_evidence: Technical-lead verdict `PASS`; completion_commit `2b188b9`; completion_commit_subject `docs(frontend): record baseline build verification`; accepted clean-install/build/Vitest evidence preserved; `T-FE-004` remains `NOT STARTED` and requires explicit authorization.
 
 ### `ST-FE-003` — Run baseline install/test/build evidence
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_summary: Completed `npm ci`, installed direct dependency baseline, existing Angular build, existing non-watch Vitest baseline, and lockfile/source-scope checks under Node `v22.23.1` and npm `11.6.0`. Ready for technical-lead review; not self-marked `VERIFIED`.
+- closure_evidence: Technical-lead verdict `PASS`; completion commit `2b188b9 docs(frontend): record baseline build verification`; subtask accepted as complete. `T-FE-004` remains `NOT STARTED`.
 
 ### `GATE-FE-T003`
 
-- status_result: `READY FOR REVIEW`
+- status_result: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_summary: Gate evidence covers clean baseline at `f163bb4`, active approved Node/npm metadata, successful `npm ci` from committed lockfile without workaround flags, identical lockfile SHA-256 before/after/final, valid direct dependency graph, successful Angular build, successful non-watch Vitest run with zero failures, no tracked frontend source/config drift, no backend/OpenAPI/Penpot drift, no unrelated tooling installation/configuration, and `T-FE-004` remaining `NOT STARTED`.
+- closure_evidence: Technical-lead review accepted completion commit `2b188b9 docs(frontend): record baseline build verification`; committed file scope was `PROGRESS.md` and `docs/frontend/execution/frontend-implementation-ledger.md`; no `frontend/**`, `.nvmrc`, backend files, canonical OpenAPI, or Penpot/design source were changed. Gate is closed as `VERIFIED`; `T-FE-004` remains `NOT STARTED` and requires explicit authorization.

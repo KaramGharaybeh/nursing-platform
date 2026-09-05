@@ -848,7 +848,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-004` — Dependency guardrails
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_date: 2026-09-05
 - baseline_head: `b4fa41f`
@@ -859,15 +859,18 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - integrity_summary: `frontend/package.json` scope check confirmed `name`, `version`, `private`, `packageManager`, `engines`, `dependencies`, and `devDependencies` unchanged from `b4fa41f`; scripts changed only by adding `check:dependencies`. `frontend/package-lock.json` final SHA-256 and committed baseline SHA-256 both equal `0e5a064f6e9a8eb0f05f30f4fde41bfe12c2b826ba1246b60bd0696c6c8d3986`; `git diff --name-only -- frontend/package-lock.json` produced no output.
 - exclusion_summary: No dependency was added, removed, installed, updated, or changed. No `npm install`, `npm ci`, `npm update`, `npm upgrade`, `npm uninstall`, Angular build/test/lint/stylelint/Playwright/AXE/OpenAPI generation, CI wiring, Git hook, backend, canonical OpenAPI, Penpot/design, Angular source, Angular config, `frontend/angular.json`, `frontend/tsconfig*.json`, `.nvmrc`, staging, commit, push, or later Task work occurred. The previous accidental `frontend/angular.json` analytics diff is absent.
 - review_note: Previous deep-reviewer route was unavailable because its configured model is end-of-life; read-only verifier/routine-worker feedback was used as supporting evidence. Reviewer low findings were incorporated: cwd-independent manifest resolution, approved/denied disjointness validation, and unsupported dependency-section rejection. Final acceptance remains with the technical lead.
+- closure_evidence: Technical-lead verdict `PASS`; completion_commit `0f75b43`; completion_commit_subject `chore(frontend): add dependency guardrails`; accepted dependency guard evidence preserved. `T-FE-005`, `T-FE-006`, and `T-FE-007` remain `NOT STARTED` and require explicit future authorization.
 
 ### `ST-FE-004` — Add dependency approval/denylist guard
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_summary: Implemented the direct dependency policy file, Node-only guard script, and package script. Final verification confirms exact direct dependency snapshot matching, required denylist behavior, unknown default-deny behavior, missing/specifier/category/duplicate rejection, malformed/inconsistent policy rejection, approved/denied overlap rejection, unsupported dependency-section rejection, no lockfile mutation, and no package installation.
+- closure_evidence: Technical-lead verdict `PASS`; completion commit `0f75b43 chore(frontend): add dependency guardrails`; subtask accepted as complete.
 
 ### `GATE-FE-T004`
 
-- status_result: `READY FOR REVIEW`
+- status_result: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_summary: Gate evidence is ready for technical-lead review. Final positive dependency guard output passed with `POSITIVE_EXIT=0`; cwd-independent invocations passed from repository root and unrelated temporary cwd; all required negative dependency cases and invalid policy cases exited non-zero with actionable messages; exact direct dependency declarations remain unchanged from `b4fa41f`; `frontend/package-lock.json` checksum is unchanged from committed baseline; source/config/backend/OpenAPI/Penpot drift checks produced no output; no files are staged; no commit or push was made. `T-FE-005`, `T-FE-006`, and `T-FE-007` remain `NOT STARTED`.
+- closure_evidence: Technical-lead review accepted completion commit `0f75b43 chore(frontend): add dependency guardrails`; committed file scope was `PROGRESS.md`, `docs/frontend/execution/frontend-implementation-ledger.md`, `frontend/dependency-policy.json`, `frontend/package.json`, and `frontend/scripts/check-dependencies.mjs`. `frontend/package-lock.json`, `frontend/angular.json`, frontend source, `frontend/tsconfig*.json`, `.nvmrc`, backend files, canonical OpenAPI, and Penpot/design content were not changed. Gate is closed as `VERIFIED`; `T-FE-005`, `T-FE-006`, and `T-FE-007` remain `NOT STARTED`.

@@ -970,7 +970,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-008` — Runtime design tokens
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `DESIGN`
 - evidence_date: 2026-09-06
 - baseline_head: `205f163`
@@ -981,15 +981,18 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - verification_summary: Pre-task baseline matched authorization: HEAD `205f163`, clean working tree, no staged files, Node `v22.23.1`, npm `11.6.0`. RED deterministic token assertion failed before `_tokens.scss` existed. Initial Stylelint run failed only for blank-line formatting (`custom-property-empty-line-before`); formatting was corrected without changing tokens. Final `npm run lint:styles` passed. Deterministic token assertion reported `TOKEN_COUNT=31`, `EXPECTED_COUNT=31`, duplicates `none`, unexpected `none`, missing `none`, mismatches `none`. `npm run quality` exited `0` and passed dependency guard, Angular lint, Stylelint, 1 test file / 2 tests, and production build. Compiled CSS under `frontend/dist/nursing-platform-frontend/browser/styles-IY5G5PMG.css` emitted representative runtime properties including `--np-color-brand-1: #006B66`, `--np-focus-ring-width`, `--np-space-4`, `--np-space-optical-2`, and `--np-scrim-opacity` normalized as `.48`.
 - integrity_summary: No package, lockfile, dependency-policy, Angular config, ESLint config, Stylelint config, TypeScript config, `.nvmrc`, `frontend/src/app`, backend source/tests, canonical OpenAPI, Penpot/design source, Material/CDK bridge, accessibility automation, direction/locale, responsive helper, form-control foundation, or screen implementation changes occurred. Search of T-FE-008 changed source found no `#00796B`.
 - deferred_summary: Neutral palette, typography scale, font loading/families, numeric elevation shadows, z-index scale, motion durations/easing, disabled-state tokens, component-local aliases, status colors, surface/background/text/border colors, breakpoints, gutters, border-radius/form-control tokens, control heights, 48x48 control target, RTL selectors, and locale state remain excluded/deferred to their owning future tasks or unresolved design decisions. `T-FE-009..T-FE-014` boundaries are preserved. SCREEN IMPLEMENTATION APPROVAL remains independently required.
+- closure_evidence: Technical-lead verdict `PASS`; completion_commit `99e3739`; completion_commit_subject `feat(frontend): add runtime design tokens`; accepted T-FE-008 implementation and verification evidence preserved. `T-FE-009` and `T-FE-014` remain `NOT STARTED` and require explicit future authorization.
 
 ### `ST-FE-008` — Define runtime semantic tokens from approved foundation
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `DESIGN`
 - evidence_summary: Defined runtime semantic tokens from the approved foundation subset only. The token source contains exactly 31 custom properties across 3 brand foundation colors, 3 focus foundation tokens, 16 base spacing tokens, 8 optical spacing tokens, and 1 scrim token. Deterministic assertion, Stylelint, aggregate quality, compiled CSS evidence, dependency/config/source/backend/OpenAPI/design integrity, and neighbor-task boundary checks passed.
+- closure_evidence: Technical-lead verdict `PASS`; completion commit `99e3739 feat(frontend): add runtime design tokens`; subtask accepted as complete.
 
 ### `GATE-FE-T008`
 
-- status_result: `READY FOR REVIEW`
+- status_result: `VERIFIED`
 - blocker_types: `DESIGN`
 - evidence_summary: Runtime token/style evidence is ready for technical-lead review. The approved subset only is implemented as 31 exact CSS custom properties in `frontend/src/styles/_tokens.scss`; `frontend/src/styles.scss` loads the source globally; no duplicate token truth or neighboring-task work was created. Final checks passed: deterministic token assertion, `npm run lint:styles`, `npm run quality`, compiled CSS token emission, package/dependency integrity, app/config/backend/OpenAPI/design integrity, `#00796B` absence from changed source, and final Git no-staging check.
+- closure_evidence: Technical-lead review accepted completion commit `99e3739 feat(frontend): add runtime design tokens`; committed file scope was `PROGRESS.md`, `docs/frontend/execution/frontend-implementation-ledger.md`, `frontend/src/styles.scss`, and `frontend/src/styles/_tokens.scss`. No package, lockfile, dependency policy, Angular/ESLint/Stylelint/TypeScript config, `.nvmrc`, `frontend/src/app`, backend, canonical OpenAPI, Penpot/design, Material/CDK bridge, accessibility automation, direction/locale, responsive helper, form-control foundation, or screen implementation files were changed. Gate is closed as `VERIFIED`; `T-FE-009` and `T-FE-014` remain `NOT STARTED`.

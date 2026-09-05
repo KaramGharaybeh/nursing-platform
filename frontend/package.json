@@ -9,7 +9,8 @@
     "test": "ng test",
     "check:dependencies": "node ./scripts/check-dependencies.mjs",
     "lint": "ng lint",
-    "lint:styles": "stylelint \"src/**/*.scss\""
+    "lint:styles": "stylelint \"src/**/*.scss\"",
+    "quality": "npm run check:dependencies && npm run lint && npm run lint:styles && npm test -- --watch=false && npm run build"
   },
   "private": true,
   "packageManager": "npm@11.6.0",

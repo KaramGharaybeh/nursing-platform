@@ -939,3 +939,28 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `TOOLING_APPROVAL`
 - evidence_summary: Exact tooling approval and dependency integrity are satisfied; initial `no-empty-source` failure and technical-lead clarification are preserved; final real-source lint, logical/physical direction fixtures, dependency negatives, zero-vulnerability audit, Angular lint, 2/2 unit tests, production build, lockfile checks, six-file scope checks, no-staging check, and available independent reviews passed. This evidence was subsequently accepted by the technical lead.
 - closure_evidence: Technical-lead review accepted completion commit `d94cc45 chore(frontend): configure SCSS lint tooling`; committed file scope was `PROGRESS.md`, `docs/frontend/execution/frontend-implementation-ledger.md`, `frontend/dependency-policy.json`, `frontend/package-lock.json`, `frontend/package.json`, and `frontend/stylelint.config.mjs`. No Angular configuration, application source, ESLint config, TypeScript config, `.nvmrc`, backend, canonical OpenAPI, Penpot/design, or later-Task files were changed. Gate is closed as `VERIFIED`; `T-FE-007` and `T-FE-014` remain `NOT STARTED`.
+
+### `T-FE-007` — CI-local quality command
+
+- status: `READY FOR REVIEW`
+- blocker_types: `DEPENDENCY`
+- evidence_date: 2026-09-05
+- baseline_head: `245de87`
+- technical_lead_decision: Implementation shape is package.json script only. No new dependency, helper script, shell file, Node helper, dependency-policy change, CI mutation, or Git hook is approved. Approved script name is `quality`.
+- scope_summary: Added only `scripts.quality` to `frontend/package.json`. The exact value is `npm run check:dependencies && npm run lint && npm run lint:styles && npm test -- --watch=false && npm run build`. All pre-existing package metadata, dependencies, devDependencies, and scripts are preserved.
+- verification_summary: `npm run quality` from `frontend/` exited `0` and sequentially executed the dependency guard, Angular lint, Stylelint, non-watch unit tests, and production build. Component outcomes: dependency guard passed; Angular lint passed; Stylelint passed; unit tests passed with `1` test file and `2` tests; production build passed.
+- integrity_summary: `frontend/package-lock.json` SHA-256 before and after T-FE-007 is `bd50f8c4c67995cdaa9dc6161c41e24f9cefc95cab3bd541eff0521f8f759e4b`. `frontend/package-lock.json` and `frontend/dependency-policy.json` have no diff. Machine package comparison against HEAD `245de87` confirmed only `scripts.quality` differs semantically.
+- fail_fast_summary: Fail-fast command composition is structurally provided by shell `&&` between all five component commands; no destructive negative test was required or performed.
+- exclusion_summary: No dependency installation, dependency declaration change, lockfile change, dependency-policy change, helper file, shell script, Node helper, CI file, Git hook, accessibility tooling, AXE, Playwright, application source change, quality-tool configuration change, backend change, canonical OpenAPI change, Penpot/design write, `T-FE-014`, `T-FE-008`, staging, commit, or push occurred.
+
+### `ST-FE-007` — Compose local quality command without CI mutation
+
+- status: `READY FOR REVIEW`
+- blocker_types: `DEPENDENCY`
+- evidence_summary: Implemented the approved package.json-only local aggregate quality command with exact dependency guard, Angular lint, Stylelint, non-watch test, and production build sequence. Verification and integrity checks passed; no CI, hook, helper, dependency, lockfile, dependency-policy, source, tool-config, a11y, backend, OpenAPI, Penpot/design, or later-Task work occurred.
+
+### `GATE-FE-T007`
+
+- status_result: `READY FOR REVIEW`
+- blocker_types: `DEPENDENCY`
+- evidence_summary: Gate evidence is ready for technical-lead review. Exact `quality` script exists in `frontend/package.json`; no dependency was added; lockfile checksum stayed `bd50f8c4c67995cdaa9dc6161c41e24f9cefc95cab3bd541eff0521f8f759e4b`; dependency policy is unchanged; no helper, CI, hook, or a11y tooling was created; `npm run quality` exited `0`; all five composed checks passed; fail-fast is provided by `&&`; source/tool-config/backend/OpenAPI/Penpot drift checks produced no output; `T-FE-014`, `T-FE-008`, and later Tasks were not started. Await technical-lead review; do not mark `VERIFIED` here.

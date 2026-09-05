@@ -942,7 +942,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-007` — CI-local quality command
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_date: 2026-09-05
 - baseline_head: `245de87`
@@ -952,15 +952,18 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - integrity_summary: `frontend/package-lock.json` SHA-256 before and after T-FE-007 is `bd50f8c4c67995cdaa9dc6161c41e24f9cefc95cab3bd541eff0521f8f759e4b`. `frontend/package-lock.json` and `frontend/dependency-policy.json` have no diff. Machine package comparison against HEAD `245de87` confirmed only `scripts.quality` differs semantically.
 - fail_fast_summary: Fail-fast command composition is structurally provided by shell `&&` between all five component commands; no destructive negative test was required or performed.
 - exclusion_summary: No dependency installation, dependency declaration change, lockfile change, dependency-policy change, helper file, shell script, Node helper, CI file, Git hook, accessibility tooling, AXE, Playwright, application source change, quality-tool configuration change, backend change, canonical OpenAPI change, Penpot/design write, `T-FE-014`, `T-FE-008`, staging, commit, or push occurred.
+- closure_evidence: Technical-lead verdict `PASS`; completion_commit `297dbdd`; completion_commit_subject `chore(frontend): add local quality command`; accepted T-FE-007 implementation and verification evidence preserved. `T-FE-014` and `T-FE-008` remain `NOT STARTED` and require explicit future authorization.
 
 ### `ST-FE-007` — Compose local quality command without CI mutation
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `DEPENDENCY`
 - evidence_summary: Implemented the approved package.json-only local aggregate quality command with exact dependency guard, Angular lint, Stylelint, non-watch test, and production build sequence. Verification and integrity checks passed; no CI, hook, helper, dependency, lockfile, dependency-policy, source, tool-config, a11y, backend, OpenAPI, Penpot/design, or later-Task work occurred.
+- closure_evidence: Technical-lead verdict `PASS`; completion commit `297dbdd chore(frontend): add local quality command`; subtask accepted as complete.
 
 ### `GATE-FE-T007`
 
-- status_result: `READY FOR REVIEW`
+- status_result: `VERIFIED`
 - blocker_types: `DEPENDENCY`
-- evidence_summary: Gate evidence is ready for technical-lead review. Exact `quality` script exists in `frontend/package.json`; no dependency was added; lockfile checksum stayed `bd50f8c4c67995cdaa9dc6161c41e24f9cefc95cab3bd541eff0521f8f759e4b`; dependency policy is unchanged; no helper, CI, hook, or a11y tooling was created; `npm run quality` exited `0`; all five composed checks passed; fail-fast is provided by `&&`; source/tool-config/backend/OpenAPI/Penpot drift checks produced no output; `T-FE-014`, `T-FE-008`, and later Tasks were not started. Await technical-lead review; do not mark `VERIFIED` here.
+- evidence_summary: Technical-lead review accepted the existing gate evidence. Exact `quality` script exists in `frontend/package.json`; no dependency was added; lockfile checksum stayed `bd50f8c4c67995cdaa9dc6161c41e24f9cefc95cab3bd541eff0521f8f759e4b`; dependency policy is unchanged; no helper, CI, hook, or a11y tooling was created; accepted `npm run quality` evidence exited `0`; all five composed checks passed; fail-fast is provided by `&&`; source/tool-config/backend/OpenAPI/Penpot drift checks produced no output; `T-FE-014`, `T-FE-008`, and later Tasks were not started.
+- closure_evidence: Technical-lead review accepted completion commit `297dbdd chore(frontend): add local quality command`; committed file scope was `PROGRESS.md`, `docs/frontend/execution/frontend-implementation-ledger.md`, and `frontend/package.json`. No package lock, dependency policy, application source, quality-tool configuration, `.nvmrc`, backend, canonical OpenAPI, Penpot/design, CI, hook, accessibility-tooling, or later-Task file was changed. Gate is closed as `VERIFIED`; `T-FE-014` and `T-FE-008` remain `NOT STARTED`.

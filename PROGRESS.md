@@ -9,13 +9,13 @@
 ---
 
 ## 1. Active Context & System State
-* **Current Phase:** GOAL-FE-001 / M-FE-002 — T-FE-006 SCSS/stylelint setup READY FOR REVIEW.
+* **Current Phase:** GOAL-FE-001 / M-FE-002 — T-FE-006 SCSS/stylelint setup VERIFIED.
 * **Active Working Directory:** repository root; Angular workspace now exists at `./frontend`.
 * **Framework Version:** Angular 22 (Standalone Architecture, Signals, SCSS, Zoneless)
 * **Backend Baseline:** .NET WebApi (OpenAPI contract: `development-openapi-2026-09-03.json`)
 * **Global System Status:** `[GOAL_FE_001_ROADMAP_PERSISTED_READY_FOR_T_FE_001_AUTHORIZATION]`
 * **Backend Stabilization:** `[STABILIZED]` — expired Package Exam Session entitlement test fixture repaired; backend build is 0 warnings / 0 errors; full backend suite is 1302/1302 passing with PostgreSQL integration-test configuration.
-* **Next Technical Gate:** Technical-lead review of `GATE-FE-T006`; do not mark it `VERIFIED`, stage, commit, or begin a later Task without explicit instruction.
+* **Next Technical Gate:** Explicit technical-lead authorization for `T-FE-007`; do not begin `T-FE-007`, `T-FE-014`, or any later Task without authorization.
 * **Safe OpenAPI Capture:** `[COMPLETED]` — Development-only `--capture-openapi` skips only database initialization; normal database initialization remains unchanged; CV multipart OpenAPI description corrected; canonical snapshot `development-openapi-2026-09-03.json` verified as OpenAPI 3.1.1 with 106 paths, 142 operations, 110 schemas, and Bearer security scheme; backend build is 0 warnings / 0 errors; full backend suite is 1307/1307 passing.
 * **Phase 2C Scope Correction:** `[COMPLETED]` — Non-Development capture rejection sets non-zero exit only on the rejected `--capture-openapi` path; generic fatal startup catch behavior restored; backend build is 0 warnings / 0 errors; full backend suite remains 1307/1307 passing.
 
@@ -59,7 +59,7 @@
 - [x] **T-FE-003 Clean install/build/unit-test baseline:** VERIFIED by technical-lead PASS; completion commit `2b188b9 docs(frontend): record baseline build verification`. Accepted evidence: clean install from committed lockfile, Angular build, and non-watch Vitest baseline passed from `./frontend` with Node `v22.23.1` / npm `11.6.0`. `T-FE-004` remains NOT STARTED and requires explicit technical-lead authorization.
 - [x] **T-FE-004 Dependency guardrails:** VERIFIED by technical-lead PASS; completion commit `0f75b43 chore(frontend): add dependency guardrails`. Direct dependency approval/default-deny guard is established in `frontend/`; accepted evidence confirms final dependency-guard verification passed, no dependency additions occurred, and the dependency graph/package-lock remained unchanged.
 - [x] **T-FE-005 TypeScript/Angular lint setup:** VERIFIED by technical-lead PASS; completion commit `b6e51e9 chore(frontend): configure Angular lint tooling`. Exact `angular-eslint@22.1.0` with ESLint flat config and the Angular CLI lint target are established; `npm run lint` passed with zero errors and warnings, and dependency guardrails remain enforced. `T-FE-006`, `T-FE-007`, and `T-FE-014` remain NOT STARTED and require explicit future authorization.
-- [/] **T-FE-006 SCSS/stylelint setup:** READY FOR REVIEW. Exact tooling, policy, script, ESM config, and lockfile are implemented. Missing gate evidence is complete: the real dependency guard passed; focused regressions rejected `primeng`, `@ngrx/store`, `tailwindcss`, `@angular/material`, and arbitrary `left-pad`; the direction fixture exited `2` with exactly 10 targeted findings (6 property, 4 property-value, 0 unrelated). Analytics-only `angular.json` drift was restored to HEAD under technical-lead authorization.
+- [x] **T-FE-006 SCSS/stylelint setup:** VERIFIED by technical-lead PASS; completion commit `d94cc45 chore(frontend): configure SCSS lint tooling`. Exact `stylelint@17.14.1` and `stylelint-config-standard-scss@17.0.0` tooling is established; `npm run lint:styles` passes, all 10 prohibited physical-direction cases are enforced, and dependency guardrails remain enforced. `T-FE-007` and `T-FE-014` remain NOT STARTED and require explicit future authorization.
 
 ### Phase 1B: Core Infrastructure & Network Interceptors (PENDING)
 - [ ] **HTTP Interceptors (`frontend/src/app/core/interceptors/`):**
@@ -86,7 +86,7 @@
 ---
 
 ## 3. Known Technical Constraints & Active Blockers
-* **[ACTIVE CONSTRAINT]:** `T-FE-006` is explicitly authorized only for the approved SCSS/stylelint setup and evidence packet. Do not modify application source, CI, AXE, Playwright, Material/CDK, runtime RTL/localization, API generation, backend, OpenAPI, Penpot, or later Tasks; do not stage, commit, or push.
+* **[ACTIVE CONSTRAINT]:** `T-FE-006` is VERIFIED. Do not modify its completed scope, run later-task implementation commands, stage, commit, push, or begin `T-FE-007`, `T-FE-014`, or any later Task without explicit authorization.
 * **[ACTIVE CONSTRAINT]:** After future scaffold approval, all frontend CLI commands MUST run from inside `./frontend`.
 * **[ACTIVE CONSTRAINT]:** `PROGRESS.md` remains the high-level canonical session/handoff memory; detailed frontend Goal/Milestone/Task/Subtask history belongs in `docs/frontend/execution/frontend-implementation-ledger.md`.
 * **[ACTIVE CONSTRAINT]:** `docs/frontend/execution/frontend-implementation-ledger.md` is the detailed authority for `GOAL-FE-001`; `PROGRESS.md` must not duplicate the 137 Tasks or 74-screen matrix.
@@ -112,4 +112,4 @@
 > 9. Known production backend blockers remain, especially production payment provider/webhook/refund/subscription support.
 > 10. Do NOT perform bulk staging using `git add .`. Stage modified files explicitly only if explicitly instructed.
 > 11. `T-FE-005`, `ST-FE-005`, and `GATE-FE-T005` are VERIFIED by technical-lead PASS; completion commit `b6e51e9 chore(frontend): configure Angular lint tooling`. Accepted evidence preserves exact `angular-eslint@22.1.0` flat-config lint setup, dependency-policy enforcement, unchanged existing direct resolved versions, zero vulnerabilities, and `npm run lint` with zero errors/warnings. The initial pause was clarified as expected outer `ng add` lockfile behavior, not an angular-eslint incompatibility, and `ng add` was not rerun. Do not stage, commit, push, or start `T-FE-006` without explicit authorization.
-> 12. `T-FE-006`, `ST-FE-006`, and `GATE-FE-T006` are `READY FOR REVIEW`, not `VERIFIED`. Missing focused evidence is complete: the real dependency guard passed; all four named denied packages and arbitrary `left-pad` exited `1`; the exact direction fixture exited `2` with 10 targeted findings split 6/4 across the two required rules and 0 unrelated findings. Unexpected `frontend/angular.json` drift was semantically classified as only `$.cli.analytics: ADDED = False` and restored exactly to HEAD under technical-lead authorization; no Angular configuration change remains. Six authorized files are dirty, nothing is staged, and no commit or push was made. Stop for technical-lead review.
+> 12. `T-FE-006`, `ST-FE-006`, and `GATE-FE-T006` are VERIFIED by technical-lead PASS; completion commit `d94cc45 chore(frontend): configure SCSS lint tooling`. Accepted evidence preserves exact Stylelint tooling, the approved empty-source exception, physical-direction enforcement, focused dependency regressions, lockfile/version integrity, successful lint/test/build evidence, and the analytics-only `frontend/angular.json` hygiene recovery with no Angular configuration change retained. `T-FE-007` and `T-FE-014` remain NOT STARTED and require explicit technical-lead authorization. Do not stage, commit, push, or begin either Task.

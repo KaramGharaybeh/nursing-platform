@@ -907,7 +907,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-006` — SCSS/stylelint setup
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `TOOLING_APPROVAL`
 - evidence_date: 2026-09-05
 - baseline_head: `79e7599`
@@ -924,15 +924,18 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - angular_config_hygiene: During gate-evidence resumption, `frontend/angular.json` was unexpectedly dirty. Textual inspection showed formatting expansion plus `analytics: false`; exact semantic JSON comparison against HEAD reported only `$.cli.analytics: ADDED = False`, classified `ANALYTICS_ONLY_ACCIDENTAL_MUTATION`. Under explicit technical-lead authorization, only `frontend/angular.json` was restored from committed HEAD; no T-FE-006 Angular configuration change remains.
 - review_note: Independent documentation review, Git/scope audit, and deterministic verification returned `PASS`. The configured independent deep-review model was unavailable because its provider reports it as end-of-life; no unapproved review model was substituted. Final acceptance remains with the technical lead.
 - exclusion_summary: No application source, Angular config, ESLint config, TypeScript config, dependency-guard script, `.nvmrc`, backend, canonical OpenAPI, Penpot/design, CI, AXE, Playwright, Material/CDK, runtime RTL/localization, API generation, Git hook, staging, commit, push, or later-Task work occurred. `T-FE-007` and `T-FE-014` remain `NOT STARTED`.
+- closure_evidence: Technical-lead verdict `PASS`; completion_commit `d94cc45`; completion_commit_subject `chore(frontend): configure SCSS lint tooling`; accepted T-FE-006 implementation and verification evidence preserved. `T-FE-007` and `T-FE-014` remain `NOT STARTED` and require explicit future authorization.
 
 ### `ST-FE-006` — Configure SCSS/stylelint and physical direction prohibition
 
-- status: `READY FOR REVIEW`
+- status: `VERIFIED`
 - blocker_types: `TOOLING_APPROVAL`
 - evidence_summary: Metadata, exact installation, dependency integrity, real-source lint, logical-property acceptance, ten-case physical-direction rejection, regression commands, drift checks, and independent audits passed after the technical lead authorized `no-empty-source: null` for generated empty component SCSS.
+- closure_evidence: Technical-lead verdict `PASS`; completion commit `d94cc45 chore(frontend): configure SCSS lint tooling`; subtask accepted as complete.
 
 ### `GATE-FE-T006`
 
-- status_result: `READY FOR REVIEW`
+- status_result: `VERIFIED`
 - blocker_types: `TOOLING_APPROVAL`
-- evidence_summary: Exact tooling approval and dependency integrity are satisfied; initial `no-empty-source` failure and technical-lead clarification are preserved; final real-source lint, logical/physical direction fixtures, dependency negatives, zero-vulnerability audit, Angular lint, 2/2 unit tests, production build, lockfile checks, six-file scope checks, no-staging check, and available independent reviews passed. Gate awaits technical-lead acceptance and is not `VERIFIED`.
+- evidence_summary: Exact tooling approval and dependency integrity are satisfied; initial `no-empty-source` failure and technical-lead clarification are preserved; final real-source lint, logical/physical direction fixtures, dependency negatives, zero-vulnerability audit, Angular lint, 2/2 unit tests, production build, lockfile checks, six-file scope checks, no-staging check, and available independent reviews passed. This evidence was subsequently accepted by the technical lead.
+- closure_evidence: Technical-lead review accepted completion commit `d94cc45 chore(frontend): configure SCSS lint tooling`; committed file scope was `PROGRESS.md`, `docs/frontend/execution/frontend-implementation-ledger.md`, `frontend/dependency-policy.json`, `frontend/package-lock.json`, `frontend/package.json`, and `frontend/stylelint.config.mjs`. No Angular configuration, application source, ESLint config, TypeScript config, `.nvmrc`, backend, canonical OpenAPI, Penpot/design, or later-Task files were changed. Gate is closed as `VERIFIED`; `T-FE-007` and `T-FE-014` remain `NOT STARTED`.

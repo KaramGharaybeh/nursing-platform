@@ -135,6 +135,14 @@ Always update the authoritative document instead.
 
 ---
 
+# Delegated Work (OpenCode)
+
+All delegated OpenCode work must comply with the canonical orchestration contract in `docs/development/model-orchestration.md`, which owns the mandatory delegation packet, orchestrator preflight, worker preflight, and result/evidence shape.
+
+No worker starts without a complete packet. Workers read the packet's listed context modules, evaluate and load the applicable Superpowers skills above, respect allowed/forbidden scope, STOP on incomplete packets or unresolved authority, and return the central evidence shape. `openai/gpt-5.5` is the final gate. The packet schema itself lives only in the canonical contract and is not duplicated here.
+
+---
+
 # Project Overview
 
 Nursing Platform is a production-ready SaaS platform built using modern engineering practices.

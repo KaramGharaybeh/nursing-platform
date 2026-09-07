@@ -1,0 +1,9 @@
+@mixin touch-target($mobile: false) {
+  @if $mobile {
+    min-inline-size: 48px;
+    min-block-size: 48px;
+  } @else {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+}

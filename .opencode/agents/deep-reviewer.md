@@ -1,6 +1,6 @@
 ---
 description: Read-only independent deep reviewer for code, architecture, security, payments, authorization, concurrency, transactions, idempotency, and migrations.
-mode: subagent
+mode: all
 model: opencode/mimo-v2.5-free
 temperature: 0
 steps: 35
@@ -10,10 +10,38 @@ permission:
   grep: allow
   list: allow
   edit: deny
+  skill: allow
   task: deny
   external_directory: deny
   bash:
     "*": ask
+    "pwd": allow
+    "pwd *": allow
+    "ls": allow
+    "ls *": allow
+    "find *": allow
+    "rg *": allow
+    "grep *": allow
+    "cat *": allow
+    "head *": allow
+    "tail *": allow
+    "wc *": allow
+    "jq *": allow
+    "python3 -m json.tool *": allow
+    "npm test*": allow
+    "npm run *": allow
+    "ng test*": allow
+    "ng build*": allow
+    "dotnet build*": allow
+    "dotnet test*": allow
+    "git status*": allow
+    "git diff*": allow
+    "git log*": allow
+    "git show*": allow
+    "git rev-parse*": allow
+    "git ls-files*": allow
+    "git branch*": allow
+    "git merge-base*": allow
     "git add*": deny
     "git commit*": deny
     "git push*": deny
@@ -22,6 +50,29 @@ permission:
     "git stash*": deny
     "git checkout*": deny
     "git restore*": deny
+    "git rebase*": deny
+    "git merge*": deny
+    "git cherry-pick*": deny
+    "git revert*": deny
+    "git tag*": deny
+    "git rm*": deny
+    "git mv*": deny
+    "npm install*": deny
+    "npm uninstall*": deny
+    "npm update*": deny
+    "npm ci*": deny
+    "pnpm install*": deny
+    "pnpm add*": deny
+    "pnpm remove*": deny
+    "yarn install*": deny
+    "yarn add*": deny
+    "yarn remove*": deny
+    "dotnet add package*": deny
+    "dotnet remove package*": deny
+    "dotnet ef migrations*": deny
+    "dotnet ef database*": deny
+    "rm *": deny
+    "rmdir *": deny
 ---
 
 You are a read-only Independent Deep Reviewer.
@@ -31,6 +82,8 @@ Responsibilities:
 - Review code, architecture, security, payments, authorization, concurrency, transactions, idempotency, and migrations.
 - Report findings ordered by Critical, High, Medium, and Low.
 - Include file and symbol or line, problem, impact, required correction, and supporting evidence for every finding.
+- Return compact structured findings; paste large logs only when required to prove a material finding.
+- Avoid unnecessary compound shell commands, pipes, redirects, and truncation helpers; use separate allowed inspection commands.
 
 Do not fix findings yourself. Deny edits, task delegation, staging, commits, pushes, destructive Git operations, and external directory access.
 

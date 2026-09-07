@@ -1,6 +1,6 @@
 ---
 description: Read-only deterministic verification agent for builds, tests, EF checks when authorized, diff checks, scope verification, and exact command evidence.
-mode: subagent
+mode: all
 model: opencode/big-pickle
 temperature: 0
 steps: 25
@@ -10,10 +10,38 @@ permission:
   grep: allow
   list: allow
   edit: deny
+  skill: allow
   task: deny
   external_directory: deny
   bash:
     "*": ask
+    "pwd": allow
+    "pwd *": allow
+    "ls": allow
+    "ls *": allow
+    "find *": allow
+    "rg *": allow
+    "grep *": allow
+    "cat *": allow
+    "head *": allow
+    "tail *": allow
+    "wc *": allow
+    "jq *": allow
+    "python3 -m json.tool *": allow
+    "npm test*": allow
+    "npm run *": allow
+    "ng test*": allow
+    "ng build*": allow
+    "dotnet build*": allow
+    "dotnet test*": allow
+    "git status*": allow
+    "git diff*": allow
+    "git log*": allow
+    "git show*": allow
+    "git rev-parse*": allow
+    "git ls-files*": allow
+    "git branch*": allow
+    "git merge-base*": allow
     "git add*": deny
     "git commit*": deny
     "git push*": deny
@@ -22,6 +50,29 @@ permission:
     "git stash*": deny
     "git checkout*": deny
     "git restore*": deny
+    "git rebase*": deny
+    "git merge*": deny
+    "git cherry-pick*": deny
+    "git revert*": deny
+    "git tag*": deny
+    "git rm*": deny
+    "git mv*": deny
+    "npm install*": deny
+    "npm uninstall*": deny
+    "npm update*": deny
+    "npm ci*": deny
+    "pnpm install*": deny
+    "pnpm add*": deny
+    "pnpm remove*": deny
+    "yarn install*": deny
+    "yarn add*": deny
+    "yarn remove*": deny
+    "dotnet add package*": deny
+    "dotnet remove package*": deny
+    "dotnet ef migrations*": deny
+    "dotnet ef database*": deny
+    "rm *": deny
+    "rmdir *": deny
 ---
 
 You are the read-only Deterministic Verification Agent.
@@ -31,6 +82,8 @@ Responsibilities:
 - Run assigned build, test, EF, `git diff --check`, file-scope, and Git evidence commands.
 - Paste exact command evidence.
 - Distinguish new failures, pre-existing failures, environment failures, and incomplete-evidence failures.
+- Return compact structured verification status by default; paste large logs only for failures/findings or when explicitly required.
+- Avoid unnecessary compound shell commands, pipes, redirects, and truncation helpers; use separate allowed verification commands.
 
 Deny edits, task delegation, staging, commits, pushes, reset, clean, stash, and external directory access.
 

@@ -22,10 +22,12 @@ These project instructions take precedence over convenience. Prototype implement
 
 # RULE 0: MANDATORY MEMORY BANK & DYNAMIC PLANNING PROTOCOL
 
-- **Startup:** The Agent MUST read `/PROGRESS.md` before executing any commands or code changes.
-- **Dynamic Planning:** Whenever a new task or step is planned in conversation, the Agent MUST write it to `/PROGRESS.md` BEFORE writing any code.
-- **Incremental Status:** Update task progress incrementally (`[x]` for done, `[/]` for partial/in-progress, `[ ]` for pending). Do not wait for 100% completion.
-- **Shutdown:** Update `/PROGRESS.md` with explicit handoff instructions before ending the session.
+- **Startup:** Every agent MUST read `/PROGRESS.md` before executing any commands or code changes.
+- **Central Ownership:** The OpenAI Orchestrator owns central planning, incremental status, and session-handoff updates to `/PROGRESS.md` so project memory remains synchronized.
+- **Orchestrator Dynamic Planning:** Whenever a new task or step is planned in conversation, the OpenAI Orchestrator MUST write it to `/PROGRESS.md` BEFORE writing code.
+- **Orchestrator Incremental Status:** The OpenAI Orchestrator updates task progress incrementally (`[x]` for done, `[/]` for partial/in-progress, `[ ]` for pending). It must not wait for 100% completion.
+- **Delegated Workers:** A delegated worker MUST read `/PROGRESS.md` but MUST NOT modify it unless the complete delegation packet explicitly includes it in `ALLOWED_FILES` and explicitly assigns progress-update ownership. Normally the worker returns status/evidence and the Orchestrator performs the central update.
+- **Shutdown:** The OpenAI Orchestrator MUST update `/PROGRESS.md` with explicit handoff instructions before ending the session.
 
 ---
 
@@ -49,6 +51,18 @@ The agent must first:
 8. Update documentation if necessary.
 
 The AI must never skip applicable skills.
+
+The verified OpenCode skill discovery mechanism is the resolved installed-skill catalog exposed by OpenCode's runtime skill tooling (`opencode debug skill` exposes the same catalog for diagnostics). Skill locations are resolved from active OpenCode configuration and installed sources; agents MUST NOT guess or hard-code filesystem paths.
+
+Every fresh delegated worker must, before execution:
+
+1. Read `AGENTS.md` first.
+2. Discover and evaluate applicable installed skills through OpenCode's skill mechanism.
+3. Load `using-superpowers`.
+4. Evaluate all additionally applicable skills against this file's rules and the delegation packet's `SKILLS_TO_EVALUATE`.
+5. Load every required skill before execution.
+6. Report `SKILLS_EVALUATED`, `SKILLS_LOADED`, and `SKILL_REASONING`.
+7. STOP if a required skill cannot actually be accessed; never claim an inaccessible skill was loaded.
 
 Before implementation, the AI must explicitly report:
 
@@ -110,6 +124,8 @@ The following order must always be respected:
 
 The AI must never begin implementation before selecting the applicable skills.
 
+Skill enforcement does not change project routing authority. If a generic installed skill describes model selection, delegated reviewer count, commits, staging, or progress-ledger behavior that conflicts with this repository, `docs/development/model-orchestration.md`, this file's approval gates, and the delegation packet govern. Loading a skill never by itself authorizes an additional delegated reviewer or verifier. All applicable non-conflicting skill steps remain mandatory.
+
 ---
 
 # Repository Context
@@ -118,7 +134,7 @@ This repository contains project documentation, backend code, frontend code, scr
 
 The AI must always treat the repository documentation as the primary source of truth.
 
-OpenCode multi-agent work must follow `docs/development/model-orchestration.md`. That document is the authority for model routing, delegation, independent review, evidence, and escalation. Only `openai/gpt-5.5` may be configured as the project's OpenAI orchestrator; no other project OpenAI model may be configured for delegation or fallback.
+OpenCode multi-agent work must follow `docs/development/model-orchestration.md`. That document is the authority for model routing, usage-hardened delegation, optional supporting review/verification, compact evidence, escalation, approval gates, and the `GOAL-FE-001` Frontend Standing Implementation Authorization exception. Only `openai/gpt-5.5` may be configured as the project's OpenAI orchestrator; no other project OpenAI model may be configured for delegation or fallback.
 
 When multiple documents exist:
 
@@ -139,7 +155,7 @@ Always update the authoritative document instead.
 
 All delegated OpenCode work must comply with the canonical orchestration contract in `docs/development/model-orchestration.md`, which owns the mandatory delegation packet, orchestrator preflight, worker preflight, and result/evidence shape.
 
-No worker starts without a complete packet. Workers read the packet's listed context modules, evaluate and load the applicable Superpowers skills above, respect allowed/forbidden scope, STOP on incomplete packets or unresolved authority, and return the central evidence shape. `openai/gpt-5.5` is the final gate. The packet schema itself lives only in the canonical contract and is not duplicated here.
+No worker starts without a complete packet. Workers read `AGENTS.md` first, then every listed global and task-specific context module; discover, evaluate, and load the applicable installed skills above; respect allowed/forbidden scope; STOP on incomplete packets or unresolved authority; and return the central evidence shape. For normal Low/Medium work, repository-heavy exploration, contract extraction, implementation, routine debugging, verification, and evidence drafting default to approved non-OpenAI workers; `openai/gpt-5.5` stays a thin manager and targeted final gate unless a direct-OpenAI exception in the canonical contract applies. A separate supporting reviewer/verifier is optional and used only when justified under the canonical contract. The packet schema itself lives only there and is not duplicated here.
 
 ---
 
@@ -187,21 +203,13 @@ Never optimize for development speed at the expense of architecture or maintaina
 
 ---
 
-# Required Reading Order
+# Required Context Loading
 
-Before implementing any feature, the AI must review the following documents in order.
+`docs/development/model-orchestration.md` is the canonical context-routing registry. Every agent must load the mandatory global context baseline defined there. A delegated worker must read `AGENTS.md` first, then the remaining `GLOBAL_CONTEXT_MODULES`, then only the `TASK_CONTEXT_MODULES` selected by the OpenAI Orchestrator for the bounded task.
 
-1. `docs/product/vision.md`
-2. `docs/architecture/system-architecture.md`
-3. `docs/backend/backend-architecture.md`
-4. `docs/frontend/frontend-architecture.md`
-5. `docs/database/database-design.md`
-6. `docs/api/api-design.md`
-7. `docs/standards/engineering-standards.md`
-8. `PROJECT_RULES.md`
-9. `CURRENT_TASK.md`
+Do not load unrelated backend, database, or API internals for frontend-only work unless the task actually affects them. Do not load unrelated frontend or design documentation for backend-only work unless relevant. Cross-cutting work receives every applicable module selected by the Orchestrator.
 
-Implementation must not begin until these documents are understood.
+Implementation must not begin until all packet-listed context is understood. If the required authority cannot be safely identified or listed sources conflict without a resolvable precedence rule, STOP and return the blocker to the Orchestrator rather than guessing.
 
 ---
 
@@ -457,7 +465,7 @@ A task is complete only when:
 - Final verification has been completed.
 - All applicable Superpowers skills have been followed.
 - The full requested evidence has been pasted for review.
-- The reviewer has approved the task.
+- The OpenAI Orchestrator's final review has approved the task.
 
 ---
 

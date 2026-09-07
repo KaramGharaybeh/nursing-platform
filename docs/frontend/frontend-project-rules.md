@@ -8,16 +8,17 @@ For frontend task execution, consult the following in order, together with expli
 
 1. `PROJECT_RULES.md`
 2. `AGENTS.md`
-3. `docs/frontend/frontend-architecture.md`
-4. `docs/frontend/design/GOAL_STATE.md`
-5. `docs/frontend/design/MASTER_PLAN.md`
-6. `docs/frontend/design/governance/source-authority.md`
-7. `docs/frontend/design/governance/decision-log.md`
-8. `docs/frontend/design/governance/open-questions.md`
-9. Approved Penpot evidence; Figma is non-authoritative unless Karam explicitly changes the recorded Penpot-only decision.
-10. Implemented backend source and the generated Development OpenAPI contract for runtime API behavior.
+3. Current execution state and task/gate authority in `docs/frontend/execution/frontend-implementation-ledger.md`, with `PROGRESS.md` as concise current-session handoff.
+4. `docs/frontend/frontend-architecture.md`
+5. Approved design specifications and approved Penpot evidence; Figma is non-authoritative unless Karam explicitly changes the recorded Penpot-only decision.
+6. Implemented backend source and the generated Development OpenAPI contract for runtime API behavior.
+7. `docs/frontend/design/GOAL_STATE.md`
+8. `docs/frontend/design/MASTER_PLAN.md`
+9. `docs/frontend/design/governance/source-authority.md`
+10. `docs/frontend/design/governance/decision-log.md`
+11. `docs/frontend/design/governance/open-questions.md`
 
-Unresolved open questions block the affected implementation decision. Historical exports, trackers, prose, and uncommitted files are evidence only unless explicitly approved by the authority that owns the decision.
+Unresolved open questions block the affected implementation decision. Historical exports, trackers, prose, and uncommitted files are evidence only unless explicitly approved by the authority that owns the decision. Historical planning/design documents remain preserved but do not override newer verified execution state or current repository facts merely because they contain older statements such as “frontend workspace is not initialized.” If precedence cannot resolve a conflict deterministically, STOP AND ESCALATE.
 
 Architectural, business, design, API, security, or exception decisions that affect future implementation MUST be persisted in repository-backed documentation. Chat history alone is not a durable project decision record.
 
@@ -47,6 +48,10 @@ No Angular implementation, including scaffolding, may start until all of the fol
 - The npm/package-manager policy and Angular project-creation command are explicitly approved.
 
 G0 was accepted on 2026-08-12 as a governance/re-entry baseline only, as recorded in `docs/frontend/design/governance/decision-log.md` (DEC-PH0-016) and `docs/frontend/design/GOAL_STATE.md`. A later implementation approval must not be inferred from this document, a running Penpot container, a draft board, or backend readiness.
+
+### 2.1 Standing Implementation Authorization
+
+Standing Implementation Authorization for ordinary eligible Low/Medium frontend Tasks is defined in `docs/frontend/execution/frontend-implementation-ledger.md` and `docs/development/model-orchestration.md`. It may replace a separate per-task start message only when all declared predecessor Gates are `VERIFIED`, exact scope is established, no unresolved blocker/approval/security/business/design/tooling/dependency/backend/OpenAPI/Penpot/database/migration decision is required, risk remains Low/Medium, implementation can stay within bounded `ALLOWED_FILES`, and required focused plus full Gate evidence can be produced. It never authorizes staging, committing, pushing, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, screen work without screen approval, or human-owned product/business decisions.
 
 ## 3. Angular stack rules
 

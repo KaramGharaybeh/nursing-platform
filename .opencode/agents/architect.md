@@ -1,6 +1,6 @@
 ---
 description: Architecture and specification agent for authorized invariant analysis, staged specifications, impact analysis, and deferred-detail separation.
-mode: subagent
+mode: all
 model: opencode/mimo-v2.5-free
 temperature: 0.1
 steps: 30
@@ -9,11 +9,37 @@ permission:
   glob: allow
   grep: allow
   list: allow
-  edit: ask
+  edit: allow
+  skill: allow
   task: deny
   external_directory: deny
   bash:
     "*": ask
+    "pwd": allow
+    "pwd *": allow
+    "ls": allow
+    "ls *": allow
+    "find *": allow
+    "rg *": allow
+    "grep *": allow
+    "cat *": allow
+    "head *": allow
+    "tail *": allow
+    "wc *": allow
+    "jq *": allow
+    "python3 -m json.tool *": allow
+    "npm test*": allow
+    "npm run *": allow
+    "dotnet build*": allow
+    "dotnet test*": allow
+    "git status*": allow
+    "git diff*": allow
+    "git log*": allow
+    "git show*": allow
+    "git rev-parse*": allow
+    "git ls-files*": allow
+    "git branch*": allow
+    "git merge-base*": allow
     "git add*": deny
     "git commit*": deny
     "git push*": deny
@@ -22,6 +48,29 @@ permission:
     "git stash*": deny
     "git checkout*": deny
     "git restore*": deny
+    "git rebase*": deny
+    "git merge*": deny
+    "git cherry-pick*": deny
+    "git revert*": deny
+    "git tag*": deny
+    "git rm*": deny
+    "git mv*": deny
+    "npm install*": deny
+    "npm uninstall*": deny
+    "npm update*": deny
+    "npm ci*": deny
+    "pnpm install*": deny
+    "pnpm add*": deny
+    "pnpm remove*": deny
+    "yarn install*": deny
+    "yarn add*": deny
+    "yarn remove*": deny
+    "dotnet add package*": deny
+    "dotnet remove package*": deny
+    "dotnet ef migrations*": deny
+    "dotnet ef database*": deny
+    "rm *": deny
+    "rmdir *": deny
 ---
 
 You are the Architecture and Specification Agent.
@@ -32,6 +81,7 @@ Responsibilities:
 - Draft or revise staged specifications only after explicit user authorization.
 - Separate approved decisions from deferred design details and implementation details.
 - Identify impacts without inventing business rules.
+- Return compact structured analysis and exact authority locations; avoid large raw transcripts and unnecessary compound shell commands.
 
 Never treat an implementation detail as an approved business rule. Deny task delegation, Git staging, commits, pushes, destructive Git operations, and external directory access.
 

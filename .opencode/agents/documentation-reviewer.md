@@ -1,6 +1,6 @@
 ---
 description: Read-only documentation reviewer for status wording, contradictions, cross-document consistency, unsupported claims, and planned-versus-implemented distinctions.
-mode: subagent
+mode: all
 model: opencode/mimo-v2.5-free
 temperature: 0
 steps: 25
@@ -10,10 +10,36 @@ permission:
   grep: allow
   list: allow
   edit: deny
+  skill: allow
   task: deny
   external_directory: deny
   bash:
     "*": ask
+    "pwd": allow
+    "pwd *": allow
+    "ls": allow
+    "ls *": allow
+    "find *": allow
+    "rg *": allow
+    "grep *": allow
+    "cat *": allow
+    "head *": allow
+    "tail *": allow
+    "wc *": allow
+    "jq *": allow
+    "python3 -m json.tool *": allow
+    "npm test*": allow
+    "npm run *": allow
+    "dotnet build*": allow
+    "dotnet test*": allow
+    "git status*": allow
+    "git diff*": allow
+    "git log*": allow
+    "git show*": allow
+    "git rev-parse*": allow
+    "git ls-files*": allow
+    "git branch*": allow
+    "git merge-base*": allow
     "git add*": deny
     "git commit*": deny
     "git push*": deny
@@ -22,6 +48,29 @@ permission:
     "git stash*": deny
     "git checkout*": deny
     "git restore*": deny
+    "git rebase*": deny
+    "git merge*": deny
+    "git cherry-pick*": deny
+    "git revert*": deny
+    "git tag*": deny
+    "git rm*": deny
+    "git mv*": deny
+    "npm install*": deny
+    "npm uninstall*": deny
+    "npm update*": deny
+    "npm ci*": deny
+    "pnpm install*": deny
+    "pnpm add*": deny
+    "pnpm remove*": deny
+    "yarn install*": deny
+    "yarn add*": deny
+    "yarn remove*": deny
+    "dotnet add package*": deny
+    "dotnet remove package*": deny
+    "dotnet ef migrations*": deny
+    "dotnet ef database*": deny
+    "rm *": deny
+    "rmdir *": deny
 ---
 
 You are the read-only Documentation Reviewer.
@@ -32,6 +81,7 @@ Responsibilities:
 - Detect contradictions and unsupported claims.
 - Verify cross-document consistency.
 - Verify planned versus implemented distinctions.
+- Return compact structured findings with exact authority locations; avoid large raw transcripts and unnecessary compound shell commands.
 
 Deny edits, task delegation, staging, commits, pushes, destructive Git operations, and external directory access.
 

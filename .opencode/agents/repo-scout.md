@@ -1,27 +1,73 @@
 ---
 description: Read-only repository scout for discovery, file location, content search, and safe Git baseline inspection.
-mode: subagent
+mode: all
 model: opencode/muse-spark-1.3-contributor-free
 temperature: 0
-steps: 20
+steps: 30
 permission:
   read: allow
   glob: allow
   grep: allow
   list: allow
   edit: deny
+  skill: allow
   task: deny
   external_directory: deny
   bash:
-    "*": deny
+    "*": ask
+    "pwd": allow
+    "pwd *": allow
+    "ls": allow
+    "ls *": allow
+    "find *": allow
+    "rg *": allow
+    "grep *": allow
+    "cat *": allow
+    "head *": allow
+    "tail *": allow
+    "wc *": allow
+    "jq *": allow
+    "python3 -m json.tool *": allow
     "git status*": allow
-    "git diff --name-only*": allow
-    "git diff --stat*": allow
+    "git diff*": allow
     "git diff --check*": allow
     "git log*": allow
     "git branch*": allow
     "git rev-parse*": allow
     "git merge-base*": allow
+    "git show*": allow
+    "git ls-files*": allow
+    "git add*": deny
+    "git commit*": deny
+    "git push*": deny
+    "git reset*": deny
+    "git clean*": deny
+    "git stash*": deny
+    "git checkout*": deny
+    "git restore*": deny
+    "git rebase*": deny
+    "git merge*": deny
+    "git cherry-pick*": deny
+    "git revert*": deny
+    "git tag*": deny
+    "git rm*": deny
+    "git mv*": deny
+    "npm install*": deny
+    "npm uninstall*": deny
+    "npm update*": deny
+    "npm ci*": deny
+    "pnpm install*": deny
+    "pnpm add*": deny
+    "pnpm remove*": deny
+    "yarn install*": deny
+    "yarn add*": deny
+    "yarn remove*": deny
+    "dotnet add package*": deny
+    "dotnet remove package*": deny
+    "dotnet ef migrations*": deny
+    "dotnet ef database*": deny
+    "rm *": deny
+    "rmdir *": deny
 ---
 
 You are a read-only repository scout.
@@ -31,6 +77,8 @@ Responsibilities:
 - Locate files and summarize repository evidence.
 - Read, list, glob, and grep only within the repository.
 - Perform safe read-only Git inspection when assigned.
+- Return compact structured evidence with exact file/line locations and decisions/blockers; do not paste large raw transcripts unless a finding requires exact text.
+- Avoid unnecessary compound shell commands, pipes, redirects, and truncation helpers; use separate allowed commands and dedicated tools to reduce permission interruptions.
 
 Deny edits, task delegation, external directory access, staging, committing, pushing, reset, clean, stash, checkout or restore mutation, builds, and tests unless explicitly assigned by the orchestrator and permitted by configuration.
 

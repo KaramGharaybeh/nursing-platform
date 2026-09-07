@@ -1,0 +1,24 @@
+@use 'sass:map';
+
+$breakpoints: (
+  tablet: 600px,
+  desktop: 960px,
+  large: 1280px,
+  wide: 1920px,
+);
+
+@mixin respond-from($breakpoint) {
+  $value: map.get($breakpoints, $breakpoint);
+
+  @if not $value {
+    @error 'Unknown breakpoint: #{$breakpoint}.';
+  }
+
+  @media (min-width: $value) {
+    @content;
+  }
+}
+
+@mixin page-gutter {
+  padding-inline: var(--np-page-gutter);
+}

@@ -595,13 +595,13 @@ Initial authentication state MUST be `initializing` or an equivalent explicit bo
 
 The application MUST NOT start by treating the user as prematurely authenticated or anonymous before bootstrap completes.
 
-If a refresh token exists in `sessionStorage`, startup MUST attempt exactly one coordinated refresh through the central authentication abstraction.
+If a refresh token exists in `sessionStorage`, startup MUST attempt exactly one startup refresh through the central authentication abstraction.
 
 If no refresh token exists in `sessionStorage`, bootstrap MUST resolve directly as anonymous.
 
-After successful refresh, the access token MUST be held in memory.
+After successful refresh, the access token MUST be held in memory and the returned refresh token MUST replace the previous local refresh token through the central token-storage abstraction.
 
-The frontend MUST then call `GET /api/v1/me` to hydrate the authenticated user, roles, and permissions.
+Authentication bootstrap MUST NOT call `GET /api/v1/me` directly. Bootstrap establishes token-session validity only; current-user hydration is a separate downstream task after bearer interception exists.
 
 The frontend MUST NOT call `/api/v1/me` without a valid access token.
 
@@ -611,7 +611,9 @@ Guards MUST wait for authentication bootstrap completion and MUST NOT redirect w
 
 Guards MUST also wait until anonymous bootstrap has completed when no refresh token exists.
 
-Failed refresh or a `/me` response of `401` after valid recovery MUST clear local authentication state, clear locally stored tokens, and resolve the user as anonymous.
+Failed refresh MUST clear local authentication state, clear locally stored tokens, and resolve the user as anonymous.
+
+A `/me` response of `401` after valid recovery MUST clear local authentication state, clear locally stored tokens, and resolve the user as anonymous.
 
 A transient `/me` network failure or `5xx` response MUST NOT automatically be treated as invalid credentials and MUST NOT erase tokens. It MUST resolve through an explicit bootstrap-unavailable or recovery state with bounded user-visible recovery behavior.
 
@@ -624,6 +626,16 @@ The local MVP officially supports one authenticated tab per session. Opening or 
 Cross-tab refresh coordination is deferred. Reuse detected because another tab used a stale refresh token MUST resolve through deterministic local logout; the frontend MUST NOT bypass backend refresh-token reuse detection.
 
 Full multi-tab authentication support requires a separate approved secure-coordination design.
+
+## Authenticated Current User Hydration
+
+Authenticated current-user hydration MUST occur only after bearer Authorization-header injection exists.
+
+Current-user hydration MUST call `GET /api/v1/me` through the normal generated/client transport path and MUST rely on the central bearer interceptor for Authorization-header attachment.
+
+Current-user hydration MUST establish frontend current-user/session identity state, including user identity, roles, and permissions.
+
+Current-user hydration MUST NOT duplicate token refresh, token storage, or interceptor behavior.
 
 ## Refresh Coordination
 

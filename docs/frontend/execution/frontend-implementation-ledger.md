@@ -154,7 +154,7 @@ Milestones are organizational groupings. Task/Gate dependency declarations are a
 | `M-FE-003` | Design/runtime foundation | Tokens, Material theme, base a11y, direction, responsive, forms. | `T-FE-008..T-FE-013` | `GATE-FE-T003` | member gates `VERIFIED` |
 | `M-FE-004` | API client foundation | Generator spike, generator approval, generated client. | `T-FE-015..T-FE-017` | `GATE-FE-T003` | member gates `VERIFIED` |
 | `M-FE-005` | API infrastructure | API config, Problem Details mapping, DTO adapter boundary. | `T-FE-018..T-FE-020` | `GATE-FE-T017` | member gates `VERIFIED` |
-| `M-FE-006` | Auth/session foundation | Auth transport, tokens, bootstrap, refresh, bearer, logout. | `T-FE-021..T-FE-026` | `GATE-FE-T018..T020` | member gates `VERIFIED` |
+| `M-FE-006` | Auth/session foundation | Auth transport, tokens, token-session bootstrap, refresh, bearer, current-user hydration, logout. | `T-FE-021..T-FE-026`, `T-FE-138` | `GATE-FE-T018..T020` | member gates `VERIFIED` |
 | `M-FE-007` | Shell/routing/permission architecture | Shell, loading state, route registry, guards, route UX permission policy, navigation. | `T-FE-027..T-FE-032` | task-level gates only | member gates `VERIFIED` |
 | `M-FE-008` | Shared UX patterns | Loading/errors, validation, empty/restricted, feedback, upload, pagination, visual method. | `T-FE-033..T-FE-039` | task-level gates only | member gates `VERIFIED` |
 | `M-FE-009` | Auth screens | Approval packet and auth screen implementations/classifications. | `T-FE-040..T-FE-055` | task-level gates only | family packet `VERIFIED`; applicable screen tasks `VERIFIED` or `BLOCKED` with blocker types |
@@ -296,15 +296,15 @@ All Tasks have initial `status: NOT STARTED`.
 | `T-FE-020` | `M-FE-005` | DTO adapter boundary | `GATE-FE-T017`,`GATE-FE-T019` | generated DTO adapter policy only | `CONTRACT_CLARIFICATION` |
 | `T-FE-021` | `M-FE-006` | Auth transport | `GATE-FE-T018..T020` | `C-AUTH-LOGIN`,`C-AUTH-REFRESH`,`C-ME` | `CONTRACT_CLARIFICATION` |
 | `T-FE-022` | `M-FE-006` | Token storage abstraction | `GATE-FE-T021` | MVP only; production posture later | `SECURITY` |
-| `T-FE-023` | `M-FE-006` | Session bootstrap | `GATE-FE-T021`,`GATE-FE-T022` | `/me` bootstrap | `CONTRACT_CLARIFICATION` |
+| `T-FE-023` | `M-FE-006` | Session bootstrap | `GATE-FE-T021`,`GATE-FE-T022` | token-session bootstrap only; no `/me`, no manual Authorization header | `CONTRACT_CLARIFICATION`,`SECURITY` |
 | `T-FE-024` | `M-FE-006` | Single-flight refresh | `GATE-FE-T022`,`GATE-FE-T023` | refresh coordination only | `SECURITY` |
 | `T-FE-025` | `M-FE-006` | Bearer interceptor | `GATE-FE-T024` | bearer injection; no business logic | `SECURITY` |
 | `T-FE-026` | `M-FE-006` | Local logout MVP | `GATE-FE-T023..T025` | no server revocation claim | `CONTRACT_CLARIFICATION` |
 | `T-FE-027` | `M-FE-007` | Shell frame | `GATE-FE-T009..T012`,`GATE-FE-T023` | landmarks/router outlet | `DESIGN` |
 | `T-FE-028` | `M-FE-017` | System loading route state | `GATE-FE-T027`,`GATE-FE-T113` | owns `SYS-001` | `DESIGN` |
 | `T-FE-029` | `M-FE-007` | Canonical route registry | `GATE-FE-T027` | all product routes register here | `SCOPE` |
-| `T-FE-030` | `M-FE-007` | Auth/public guards | `GATE-FE-T023..T025`,`GATE-FE-T029` | auth guard/public-only guard | `SECURITY` |
-| `T-FE-031` | `M-FE-007` | Route-level UX permission policy | `GATE-FE-T023`,`GATE-FE-T029` | UX only; backend is security | `SECURITY`,`CONTRACT_CLARIFICATION` |
+| `T-FE-030` | `M-FE-007` | Auth/public guards | `GATE-FE-T023..T025`,`GATE-FE-T029`,`GATE-FE-T138` | auth guard/public-only guard | `SECURITY` |
+| `T-FE-031` | `M-FE-007` | Route-level UX permission policy | `GATE-FE-T023`,`GATE-FE-T029`,`GATE-FE-T138` | UX only; backend is security | `SECURITY`,`CONTRACT_CLARIFICATION` |
 | `T-FE-032` | `M-FE-007` | Permission-aware navigation | `GATE-FE-T031` | presentation only | `DESIGN` |
 | `T-FE-033` | `M-FE-008` | Loading/error/retry pattern | `GATE-FE-T019`,`GATE-FE-T010` | no feature copy | `DESIGN` |
 | `T-FE-034` | `M-FE-008` | Form validation pattern | `GATE-FE-T013`,`GATE-FE-T019` | validation display only | `CONTRACT_CLARIFICATION` |
@@ -370,7 +370,7 @@ All Tasks have initial `status: NOT STARTED`.
 | `T-FE-094` | `M-FE-014` | `EMP-005/006` candidate profile/request | `GATE-FE-T091`,`GATE-FE-T093`,`GATE-FE-T034`,`GATE-FE-T085` | profile only if contract-backed | `BACKEND`,`DESIGN` |
 | `T-FE-095` | `M-FE-014` | `EMP-007/008` employer requests | `GATE-FE-T094`,`GATE-FE-T038`,`GATE-FE-T085` | list/detail/cancel | `DESIGN` |
 | `T-FE-096` | `M-FE-014` | Nurse received contact requests | `GATE-FE-T056`,`GATE-FE-T038` | not EMP canonical owner | `DESIGN` |
-| `T-FE-097` | `M-FE-015` | `ACC-001/002` account overview/details | `GATE-FE-T023`,`GATE-FE-T033`,`GATE-FE-T092` | `/me` only | `DESIGN` |
+| `T-FE-097` | `M-FE-015` | `ACC-001/002` account overview/details | `GATE-FE-T138`,`GATE-FE-T033`,`GATE-FE-T092` | `/me` only | `DESIGN` |
 | `T-FE-098` | `M-FE-016` | Admin screen approval packet | design/backend/state review | `ADM-001..010` packet review | `DESIGN` |
 | `T-FE-099` | `M-FE-015` | `ACC-003` change password classification | local contract check | backend gap unless found | `BACKEND` |
 | `T-FE-100` | `M-FE-015` | `ACC-004` sessions classification | local contract check | backend gap unless found | `BACKEND` |
@@ -411,6 +411,7 @@ All Tasks have initial `status: NOT STARTED`.
 | `T-FE-135` | `M-FE-019` | Final RTL audit | direction + screens | no full translation claim | `DESIGN` |
 | `T-FE-136` | `M-FE-019` | Final responsive audit | responsive + screens | breakpoints | `DESIGN` |
 | `T-FE-137` | `M-FE-019` | Production payment release decision | `GATE-FE-T089` | no provider invention | `BACKEND`,`EXTERNAL` |
+| `T-FE-138` | `M-FE-006` | Authenticated current-user hydration | `GATE-FE-T025` | `GET /api/v1/me` via normal transport; relies on bearer interceptor; current-user/session identity state only | `CONTRACT_CLARIFICATION`,`SECURITY` |
 
 ## 12. Subtask Registry
 
@@ -440,10 +441,11 @@ All Subtasks initially have `status: NOT STARTED`. Each Subtask inherits its par
 | `ST-FE-020` | `T-FE-020` | Define generated DTO adapter boundary only. |
 | `ST-FE-021` | `T-FE-021` | Implement typed login/refresh/current-user transport. |
 | `ST-FE-022` | `T-FE-022` | Implement token storage abstraction. |
-| `ST-FE-023` | `T-FE-023` | Implement session bootstrap state machine. |
+| `ST-FE-023` | `T-FE-023` | Implement token-session bootstrap state machine without `/me` hydration. |
 | `ST-FE-024` | `T-FE-024` | Implement single-flight refresh coordination. |
 | `ST-FE-025` | `T-FE-025` | Implement Bearer interceptor and exclusions. |
 | `ST-FE-026` | `T-FE-026` | Implement local logout without server revocation claim. |
+| `ST-FE-138` | `T-FE-138` | Hydrate current user through `GET /api/v1/me` after bearer injection exists. |
 | `ST-FE-027` | `T-FE-027` | Implement accessible shell frame. |
 | `ST-FE-028` | `T-FE-028` | Implement approved loading shell state. |
 | `ST-FE-029` | `T-FE-029` | Implement canonical route registry entries/policy shape. |
@@ -599,15 +601,15 @@ All Gates initially have `status_result: NOT STARTED`. Every Gate must use the c
 | `GATE-FE-T020` | `T-FE-020` | `GATE-FE-T017`, `GATE-FE-T019` | adapter boundary tests | `CONTRACT_CLARIFICATION` |
 | `GATE-FE-T021` | `T-FE-021` | `GATE-FE-T018..T020` | auth API tests | `CONTRACT_CLARIFICATION` |
 | `GATE-FE-T022` | `T-FE-022` | `GATE-FE-T021` | token storage tests | `SECURITY` |
-| `GATE-FE-T023` | `T-FE-023` | `GATE-FE-T021`, `GATE-FE-T022` | bootstrap state tests | `CONTRACT_CLARIFICATION` |
+| `GATE-FE-T023` | `T-FE-023` | `GATE-FE-T021`, `GATE-FE-T022` | token-session bootstrap tests proving initial state, no-token anonymous path, one startup refresh attempt, token-material persistence through `TokenStorage`, invalid refresh clear/anonymous path, transient failure semantics, no `/me`, no manual Authorization header, no single-flight/interceptor/guard/UI behavior, no direct `sessionStorage`, and no generated-file edits | `CONTRACT_CLARIFICATION`,`SECURITY` |
 | `GATE-FE-T024` | `T-FE-024` | `GATE-FE-T022`, `GATE-FE-T023` | refresh concurrency tests | `SECURITY` |
 | `GATE-FE-T025` | `T-FE-025` | `GATE-FE-T024` | interceptor tests | `SECURITY` |
 | `GATE-FE-T026` | `T-FE-026` | `GATE-FE-T023..T025` | logout tests | `CONTRACT_CLARIFICATION` |
 | `GATE-FE-T027` | `T-FE-027` | `GATE-FE-T009..T012`, `GATE-FE-T023` | shell/a11y tests | `DESIGN` |
 | `GATE-FE-T028` | `T-FE-028` | `GATE-FE-T027`, `GATE-FE-T113` | loading state tests + per-screen visual evidence | `DESIGN` |
 | `GATE-FE-T029` | `T-FE-029` | `GATE-FE-T027` | route registry tests | `SCOPE` |
-| `GATE-FE-T030` | `T-FE-030` | `GATE-FE-T023..T025`, `GATE-FE-T029` | guard/router tests | `SECURITY` |
-| `GATE-FE-T031` | `T-FE-031` | `GATE-FE-T023`, `GATE-FE-T029` | UX permission tests | `SECURITY`,`CONTRACT_CLARIFICATION` |
+| `GATE-FE-T030` | `T-FE-030` | `GATE-FE-T023..T025`, `GATE-FE-T029`, `GATE-FE-T138` | guard/router tests | `SECURITY` |
+| `GATE-FE-T031` | `T-FE-031` | `GATE-FE-T023`, `GATE-FE-T029`, `GATE-FE-T138` | UX permission tests | `SECURITY`,`CONTRACT_CLARIFICATION` |
 | `GATE-FE-T032` | `T-FE-032` | `GATE-FE-T031` | nav visibility tests | `DESIGN` |
 | `GATE-FE-T033` | `T-FE-033` | `GATE-FE-T019`, `GATE-FE-T010` | loading/error tests | `DESIGN` |
 | `GATE-FE-T034` | `T-FE-034` | `GATE-FE-T013`, `GATE-FE-T019` | validation/form tests | `CONTRACT_CLARIFICATION` |
@@ -673,7 +675,7 @@ All Gates initially have `status_result: NOT STARTED`. Every Gate must use the c
 | `GATE-FE-T094` | `T-FE-094` | `GATE-FE-T091`, `GATE-FE-T093`, `GATE-FE-T034`, `GATE-FE-T085` | profile/request tests + per-screen visual evidence | `DESIGN`,`BACKEND` |
 | `GATE-FE-T095` | `T-FE-095` | `GATE-FE-T094`, `GATE-FE-T038`, `GATE-FE-T085` | employer requests tests + per-screen visual evidence | `DESIGN` |
 | `GATE-FE-T096` | `T-FE-096` | `GATE-FE-T056`, `GATE-FE-T038` | nurse received request tests | `DESIGN` |
-| `GATE-FE-T097` | `T-FE-097` | `GATE-FE-T023`, `GATE-FE-T033`, `GATE-FE-T092` | account overview tests + per-screen visual evidence | `DESIGN` |
+| `GATE-FE-T097` | `T-FE-097` | `GATE-FE-T138`, `GATE-FE-T033`, `GATE-FE-T092` | account overview tests + per-screen visual evidence | `DESIGN` |
 | `GATE-FE-T098` | `T-FE-098` | design/backend/state review | Admin approval packet with decisions per screen | `DESIGN` |
 | `GATE-FE-T099` | `T-FE-099` | local inspection | change-password classification | `BACKEND` |
 | `GATE-FE-T100` | `T-FE-100` | local inspection | sessions classification | `BACKEND` |
@@ -714,6 +716,7 @@ All Gates initially have `status_result: NOT STARTED`. Every Gate must use the c
 | `GATE-FE-T135` | `T-FE-135` | direction + screens | RTL audit | `DESIGN` |
 | `GATE-FE-T136` | `T-FE-136` | responsive + screens | responsive audit | `DESIGN` |
 | `GATE-FE-T137` | `T-FE-137` | `GATE-FE-T089` | payment release decision | `BACKEND`,`EXTERNAL` |
+| `GATE-FE-T138` | `T-FE-138` | `GATE-FE-T025` | current-user hydration tests proving `GET /api/v1/me` is called through normal auth transport/generation path, bearer injection is supplied by `T-FE-025`, current-user/session identity state is established, and no token refresh/storage/interceptor behavior is duplicated | `CONTRACT_CLARIFICATION`,`SECURITY` |
 
 ## 14. Screen Ownership Matrix
 
@@ -1378,6 +1381,43 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `SECURITY`
 - evidence_summary: Gate evidence covers token-storage tests, memory-only access token/expiry, sessionStorage-only refresh token, no localStorage, no user/profile/role/permission/Problem Details/AuthResult DTO persistence, no Authorization header/interceptor/bootstrap/refresh/logout/guard behavior, no generated/backend/OpenAPI/package changes, full frontend verification, and git integrity checks.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream T-FE-023 remains a separate session-bootstrap task and must not start in this checkpoint.
+
+### `T-FE-023` — Session bootstrap
+
+- status: `NOT STARTED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- governance_correction_date: 2026-09-09
+- governance_correction_summary: Technical lead accepted the DAG/session-bootstrap order conflict and explicitly rejected a manual bearer-header exception inside `T-FE-023`. `T-FE-023` now owns token-session bootstrap only: unknown/bootstrap state, refresh-token availability through the `T-FE-022` token-storage abstraction, anonymous completion without network calls when no refresh token exists, one startup refresh attempt through the `T-FE-021` auth transport when a refresh token exists, successful token-material persistence through token storage, invalid/expired/revoked refresh clearing local token material and resolving anonymous, and no `/api/v1/me`, no manual Authorization header, no general single-flight refresh coordination, no interceptor behavior, no route guards, and no UI behavior.
+- downstream_hydration_owner: `T-FE-138` owns authenticated current-user hydration after `GATE-FE-T025` so `/me` calls rely on normal bearer interceptor behavior.
+
+### `ST-FE-023` — Implement token-session bootstrap state machine without `/me` hydration
+
+- status: `NOT STARTED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- governance_correction_summary: Subtask scope is token-session bootstrap only and must not hydrate current user.
+
+### `GATE-FE-T023`
+
+- status_result: `NOT STARTED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- governance_correction_summary: Gate evidence must cover token-session bootstrap state and boundary tests, including no `/me`, no manual Authorization header, no direct `sessionStorage`, no generated-file edits, no single-flight/general refresh coordination, and no interceptor/guard/UI behavior.
+
+### `T-FE-138` — Authenticated current-user hydration
+
+- status: `NOT STARTED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- scope_summary: Downstream auth/session task for `GET /api/v1/me` hydration after bearer Authorization-header injection exists. It must call `/me` through the normal generated/client transport path, rely on `T-FE-025` for bearer injection, establish frontend current-user/session identity state, and avoid duplicating token refresh, token storage, or interceptor behavior.
+
+### `ST-FE-138` — Hydrate current user through `GET /api/v1/me` after bearer injection exists
+
+- status: `NOT STARTED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+
+### `GATE-FE-T138`
+
+- status_result: `NOT STARTED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- evidence_summary: Future gate evidence must prove `/me` is called through the normal auth transport/generation path, bearer injection comes from `T-FE-025`, current-user/session identity state is established, and token refresh/storage/interceptor behavior is not duplicated.
 
 ### `T-FE-042` — Registration contract clarification
 

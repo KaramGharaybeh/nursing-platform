@@ -1272,6 +1272,32 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Gate evidence covers config tests for prefix/root/origin composition, generated `RequestBuilder` URL composition, generated `ApiConfiguration` DI, no public credential/secret fields, proxy target/path-preservation assertion, full frontend test/lint/style/quality/build verification, and git scope checks.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-019` must not start without its own authorization/eligibility and remains outside this run.
 
+### `T-FE-019` — Problem Details mapping
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-08
+- scope_summary: Implemented the approved non-generated frontend Problem Details mapping boundary only. Added `frontend/src/app/core/api/problem-details.ts` and `frontend/src/app/core/api/problem-details.spec.ts`; did not edit generated client files, backend source, canonical OpenAPI, packages, environment files, auth/interceptors/guards/routing, feature UI, DTO adapters, or T-FE-020 scope.
+- contract_summary: Backend source, backend Problem Details OpenAPI contract tests, generated DTOs, and canonical OpenAPI agree for `ProblemDetails`, `ValidationProblemDetails`, `CodedProblemDetails`, and `RetryableProblemDetails`. Base fields are `type`, `title`, `status`, `detail`, and `traceId`; validation adds `errors: Record<string,string[]>`; coded adds `code`; retryable adds `retryAfterSeconds`. OpenAPI uses flat schemas rather than inheritance composition. Runtime status mirrors HTTP status; backend emits `application/problem+json`; backend does not define `instance`, UI copy, fallback business codes, auth/logout behavior, or retry orchestration in these contracts.
+- mapping_summary: The mapper normalizes unknown generated/error payloads into readonly frontend categories `generic`, `validation`, `coded`, and `retryable`, preserving authoritative fields and extensions where present while safely degrading malformed, nullish, partial, empty-code, and invalid retry metadata payloads without throwing or inventing business semantics. Optional `instance` is tolerated as pass-through only if a payload carries a non-empty string.
+- tdd_summary: Focused TDD red test failed before `problem-details.ts` existed with `Could not resolve "./problem-details"` / `TS2307`; focused green verification then passed 1 file / 13 tests.
+- verification_summary: Muse/free-worker verification passed `npm test -- --watch=false --include='**/problem-details.spec.ts'` (1 file / 13 tests), `npm test -- --watch=false` (6 files / 46 tests), `npm run lint`, `npm run lint:styles`, `npm run quality` including dependency guard and production build, `git diff --check`, empty `git diff --cached --name-status`, and `git status --short` showing only orchestrator-owned `PROGRESS.md` plus the two new T-FE-019 files before final evidence docs. OpenAI final gate performed targeted inspection of the new mapper/test files and git scope.
+- closure_evidence: Gate evidence is sufficient for the C-ERROR contract family: generic, validation, coded, retryable, optional/nullish/unknown handling, source DTO immutability, generated-file boundary, and absence of UI/business behavior are covered. T-FE-019 is closed as `VERIFIED`; T-FE-020 remains not started and requires separate eligibility/authorization.
+
+### `ST-FE-019` — Normalize backend Problem Details variants
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Normalized frontend error model and mapper preserve authoritative base fields, validation errors, backend codes, and retry metadata while degrading incomplete/unknown payloads safely. No UI copy, toast/routing/auth/logout, retry orchestration, or feature-specific business behavior is embedded.
+- closure_evidence: Focused Problem Details unit tests and full frontend quality verification passed; generated files were not edited.
+
+### `GATE-FE-T019`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Gate evidence covers source/OpenAPI contract clarification for all four Problem Details variants, focused unit tests for actual mapping outputs and safety behavior, full frontend test/lint/style/quality/build verification, empty staged area, clean whitespace diff, and generated-file scope protection.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-020` must not start in this run.
+
 ### `T-FE-042` — Registration contract clarification
 
 - status: `VERIFIED`

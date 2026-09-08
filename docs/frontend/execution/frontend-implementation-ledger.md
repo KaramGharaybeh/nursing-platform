@@ -1439,6 +1439,33 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Gate evidence covers refresh concurrency tests and source-boundary checks for shared in-flight operation, token storage update ordering, refresh-token rotation, backend/no-token/storage failure clearing, later retry after success/failure, no retry/backoff, no bearer/interceptor/replay, no `/me`, no route/UI/logout, no direct browser storage, no generated/backend/OpenAPI/package changes, full frontend verification, and git integrity checks.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-025` remains a separate bearer-interceptor task and must not start in this checkpoint.
 
+### `T-FE-025` — Bearer interceptor
+
+- status: `VERIFIED`
+- blocker_types: `SECURITY`
+- evidence_date: 2026-09-09
+- scope_summary: Implemented only the approved bearer-auth interceptor in `frontend/src/app/core/auth/bearer-interceptor.ts`, focused tests in `frontend/src/app/core/auth/bearer-interceptor.spec.ts`, and minimal Angular HTTP provider registration in `frontend/src/app/app.config.ts`. No backend, canonical OpenAPI, generated client, package/dependency, auth transport, token storage, refresh coordinator, session bootstrap, route guard, UI/component, logout, current-user hydration, T-FE-026, T-FE-030, or T-FE-138 files were modified.
+- implementation_summary: `bearerInterceptor` is an Angular functional interceptor. It preserves existing `Authorization` headers, reads the current memory access token only through `TokenStorage.getAccessToken()`, matches eligible application API requests by relative `/api/v1` paths or absolute URLs whose origin matches the configured `ApiConfiguration.rootUrl` and whose path is under `/api/v1`, skips the exact anonymous allowlist, and clones eligible requests with `Authorization: Bearer <accessToken>` only when an access token exists.
+- anonymous_allowlist_summary: Bearer injection is skipped for `POST /api/v1/auth/login`, `POST /api/v1/auth/refresh`, `POST /api/v1/auth/verify-email`, `POST /api/v1/auth/forgot-password`, `POST /api/v1/auth/reset-password`, `GET /api/v1/preparation-packages/offers`, and `GET /api/v1/preparation-packages/offers/{slug}`. Bearer remains allowed for `POST /api/v1/auth/register`, `POST /api/v1/auth/send-verification-email`, `GET /api/v1/me`, and other protected API requests when an access token exists.
+- boundary_summary: The interceptor does not call or import `RefreshCoordinator`, `AuthTransport`, or `HttpClient`; does not handle `401` responses; does not retry or replay requests; does not clear token storage; does not navigate, redirect, or implement logout; does not call `/me` or hydrate current user/roles/permissions; does not implement route guards or UI behavior; does not access `sessionStorage`, `localStorage`, or `globalThis` directly; and does not log token values.
+- tdd_summary: Focused TDD RED failed before implementation with `Could not resolve "./bearer-interceptor"` / `TS2307`, proving the focused spec targeted missing behavior. Focused GREEN passed `npm test -- --watch=false --include=src/app/core/auth/bearer-interceptor.spec.ts` with 1 file / 19 tests.
+- verification_summary: Full frontend verification passed `npm test -- --watch=false` with 12 files / 110 tests, `npm run lint`, `npm run lint:styles`, and `npm run quality` including dependency guard and production build. One lint issue in the new interceptor (`ReadonlyArray<AnonymousRoute>` style) was fixed and `npm run lint` reran clean. Git integrity checks passed: `git diff --check`, empty `git diff --cached --name-status`, `git status --short`, and forbidden-scope diff checks proving no generated/backend/OpenAPI/package/refresh-coordinator/bootstrap/token-storage/auth-transport changes.
+- closure_evidence: Gate evidence is sufficient for T-FE-025 bearer-interceptor-only scope: eligible relative and configured absolute API requests receive bearer when a token exists; arbitrary external absolute URLs containing `/api/v1` remain untouched; no-token requests pass unchanged; anonymous endpoints remain unauthenticated; register/send-verification-email/`/me` receive bearer when token exists; existing `Authorization` is preserved exactly; non-API requests are untouched; no direct browser storage, refresh coordination, 401 handling, replay/retry, `/me` hydration, route/UI/logout behavior, or generated/backend/OpenAPI/package mutation exists. T-FE-025 is closed as `VERIFIED`; T-FE-138 and T-FE-026 remain not started and must not begin in this checkpoint.
+
+### `ST-FE-025` — Implement Bearer interceptor and exclusions
+
+- status: `VERIFIED`
+- blocker_types: `SECURITY`
+- evidence_summary: Subtask implemented a functional bearer interceptor with exact API matching, exact anonymous allowlist, missing-token passthrough, existing-header preservation, and provider registration. Focused tests prove request behavior and security boundaries.
+- closure_evidence: Subtask accepted as complete from focused interceptor tests, full frontend verification, final-gate security/scope review, and git-guardian scope review.
+
+### `GATE-FE-T025`
+
+- status_result: `VERIFIED`
+- blocker_types: `SECURITY`
+- evidence_summary: Gate evidence covers interceptor tests for bearer attachment on eligible protected API requests, relative and configured absolute API URL matching, third-party absolute URL exclusion, missing-token passthrough, exact anonymous endpoint exclusions, register/send-verification-email/`/me` bearer behavior, existing `Authorization` preservation, non-API passthrough, provider registration, no direct browser storage, no refresh/401/retry/replay/logout/route/UI/current-user behavior, no generated/backend/OpenAPI/package changes, full frontend verification, and git integrity checks.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-138` current-user hydration and `T-FE-026` local logout remain separate tasks and must not start in this checkpoint.
+
 ### `T-FE-138` — Authenticated current-user hydration
 
 - status: `NOT STARTED`

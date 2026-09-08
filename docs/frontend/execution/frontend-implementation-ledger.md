@@ -2,7 +2,7 @@
 
 This ledger is the authoritative detailed execution record for `GOAL-FE-001` frontend Goal → Milestone → Task → Subtask → Verification Gate work.
 
-It is a governance and tracking document only. It does not authorize implementation by itself. Every implementation Task still requires explicit approval before work begins.
+It is a governance and tracking document only. It does not authorize implementation by itself. Implementation may proceed only through an explicit task authorization or the Standing Implementation Authorization in this ledger and `docs/development/model-orchestration.md`.
 
 ## 1. Authority
 
@@ -14,6 +14,68 @@ Authoritative frontend rules remain in:
 - canonical backend/OpenAPI contracts under `docs/frontend/design/integration/openapi/`
 
 `PROGRESS.md` remains the concise current-state and handoff memory. This ledger is the detailed implementation roadmap authority.
+
+### Execution authority precedence
+
+When frontend sources conflict, use this precedence for implementation execution and status decisions:
+
+1. Current explicit user or technical-lead decisions.
+2. Current execution state and task/gate authority in this ledger, with `PROGRESS.md` as the concise current-session handoff.
+3. Current frontend architecture and project rules in `docs/frontend/frontend-architecture.md` and `docs/frontend/frontend-project-rules.md`.
+4. Approved design specifications and approved Penpot/design evidence.
+5. Canonical backend/OpenAPI authority for API, validation, auth, authorization, security, and business behavior.
+6. Historical planning, design inventory, evidence packets, trackers, and older prose.
+
+Historical documents remain preserved as evidence, but they do not override newer verified execution state or current repository facts. Older statements such as “frontend workspace is not initialized” are stale for execution once the ledger and repository evidence show a later verified state. If the above precedence cannot resolve a conflict deterministically, STOP and escalate instead of guessing.
+
+### Standing Implementation Authorization
+
+Standing Implementation Authorization replaces the need for a separate user “start this task” message only for ordinary eligible Low/Medium frontend implementation Tasks where **all** of the following are true:
+
+- every predecessor Gate required by the Task is `VERIFIED`;
+- exact Task scope and expected file boundaries are established from current repository authority;
+- no unresolved `DESIGN`, `BACKEND`, `CONTRACT_CLARIFICATION`, `SECURITY`, `DEPENDENCY`, `TOOLING_APPROVAL`, `SCOPE`, `EXTERNAL`, or runtime-deployment decision requires human authority;
+- no missing screen-family approval, per-screen `APPROVED` decision, Penpot/design approval, or visual/source decision is required;
+- no dependency installation/change, database change, migration, backend/OpenAPI mutation, Penpot mutation, CI/tooling approval, or external-provider decision is required;
+- Task risk is Low or Medium under `docs/development/model-orchestration.md`;
+- implementation can stay inside a bounded `ALLOWED_FILES` packet;
+- focused tests/source-contract tests and the Gate's full deterministic evidence can be produced with existing approved tooling.
+
+When those conditions are satisfied, the OpenAI Orchestrator may select the next eligible Task from the DAG, delegate repository-heavy exploration and implementation to the approved non-OpenAI worker pool, run required verification, perform the OpenAI final technical gate, update execution state, and proceed to the next eligible Task without a new per-task start message.
+
+Standing authorization never authorizes staging, committing, pushing, destructive Git operations, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, business/product decisions, or High/High-Precision implementation escalation.
+
+### Automatic Task selection
+
+The Orchestrator must select Tasks by DAG eligibility, not by Task number alone. A Task is eligible only when all declared predecessor Gates are `VERIFIED`, the Standing Implementation Authorization conditions pass, and no blocker type applies. Blocked Tasks do not block unrelated eligible branches unless a declared dependency requires them. Range dependencies such as `GATE-FE-T008..T012` require every Gate in that inclusive range to be `VERIFIED`.
+
+Example: `T-FE-013` must not run while any required predecessor Gate is not `VERIFIED`; in particular, `GATE-FE-T009` remains `BLOCKED`, so `T-FE-013` is not eligible.
+
+### Mandatory human STOP conditions
+
+Continuous execution MUST STOP and ask for user/technical-lead authority when any of these apply:
+
+- a genuine product, business, architecture, UX, visual, or design decision is required;
+- a design value, token, behavior, responsive rule, RTL rule, screen state, component contract, or page/screen approval is missing;
+- screen-family approval is missing, a per-screen decision is not `APPROVED`, or visual/Penpot evidence is required but absent;
+- dependency, package-manager, tooling, CI, E2E, AXE, browser, or external-service approval is required;
+- security, authentication, authorization, payment, entitlement, exam/session/report, file-authorization, privacy, or production-hardening correctness is uncertain;
+- backend source and canonical OpenAPI conflict, or a required API/DTO/error/permission contract cannot be established;
+- database work, migration creation/application, backend mutation, OpenAPI mutation, or Penpot mutation is required;
+- Task scope or `ALLOWED_FILES` cannot be bounded safely;
+- High-risk or High-Precision implementation requires escalation under the orchestration policy;
+- staging, committing, pushing, reset, clean, stash, checkout/restore, or repository-history alteration is requested;
+- repository authority conflicts cannot be resolved deterministically.
+
+Do not self-approve these stops.
+
+### Testing and evidence invariant
+
+Every implementation Task must satisfy its Gate evidence. Where behavior, logic, source contracts, styling contracts, routing, API mapping, security presentation, or error behavior is testable, focused unit/component/source-contract tests are mandatory and must verify behavior or relationships rather than weak string-presence checks. After focused verification, run the applicable full regression/quality/build verification required by the Task/Gate. The worker and Orchestrator must report exact command evidence; tests passing alone is insufficient unless requirement coverage is also checked.
+
+### Usage-efficiency invariant
+
+For normal Low/Medium eligible Tasks, use the efficient path: OpenAI Orchestrator performs compact classification, routing, packet validation, and final gate; Muse Spark 1.3 or the approved free fallback worker performs repository-heavy exploration, implementation, and deterministic verification; OpenAI reviews concise evidence and critical artifacts without repeating broad repository exploration unless a concrete risk, missing evidence, or finding justifies it.
 
 ## 2. Canonical Status and Blocker Model
 
@@ -146,7 +208,7 @@ If this registry summary and canonical OpenAPI differ, canonical OpenAPI/backend
 | `C-NUR-EDU` | `GET/POST /education`, `PUT/DELETE /education/{id}`, create/update request commands, `200/401`, Bearer. |
 | `C-NUR-CERT` | `GET/POST /certificates`, `PUT/DELETE /certificates/{id}`, create/update request commands, `200/401`, Bearer. |
 | `C-NUR-SKILLS-LANG` | `GET/PUT /skills`, `GET/PUT /languages`, update command schemas, `200/401`, Bearer. |
-| `C-NUR-CV` | `GET/POST/DELETE /cv`, upload `multipart/form-data` field `file`, `200/401`, Bearer; constraints require local clarification. |
+| `C-NUR-CV` | `GET/POST/DELETE /api/v1/me/nurse-profile/cv`, Bearer via nurse-profile group `RequireAuthorization()`, POST upload `multipart/form-data` field `file`; source/tests and corrected canonical OpenAPI agree DELETE success is `204 NoContent`. Accepted file constraints: `.pdf`, `.doc`, `.docx`; content types `application/pdf`, `application/msword`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`; max size `5 * 1024 * 1024` bytes; GET/POST return `NurseCvDocumentDto` metadata only. |
 | `C-NUR-CONTACT` | `GET /contact-requests`, `POST /{id}/approve`, `POST /{id}/reject`, `200/401`, Bearer. |
 | `C-EXAM-CATALOG` | `GET /api/v1/exams` `ListExams`; `GET /api/v1/exams/{id}` `GetExam`; `200/401`, Bearer; schemas need local clarification. |
 | `C-EXAM-START` | `POST /api/v1/exams/{id}/sessions`, `StartExamSession`, `200/401`, Bearer. |
@@ -161,7 +223,7 @@ If this registry summary and canonical OpenAPI differ, canonical OpenAPI/backend
 | `C-PAY-ORDERS` | Create/list/detail/cancel nurse payment orders; create request `CreatePaymentOrderRequest`; create success `201 PaymentOrderDto`; errors `400/401/404/409`. |
 | `C-PAY-CHECKOUT` | `POST /orders/{orderId}/checkout`, request `StartPaymentCheckoutRequest`, success `PaymentCheckoutSessionDto`, `409 RetryableProblemDetails`, `503 ProblemDetails`; sandbox complete Development/Test only. |
 | `C-EMP-PROFILE` | Employer profile and organization GET/PUT, update request schemas, `200/401`, Bearer. |
-| `C-EMP-CANDIDATES` | `GET /api/v1/recruitment/candidates`, `ListRecruitmentCandidates`, `200/401`, Bearer; candidate detail absent/clarify locally. |
+| `C-EMP-CANDIDATES` | `GET /api/v1/recruitment/candidates`, `ListRecruitmentCandidates`, Bearer, candidate search/list only; source/OpenAPI expose no candidate detail route such as `/api/v1/recruitment/candidates/{id}` and no candidate-detail DTO. List DTO is `CandidateListItemDto`; detail screen `EMP-005` is backend gap unless a future backend contract is added. |
 | `C-EMP-REQUESTS` | Create/list/detail/cancel recruitment contact requests, create request `CreateContactRequestRequest`, `200/401`, Bearer. |
 | `C-ADM-USERS` | `GET /api/v1/users`, `GET /api/v1/users/{id}`, `200/401`, Bearer; raw JSON sensitive-field verification required. |
 | `C-ADM-EXAM-CATEGORIES` | Admin exam category list/create/get/update/delete/archive/restore, request `CreateAdminExamCategoryRequest`, `UpdateAdminExamCategoryRequest`, `200/401`, Bearer. |
@@ -765,6 +827,8 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - Do not modify completed `VERIFIED` scope unless an approved Task explicitly marks it `REOPENED`.
 - Do not use this ledger to expand task scope during implementation.
 - Do not treat a `NOT STARTED` entry as approval to code.
+- Permanent atomic checkpoint policy: reconcile and commit `PROGRESS.md` plus this ledger first as docs-only `docs(frontend): reconcile implementation ledger state`, then resume `T-FE-017` separately with `services: false` clean regeneration; never mix docs reconciliation with package/generated files in one commit; no push and no history rewrite.
+- Next-step handoff: after the docs-only checkpoint commit, resume `T-FE-017` with `ng-openapi-gen@1.0.5` and `services: false` using the standard function-based generated client from clean generated output; paused partials (`frontend/package.json`, `frontend/package-lock.json`, `frontend/dependency-policy.json`, `frontend/eslint.config.js`, `frontend/src/app/core/api/generated/**`) stay uncommitted until that resume. `T-FE-015`/`T-FE-016` remain `VERIFIED`; no `T-FE-017` verification is claimed.
 
 ## 18. Execution Status Records
 
@@ -1018,3 +1082,560 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `BLOCKED`
 - blocker_types: `DESIGN`
 - evidence_summary: Gate is not ready for Material theme build/CSS evidence because the required design inputs for safe M2 palette construction are absent. `GATE-FE-T009` is not `VERIFIED`.
+
+### `T-FE-010` — Base accessibility styles
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-07
+- implementation_summary: Implemented the bounded base accessibility foundation only: global tokenized `:focus-visible`, `.u-visually-hidden`, `touch-target($mobile: false)` mixin, focused source-contract tests, and global `styles.scss` wiring.
+- verification_summary: OpenAI final-gate evidence passed: `npm test -- --watch=false` passed 2 files / 6 tests, `npm run lint:styles` passed, `npm run quality` passed, `git diff --check` passed, and `git diff --cached --name-status` was empty.
+- integrity_summary: Changed Task files were limited to `frontend/src/styles.scss`, `frontend/src/styles/_accessibility.scss`, `frontend/src/styles/abstracts/_mixins.scss`, and `frontend/src/styles/accessibility.spec.ts`. No staging, commit, push, Material/CDK, accessibility tooling, dependency, backend, OpenAPI, Penpot, `T-FE-011+`, or screen work occurred.
+- closure_evidence: Technical-lead verdict `PASS`; accepted T-FE-010 implementation and verification evidence preserved; Task is closed as `VERIFIED`. Completion commit `cc73fc8 feat(frontend): add accessibility style foundation` (atomic checkpoint; pre-commit "no staging/commit" wording is superseded for this slice).
+
+### `ST-FE-010` — Establish focus/touch/screen-reader utilities
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Focus-visible styling, screen-reader utility, touch-target mixin, focused tests, Stylelint, quality, and diff hygiene passed under OpenAI final gate.
+- closure_evidence: Technical-lead verdict `PASS`; subtask accepted as complete.
+
+### `GATE-FE-T010`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Accessibility utility evidence exists and OpenAI final gate accepted it: focused and full frontend tests, Stylelint, quality/build, `git diff --check`, and no staged files.
+- closure_evidence: Technical-lead review accepted T-FE-010 with verdict `PASS`; Gate is closed as `VERIFIED`. Committed scope `cc73fc8`: `frontend/src/styles.scss`, `frontend/src/styles/_accessibility.scss`, `frontend/src/styles/abstracts/_mixins.scss`, `frontend/src/styles/accessibility.spec.ts`.
+
+### `T-FE-011` — Direction/locale foundation
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-07
+- implementation_summary: Implemented the bounded direction/locale foundation only: initial `<html lang="en" dir="ltr">`, central signal-based locale/direction state, document `lang`/`dir` synchronization, `en -> ltr`, `ar -> rtl`, default `en/ltr`, and temporary `system-ui, sans-serif` font mapping for both locales.
+- verification_summary: OpenAI final-gate evidence passed: focused locale-direction service tests passed 1 file / 10 tests; full frontend tests passed 3 files / 16 tests; `npm run lint:styles`, `npm run quality`, `git diff --check`, package/lock/dependency-policy diff, and `git diff --cached --name-status` passed.
+- integrity_summary: Changed Task files were limited to `frontend/src/index.html`, `frontend/src/app/app.ts`, `frontend/src/app/core/locale/locale-direction.service.ts`, and `frontend/src/app/core/locale/locale-direction.service.spec.ts`. No persistence, CDK/Bidi, translations/i18n, selector UI, full RTL conversion, staging, commit, push, dependency, backend, OpenAPI, Penpot, or `T-FE-012+` work occurred.
+- closure_evidence: Technical-lead verdict `PASS`; accepted T-FE-011 implementation and verification evidence preserved; Task is closed as `VERIFIED`. Completion commit `1b78732 feat(frontend): add locale direction foundation` (atomic checkpoint; pre-commit "no staging/commit" wording is superseded for this slice).
+
+### `ST-FE-011` — Implement document `dir`, direction state, font mapping, bidi checks
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Locale/direction service, document synchronization, focused service tests, full tests, Stylelint, quality, package integrity, and diff hygiene passed under OpenAI final gate.
+- closure_evidence: Technical-lead verdict `PASS`; subtask accepted as complete.
+
+### `GATE-FE-T011`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Direction/font/bidi evidence exists and OpenAI final gate accepted it: focused service tests, full frontend tests, Stylelint, quality/build, package/dependency integrity, `git diff --check`, and no staged files.
+- closure_evidence: Technical-lead review accepted T-FE-011 with verdict `PASS`; Gate is closed as `VERIFIED`. Committed scope `1b78732`: `frontend/src/index.html`, `frontend/src/app/app.ts`, `frontend/src/app/core/locale/locale-direction.service.ts`, `frontend/src/app/core/locale/locale-direction.service.spec.ts`.
+
+### `T-FE-012` — Responsive helpers
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-07
+- implementation_summary: Implemented the bounded minimal responsive foundation only: approved Sass breakpoint map, `respond-from($breakpoint)`, runtime `--np-page-gutter`, `page-gutter` logical mixin, focused source-contract tests, and global `styles.scss` wiring.
+- verification_summary: OpenAI final-gate evidence passed: full frontend tests passed 4 files / 22 tests including `src/styles/responsive.spec.ts` with 6 tests; `npm run lint:styles` passed; `npm run quality` passed including production build; `git diff --check` passed; `git diff --cached --name-status` was empty. Focused file filtering with `--watch=false src/styles/responsive.spec.ts` is unsupported by the current Angular builder and failed before final full-suite verification.
+- integrity_summary: Changed Task files were limited to `frontend/src/styles.scss`, `frontend/src/styles/_responsive.scss`, `frontend/src/styles/abstracts/_responsive.scss`, and `frontend/src/styles/responsive.spec.ts`. No unapproved breakpoint, extra gutter, container/readable max-width, broad utility framework, physical-direction CSS, dependency, backend, OpenAPI, Penpot, `T-FE-013`, `T-FE-014`, staging, commit, or push occurred.
+- closure_evidence: Technical-lead verdict `PASS`; accepted T-FE-012 implementation and verification evidence preserved; Task is closed as `VERIFIED`. Completion commit `67dd5eb feat(frontend): implement responsive helpers` (atomic checkpoint; pre-commit "no staging/commit" wording is superseded for this slice).
+
+### `ST-FE-012` — Implement breakpoint/gutter/logical layout helpers
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Breakpoint map, `respond-from`, page gutter custom property, `page-gutter`, source-contract tests, full tests, Stylelint, quality/build, and diff hygiene passed under OpenAI final gate.
+- closure_evidence: Technical-lead verdict `PASS`; subtask accepted as complete.
+
+### `GATE-FE-T012`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Responsive/logical CSS evidence exists and OpenAI final gate accepted it: full frontend tests, Stylelint, quality/build, source-contract tests for breakpoint/gutter/helper/wiring/physical-direction invariants, `git diff --check`, and no staged files.
+- closure_evidence: Technical-lead review accepted T-FE-012 with verdict `PASS`; Gate is closed as `VERIFIED`. Committed scope `67dd5eb`: `frontend/src/styles.scss`, `frontend/src/styles/_responsive.scss`, `frontend/src/styles/abstracts/_responsive.scss`, `frontend/src/styles/responsive.spec.ts`.
+
+### `T-FE-015` — API generator spike
+
+- status: `VERIFIED`
+- blocker_types: `TOOLING_APPROVAL`,`CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-07
+- scope_summary: Completed bounded isolated generator spike only against canonical OpenAPI `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json`. Generated output stayed outside the repository at `/home/karam/.local/share/opencode/tool-output/t-fe-015-api-generator-spike/`; no generated client was integrated, no dependency was permanently installed, and no backend/OpenAPI/frontend package/config/source mutation was made for the spike.
+- orchestration_note: Initial delegated Muse attempt was blocked by an OpenCode permission rejection for its compound shell inspection command. OpenAI performed the remaining direct, targeted tooling evidence collection under the permitted direct-execution exception for approved-worker permission blockage; repository-heavy implementation was not started.
+- candidate_summary: Candidate tested was `ng-openapi-gen@1.0.5`. `--help` identifies it as an Angular 16+ OpenAPI 3.0/3.1 client generator; `--version` returned `1.0.5`. Generation command used `--services true --promises false --module false --index-file true --enum-style alias --use-temp-dir true`.
+- generation_summary: Two isolated generation runs completed into `run1` and `run2`. Both emitted `269` TypeScript files and identical aggregate SHA-256 `89bf7a43026d1c21777646233e0f457d923f543d81542fedf8874b82ce2f1887`; `diff -qr run1 run2` produced no output. Generator warnings were limited to the canonical root `/.get` operation missing `operationId` (generator assumed `get`) and `HttpValidationProblemDetails` ignored as unused.
+- contract_fit_summary: Generated output creates injectable Angular services plus functional request helpers and a root `ApiConfiguration`; CV multipart upload is represented as `body: { file: Blob }` with `multipart/form-data`; nullable optional OpenAPI fields are represented as optional properties with `(T | null)` where applicable; Problem Details variants generated as typed interfaces including `ProblemDetails`, `ValidationProblemDetails`, `CodedProblemDetails`, and `RetryableProblemDetails`. Bearer/security is not embedded in generated calls, which keeps auth header injection owned by future frontend interceptors. Numeric backend enums currently generate as numeric aliases such as `export type PaymentOrderStatus = number`, so user-facing enum label mapping remains an adapter/UI concern if this generator is approved.
+- verification_summary: Help/version/generation/determinism commands were executed. An attempted isolated TypeScript syntax/type check failed inconclusively because the generated files live outside the Angular workspace and TypeScript module resolution could not resolve `@angular/*` and `rxjs` from that external path without copying/integrating generated files; no repository copy/integration was performed because T-FE-015 forbids adoption/integration.
+- recommendation_for_t_fe_016: Candidate is viable for approval consideration only with an explicit T-FE-016 decision on exact version, generated-client destination, command/config file, root URL policy, generated-code lint policy, enum-label adapter policy, and auth/ProblemDetails adapter boundaries. Do not proceed to T-FE-016 without technical-lead tooling approval.
+- exclusion_summary: No permanent dependency installation, no `frontend/package.json` or `frontend/package-lock.json` mutation, no `frontend/dependency-policy.json` mutation, no generated client integration, no backend or canonical OpenAPI mutation, no Penpot/design mutation, no staging, no commit, and no push occurred.
+- closure_evidence: Technical-lead verdict `PASS` accepted the bounded isolated spike evidence (`ng-openapi-gen@1.0.5`, deterministic two-run generation, no integration/install/mutation); Task is closed as `VERIFIED`. No T-FE-016 approval scope was executed by this closure.
+
+### `ST-FE-015` — Spike generator against canonical OpenAPI critical contracts
+
+- status: `VERIFIED`
+- blocker_types: `TOOLING_APPROVAL`,`CONTRACT_CLARIFICATION`
+- evidence_summary: `ng-openapi-gen@1.0.5` generated deterministic isolated Angular TypeScript output for the canonical OpenAPI snapshot; critical evidence covers output determinism, Angular service/helper structure, multipart `file: Blob`, Problem Details interfaces, nullable fields, non-embedded Bearer auth, and numeric enum aliases. T-FE-016 must decide whether to approve/adopt this generator and its configuration.
+- closure_evidence: Technical-lead verdict `PASS` on the parent `T-FE-015` spike; subtask accepted as complete and closed as `VERIFIED`.
+
+### `GATE-FE-T015`
+
+- status_result: `VERIFIED`
+- blocker_types: `TOOLING_APPROVAL`,`CONTRACT_CLARIFICATION`
+- evidence_summary: Generator spike report is recorded for technical-lead review. The spike is isolated and reversible, deterministic across two runs, and identifies adoption decisions required before `T-FE-016`: exact generator/version/config/location, generated-client Git policy, enum adapter policy, auth interceptor boundary, Problem Details normalization boundary, and generated-code lint/format policy.
+- closure_evidence: Technical-lead verdict `PASS` on the spike report; Gate is closed as `VERIFIED`. `T-FE-016` approval decisions are recorded below and remain subject to OpenAI final gate.
+
+### `T-FE-016` — API generator approval
+
+- status: `VERIFIED`
+- blocker_types: `TOOLING_APPROVAL`
+- evidence_date: 2026-09-07
+- approval_reference: Technical-lead tooling approval of exact preferred generator `ng-openapi-gen@1.0.5` via packet `FE-T016-CONTRACT-2026-09-07`; minimum targeted repository inspection only; no full spike rerun. Recorded for OpenAI final gate. Later correction approval supersedes the original `services: true` output-shape only; `T-FE-018` is not approved by this record.
+- generator_version: Exact `ng-openapi-gen@1.0.5` only, as a `frontend` devDependency to be added by `T-FE-017` through the approved dependency-policy change process. No install, package, lockfile, or dependency-policy change was made by `T-FE-016`.
+- canonical_input: `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json` (repo-relative; verified present). `T-FE-017` must run from `frontend/` with input `../docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json`. No canonical OpenAPI mutation is authorized.
+- output_location: `frontend/src/app/core/api/generated/` (repo-relative; the single isolated generated-code directory under Core API infrastructure, consistent with the `core`/`shared`/`features` ownership boundaries and the centralized-API rule). No other generated location is authorized. Existing paused generated output from the failed `services: true` attempt must be cleaned/replaced during the approved `services: false` resume; it is not verified and must not be manually edited.
+- configuration_shape: Authoritative corrected CLI options for resume: `--services false --promises false --module false --index-file true --enum-style alias --use-temp-dir true`, plus explicit `--input`/`--output` above. This supersedes only the original spike-tested `--services true` option that produced uncompilable service facades; all other generator/version/input/output/manual-edit/drift/interceptor/adapter boundaries remain unchanged. If the generator schema rejects any key, `T-FE-017` must STOP rather than guess a substitute.
+- npm_invocation: `T-FE-017` must add and use script `generate:api` run from `frontend/` as `npm run generate:api`, mapped to `ng-openapi-gen --input ../docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json --output src/app/core/api/generated --services false --promises false --module false --index-file true --enum-style alias --use-temp-dir true`. Pinned executable `ng-openapi-gen@1.0.5` only; npm is the only approved package manager.
+- root_url_policy: Generation must not bake environment URLs or secrets. `ApiConfiguration.rootUrl` is set at runtime by `T-FE-018`; no hardcoded production URL in generated code or config.
+- lint_policy: `T-FE-017` must record the generated-directory exclusion from `lint`/`lint:styles`/formatter scope; type-safety of generated output is proven via build (`npm run build`), not via lint of generated files.
+- git_policy: Generated output under `frontend/src/app/core/api/generated/**` is tracked in Git (no `.gitignore` entry); regeneration from the same canonical snapshot must be byte-identical.
+- regeneration_drift_policy: Regenerate only from the canonical snapshot above. `T-FE-017` gate must prove determinism (two-run `diff -qr` clean with matching aggregate checksum, or regen-to-temp diff against committed output with no differences). A canonical OpenAPI change requires a new approved task; never silently regenerate. Drift fails the gate.
+- manual_edit_prohibition: Files under `frontend/src/app/core/api/generated/` must never be edited manually. Fixes go through generator config or thin adapters; a required hand-edit means STOP and escalate.
+- integration_boundary: Generated services/helpers/models plus root `ApiConfiguration` stay isolated with no component, feature-state, interceptor, guard, or business-logic concerns. Bearer/token injection stays out of generated calls and belongs to the future functional interceptor chain (`T-FE-025`); Problem Details normalization belongs to `T-FE-019`; DTO adaptation belongs to thin feature adapters (`T-FE-020`); numeric enum aliases stay as generated, with user-facing labels mapped in adapters/UI. Generated output that misrepresents the canonical contract causes STOP AND ESCALATE.
+- exclusion_summary: No dependency install, no `frontend/package.json`/`frontend/package-lock.json`/`frontend/dependency-policy.json` mutation, no generation run, no generated-client integration, no backend/OpenAPI mutation, no application feature implementation, no staging, no commit, and no push occurred.
+- evidence_summary: Approval contract above is exact enough for `T-FE-017` to generate without guessing: generator/version, config shape, input, output, invocation, root-URL, lint, Git, drift, manual-edit, and interceptor/adapter boundaries are all fixed, with STOP rules for schema mismatch, drift, and contract misrepresentation. Muse/free-worker-first routing is preserved.
+- correction_approval: Technical lead approved correction option 1 for the `T-FE-017` resume: revise generation from `services: true` to `services: false` and resume with the standard function-based client output. No backend/OpenAPI mutation, no custom templates, and no manual generated-file edits are authorized. The original `services: true` attempt remains historical evidence for the blocker; the corrected `services: false` configuration above is authoritative for resume. `T-FE-016` remains `VERIFIED`; `T-FE-017` remains `BLOCKED`/paused until resumed.
+
+### `ST-FE-016` — Record exact generator/version/config approval
+
+- status: `VERIFIED`
+- blocker_types: `TOOLING_APPROVAL`
+- evidence_summary: Exact approval recorded under `T-FE-016`: `ng-openapi-gen@1.0.5`, corrected `services: false` CLI shape for resume, canonical input path, isolated output `frontend/src/app/core/api/generated/`, reproducible `generate:api` invocation, runtime root-URL policy, generated-code lint exclusion, tracked-Git with byte-identical drift policy, manual-edit prohibition, and interceptor/adapter boundaries for `T-FE-019`/`T-FE-020`/`T-FE-025`.
+- closure_evidence: Approval record is complete and suitable for `T-FE-017` execution; subtask closed as `VERIFIED` subject to OpenAI final gate. No generation, install, or integration was performed.
+
+### `GATE-FE-T016`
+
+- status_result: `VERIFIED`
+- blocker_types: `TOOLING_APPROVAL`
+- evidence_summary: Generator approval record exists with exact version, configuration, locations, invocation, and policies sufficient for `T-FE-017` isolated generation without guessing and without manual edits.
+- closure_evidence: Gate is closed as `VERIFIED` subject to OpenAI final gate; `T-FE-017` is currently `BLOCKED`/paused after the failed `services: true` attempt, with approved resume path `services: false`, and must enforce clean regeneration, determinism/drift, build, and no-manual-edit gates.
+
+### `T-FE-017` — Generate isolated API client
+
+- status: `BLOCKED`
+- blocker_types: `TOOLING_APPROVAL`,`CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-07
+- scope_summary: Began isolated generated-client task after `T-FE-016` approval. Added exact approved `ng-openapi-gen@1.0.5` devDependency declaration, `generate:api` script, dependency-policy entry, package-lock resolution, generated output under `frontend/src/app/core/api/generated/`, and generated-directory ESLint ignore. No generated file was manually edited; no backend/OpenAPI mutation, API infrastructure, app feature implementation, staging, commit, or push occurred.
+- orchestration_note: Muse and Big Pickle worker attempts hit permission limits (`node --version` / `npm install` denied). OpenAI performed the direct continuation under the model-orchestration permission-blockage exception because approved non-OpenAI routes could not complete the required dependency/install/generation commands.
+- generation_summary: `npm run generate:api` completed twice from `frontend/` using canonical input `../docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json`. Output contains `269` TypeScript files under the approved generated directory. Aggregate checksum after first and second generation was identical: `89bf7a43026d1c21777646233e0f457d923f543d81542fedf8874b82ce2f1887`.
+- verification_summary: `npm install` completed with 14 packages added, 721 audited, 0 vulnerabilities. `npm run check:dependencies` passed. Initial `npm run lint` produced 77 generated-file warnings for unused generator `/* eslint-disable */`; adding an ESLint ignore for `src/app/core/api/generated/**` made `npm run lint` pass. `npm test -- --watch=false` passed 4 files / 22 tests. `npm run build` failed on generated service code before `npm run quality` could be meaningfully accepted.
+- blocker_summary: With the exact `T-FE-016` approved `--services true` configuration, `ng-openapi-gen@1.0.5` emits `services/NursingPlatform/nursing-platform-web-api.service.ts` from the OpenAPI tag containing `NursingPlatform/WebApi`. That nested service imports `BaseService`, `ApiConfiguration`, `StrictHttpResponse`, functions, and models with `../...` paths as if it were only one level deep, causing Angular/TypeScript build failures such as `TS2339: Property 'http' does not exist on type 'NursingPlatformWebApiService'` and `TS2339: Property 'rootUrl' does not exist on type 'NursingPlatformWebApiService'`. This cannot be corrected without either changing the approved generator configuration/output semantics, changing canonical OpenAPI tags, or manually editing generated files.
+- required_human_decision: Choose the next approved path before continuing: (A) revise `T-FE-016` to generate function-only client output with `--services false` and no service facades, preserving generated models/functions and future adapter/interceptor boundaries; (B) authorize a backend/canonical OpenAPI tag correction or sanitized generation input so service facades compile; or (C) authorize a custom generator template/config strategy. Manual edits to generated output remain prohibited.
+- exclusion_summary: `T-FE-018` was not started. No API base/config runtime wiring, interceptors, adapters, guards, component/feature code, backend source, canonical OpenAPI, Penpot/design source, staging, commit, or push occurred.
+- resume_approval: Technical lead approved correction option 1 for resume: regenerate with `services: false` as the standard function-based client from clean generated output, with no backend/OpenAPI mutation, no custom templates, and no manual generated-file edits.
+- checkpoint_note: `T-FE-017` remains `BLOCKED`/paused with partial package/config/generated work (`frontend/package.json`, `frontend/package-lock.json`, `frontend/dependency-policy.json`, `frontend/eslint.config.js`, `frontend/src/app/core/api/generated/**`) uncommitted by design. No `T-FE-017` verification is claimed. Permanent atomic checkpoint policy applies: reconcile and commit `PROGRESS.md` plus this ledger first as docs-only `docs(frontend): reconcile implementation ledger state`, then resume `T-FE-017` separately; never mix docs reconciliation with package/generated files in one commit; no push and no history rewrite.
+
+### `ST-FE-017` — Generate isolated client and drift check
+
+- status: `BLOCKED`
+- blocker_types: `TOOLING_APPROVAL`,`CONTRACT_CLARIFICATION`
+- evidence_summary: Generation and two-run checksum determinism succeeded, but build verification failed with generated `--services true` service-facade path/type errors. Subtask cannot close until the approved generation contract is revised or canonical OpenAPI/tag/template strategy is explicitly authorized.
+
+### `GATE-FE-T017`
+
+- status_result: `BLOCKED`
+- blocker_types: `TOOLING_APPROVAL`,`CONTRACT_CLARIFICATION`
+- evidence_summary: Gate cannot pass because `npm run build` fails on generated service-facade output from the exact T-FE-016 configuration. Human decision required before repair; do not proceed to `T-FE-018`.
+
+### `T-FE-042` — Registration contract clarification
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-07
+- scope_summary: Completed local source/OpenAPI inspection only for registration auth/public behavior. No screen implementation, frontend application code, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- contract_summary: `POST /api/v1/auth/register` maps to operation/name `RegisterUser`, accepts `RegisterUserRequest` with `email`, `password`, `firstName`, `lastName`, and `roleIds`, sends `RegisterUserCommand`, and returns `200 OK` with `RegisterUserResponse { userId }` from backend source/tests. Runtime authorization is permission-protected through `RequirePermission(Permissions.Users.Create)`, not public: unauthenticated requests return `401`, authenticated requests without `Users.Create` return `403`, and authorized requests return `200`.
+- validation_summary: Application validator requires non-empty valid email, password non-empty/min length 8/uppercase/digit, first/last name non-empty with max length 100, non-empty role IDs, and no duplicate role IDs.
+- openapi_alignment: Canonical OpenAPI records `POST /api/v1/auth/register`, operationId `RegisterUser`, request schema `RegisterUserRequest`, `200`, `401`, and Bearer security. OpenAPI omits the runtime `403` permission response and omits the `200` response body schema; backend source and tests establish those details for frontend planning.
+- verification_summary: Targeted read-only inspection covered `backend/src/NursingPlatform.WebApi/Extensions/ApplicationBuilderExtensions.cs`, registration request/command/validator/response files, `backend/tests/NursingPlatform.WebApi.Tests/IntegrationTests/RegisterEndpointTests.cs`, and canonical OpenAPI `development-openapi-2026-09-03.json` registration operation/schema.
+- closure_evidence: Local contract clarification evidence is deterministic and sufficient; `GATE-FE-T042` is closed as `VERIFIED`.
+
+### `ST-FE-042` — Clarify RegisterUser auth/public behavior
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Registration is permission-protected by `Users.Create`, not anonymous/public. Source/tests prove `401` unauthenticated, `403` authenticated without permission, and `200` authorized with `RegisterUserResponse { userId }`. OpenAPI metadata omissions are recorded.
+- closure_evidence: Subtask accepted as complete from local source/OpenAPI inspection evidence.
+
+### `GATE-FE-T042`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Register clarification evidence is recorded: backend endpoint mapping, permission requirement, request/response contract, validation constraints, integration-test authorization behavior, and OpenAPI metadata comparison.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream registration screen tasks remain separately blocked by their own dependencies, design/screen approval gates, and form-validation prerequisites.
+
+### `T-FE-046` — Verification email contract clarification
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-07
+- scope_summary: Completed local source/OpenAPI inspection only for send-verification-email and verify-email behavior. No screen implementation, frontend application code, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- contract_summary: `POST /api/v1/auth/send-verification-email` maps to operation/name `SendVerificationEmail`, has no request body, is authenticated-only via `RequireAuthorization()`, returns `401` without a bearer token, and returns `200 OK` with `SendVerificationEmailResponse { message }` when authenticated. `POST /api/v1/auth/verify-email` maps to operation/name `VerifyEmail`, accepts `VerifyEmailRequest { token }`, is anonymous/public via `AllowAnonymous()`, and returns `200 OK` with `VerifyEmailResponse { message }` without exposing the raw token in success JSON.
+- validation_error_summary: `VerifyEmailCommandValidator` requires non-empty `Token`; validation exceptions map to `400 Validation failed`. Send-verification unauthenticated/missing/inactive user throws `UnauthorizedAccessException` and maps to `401`. Send mail failure and invalid/used/expired verification tokens throw `InvalidOperationException` and map to `409 Conflict` through the current middleware.
+- openapi_alignment: Canonical OpenAPI records `SendVerificationEmail` with Bearer security, `200`, and `401`, and records `VerifyEmail` with request schema and `200`. OpenAPI omits source/test response schemas for both endpoints, omits send-verification `409`, and omits verify-email validation/conflict error statuses; backend source and tests establish those details for frontend planning.
+- verification_summary: Targeted read-only inspection covered `backend/src/NursingPlatform.WebApi/Extensions/ApplicationBuilderExtensions.cs`, send/verify request/command/validator/handler/response files, `backend/tests/NursingPlatform.WebApi.Tests/IntegrationTests/SendVerificationEmailEndpointTests.cs`, `backend/tests/NursingPlatform.WebApi.Tests/IntegrationTests/VerifyEmailEndpointTests.cs`, `backend/src/NursingPlatform.WebApi/Middleware/ExceptionMiddleware.cs`, and canonical OpenAPI `development-openapi-2026-09-03.json` send/verify operations/schemas.
+- closure_evidence: Local contract clarification evidence is deterministic and sufficient; `GATE-FE-T046` is closed as `VERIFIED`.
+
+### `ST-FE-046` — Clarify send/verify email behavior
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Send-verification-email is authenticated-only and returns `{ message }`; verify-email is anonymous/public, requires `token`, returns `{ message }`, maps empty token to `400`, maps invalid/used/expired token to `409`, and must not expose the raw token in success JSON. OpenAPI metadata omissions are recorded.
+- closure_evidence: Subtask accepted as complete from local source/OpenAPI inspection evidence.
+
+### `GATE-FE-T046`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Verification-email clarification evidence is recorded: backend endpoint mapping, auth requirements, request/response contracts, validation/error behavior, integration-test behavior, and OpenAPI metadata comparison.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream email-verification screen tasks remain separately blocked by their own dependencies, design/screen approval gates, and visual evidence prerequisites.
+
+### `T-FE-054` — Account inactive contract clarification
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-07
+- scope_summary: Completed local source/OpenAPI inspection only for login/current-user inactive account state. No screen implementation, frontend application code, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- contract_summary: No stable coded inactive-account contract exists for login or current-user. `POST /api/v1/auth/login` is anonymous/public via `AllowAnonymous()` and maps inactive users to generic `401 Unauthorized` with message `Invalid credentials.`, indistinguishable from missing user or wrong password. `GET /api/v1/me` is authenticated via `RequireAuthorization()` and does not reject inactive users in the source handler; `isActive` is a passive field in the `200 OK` `UserDetailDto` projection.
+- error_summary: `UnauthorizedAccessException` maps to plain `401` Problem Details without a `code` field. `GET /api/v1/me` maps missing current-user identity to `401` and missing user row to `404`; no inactive-specific status or coded problem details are used for login/current-user.
+- openapi_alignment: Canonical OpenAPI records login request and `200` only, and records `/api/v1/me` `200`/`401` Bearer only. OpenAPI omits login errors/response schema and `/me` response schema/`404`; backend source/tests establish the runtime details. No unresolvable source/OpenAPI conflict was found.
+- verification_summary: Canonical Muse scout plus OpenAI final review inspected login/current-user endpoint mappings, login/current-user handlers and DTOs, exception middleware/problem details contracts, application and WebApi tests, domain `User.IsActive`, canonical OpenAPI login/`/me` sections, and negative searches for inactive/account-inactive coded contracts.
+- closure_evidence: Local account-inactive clarification evidence is deterministic and sufficient; `GATE-FE-T054` is closed as `VERIFIED`. `T-FE-055` / `AUTH-012 Account Inactive` remains blocked by `BACKEND`, `CONTRACT_CLARIFICATION`, and `DESIGN` until a stable backend inactive-account contract and screen approval exist.
+
+### `ST-FE-054` — Clarify account inactive coded state
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: No coded inactive-account state exists. Login inactive uses generic invalid-credentials `401`; current-user exposes passive `isActive` but does not reject inactive users. OpenAPI metadata omissions are recorded.
+- closure_evidence: Subtask accepted as complete from local source/OpenAPI inspection evidence.
+
+### `GATE-FE-T054`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Account-inactive clarification evidence is recorded: login/current-user endpoint mapping, auth requirements, runtime inactive behavior, error mapping, tests, negative coded-contract search, and OpenAPI metadata comparison.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-055` remains backend/design blocked and must not implement Account Inactive UX from generic `401` or passive `isActive` alone.
+
+### `T-FE-063` — CV contract clarification
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical Muse read-only scout inspected CV source/tests/OpenAPI for local clarification. No screen implementation, frontend application code, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- deterministic_source_summary: Backend source/tests establish `/api/v1/me/nurse-profile/cv` GET/POST/DELETE under authenticated nurse-profile scope, POST multipart field `file`, allowed content types `application/pdf`, `application/msword`, and `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, allowed extensions `.pdf`, `.doc`, `.docx`, max file size `5 * 1024 * 1024` bytes, metadata DTO response for GET/POST, replace-on-upload semantics, no file-bytes download endpoint, and runtime handling for validation/authorization/not-found conflicts.
+- openapi_correction: Technical lead authorized canonical OpenAPI correction after re-confirming backend source, endpoint metadata, success result, and automated tests. The affected operation only, DELETE `/api/v1/me/nurse-profile/cv`, was corrected from `200 OK` to `204 No Content` and committed via `7f07b26 docs(frontend): correct nurse CV OpenAPI delete status` (scope: `docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json` only); OpenAPI JSON validation passed and diff was limited to that operation. No backend runtime change.
+- closure_evidence: CV contract clarification is deterministic and sufficient after OpenAPI correction committed via `7f07b26`; `GATE-FE-T063` is closed as `VERIFIED`.
+
+### `ST-FE-063` — Clarify CV file constraints
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Source/test file constraints were deterministically identified, and canonical OpenAPI now matches runtime/test DELETE `204 NoContent` after the authorized operation-only correction.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test evidence.
+
+### `GATE-FE-T063`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: CV constraints evidence is recorded and canonical OpenAPI now matches backend source/tests for DELETE success status (`204 NoContent`).
+- closure_evidence: Gate is closed as `VERIFIED` after the authorized operation-only OpenAPI correction committed via `7f07b26`; downstream CV management remains separately subject to its own dependencies, screen approval, upload pattern gate, and visual evidence requirements.
+
+### `T-FE-066` — Exam catalog/detail contract clarification
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical Muse read-only scout inspected exam catalog/detail source/tests/OpenAPI. No screen implementation, frontend application code, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- contract_summary: `GET /api/v1/exams` maps to `ListExams` and returns `PaginatedResult<ExamCatalogItemDto>`; `GET /api/v1/exams/{id}` maps to `GetExam` and returns `ExamDetailDto`. Both endpoints use `RequireAuthorization()` only, with no permission requirement. List parameters are `page`, `pageSize`, `countryId`, and `categoryId`; validators enforce page `>= 1` and page size `1..100`.
+- field_summary: Catalog items expose `id`, `title`, `description`, `countryId`, `countryName`, `categoryId`, `categoryName`, `durationMinutes`, `questionCount`, `passingScorePercentage`, `isFree`, and `canStart`. Detail adds `instructions`. Access/entitlement presentation fields are limited to `isFree` and `canStart`; no entitlement IDs, product pricing, attempt/session/report rights, questions, answers, correctness, rationales, explanations, or answer keys are exposed by catalog/detail DTOs.
+- behavior_summary: Catalog filters to published exams with latest published versions and only returns startable items (`canStart` true); paid exams without a valid grant are omitted from the list while detail may return `isFree: false` and `canStart: false`. Ordering is deterministic by country/category/title/id; pagination applies after filtering.
+- openapi_alignment: Canonical OpenAPI records routes, operationIds, parameters, Bearer security, and `200`/`401`; it omits response schemas and runtime `400`/`404` metadata. Backend source/tests provide deterministic source-authoritative schemas and behavior; no unresolvable backend/OpenAPI conflict was found.
+- closure_evidence: Exam catalog/detail clarification evidence is deterministic and sufficient; `GATE-FE-T066` is closed as `VERIFIED`.
+
+### `ST-FE-066` — Clarify exam catalog/detail response schemas and access fields
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Source/test-backed catalog/detail DTO fields, auth requirements, list filters, pagination behavior, access flags, sensitive-content non-exposure, and OpenAPI metadata omissions are recorded.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test evidence.
+
+### `GATE-FE-T066`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Exam catalog/detail schema clarification evidence is recorded: routes, authorization, request parameters, DTO fields, pagination/access behavior, status/error handling, sensitive-content boundary, tests, and OpenAPI metadata comparison.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream exam screens remain separately subject to route/pagination/screen approval and visual evidence gates.
+
+### `T-FE-080` — PP material reader classification
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical Muse read-only scout inspected preparation-package learner material reader/download/delivery contracts and admin material-management contracts. No screen implementation, frontend application code, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- classification_summary: No contract-backed frontend material reader can be implemented now. Backend/OpenAPI expose nurse preparation-package entitlement, exam-session, practice-progress, answer submission, and report endpoints, but no learner material read/download/delivery endpoint. Admin study-material endpoints exist only for authoring/management and are protected by `StudyMaterials.Manage`; they do not authorize nurse learner delivery.
+- evidence_summary: Canonical OpenAPI contains exactly the nurse preparation-package entitlement/exam/practice/report paths and admin preparation-package material-management paths, with no nurse material/content/download path. Backend tests explicitly assert attempted nurse/anonymous material content route returns `404`.
+- closure_evidence: Classification is complete and verified as backend gap / no implementation. Downstream material-reader UI remains out of scope until backend provides a learner material delivery contract and screen approval.
+
+### `ST-FE-080` — Classify material reader backend availability
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Learner material read/download/delivery contract is absent; admin authoring endpoints and entitlement material IDs are not reader contracts.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test evidence.
+
+### `GATE-FE-T080`
+
+- status_result: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Material-reader classification evidence is recorded: learner route absence, admin authoring distinction, entitlement DTO limitations, negative route test, OpenAPI consistency, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; no material reader is implemented.
+
+### `T-FE-093` — Candidate detail contract clarification
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`BACKEND`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical Muse scout plus targeted OpenAI read-only review inspected recruitment candidate source/tests/OpenAPI. No screen implementation, frontend application code, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- classification_summary: Employer candidate search/list exists, but candidate detail is a backend gap. Source/OpenAPI expose `GET /api/v1/recruitment/candidates` only for candidates; no `CandidateDetail`, `GetCandidateDetail`, `GetCandidateById`, or `/api/v1/recruitment/candidates/{id}` route/DTO/test exists.
+- evidence_summary: Candidate list response uses source DTO `CandidateListItemDto` and tests verify sensitive fields are not exposed in list JSON. Canonical OpenAPI records only the list path and parameters; grep for `recruitment/candidates/` returns no detail path.
+- closure_evidence: Classification is complete and verified as backend gap / no detail implementation. `EMP-005` and downstream candidate profile/request work remain blocked until backend provides a candidate detail contract and screen approval.
+
+### `ST-FE-093` — Clarify candidate detail availability
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`BACKEND`
+- evidence_summary: Candidate detail route/DTO is absent; only candidate search/list is contract-backed.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test evidence.
+
+### `GATE-FE-T093`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`BACKEND`
+- evidence_summary: Candidate detail classification evidence is recorded: source/OpenAPI route absence, list-only DTO evidence, negative detail-route search, sensitive-field list tests, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; candidate detail screen work remains blocked.
+
+### `T-FE-099` — ACC-003 change password classification
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical Muse read-only scout plus targeted OpenAI read-only review inspected auth/account/me source/tests/OpenAPI for authenticated account change-password availability. No frontend implementation, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- classification_summary: ACC-003 authenticated change-password is a backend gap. Source/OpenAPI expose anonymous forgot/reset password flows, but no authenticated user change-password route/command/request exists.
+- evidence_summary: `ApplicationBuilderExtensions` maps `/api/v1/auth/forgot-password` and `/api/v1/auth/reset-password` as anonymous auth recovery flows and maps `/api/v1/me` as authenticated current-user read only. `ResetPasswordRequest` requires `email`, `token`, and `newPassword`, proving reset-by-token rather than current-password change. Source grep found no `ChangePassword`, `CurrentPassword`, `/me/password`, `/account/password`, `change-password`, or `update-password` backend endpoint/command. Canonical OpenAPI contains `/api/v1/auth/reset-password` but no change-password/current-password route.
+- closure_evidence: Classification is complete and verified as backend gap / no implementation. `ACC-003` remains blocked until backend provides an authenticated change-password contract and account screen approval.
+
+### `ST-FE-099` — Classify `ACC-003` Change Password
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Authenticated current-user change-password contract is absent; token-based reset-password is not an ACC-003 change-password contract.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI evidence.
+
+### `GATE-FE-T099`
+
+- status_result: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Change-password classification evidence is recorded: anonymous reset route distinction, authenticated `/me` read-only route, negative backend route/command search, OpenAPI route absence, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; change-password UI remains blocked.
+
+### `T-FE-100` — ACC-004 sessions classification
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical Muse read-only scout inspected auth/account/session/security/device source, tests, and canonical OpenAPI for account security/session-management availability. No frontend implementation, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- classification_summary: ACC-004 account security/sessions/device-management is a backend gap. No stable coded backend/OpenAPI contract exists for active sessions, user-visible session detail, session revocation, logout-all/revoke-all, trusted devices, device list/management, MFA, or account-security preferences.
+- evidence_summary: `ApplicationBuilderExtensions` maps only auth primitives (`login`, `refresh`, `register`, `send-verification-email`, `verify-email`, `forgot-password`, `reset-password`) plus authenticated `GET /api/v1/me`; it does not map account session/device/security routes. `GetCurrentUser` returns identity/status/role/permission fields only. Refresh-token persistence/rotation/reuse revocation is server-internal token hygiene, not a user-visible session-management API. Canonical OpenAPI contains auth and `/api/v1/me` operations plus exam-session domain routes, but no `/api/v1/me/sessions`, `/api/v1/me/devices`, `/api/v1/me/security`, `/api/v1/account/*session*`, logout, revoke, active-sessions, trusted-devices, MFA, or account-security schema.
+- closure_evidence: Classification is complete and verified as backend gap / no implementation. `ACC-004` remains blocked until backend provides a session/security/device-management contract and account screen approval. Do not infer ACC-004 UX from refresh tokens, JWT claims, `/me` passive fields such as `LastLoginAt` or `IsActive`, generic `401/403`, or exam-session routes.
+
+### `ST-FE-100` — Classify `ACC-004` Security/Sessions
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Account security/session/device-management contract is absent; refresh-token internals and exam-session routes are not ACC-004 contracts.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test search evidence.
+
+### `GATE-FE-T100`
+
+- status_result: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Sessions/security classification evidence is recorded: auth endpoint map limitation, current-user DTO limitation, internal-only refresh-token hygiene distinction, negative backend route/command/DTO/test search for session/device/security management, OpenAPI route/schema absence, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; ACC-004 account security/sessions UI remains blocked.
+
+### `T-FE-101` — ACC-005 notification preferences classification
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical free-worker read-only scouting inspected account/current-user notification preference contracts in canonical OpenAPI and backend source/tests. No frontend implementation, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- classification_summary: ACC-005 notification preferences is a backend gap. No stable coded backend/OpenAPI contract exists for account/current-user notification preferences, account settings, communication preferences, email/SMS/push preferences, or notification subscription management.
+- evidence_summary: Canonical OpenAPI has no `notification`, `preference`, `preferences`, `email notification`, `sms`, `push`, `communication`, `settings`, `NotificationPreference`, `AccountSetting`, or related schema/path hits. Auth paths are limited to login, refresh, register, verification-email, verify-email, forgot-password, and reset-password; `/api/v1/me*` paths cover current user and domain features such as nurse/employer profile, preparation packages, exam analytics/attempts, orders, contact requests, and CV, with no notification-preferences route. Backend searches found no `Preference` or `NotificationPreference` source/test contracts. The only notification-related backend code is transactional email sending (`IEmailService` / `EmailService`) for verification and password reset, not user-configurable preferences. WebApi source/tests contain no notification/preference/account-settings endpoint evidence.
+- closure_evidence: Classification is complete and verified as backend gap / no implementation. `ACC-005` remains blocked until backend provides a notification-preferences contract and account screen approval. Do not infer ACC-005 UX from `EmailVerified`, roles, permissions, identity fields, JWT claims, marketing copy, transactional email services, or screen-matrix approval.
+
+### `ST-FE-101` — Classify `ACC-005` Notification Preferences
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Notification preferences/account settings contract is absent; transactional verification/reset email infrastructure is not a user preference contract.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test-search evidence, with final after-inspection git status supplied by the OpenAI final gate as a targeted missing-evidence check.
+
+### `GATE-FE-T101`
+
+- status_result: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Notification-preferences classification evidence is recorded: OpenAPI route/schema term absence, auth/current-user path limitation, backend source/test negative preference searches, transactional-email distinction, final git status no task mutation, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; ACC-005 notification preferences UI remains blocked.
+
+### `T-FE-102` — ACC-006 account status classification
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`,`CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-07
+- scope_summary: Approved free-worker read-only scout inspected account-status/login/current-user state contracts in canonical OpenAPI and backend source/tests, explicitly comparing against the already verified T-FE-054 inactive-account classification. No frontend implementation, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- classification_summary: ACC-006 account status is a backend gap. No stable coded account-status contract exists beyond passive current-user fields and generic inactive login/refresh rejection. There is no account-status enum/schema, coded inactive/suspended/locked status response, user activation/deactivation/suspension/lock management route, or account-status workflow contract.
+- evidence_summary: Canonical OpenAPI exposes login, refresh, current-user, and admin user read routes but no account-status route/schema; login documents request fields only and no coded account-status error, while `/api/v1/me` has no schema metadata in the snapshot. Backend `User` has `IsActive`, `EmailVerified`, and `LastLoginAt` fields but no status enum. Login rejects missing or inactive users with the same generic `UnauthorizedAccessException("Invalid credentials.")`; refresh rotation rejects inactive users with generic invalid-refresh behavior. `GetCurrentUser` returns passive identity/status fields and does not reject inactive users. Exception mapping turns `UnauthorizedAccessException` into generic `401` without a stable status code. Tests cover inactive login as generic unauthorized and current-user DTO projection, with no inactive/status workflow test.
+- closure_evidence: Classification is complete and verified as backend gap / no implementation. `ACC-006` remains blocked until backend provides a stable account-status contract and account screen approval. Do not infer account-status UX from generic login `401`, passive `/me` fields such as `IsActive` or `LastLoginAt`, JWT claims, roles/permissions, admin-only `isActive` filtering, or frontend screen-matrix approval.
+
+### `ST-FE-102` — Classify `ACC-006` Account Status
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`,`CONTRACT_CLARIFICATION`
+- evidence_summary: Account-status workflow contract is absent; passive `/me` fields and generic inactive login/refresh rejection are not sufficient ACC-006 implementation contracts.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test evidence.
+
+### `GATE-FE-T102`
+
+- status_result: `VERIFIED`
+- blocker_types: `BACKEND`,`CONTRACT_CLARIFICATION`
+- evidence_summary: Account-status classification evidence is recorded: T-FE-054 consistency, OpenAPI route/schema limitations, backend `User.IsActive` passive field distinction, generic login/refresh unauthorized behavior, exception mapping without coded status, tests proving generic inactive login handling, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; ACC-006 account status UI remains blocked.
+
+### `T-FE-103` — ADM-001 dashboard classification
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`,`DESIGN`
+- evidence_date: 2026-09-07
+- scope_summary: Approved free-worker read-only scouting inspected admin dashboard/metrics/summary/landing data contracts in canonical OpenAPI and backend source/tests. No ADM-001 UI implementation was authorized because `GATE-FE-T098` is not verified. No frontend implementation, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- classification_summary: ADM-001 admin dashboard/static landing is a backend gap for data-backed dashboard behavior. No stable coded backend/OpenAPI admin dashboard, metrics, statistics, overview, summary, analytics, chart, alert, activity, revenue, orders, users, exams, package, or recruitment aggregate contract exists.
+- evidence_summary: Canonical OpenAPI dashboard/metrics/statistics/overview/chart/landing searches found only nurse-owned exam analytics under `/api/v1/me/nurse-profile/exam-analytics/*` and a public preparation-package catalog component summary DTO, neither of which is an admin dashboard contract. Admin OpenAPI paths are CRUD/list contracts for users, exam categories/exams, payment products, preparation-package administration, and recruitment candidate search; no `/api/v1/admin/dashboard`, metrics, overview, summary, statistics, analytics, or landing route exists. Backend source searches found no `Dashboard`, `Metrics`, `Statistics`, or `Overview` Application/Domain/Infrastructure contracts, and no admin dashboard WebApi group. Analytics source is nurse-owned `My*` exam analytics guarded to nurse profiles. Backend tests have no admin dashboard/metrics tests; existing dashboard strings are negative 404 scope guards for a non-existent nurse preparation-package workspace/dashboard route.
+- closure_evidence: Classification is complete and verified as backend gap / no implementation. `ADM-001` remains blocked until backend provides a dashboard/landing contract and Administration screen approval (`GATE-FE-T098`) is verified. Do not infer dashboard metrics from admin CRUD/list endpoints, nurse exam analytics, preparation-package catalog summaries, database table counts, revenue/payment/order lists, recruitment lists, or design expectations.
+
+### `ST-FE-103` — Classify/build `ADM-001` dashboard/static landing
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`,`DESIGN`
+- evidence_summary: Classification branch completed: admin dashboard/metrics contract is absent; UI build branch remains unauthorized because `GATE-FE-T098` is not verified.
+- closure_evidence: Subtask accepted as complete for backend-gap classification from source/OpenAPI/test-search evidence.
+
+### `GATE-FE-T103`
+
+- status_result: `VERIFIED`
+- blocker_types: `BACKEND`,`DESIGN`
+- evidence_summary: Admin dashboard classification evidence is recorded: OpenAPI absence of admin dashboard/metrics routes, distinction from nurse exam analytics and public package summary DTOs, backend negative dashboard/metrics contract searches, negative admin dashboard test searches, explicit no-UI relationship to unverified `GATE-FE-T098`, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; ADM-001 dashboard/static landing UI remains blocked.
+
+### `T-FE-105` — ADM-004 roles/permissions classification
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical Muse read-only scout inspected role/permission management contracts in canonical OpenAPI and backend identity/authorization source/tests. No frontend implementation, security/authorization policy decision, backend/OpenAPI mutation, dependency/tooling change, screen approval, staging, commit, or push occurred.
+- classification_summary: ADM-004 roles/permissions management is a backend gap. No stable coded backend/OpenAPI contract exists for role CRUD, permission CRUD, role/permission listing, role assignment, permission assignment, assign/revoke operations, or role/permission management DTOs/commands/queries.
+- evidence_summary: Canonical OpenAPI exposes `/api/v1/me`, `GET /api/v1/users`, and `GET /api/v1/users/{id}`, but no `/api/v1/roles`, `/api/v1/permissions`, `ListRoles`, `RoleDto`, `PermissionDto`, assign, revoke, or role/permission management operations. Backend `Permissions.cs` defines `Roles.View`, `Roles.Manage`, `Permissions.View`, and `Permissions.Manage` constants and reference-data seeding creates those permissions, but they are policy vocabulary/seeds only. WebApi user routes are protected by `Users.View`; no role/permission management route uses `Roles.Manage` or `Permissions.Manage`. Application source contains runtime authorization services and identity read projections only, not role/permission management commands/queries/DTOs. Existing `/me` and user detail/list role/permission fields are passive read-model projections.
+- closure_evidence: Classification is complete and verified as backend gap / no implementation. `ADM-004` remains blocked until backend provides explicit role/permission management contracts and Administration screen approval (`GATE-FE-T098`) is verified. Do not infer management APIs from permission constants, seeded permissions, `RequirePermission` metadata, JWT claims, `/me` roles/permissions, user list/detail projections, or `Permissions.All/Admin` arrays.
+
+### `ST-FE-105` — Classify `ADM-004` Roles/Permissions
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Roles/permissions management contract is absent; constants, seeds, authorization metadata, and passive user projections are not management APIs.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test-search evidence.
+
+### `GATE-FE-T105`
+
+- status_result: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Role CRUD classification evidence is recorded: OpenAPI absence of role/permission management routes/schemas, backend distinction between constants/seeds/projections and management contracts, negative route/command/query/DTO/test searches, no security policy decision, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; ADM-004 roles/permissions UI remains blocked.
+
+### `T-FE-081` — Payment product contract clarification
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical Muse read-only scout inspected payment product list/detail contracts in canonical OpenAPI, API documentation, backend endpoint mappings, Application DTO/query/mapping code, domain model, and existing tests. No payment production/provider/release decision, frontend implementation, backend/OpenAPI mutation, dependency/tooling change, screen approval, staging, commit, or push occurred.
+- classification_summary: Payment product catalog list/detail has a stable coded source-backed contract, with OpenAPI metadata omissions recorded. Classification: `FRONTEND_PLAN_CORRECT` with `OPENAPI_METADATA_DEFECT` annotation, because source/tests establish DTOs/errors/filters while canonical OpenAPI omits response schemas and some error statuses.
+- evidence_summary: Source routes are `GET /api/v1/payment/products` and `GET /api/v1/payment/products/{id:guid}`, both `.RequireAuthorization()` only with no permission or nurse-role requirement. List accepts `page`, `pageSize`, and optional `examId`, validates page bounds, returns `PaginatedResult<PaymentProductDto>`, filters to active products for published exams, supports optional exam filtering, and orders deterministically by `Name, Id`. Detail filters active products for published exams and maps missing/inactive/unpublished to `404`. `PaymentProductDto` exposes catalog fields only: `id`, `type`, `examId`, `examTitle`, `name`, optional `description`, normalized uppercase `currency`, `unitAmountMinor` serialized as string, `isActive`, `createdAt`, and `updatedAt`. Existing tests prove authenticated-only access, no permission-service/nurse-role requirement, active+published visibility, pagination validation, malformed GUID `400`, not-found behavior, Problem Details, and sensitive/internal field non-exposure.
+- openapi_metadata_notes: Canonical OpenAPI records the two payment product routes, operationIds, Bearer security, list query params, detail path param, and `200/401` responses, but omits `200` response schemas, `400` validation/malformed-GUID responses, `404` detail response, and optional/nullability detail for `examId`. No OpenAPI mutation was authorized or performed.
+- closure_evidence: Clarification is complete and verified for planning. Downstream payment product screens remain separately blocked by their route/screen/design dependencies. Do not infer order creation, checkout, provider, webhook, refund, subscription, fulfillment, entitlement, or production payment support from the catalog contract.
+
+### `ST-FE-081` — Clarify payment product schemas
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Payment product list/detail source-backed DTO, filters, auth, statuses, exposure boundaries, and OpenAPI metadata omissions are recorded.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test evidence.
+
+### `GATE-FE-T081`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Product schema evidence is recorded: routes, authorization, list params, source DTO fields, active/published visibility behavior, detail not-found behavior, Problem Details/error metadata, sensitive-field boundary, OpenAPI omissions, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for contract clarification; payment product UI remains subject to downstream task/screen approval gates.
+
+### `T-FE-083` — Payment order contract clarification
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical Muse read-only scout inspected nurse payment order create/list/detail/cancel contracts in canonical OpenAPI, API/frontend authority, backend endpoint mappings, Application DTO/query/command/mapping code, domain order/status model, error middleware, and existing tests. No payment production/provider/release decision, frontend implementation, backend/OpenAPI mutation, dependency/tooling change, screen approval, staging, commit, or push occurred.
+- classification_summary: Nurse payment order create/list/detail/cancel has a stable coded source-backed contract, with OpenAPI metadata omissions recorded. Classification: `FRONTEND_PLAN_CORRECT` with `OPENAPI_METADATA_DEFECT` annotation, because source/tests establish list/detail/cancel DTOs/errors/lifecycle while canonical OpenAPI omits response schemas and several error statuses for those operations.
+- evidence_summary: Order routes live under authenticated `/api/v1/me/nurse-profile/payment/orders` and require Bearer authentication via the nurse-profile group. `POST /payment/orders` creates a `PendingPayment` order and returns `201 PaymentOrderDto` with `Location`; request has exactly one purchase source (`productId` or `packageOfferId`) and no idempotency key. `GET /payment/orders` returns owned orders as `PaginatedResult<PaymentOrderDto>` with `page`, `pageSize`, and optional `status`; it lazily expires past-due orders, filters by current nurse profile, optional status, orders by `CreatedAt DESC, Id`, and paginates. `GET /payment/orders/{id}` returns an owned order or `404`. `POST /payment/orders/{id}/cancel` cancels owned pending orders, expires past-due orders before cancel, blocks active checkout sessions with `409`, maps foreign/missing orders to `404`, and returns `PaymentOrderDto` on success. DTOs expose order/item/snapshot fields and string-serialized money amounts while tests guard against user, token, provider, webhook, payment-product/order entity, nurse-profile, grant, question, answer, key, rationale, and secret exposure.
+- openapi_metadata_notes: Canonical OpenAPI records create with `201 PaymentOrderDto`, `Location`, `400`, `401`, `404`, and `409`, plus schemas for `CreatePaymentOrderRequest`, `PaymentOrderDto`, `PaymentOrderItemDto`, and integer `PaymentOrderStatus`. It records list/detail/cancel paths, Bearer security, and params, but omits `200` schemas for list/detail/cancel and omits some source/test-backed errors such as `400`, `403`, `404`, and `409` on applicable operations. No OpenAPI mutation was authorized or performed.
+- closure_evidence: Clarification is complete and verified for planning. Downstream checkout/order UI remains separately blocked by its dependencies and screen approval. Do not infer checkout redirect/success, provider, webhook, refund, reconciliation, subscription, fulfillment, entitlement, grant, sandbox completion, or production payment support from order create/list/detail/cancel.
+
+### `ST-FE-083` — Clarify payment order schemas/lifecycle
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Nurse payment order create/list/detail/cancel source-backed DTOs, lifecycle statuses, validation/conflict behavior, ownership, exposure boundaries, and OpenAPI metadata omissions are recorded.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test evidence.
+
+### `GATE-FE-T083`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Order schema evidence is recorded: routes, authorization, create variants, list/detail/cancel ownership and lifecycle, DTO fields, status values, Problem Details/error mappings, sensitive-field boundary, OpenAPI omissions, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for contract clarification; payment order UI remains subject to downstream task/screen approval gates.
+
+### `T-FE-112` — ADM-009/010 admin orders/recruitment classification
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_date: 2026-09-07
+- scope_summary: Canonical Muse read-only scout inspected admin payment-order and admin recruitment management contracts in canonical OpenAPI, API/frontend authority, backend endpoint mappings, permissions, Application payment/recruitment source, and tests. No frontend implementation, backend/OpenAPI mutation, dependency/tooling change, screen approval, payment/security/admin policy decision, staging, commit, or push occurred.
+- classification_summary: ADM-009 admin orders and ADM-010 admin recruitment management are backend gaps. No stable coded backend/OpenAPI admin order-management or admin recruitment-management contracts exist.
+- evidence_summary: Canonical OpenAPI contains admin payment-product routes only for payment administration, and nurse-owned `/api/v1/me/nurse-profile/payment/orders*` routes for payment orders. It contains employer/search-owned recruitment routes (`/api/v1/recruitment/candidates`, `/api/v1/recruitment/contact-requests*`) and nurse-owned contact-request approve/reject routes, but no `/api/v1/admin/**/orders*`, `/api/v1/admin/recruitment*`, admin recruitment queue, admin candidate detail, moderation, assignment, status workflow, or admin order route. Backend admin endpoint mappings cover exam categories, exams/versions/questions/options, payment products, and preparation-package administration, but no admin payment orders or admin recruitment. `Permissions.cs` has no payments/orders/recruitment admin permission. Source/test searches found no `AdminPaymentOrder`, `AdminOrder`, `AdminRecruitment`, admin order/recruitment DTO/query/command, or admin route tests. Existing nurse payment orders, admin payment products, employer contact requests, nurse contact-request approvals, and candidate search/list are distinct non-admin-management contracts.
+- closure_evidence: Classification is complete and verified as backend gap / no implementation. ADM-009/010 remain blocked until backend provides explicit admin order/recruitment contracts and Administration screen approval (`GATE-FE-T098`) is verified. Do not infer admin order management from nurse-owned payment orders or admin payment products, and do not infer admin recruitment management from candidate search/list, employer-owned contact requests, or nurse-owned contact request decisions.
+
+### `ST-FE-112` — Classify `ADM-009/010` admin orders/recruitment
+
+- status: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Admin payment-order and admin recruitment management contracts are absent; non-admin order/recruitment routes and product administration routes are not ADM-009/010 contracts.
+- closure_evidence: Subtask accepted as complete from source/OpenAPI/test-search evidence.
+
+### `GATE-FE-T112`
+
+- status_result: `VERIFIED`
+- blocker_types: `BACKEND`
+- evidence_summary: Admin orders/recruitment classification evidence is recorded: OpenAPI absence of admin order/recruitment routes, backend admin-group limitation, permissions absence, distinction from nurse/employer/candidate-search routes, negative source/test searches, no policy decision, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; ADM-009/010 UI remains blocked.

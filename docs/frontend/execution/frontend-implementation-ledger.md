@@ -1413,6 +1413,32 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Gate evidence covers token-session bootstrap tests for initial state, no-token anonymous/no-network path, stored refresh token one startup refresh attempt, successful token material persistence through `TokenStorage`, invalid/expired/revoked refresh clear/anonymous behavior, transient/network refresh failure clear/anonymous behavior, no current-user endpoint calls, startup provider registration, and source-boundary checks excluding manual Authorization headers, `HttpClient`, direct browser storage, refresh coordination, interceptor, guard, router, logout, replay, and queue behavior.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-024` remains a separate single-flight refresh coordination task, `T-FE-025` remains a separate bearer-interceptor task, and `T-FE-138` remains a separate authenticated current-user hydration task.
 
+### `T-FE-024` — Single-flight refresh
+
+- status: `VERIFIED`
+- blocker_types: `SECURITY`
+- evidence_date: 2026-09-09
+- scope_summary: Implemented only single-flight refresh coordination in `frontend/src/app/core/auth/refresh-coordinator.ts` with focused tests in `frontend/src/app/core/auth/refresh-coordinator.spec.ts`. No backend, canonical OpenAPI, generated client, package/dependency, auth transport, token storage, session bootstrap, bearer interceptor, guard, route, UI/component, logout, current-user hydration, T-FE-025, T-FE-026, or T-FE-138 implementation files were modified.
+- implementation_summary: `RefreshCoordinator` is an injectable root service. `refresh()` reuses one in-flight observable per app/tab instance, reads the refresh token through `TokenStorage.getRefreshToken()`, calls only `AuthTransport.refresh({ refreshToken })`, writes returned token material through `TokenStorage.setTokenMaterial({ accessToken, accessTokenExpiresAt: expiresAt, refreshToken })`, shares the same result/error with concurrent callers, clears token material through `TokenStorage.clear()` on refresh/no-token/storage failure, and resets its in-flight state after success or failure so later refresh attempts start a new backend request.
+- boundary_summary: The implementation has no retry/backoff policy, no bearer header injection, no interceptor behavior, no failed-request replay queue, no manual Authorization header, no direct `HttpClient`, no `/api/v1/me` or current-user hydration, no route/guard/UI/logout behavior, no direct `sessionStorage`/`localStorage`/`globalThis` storage access, no token logging, and no generated/backend/OpenAPI/package changes.
+- tdd_summary: Focused TDD RED was observed before implementation. Accepted focused verification then passed `npm test -- --watch=false --include=src/app/core/auth/refresh-coordinator.spec.ts` with 1 file / 8 tests.
+- verification_summary: Accepted full frontend verification passed `npm test -- --watch=false` with 11 files / 91 tests, `npm run lint`, `npm run lint:styles`, `npm run quality`, `git diff --check`, `git diff --cached --name-status`, and `git status --short`. Current continuation re-read the persisted implementation and final checks preserved scope.
+- closure_evidence: Gate evidence is sufficient for T-FE-024 refresh-coordination-only scope: one refresh in flight per app/tab instance, concurrent callers share one refresh operation, successful refresh updates token storage before callers receive success, rotated refresh token replaces old token, backend/no-token/storage failure clears token material and errors callers, in-flight state resets after success/failure, later refresh starts a new backend request, no retry/backoff, no bearer/interceptor/replay behavior, no `/me` hydration, no route/UI/logout behavior, no direct browser storage access, and no generated/backend/OpenAPI/package changes. T-FE-024 is closed as `VERIFIED`; T-FE-025 remains not started and must not begin in this checkpoint.
+
+### `ST-FE-024` — Implement single-flight refresh coordination
+
+- status: `VERIFIED`
+- blocker_types: `SECURITY`
+- evidence_summary: Subtask implemented a minimal refresh coordinator over `AuthTransport.refresh` and `TokenStorage`, proving shared concurrent refresh, token-material update before release, rotated refresh-token replacement, failure clearing semantics, and in-flight reset for later attempts.
+- closure_evidence: Subtask accepted as complete from focused refresh-coordinator tests, full frontend verification, final-gate source/scope review, and git-guardian scope review.
+
+### `GATE-FE-T024`
+
+- status_result: `VERIFIED`
+- blocker_types: `SECURITY`
+- evidence_summary: Gate evidence covers refresh concurrency tests and source-boundary checks for shared in-flight operation, token storage update ordering, refresh-token rotation, backend/no-token/storage failure clearing, later retry after success/failure, no retry/backoff, no bearer/interceptor/replay, no `/me`, no route/UI/logout, no direct browser storage, no generated/backend/OpenAPI/package changes, full frontend verification, and git integrity checks.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-025` remains a separate bearer-interceptor task and must not start in this checkpoint.
+
 ### `T-FE-138` — Authenticated current-user hydration
 
 - status: `NOT STARTED`

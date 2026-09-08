@@ -13,6 +13,7 @@ export type { AdminReportingProfileQuestionAssignmentDto } from './models/admin-
 export type { AdminReportingTopicDto } from './models/admin-reporting-topic-dto';
 export type { AdminStudyMaterialDto } from './models/admin-study-material-dto';
 export type { AdminStudyMaterialVersionDto } from './models/admin-study-material-version-dto';
+export type { AuthResult } from './models/auth-result';
 export type { CodedProblemDetails } from './models/coded-problem-details';
 export type { ContactRequestStatus } from './models/contact-request-status';
 export type { CreateAdminExamCategoryRequest } from './models/create-admin-exam-category-request';
@@ -108,5 +109,6 @@ export type { UpsertAdminPracticeItemRequest } from './models/upsert-admin-pract
 export type { UpsertMyEmployerOrganizationRequest } from './models/upsert-my-employer-organization-request';
 export type { UpsertMyEmployerProfileRequest } from './models/upsert-my-employer-profile-request';
 export type { UpsertNurseProfileCommand } from './models/upsert-nurse-profile-command';
+export type { UserDetailDto } from './models/user-detail-dto';
 export type { ValidationProblemDetails } from './models/validation-problem-details';
 export type { VerifyEmailRequest } from './models/verify-email-request';

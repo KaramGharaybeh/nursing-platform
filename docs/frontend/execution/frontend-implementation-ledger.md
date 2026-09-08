@@ -1323,6 +1323,32 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Gate evidence covers adapter boundary tests for generated DTO input to frontend-owned output, source immutability, optional/null handling, unknown-field non-leakage, generated-internals independence, Problem Details separation, generated-file protection, full frontend test/lint/style/quality/build verification, empty staged area, and clean whitespace diff.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-021` must not start in this run.
 
+### `T-FE-021` — Auth transport
+
+- status: `IN PROGRESS`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-08
+- scope_summary: T-FE-021 auth transport implementation was initially blocked before non-generated transport files were created because generated auth/current-user functions returned `StrictHttpResponse<void>` for endpoints whose backend source/tests return typed bodies. The authorized correction checkpoint changed only canonical OpenAPI metadata for the affected success responses plus generated files produced by the approved generator; no backend runtime/source mutation, package/dependency change, token storage, session/bootstrap, refresh coordination, bearer interceptor, logout, guards, UI/forms, T-FE-022+, staging, push, amend, rebase, or squash occurred.
+- contract_comparison: Backend source/test verification established `POST /api/v1/auth/login` returns `Results.Ok(AuthResult)`, `POST /api/v1/auth/refresh` returns `Results.Ok(AuthResult)`, and `GET /api/v1/me` returns `Results.Ok(UserDetailDto)`. The prior canonical OpenAPI `Login`, `RefreshToken`, and `GetCurrentUser` 200 responses had only `description: OK` and no `application/json` schema, causing generated `login`, `refreshToken`, and `getCurrentUser` functions to clone `body: undefined` and return `StrictHttpResponse<void>`.
+- correction_classification: The mismatch is classified as `OPENAPI_METADATA_DEFECT`, not frontend DTO invention and not backend behavior missing, because accepted backend source/tests unambiguously confirm typed response bodies while canonical OpenAPI omitted only response-schema metadata.
+- openapi_correction: Canonical OpenAPI `development-openapi-2026-09-03.json` now declares `POST /api/v1/auth/login` 200 as `AuthResult`, `POST /api/v1/auth/refresh` 200 as `AuthResult`, and `GET /api/v1/me` 200 as `UserDetailDto`; canonical `AuthResult` and `UserDetailDto` component schemas were added. Two unintended temporary insertions for root `/` and `SendVerificationEmail` were removed and are not part of the final correction.
+- generated_client_summary: Regeneration used the approved `ng-openapi-gen@1.0.5` function-based `services: false` configuration. Generated outputs now expose `login(...): Observable<StrictHttpResponse<AuthResult>>`, `refreshToken(...): Observable<StrictHttpResponse<AuthResult>>`, and `getCurrentUser(...): Observable<StrictHttpResponse<UserDetailDto>>`; generated `AuthResult` and `UserDetailDto` model exports were added.
+- correction_verification_summary: Deterministic generation passed twice with `260` TypeScript files and SHA-256 `424bee7bb44f6f3b10ff83efd65eace8ed883ffebb6559095b3b9c60acdaa482`. `npm run quality` passed, including dependency guard, Angular lint, Stylelint, full frontend tests (`7` files / `56` tests), and production build. OpenAPI JSON parse passed and `git diff --check` passed. The OpenAPI blocker is resolved and T-FE-021 implementation is ready to resume after the atomic correction commit `docs(frontend): correct auth response schemas`.
+
+### `ST-FE-021` — Implement typed login/refresh/current-user transport
+
+- status: `IN PROGRESS`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Subtask is ready for implementation after the OpenAPI/generated correction checkpoint. Implementation must remain transport-only and consume the corrected generated functions without token storage, session/bootstrap, refresh coordination, bearer interceptor, logout orchestration, guards, auth UI/forms, or generated-file manual edits.
+- closure_evidence: Pending T-FE-021 implementation and verification.
+
+### `GATE-FE-T021`
+
+- status_result: `IN PROGRESS`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: OpenAPI blocker evidence and correction evidence are recorded. Gate requires focused auth transport tests plus full frontend verification after implementation.
+- closure_evidence: Pending T-FE-021 implementation and verification.
+
 ### `T-FE-042` — Registration contract clarification
 
 - status: `VERIFIED`

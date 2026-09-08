@@ -1468,20 +1468,24 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-138` — Authenticated current-user hydration
 
-- status: `NOT STARTED`
+- status: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
-- scope_summary: Downstream auth/session task for `GET /api/v1/me` hydration after bearer Authorization-header injection exists. It must call `/me` through the normal generated/client transport path, rely on `T-FE-025` for bearer injection, establish frontend current-user/session identity state, and avoid duplicating token refresh, token storage, or interceptor behavior.
+- evidence_date: 2026-09-09
+- contract_summary: Technical-lead decision approved T-FE-138 ownership of authenticated `GET /api/v1/me` hydration and a separate frontend-owned current-user identity state boundary. Approved states are `idle`, `loading`, `ready`, `anonymous`, and `unavailable`; this state must not repurpose T-FE-023 token-session state. Startup must resolve anonymous without `/me` after anonymous token bootstrap, and must trigger exactly one current-user hydration after authenticated token bootstrap through `AuthTransport.getCurrentUser()` while relying exclusively on T-FE-025 bearer injection. Generated `UserDetailDto` must be adapted to immutable frontend-owned `CurrentUser`; roles/permissions come from `/me`, not JWT; CurrentUser must not be persisted. `/me` `401` clears local token material through `TokenStorage` and resolves anonymous without logout UX/navigation; transient/network/5xx and unexpected non-401 failures preserve tokens, clear exposed current user for the failed hydration attempt, and resolve `unavailable`; no automatic retry, refresh coordination, manual bearer injection, logout, navigation, guards, UI, generated/backend/OpenAPI/dependency changes, or T-FE-026 behavior is authorized.
+- scope_summary: Implemented only the dedicated `CurrentUser` model/adapter, `CurrentUserStore`, focused tests, minimal ordered startup integration in `app.config.ts`, and governance evidence. No generated files, backend/OpenAPI, token-storage/auth-session-bootstrap/refresh-coordinator/bearer-interceptor internals, route guards, logout, UI, package/dependency files, or unrelated DAG history were modified.
+- verification_summary: Focused TDD RED failures were captured for missing current-user files, the initial independent-app-initializer startup race, and stale exposed-user clearing. Final focused T-FE-138 tests passed 1 file / 21 tests. Full frontend verification passed 13 files / 131 tests, `npm run lint`, `npm run lint:styles`, `npm run quality` including dependency guard and production build, `git diff --check`, empty staged-area check, final git status scope review, forbidden-path diff checks, and git-guardian no-shell scope review PASS.
 
 ### `ST-FE-138` — Hydrate current user through `GET /api/v1/me` after bearer injection exists
 
-- status: `NOT STARTED`
+- status: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- implementation_summary: Verified frontend-owned immutable `CurrentUser` adapter/state boundary and ordered startup hydration after token-session bootstrap. Anonymous token bootstrap resolves CurrentUser anonymous without `/me`; authenticated token bootstrap triggers exactly one `/me` hydration through `AuthTransport.getCurrentUser()` and relies on T-FE-025 for bearer injection.
 
 ### `GATE-FE-T138`
 
-- status_result: `NOT STARTED`
+- status_result: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
-- evidence_summary: Future gate evidence must prove `/me` is called through the normal auth transport/generation path, bearer injection comes from `T-FE-025`, current-user/session identity state is established, and token refresh/storage/interceptor behavior is not duplicated.
+- evidence_summary: Gate is closed as `VERIFIED`. Evidence proves `/me` is called through the normal auth transport/generation path after authenticated token bootstrap, bearer injection comes from T-FE-025 with no manual header, current-user identity state is established separately from token-session state, generated `UserDetailDto` is adapted to immutable frontend-owned `CurrentUser`, roles/permissions are preserved from `/me`, CurrentUser is not persisted, `/me` `401` clears token material and resolves anonymous without logout/navigation, transient/network/5xx/unexpected non-401 failures preserve token material and resolve unavailable, no automatic retry/refresh behavior exists, stale exposed user is cleared for a new hydration attempt, and no generated/backend/OpenAPI/package/guard/logout/UI scope is modified.
 
 ### `T-FE-042` — Registration contract clarification
 

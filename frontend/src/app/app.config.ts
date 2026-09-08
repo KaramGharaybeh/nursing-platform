@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideApiConfig } from './core/api/api-config';
-import { provideAuthSessionBootstrap } from './core/auth/auth-session-bootstrap';
+import { provideCurrentUserHydration } from './core/auth/current-user-store';
 import { bearerInterceptor } from './core/auth/bearer-interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -13,6 +13,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([bearerInterceptor])),
     provideApiConfig(),
-    provideAuthSessionBootstrap()
+    provideCurrentUserHydration()
   ]
 };

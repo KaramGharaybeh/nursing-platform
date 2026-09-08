@@ -1246,6 +1246,32 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Gate passed after approved `services: false` regeneration. Evidence covers exact pinned generator dependency/script/policy, isolated tracked generated output, two-run deterministic checksum (`258` TypeScript files, SHA-256 `ba8235601f2ae6084bdca072d3cdbb8e6e34a205190325a40a49a41e49c48827`), no generated service directory, function-based client output, Problem Details variants, CV multipart `file: Blob`, nullable unions, no generated Authorization/Bearer ownership, no manual generated edits, `npm run quality` pass, and clean `git diff --check`.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-018` is now the next API-infrastructure dependency path but must not start in this continuation and still requires its own eligible-task authorization and scope gate.
 
+### `T-FE-018` — API base/config
+
+- status: `VERIFIED`
+- blocker_types: `RUNTIME_DEPLOYMENT`
+- evidence_date: 2026-09-08
+- scope_summary: Implemented the approved API base/config foundation only. Added a non-generated Core API config boundary in `frontend/src/app/core/api/api-config.ts`, focused behavior/config tests in `frontend/src/app/core/api/api-config.spec.ts`, Angular dev proxy config `frontend/proxy.conf.json`, app provider wiring in `frontend/src/app/app.config.ts`, and dev-server proxy wiring in `frontend/angular.json`. No generated files, backend source, canonical OpenAPI, package dependencies, Angular environment files, bearer/auth logic, Problem Details mapping, adapters, feature UI, T-FE-019, staging beyond the final atomic flow, push, or history rewrite occurred.
+- runtime_config_summary: The API prefix constant is exactly `/api/v1`. Generated operation paths already include `/api/v1`, so the generated `ApiConfiguration.rootUrl` is supplied as `''` by default for same-origin relative API calls. Optional future public `apiOrigin` is normalized to origin-only by trimming trailing slashes; generated `RequestBuilder` then composes `rootUrl + generated operation path`, avoiding double prefixes and double slashes without editing generated output.
+- proxy_summary: Angular dev-server proxy config maps exactly `/api/v1` to the repository-evidenced backend local target `http://localhost:5167` from `backend/src/NursingPlatform.WebApi/Properties/launchSettings.json`. No additional proxy routes are defined and no `pathRewrite` is configured, preserving the request path.
+- tdd_summary: Initial focused TDD red test failed before `api-config.ts` existed. OpenAI final gate then identified a material double-prefix risk in the first implementation because generated paths already include `/api/v1`; a targeted Muse correction updated tests to prove generated `RequestBuilder` composition and the red check failed with `/api/v1/api/v1/exams` versus `/api/v1/exams`. The corrected implementation supplies generated root URL `''` by default and origin-only for configured origins; focused green verification passed 1 file / 11 tests.
+- verification_summary: Worker verification passed `npm test -- --watch=false --include src/app/core/api/api-config.spec.ts` (1 file / 11 tests), `npm test -- --watch=false` (5 files / 33 tests), `npm run lint`, `npm run lint:styles`, `npm run quality` including dependency guard and production build, `git diff --check`, empty `git diff --cached --name-status`, and final `git status --short` showing only the orchestrator-owned `PROGRESS.md` plus T-FE-018 implementation files before final evidence docs.
+- closure_evidence: OpenAI final gate accepted the corrected generated-client integration boundary: generated files remain untouched, generated `ApiConfiguration` is provided through the generated provider, same-origin calls use generated paths directly, local development uses Angular proxy, public config has no credential/secret fields, and T-FE-019 remains not started. T-FE-018 is closed as `VERIFIED` subject to the authorized atomic commit.
+
+### `ST-FE-018` — Configure API base URL/proxy/public config
+
+- status: `VERIFIED`
+- blocker_types: `RUNTIME_DEPLOYMENT`
+- evidence_summary: Configures API prefix `/api/v1`, default same-origin generated root URL `''`, optional public origin normalization to origin-only, generated `ApiConfiguration` DI through a non-generated provider, and Angular dev proxy `/api/v1` -> `http://localhost:5167` with path preservation.
+- closure_evidence: Focused behavior tests and full frontend quality verification passed; generated files were not edited.
+
+### `GATE-FE-T018`
+
+- status_result: `VERIFIED`
+- blocker_types: `RUNTIME_DEPLOYMENT`
+- evidence_summary: Gate evidence covers config tests for prefix/root/origin composition, generated `RequestBuilder` URL composition, generated `ApiConfiguration` DI, no public credential/secret fields, proxy target/path-preservation assertion, full frontend test/lint/style/quality/build verification, and git scope checks.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-019` must not start without its own authorization/eligibility and remains outside this run.
+
 ### `T-FE-042` — Registration contract clarification
 
 - status: `VERIFIED`

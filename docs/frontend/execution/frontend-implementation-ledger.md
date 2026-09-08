@@ -1352,6 +1352,33 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Gate evidence records OpenAPI blocker resolution, corrected generated typed auth/current-user outputs, focused auth transport tests for delegation/request DTOs/typed bodies/error propagation/no auth-state behavior, full frontend test/lint/style/quality/build verification, clean whitespace diff, empty staged area before docs update, generated-dir diff protection, and OpenAI final-gate source/scope inspection.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream T-FE-022 remains a separate token-storage task and must not start in this checkpoint.
 
+### `T-FE-022` — Token storage abstraction
+
+- status: `VERIFIED`
+- blocker_types: `SECURITY`
+- evidence_date: 2026-09-08
+- scope_summary: Implemented only the approved local-MVP token-storage abstraction in `frontend/src/app/core/auth/token-storage.ts` with focused tests in `frontend/src/app/core/auth/token-storage.spec.ts`. No backend, canonical OpenAPI, generated client, package/dependency, T-FE-021 auth transport, interceptor, guard, session bootstrap, refresh coordination, logout, UI/forms, or T-FE-023+ files were modified.
+- security_contract_summary: The accepted T-FE-022 security review established the repository contract: access token and access-token expiry are memory-only, refresh token is stored only in `sessionStorage`, `localStorage` is forbidden, cookies are not part of the current backend contract, and all token access must be centralized behind the auth/token-storage abstraction.
+- implementation_summary: `TokenStorage` is an injectable root service with an injectable `AUTH_SESSION_STORAGE` backend. It exposes `getTokenState()`, `getAccessToken()`, `getAccessTokenExpiresAt()`, `getRefreshToken()`, `setTokenMaterial(...)`, and `clear()`. `setTokenMaterial` stores only access token/expiry in service memory and persists only the refresh token under `np.auth.refreshToken`; `clear` removes in-memory access material and removes the persisted refresh token. A new service instance with the same storage backing restores only the refresh token.
+- boundary_summary: The abstraction does not call login, refresh, or `/me`; does not inject `HttpClient` or Authorization headers; does not coordinate refresh; does not bootstrap session/user state; does not implement logout workflow; does not synchronize tabs; does not persist `AuthResult`, user profile, roles/permissions, Problem Details, arbitrary generated DTOs, Authorization headers, or credentials other than the approved refresh token; and contains no token logging/error/URL/analytics path.
+- tdd_summary: Focused TDD red failed before `token-storage.ts` existed with `Could not resolve "./token-storage"` / `TS2307`; focused green passed `npm test -- --watch=false --include='**/token-storage.spec.ts'` with 1 file / 8 tests, then strengthened security-boundary coverage passed with 1 file / 9 tests.
+- verification_summary: Full verification passed `npm test -- --watch=false` (9 files / 73 tests), `npm run lint`, `npm run lint:styles`, `npm run quality` including dependency guard and production build, `git diff --check`, empty `git diff --cached --name-status`, `git status --short`, and forbidden-scope diff checks proving no generated/backend/OpenAPI/package/auth-transport files changed. OpenAI final gate inspected `token-storage.ts`, `token-storage.spec.ts`, and git scope.
+- closure_evidence: Gate evidence is sufficient for T-FE-022 token-storage-only scope: initial empty state, existing refresh token recovery, memory-only access/expiry, sessionStorage-only refresh persistence, clear/removal, same-tab reload semantics, missing storage safety, replacement semantics, no localStorage, no unrelated DTO persistence, no Authorization/header/interceptor/session/bootstrap/refresh/logout/guard/UI behavior, and generated/backend/OpenAPI integrity are covered. T-FE-022 is closed as `VERIFIED`; T-FE-023 must not start without separate authorization.
+
+### `ST-FE-022` — Establish local-MVP token storage abstraction
+
+- status: `VERIFIED`
+- blocker_types: `SECURITY`
+- evidence_summary: The local-MVP token storage abstraction centralizes access to refresh-token `sessionStorage` while keeping access token and expiry in memory only. Focused tests prove storage, replacement, clear, reload, missing-storage, and forbidden-behavior boundaries.
+- closure_evidence: Subtask accepted as complete from focused tests, full frontend verification, and final-gate security/scope review.
+
+### `GATE-FE-T022`
+
+- status_result: `VERIFIED`
+- blocker_types: `SECURITY`
+- evidence_summary: Gate evidence covers token-storage tests, memory-only access token/expiry, sessionStorage-only refresh token, no localStorage, no user/profile/role/permission/Problem Details/AuthResult DTO persistence, no Authorization header/interceptor/bootstrap/refresh/logout/guard behavior, no generated/backend/OpenAPI/package changes, full frontend verification, and git integrity checks.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream T-FE-023 remains a separate session-bootstrap task and must not start in this checkpoint.
+
 ### `T-FE-042` — Registration contract clarification
 
 - status: `VERIFIED`

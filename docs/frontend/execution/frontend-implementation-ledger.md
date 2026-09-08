@@ -1384,23 +1384,34 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-023` — Session bootstrap
 
-- status: `NOT STARTED`
+- status: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
 - governance_correction_date: 2026-09-09
 - governance_correction_summary: Technical lead accepted the DAG/session-bootstrap order conflict and explicitly rejected a manual bearer-header exception inside `T-FE-023`. `T-FE-023` now owns token-session bootstrap only: unknown/bootstrap state, refresh-token availability through the `T-FE-022` token-storage abstraction, anonymous completion without network calls when no refresh token exists, one startup refresh attempt through the `T-FE-021` auth transport when a refresh token exists, successful token-material persistence through token storage, invalid/expired/revoked refresh clearing local token material and resolving anonymous, and no `/api/v1/me`, no manual Authorization header, no general single-flight refresh coordination, no interceptor behavior, no route guards, and no UI behavior.
 - downstream_hydration_owner: `T-FE-138` owns authenticated current-user hydration after `GATE-FE-T025` so `/me` calls rely on normal bearer interceptor behavior.
+- evidence_date: 2026-09-09
+- scope_summary: Implemented only revised token-session bootstrap in `frontend/src/app/core/auth/auth-session-bootstrap.ts`, focused tests in `frontend/src/app/core/auth/auth-session-bootstrap.spec.ts`, and minimal Angular startup registration in `frontend/src/app/app.config.ts`. No backend, canonical OpenAPI, generated client, package/dependency, auth transport, token storage, interceptor, guard, route, UI/component, logout, current-user hydration, T-FE-024, T-FE-025, T-FE-026, or T-FE-138 implementation files were modified.
+- implementation_summary: `AuthSessionBootstrap` is an injectable root service with `state` signal initialized to `initializing`. `bootstrap()` reads the refresh token through `TokenStorage.getRefreshToken()` only. Without a refresh token it resolves `anonymous` without auth network calls. With a refresh token it performs one startup `AuthTransport.refresh({ refreshToken })` attempt. Successful refresh stores token material through `TokenStorage.setTokenMaterial({ accessToken, accessTokenExpiresAt: expiresAt, refreshToken })` and resolves `authenticated`. Any refresh error clears token material through `TokenStorage.clear()` and resolves `anonymous`. `provideAuthSessionBootstrap()` registers the bootstrap through Angular `provideAppInitializer` so startup waits for the bootstrap observable.
+- boundary_summary: The implementation does not call `GET /api/v1/me` or `AuthTransport.getCurrentUser`, does not attach Authorization headers manually, does not inject `HttpClient`, does not use direct `sessionStorage`, `localStorage`, or `globalThis` storage access, does not implement single-flight/general refresh coordination, request queues, replay, or interceptor behavior, and does not implement route guards, UI, logout workflow, user profile, roles, permissions, or current-user identity state.
+- tdd_summary: Initial TDD RED failed before `auth-session-bootstrap.ts` existed with unresolved `./auth-session-bootstrap` / `TS2307`. A targeted final-gate wiring correction added a startup-provider test; RED failed before `provideAuthSessionBootstrap` existed with `TS2724` plus the private initializer-runner type issue, then the implementation added `provideAppInitializer` wiring and used a narrow test cast to run Angular initializers.
+- verification_summary: Accepted final verification passed `npm test -- --watch=false --include='**/auth-session-bootstrap.spec.ts'` with 1 file / 10 tests, `npm test -- --watch=false` with 10 files / 83 tests, `npm run lint`, `npm run lint:styles`, `npm run quality` including dependency guard and production build, `git diff --check`, empty `git diff --cached --name-status`, `git status --short`, and `git diff --name-only -- frontend/src/app/core/api/generated` with no generated-file changes.
+- closure_evidence: Gate evidence is sufficient for revised T-FE-023 token-session bootstrap scope: initial state, no-refresh-token anonymous/no-network path, stored-refresh-token one startup refresh attempt, successful refresh token-material persistence through `TokenStorage`, invalid refresh clear/anonymous path, transient/network refresh failure clear/anonymous path, no `/me`, no manual Authorization header, no direct storage access, no generated-file edits, no single-flight/general refresh coordination, no interceptor/guard/UI/logout/current-user hydration behavior, and Angular startup initializer registration are covered. T-FE-023 is closed as `VERIFIED`; T-FE-024 remains not started and must not begin in this checkpoint.
 
 ### `ST-FE-023` — Implement token-session bootstrap state machine without `/me` hydration
 
-- status: `NOT STARTED`
+- status: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
 - governance_correction_summary: Subtask scope is token-session bootstrap only and must not hydrate current user.
+- evidence_summary: Subtask implemented a minimal token-session bootstrap state machine and startup initializer. It uses `TokenStorage` and `AuthTransport.refresh` only, resolves authenticated/anonymous token-session state, and preserves `/me` hydration, bearer injection, refresh coordination, logout, guards, and UI as later-task responsibilities.
+- closure_evidence: Subtask accepted as complete from focused bootstrap tests, full frontend verification, and scope/boundary evidence.
 
 ### `GATE-FE-T023`
 
-- status_result: `NOT STARTED`
+- status_result: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
 - governance_correction_summary: Gate evidence must cover token-session bootstrap state and boundary tests, including no `/me`, no manual Authorization header, no direct `sessionStorage`, no generated-file edits, no single-flight/general refresh coordination, and no interceptor/guard/UI behavior.
+- evidence_summary: Gate evidence covers token-session bootstrap tests for initial state, no-token anonymous/no-network path, stored refresh token one startup refresh attempt, successful token material persistence through `TokenStorage`, invalid/expired/revoked refresh clear/anonymous behavior, transient/network refresh failure clear/anonymous behavior, no current-user endpoint calls, startup provider registration, and source-boundary checks excluding manual Authorization headers, `HttpClient`, direct browser storage, refresh coordination, interceptor, guard, router, logout, replay, and queue behavior.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-024` remains a separate single-flight refresh coordination task, `T-FE-025` remains a separate bearer-interceptor task, and `T-FE-138` remains a separate authenticated current-user hydration task.
 
 ### `T-FE-138` — Authenticated current-user hydration
 

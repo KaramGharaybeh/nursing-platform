@@ -1298,6 +1298,31 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Gate evidence covers source/OpenAPI contract clarification for all four Problem Details variants, focused unit tests for actual mapping outputs and safety behavior, full frontend test/lint/style/quality/build verification, empty staged area, clean whitespace diff, and generated-file scope protection.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-020` must not start in this run.
 
+### `T-FE-020` — DTO adapter boundary
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-08
+- scope_summary: Implemented the approved minimum non-generated DTO adapter boundary only. Added `frontend/src/app/core/api/dto-adapters.ts` and `frontend/src/app/core/api/dto-adapters.spec.ts`; did not edit generated client files, backend source, canonical OpenAPI, packages, environment files, auth/session/interceptors/guards/routing, feature-specific adapters, UI behavior, or T-FE-021 scope.
+- clarification_summary: Repository authority is unambiguous: generated DTOs may be consumed directly only at generated-client/transport boundaries or for pure pass-through, while adapters are required when data crosses into frontend-owned application/domain-facing shapes, when unknown generated fields must be excluded, when nullability is normalized for a frontend shape, when generated pagination wrappers are exposed to callers, or when enum/date values need explicit future feature policy. Reusable boundary helpers live under non-generated `frontend/src/app/core/api/`; feature-specific adapters remain future work. Problem Details mapping remains separate in `problem-details.ts`; generated files remain read-only.
+- mapping_summary: The boundary exposes `normalizeNullable`, `adaptDto`, structural `PaginatedSource`/`PaginatedView`, and `adaptPaginatedResult`. Caller-provided mappers define the frontend-owned output shape, so generated extra fields do not leak by object spreading. Null and undefined normalize deterministically to `undefined`; enum/value and date/time transport strings are preserved verbatim unless a later feature-specific adapter explicitly maps them.
+- verification_summary: Muse/free-worker verification passed focused adapter tests with `npm test -- --watch=false --include='**/dto-adapters.spec.ts'` (1 file / 10 tests), full frontend tests (7 files / 56 tests), `npm run lint` after fixing the reported array-type lint issue, `npm run lint:styles`, `npm run quality` including dependency guard and production build, `git diff --check`, empty `git diff --cached --name-status`, `git status --short`, and generated-directory diff checks. OpenAI final gate performed targeted inspection of the adapter implementation/test files and git scope.
+- closure_evidence: Gate evidence is sufficient for the DTO adapter boundary policy: generated DTO input maps to frontend-owned output, source DTOs are not mutated, nullable/optional values are deterministic, unknown fields do not leak, the boundary does not depend on generated implementation internals, Problem Details mapping remains separate, and generated files were not edited. T-FE-020 is closed as `VERIFIED`; T-FE-021 remains not started.
+
+### `ST-FE-020` — Establish generated DTO adapter boundary
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: A small reusable adapter utility pattern exists for later API/auth work without creating a broad domain-model framework. It uses explicit caller-owned mappers, null normalization, pagination-wrapper mapping, readonly/frozen outputs, and no generated internals or Problem Details coupling.
+- closure_evidence: Focused adapter boundary tests and full frontend quality verification passed; generated files were not edited.
+
+### `GATE-FE-T020`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Gate evidence covers adapter boundary tests for generated DTO input to frontend-owned output, source immutability, optional/null handling, unknown-field non-leakage, generated-internals independence, Problem Details separation, generated-file protection, full frontend test/lint/style/quality/build verification, empty staged area, and clean whitespace diff.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-021` must not start in this run.
+
 ### `T-FE-042` — Registration contract clarification
 
 - status: `VERIFIED`

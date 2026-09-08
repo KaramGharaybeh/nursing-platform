@@ -1325,29 +1325,32 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-021` — Auth transport
 
-- status: `IN PROGRESS`
+- status: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`
 - evidence_date: 2026-09-08
-- scope_summary: T-FE-021 auth transport implementation was initially blocked before non-generated transport files were created because generated auth/current-user functions returned `StrictHttpResponse<void>` for endpoints whose backend source/tests return typed bodies. The authorized correction checkpoint changed only canonical OpenAPI metadata for the affected success responses plus generated files produced by the approved generator; no backend runtime/source mutation, package/dependency change, token storage, session/bootstrap, refresh coordination, bearer interceptor, logout, guards, UI/forms, T-FE-022+, staging, push, amend, rebase, or squash occurred.
+- scope_summary: T-FE-021 auth transport implementation was initially blocked before non-generated transport files were created because generated auth/current-user functions returned `StrictHttpResponse<void>` for endpoints whose backend source/tests return typed bodies. The authorized correction checkpoint changed only canonical OpenAPI metadata for the affected success responses plus generated files produced by the approved generator. The final implementation adds only non-generated `frontend/src/app/core/api/auth-transport.ts` and `frontend/src/app/core/api/auth-transport.spec.ts`; no backend runtime/source mutation, package/dependency change, generated-file manual edit, token storage, session/bootstrap, refresh coordination, bearer interceptor/header injection, logout, guards, UI/forms, T-FE-022+, staging, push, amend, rebase, or squash occurred.
 - contract_comparison: Backend source/test verification established `POST /api/v1/auth/login` returns `Results.Ok(AuthResult)`, `POST /api/v1/auth/refresh` returns `Results.Ok(AuthResult)`, and `GET /api/v1/me` returns `Results.Ok(UserDetailDto)`. The prior canonical OpenAPI `Login`, `RefreshToken`, and `GetCurrentUser` 200 responses had only `description: OK` and no `application/json` schema, causing generated `login`, `refreshToken`, and `getCurrentUser` functions to clone `body: undefined` and return `StrictHttpResponse<void>`.
 - correction_classification: The mismatch is classified as `OPENAPI_METADATA_DEFECT`, not frontend DTO invention and not backend behavior missing, because accepted backend source/tests unambiguously confirm typed response bodies while canonical OpenAPI omitted only response-schema metadata.
 - openapi_correction: Canonical OpenAPI `development-openapi-2026-09-03.json` now declares `POST /api/v1/auth/login` 200 as `AuthResult`, `POST /api/v1/auth/refresh` 200 as `AuthResult`, and `GET /api/v1/me` 200 as `UserDetailDto`; canonical `AuthResult` and `UserDetailDto` component schemas were added. Two unintended temporary insertions for root `/` and `SendVerificationEmail` were removed and are not part of the final correction.
 - generated_client_summary: Regeneration used the approved `ng-openapi-gen@1.0.5` function-based `services: false` configuration. Generated outputs now expose `login(...): Observable<StrictHttpResponse<AuthResult>>`, `refreshToken(...): Observable<StrictHttpResponse<AuthResult>>`, and `getCurrentUser(...): Observable<StrictHttpResponse<UserDetailDto>>`; generated `AuthResult` and `UserDetailDto` model exports were added.
 - correction_verification_summary: Deterministic generation passed twice with `260` TypeScript files and SHA-256 `424bee7bb44f6f3b10ff83efd65eace8ed883ffebb6559095b3b9c60acdaa482`. `npm run quality` passed, including dependency guard, Angular lint, Stylelint, full frontend tests (`7` files / `56` tests), and production build. OpenAPI JSON parse passed and `git diff --check` passed. The OpenAPI blocker is resolved and T-FE-021 implementation is ready to resume after the atomic correction commit `docs(frontend): correct auth response schemas`.
+- implementation_summary: `AuthTransport` is an injectable transport boundary that delegates `login(LoginCommand)`, `refresh(RotateRefreshTokenCommand)`, and `getCurrentUser()` to the corrected generated functions with injected `HttpClient` and `ApiConfiguration.rootUrl`, then maps `StrictHttpResponse.body` to typed `AuthResult`, `AuthResult`, and `UserDetailDto` results. It intentionally contains no token persistence, session/bootstrap state, refresh coordination, bearer header injection/interceptor logic, logout, guards, routing, UI, or error conversion.
+- implementation_verification_summary: Muse/free-worker TDD red failed before `auth-transport.ts` existed with `Could not resolve "./auth-transport"` / `TS2307`; focused green passed `npm test -- --watch=false --include='**/auth-transport.spec.ts'` with 1 file / 8 tests. Full verification passed `npm test -- --watch=false` (8 files / 64 tests), `npm run lint`, `npm run lint:styles`, `npm run quality` including dependency guard and production build, `git diff --check`, empty staged area, `git diff --name-only -- frontend/src/app/core/api/generated` with no output, and git status showing only orchestrator-owned `PROGRESS.md` plus the two new T-FE-021 files before final docs evidence. OpenAI final gate inspected `auth-transport.ts`, `auth-transport.spec.ts`, and git scope.
+- closure_evidence: Gate evidence is sufficient for transport-only auth API scope: login/refresh/current-user delegate to the generated operations with generated request DTOs, typed `AuthResult` and `UserDetailDto` bodies are returned, generated `HttpErrorResponse` errors propagate without UI/session conversion, no token storage/session/bootstrap/bearer/header/logout/guard behavior is introduced, generated files remain untouched, and full frontend verification passed. T-FE-021 is closed as `VERIFIED`; T-FE-022 must not start without separate authorization.
 
 ### `ST-FE-021` — Implement typed login/refresh/current-user transport
 
-- status: `IN PROGRESS`
+- status: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`
-- evidence_summary: Subtask is ready for implementation after the OpenAPI/generated correction checkpoint. Implementation must remain transport-only and consume the corrected generated functions without token storage, session/bootstrap, refresh coordination, bearer interceptor, logout orchestration, guards, auth UI/forms, or generated-file manual edits.
-- closure_evidence: Pending T-FE-021 implementation and verification.
+- evidence_summary: The typed login/refresh/current-user transport boundary exists in `frontend/src/app/core/api/auth-transport.ts`, consumes corrected generated API functions and generated request/response types, maps response bodies to typed observables, and preserves generated errors unchanged.
+- closure_evidence: Focused auth transport tests and full frontend verification passed; generated files were not edited during implementation and no T-FE-022+ responsibilities were added.
 
 ### `GATE-FE-T021`
 
-- status_result: `IN PROGRESS`
+- status_result: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`
-- evidence_summary: OpenAPI blocker evidence and correction evidence are recorded. Gate requires focused auth transport tests plus full frontend verification after implementation.
-- closure_evidence: Pending T-FE-021 implementation and verification.
+- evidence_summary: Gate evidence records OpenAPI blocker resolution, corrected generated typed auth/current-user outputs, focused auth transport tests for delegation/request DTOs/typed bodies/error propagation/no auth-state behavior, full frontend test/lint/style/quality/build verification, clean whitespace diff, empty staged area before docs update, generated-dir diff protection, and OpenAI final-gate source/scope inspection.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream T-FE-022 remains a separate token-storage task and must not start in this checkpoint.
 
 ### `T-FE-042` — Registration contract clarification
 

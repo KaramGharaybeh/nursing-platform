@@ -10,7 +10,7 @@ For frontend task execution, consult the following in order, together with expli
 2. `AGENTS.md`
 3. Current execution state and task/gate authority in `docs/frontend/execution/frontend-implementation-ledger.md`, with `PROGRESS.md` as concise current-session handoff.
 4. `docs/frontend/frontend-architecture.md`
-5. Approved design specifications and approved Penpot evidence; Figma is non-authoritative unless Karam explicitly changes the recorded Penpot-only decision.
+5. `docs/frontend/design/frontend-design-foundation-reference.md` for the canonical textual implementation mapping of the approved Penpot foundation; approved design specifications and approved Penpot evidence remain visual authority, and Figma is non-authoritative unless Karam explicitly changes the recorded Penpot-only decision.
 6. Implemented backend source and the generated Development OpenAPI contract for runtime API behavior.
 7. `docs/frontend/design/GOAL_STATE.md`
 8. `docs/frontend/design/MASTER_PLAN.md`
@@ -145,6 +145,7 @@ This section defines rules only; it does not create the directory structure.
 ## 8. Design system rules
 
 - Use approved design tokens before implementation. Do not introduce arbitrary colors, spacing, radii, shadows, typography values, z-indexes, breakpoints, or motion values.
+- Before Angular UI, SCSS, Angular Material theme, component, or screen work, consult `docs/frontend/design/frontend-design-foundation-reference.md`. If live Penpot contradicts that reference, STOP and obtain design resolution before implementation.
 - Canonical keyboard focus ring: `focus.ring.width = 2px`, `focus.ring.offset = 4px`, and `focus.ring.shadow = 0 0 0 4 #006B66`. `border.focus = #4F46B8` is a distinct focused-border/accent token and MUST NOT be substituted for the keyboard focus ring unless a component contract explicitly uses it.
 - Canonical standard form-field/select foundation: `height = 64px`, `radius = 12px`, and minimum trailing action target `48 × 48px`. The 48px Preparation Package filter draft does not establish a compact control variant. A compact field/select variant may be created only through a later explicit design-system decision.
 - There are currently no approved canonical project motion duration/easing tokens. Do not invent or hard-code project-authored motion duration or easing values. Until canonical motion tokens are approved, prefer no custom decorative transition over arbitrary animation. Required state meaning must remain complete without animation. Framework-internal behavior is not visual authority and must not be copied into project tokens.

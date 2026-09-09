@@ -11,6 +11,7 @@ This document does not define temporary phase scope, visual design, acceptance c
 Separate documents own those decisions:
 
 - Approved Penpot artifacts own final visual design decisions. Penpot is the official visual design authority and single source of truth within the security, accessibility, and architecture constraints in this document.
+- `docs/frontend/design/frontend-design-foundation-reference.md` is the canonical textual implementation mapping of the approved Penpot frontend foundation and MUST be consulted before Angular UI, SCSS, Angular Material theme, component, or screen work.
 - Figma is non-authoritative unless Karam explicitly records a future decision changing the Penpot-only authority.
 - Future approved frontend design specifications own phase scope, behavior, and acceptance criteria.
 - Future approved implementation plans own execution steps, task sequencing, verification commands, and commit strategy.
@@ -348,6 +349,8 @@ Long-lived subscriptions require explicit ownership and cleanup documentation.
 ## Penpot And Visual Design Boundary
 
 Visual design is handled separately through approved Penpot artifacts. Penpot is the official visual design authority and single source of truth for approved visual design decisions.
+
+`docs/frontend/design/frontend-design-foundation-reference.md` records the canonical textual implementation mapping for the approved Penpot frontend foundation. If live Penpot evidence conflicts with that reference, implementation MUST stop for design resolution and reference update instead of guessing or silently choosing either source.
 
 Approved Penpot artifacts and approved design tokens become authoritative for:
 

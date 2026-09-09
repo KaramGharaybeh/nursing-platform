@@ -10,6 +10,7 @@ Authoritative frontend rules remain in:
 
 - `docs/frontend/frontend-project-rules.md`
 - `docs/frontend/frontend-architecture.md`
+- `docs/frontend/design/frontend-design-foundation-reference.md`
 - approved design specifications under `docs/frontend/design/specs/`
 - canonical backend/OpenAPI contracts under `docs/frontend/design/integration/openapi/`
 
@@ -22,7 +23,7 @@ When frontend sources conflict, use this precedence for implementation execution
 1. Current explicit user or technical-lead decisions.
 2. Current execution state and task/gate authority in this ledger, with `PROGRESS.md` as the concise current-session handoff.
 3. Current frontend architecture and project rules in `docs/frontend/frontend-architecture.md` and `docs/frontend/frontend-project-rules.md`.
-4. Approved design specifications and approved Penpot/design evidence.
+4. `docs/frontend/design/frontend-design-foundation-reference.md`, approved design specifications, and approved Penpot/design evidence.
 5. Canonical backend/OpenAPI authority for API, validation, auth, authorization, security, and business behavior.
 6. Historical planning, design inventory, evidence packets, trackers, and older prose.
 
@@ -1082,25 +1083,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-009` — Angular Material theme bridge
 
-- status: `BLOCKED`
+- status: `IN PROGRESS`
 - blocker_types: `DESIGN`
-- evidence_date: 2026-09-06
+- evidence_date: 2026-09-09
 - baseline_head: `1145863`
 - technical_decisions_resolved: Future T-FE-009 implementation is approved to use exact direct pins `@angular/material@22.1.5` and `@angular/cdk@22.1.5`; `@angular/animations` is not approved and not required; theme family remains M2 using `mat.m2-define-palette(...)` and `mat.m2-define-light-theme(...)`; scope is a single light theme only; bridge path remains `frontend/src/styles/_material-theme-bridge.scss`; future integration remains through `frontend/src/styles.scss`; custom Material typography and density remain deferred unless separately approved.
-- design_blocker_summary: Implementation is blocked by missing approved design inputs, not by Angular, npm, Material/CDK version ambiguity, animations, or tooling. The unresolved inputs are Material primary/accent role mapping for `--np-color-brand-1`, `--np-color-brand-2`, and `--np-color-brand-3`; complete approved M2 hue/contrast palette data; and an approved warn/error palette or explicit Material fallback policy. Draft `#00796B` remains non-authoritative; the approved foundation value remains `#006B66` until explicit design authority supersedes it.
-- exclusion_summary: No Material packages were installed, no dependency-policy change was made, no `_material-theme-bridge.scss` was created, no theme source was implemented, no build/lint/test/quality command was rerun, no frontend/backend/OpenAPI/Penpot/design source changed, and no `T-FE-010` or later task was started.
+- design_reference_checkpoint: Phase A creates `docs/frontend/design/frontend-design-foundation-reference.md` as the canonical textual implementation mapping for the live Penpot `Frontend Design Foundation` while preserving Penpot as visual source of truth and backend/OpenAPI as behavior/security authority. Live Penpot MCP inspection verified the file name, page set, `0` local colors, `34` local typographies, `1` local component, token sets `Spacing Shape` and `Elevation States`, approved color values, spacing/radius values, elevation/focus/state tokens, and documented focus evidence conflict.
+- design_decisions_resolved: Technical lead resolved the T-FE-009 Material role mapping as Material M2 primary = Nursing Teal `#006B66`, accent = Professional Navy `#173B57`, warn = Error `#B3261E`; Warning `#8A4B00` remains a separate recoverable-warning semantic; Exam/Focus Indigo `#4F46B8` remains a separate exam/focus semantic. The implementation must not synthesize 50–900 ramps, must not treat Angular default brand palettes as visual authority, and must stop if Angular Material Sass requires invented hue/contrast data.
+- known_focus_conflict: Colors authority says `border/focus = #4F46B8`; Components examples use indigo/blue focus treatment; Elevation & States token authority says `focus.ring.shadow = 0 0 0 4px #006B66` with `focus.ring.offset = 4px`; existing VERIFIED frontend focus-token behavior remains unchanged until explicit reconciliation. `T-FE-009` must not opportunistically change focus behavior.
+- exclusion_summary: Phase A is documentation/governance only. No Material packages are installed in Phase A, no dependency-policy change is made in Phase A, no `_material-theme-bridge.scss` is created in Phase A, no theme source is implemented in Phase A, no backend/OpenAPI/Penpot source is changed, and no `T-FE-013`, routing, screen, or later task is started.
 
 ### `ST-FE-009` — Bridge tokens to single Angular Material theme
 
-- status: `BLOCKED`
+- status: `IN PROGRESS`
 - blocker_types: `DESIGN`
-- evidence_summary: Subtask is blocked until approved design authority provides either complete M2 primary/accent/warn palettes with hue and contrast data plus role assignment, or an explicit fallback policy naming the allowed Material defaults/fallback palettes and exact Nursing Platform brand-token role mapping.
+- evidence_summary: Phase A records the required Penpot foundation reference and technical-lead Material role mapping. Phase B still must install exact Material/CDK pins, implement the centralized M2 bridge, compile the theme, verify approved primary/accent/warn values, preserve warning/exam/focus semantics, and stop if Material Sass requires invented hue/contrast data.
 
 ### `GATE-FE-T009`
 
-- status_result: `BLOCKED`
+- status_result: `IN PROGRESS`
 - blocker_types: `DESIGN`
-- evidence_summary: Gate is not ready for Material theme build/CSS evidence because the required design inputs for safe M2 palette construction are absent. `GATE-FE-T009` is not `VERIFIED`.
+- evidence_summary: Phase A design-reference evidence is being committed first. Gate remains not `VERIFIED` until Phase B supplies exact dependency evidence, Material M2 bridge source checks, build/CSS evidence, focused theme/config checks, full frontend verification, scope review, and completion commit.
 
 ### `T-FE-010` — Base accessibility styles
 

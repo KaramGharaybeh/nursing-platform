@@ -322,6 +322,71 @@ describe('refresh-coordinator', () => {
     expect(results).toEqual([refreshSuccessFixture()]);
   });
 
+  it('invalidates an in-flight refresh so a late success neither repopulates storage nor reaches waiters', () => {
+    const { coordinator, httpMock, tokens, backingStore } =
+      setupWithRefreshToken('refresh-token-stored');
+    const results: AuthResult[] = [];
+    const errors: unknown[] = [];
+
+    coordinator.refresh().subscribe({
+      next: (result) => {
+        results.push(result);
+      },
+      error: (error: unknown) => {
+        errors.push(error);
+      },
+    });
+
+    coordinator.invalidate();
+
+    httpMock.expectOne('/api/v1/auth/refresh').flush(refreshSuccessFixture());
+    httpMock.verify();
+
+    expect(results).toEqual([]);
+    expect(errors.length).toBe(1);
+    expect(tokens.getAccessToken()).toBeUndefined();
+    expect(tokens.getAccessTokenExpiresAt()).toBeUndefined();
+    expect(tokens.getRefreshToken()).toBe('refresh-token-stored');
+    expect(backingStore.values.get('np.auth.refreshToken')).toBe('refresh-token-stored');
+  });
+
+  it('resets cleanly after invalidation so a later refresh starts a fresh backend request', () => {
+    const { coordinator, httpMock, tokens } = setupWithRefreshToken('refresh-token-stored');
+    const firstResults: AuthResult[] = [];
+    const firstErrors: unknown[] = [];
+
+    coordinator.refresh().subscribe({
+      next: (result) => {
+        firstResults.push(result);
+      },
+      error: (error: unknown) => {
+        firstErrors.push(error);
+      },
+    });
+
+    coordinator.invalidate();
+
+    httpMock.expectOne('/api/v1/auth/refresh').flush(refreshSuccessFixture());
+    httpMock.verify();
+
+    expect(firstResults).toEqual([]);
+    expect(firstErrors.length).toBe(1);
+
+    const secondResults: AuthResult[] = [];
+    coordinator.refresh().subscribe((result) => {
+      secondResults.push(result);
+    });
+
+    const secondRequest = httpMock.expectOne('/api/v1/auth/refresh');
+    expect(secondRequest.request.body).toEqual({ refreshToken: 'refresh-token-stored' });
+    secondRequest.flush(refreshSuccessFixture());
+    httpMock.verify();
+
+    expect(secondResults).toEqual([refreshSuccessFixture()]);
+    expect(tokens.getAccessToken()).toBe('access-token-new');
+    expect(tokens.getRefreshToken()).toBe('refresh-token-new');
+  });
+
   it('keeps the coordinator free of forbidden integrations and token disclosure paths', () => {
     const source = readTextFile('src/app/core/auth/refresh-coordinator.ts');
     const lowered = source.toLowerCase();

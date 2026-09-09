@@ -17,6 +17,10 @@ export class AuthSessionBootstrap {
 
   readonly state: Signal<TokenSessionStatus> = this.statusSignal.asReadonly();
 
+  resolveAnonymous(): void {
+    this.statusSignal.set('anonymous');
+  }
+
   bootstrap(): Observable<TokenSessionStatus> {
     const refreshToken = this.tokens.getRefreshToken();
 

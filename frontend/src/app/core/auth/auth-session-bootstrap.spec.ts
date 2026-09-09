@@ -268,6 +268,42 @@ describe('auth-session-bootstrap', () => {
     expect(bootstrap.state()).toBe('authenticated');
   });
 
+  it('resolveAnonymous places bootstrap session state in anonymous without network calls', () => {
+    const { bootstrap, httpMock, backingStore } = setup();
+
+    expect(bootstrap.state()).toBe('initializing');
+
+    bootstrap.resolveAnonymous();
+
+    httpMock.expectNone('/api/v1/auth/refresh');
+    httpMock.expectNone('/api/v1/me');
+    httpMock.verify();
+
+    expect(bootstrap.state()).toBe('anonymous');
+    expect(backingStore.values.size).toBe(0);
+  });
+
+  it('resolveAnonymous resets an authenticated bootstrap to anonymous without further network calls', () => {
+    const backingStore = new MemoryStorageBackend();
+    backingStore.setItem('np.auth.refreshToken', 'refresh-token-stored');
+    const { bootstrap, httpMock, backingStore: store } = setup(backingStore);
+
+    bootstrap.bootstrap().subscribe();
+
+    httpMock.expectOne('/api/v1/auth/refresh').flush(refreshSuccessFixture());
+    httpMock.verify();
+    expect(bootstrap.state()).toBe('authenticated');
+
+    bootstrap.resolveAnonymous();
+
+    httpMock.expectNone('/api/v1/auth/refresh');
+    httpMock.expectNone('/api/v1/me');
+    httpMock.verify();
+
+    expect(bootstrap.state()).toBe('anonymous');
+    expect(store.values.get('np.auth.refreshToken')).toBe('refresh-token-new');
+  });
+
   it('keeps bootstrap free of current-user, header, storage, and refresh-coordination behavior', () => {
     const source = readTextFile('src/app/core/auth/auth-session-bootstrap.ts');
     const lowered = source.toLowerCase();

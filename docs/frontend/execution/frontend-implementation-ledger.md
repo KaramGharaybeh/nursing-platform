@@ -1386,6 +1386,8 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- logout_safe_support_correction_date: 2026-09-09
+- logout_safe_support_correction_summary: Narrow T-FE-026 support correction added `AuthSessionBootstrap.resolveAnonymous()` as an explicitly authorized anonymous reset API. It updates only the existing token-session state signal to `anonymous` and performs no transport, refresh, token storage, current-user, logout, navigation, route guard, or UI behavior.
 - governance_correction_date: 2026-09-09
 - governance_correction_summary: Technical lead accepted the DAG/session-bootstrap order conflict and explicitly rejected a manual bearer-header exception inside `T-FE-023`. `T-FE-023` now owns token-session bootstrap only: unknown/bootstrap state, refresh-token availability through the `T-FE-022` token-storage abstraction, anonymous completion without network calls when no refresh token exists, one startup refresh attempt through the `T-FE-021` auth transport when a refresh token exists, successful token-material persistence through token storage, invalid/expired/revoked refresh clearing local token material and resolving anonymous, and no `/api/v1/me`, no manual Authorization header, no general single-flight refresh coordination, no interceptor behavior, no route guards, and no UI behavior.
 - downstream_hydration_owner: `T-FE-138` owns authenticated current-user hydration after `GATE-FE-T025` so `/me` calls rely on normal bearer interceptor behavior.
@@ -1401,6 +1403,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- logout_safe_support_evidence: Focused bootstrap tests prove `resolveAnonymous()` moves token-session state to `anonymous`, makes no `/auth/refresh` or `/me` network call, does not access browser storage directly, and introduces no current-user/logout/navigation/guard/UI behavior.
 - governance_correction_summary: Subtask scope is token-session bootstrap only and must not hydrate current user.
 - evidence_summary: Subtask implemented a minimal token-session bootstrap state machine and startup initializer. It uses `TokenStorage` and `AuthTransport.refresh` only, resolves authenticated/anonymous token-session state, and preserves `/me` hydration, bearer injection, refresh coordination, logout, guards, and UI as later-task responsibilities.
 - closure_evidence: Subtask accepted as complete from focused bootstrap tests, full frontend verification, and scope/boundary evidence.
@@ -1418,6 +1421,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status: `VERIFIED`
 - blocker_types: `SECURITY`
 - evidence_date: 2026-09-09
+- logout_safe_support_correction_summary: Narrow T-FE-026 support correction added `RefreshCoordinator.invalidate()` using a generation check. Invalidation advances the active refresh generation and clears the in-flight observable reference. A late response from an earlier invalidated generation cannot write returned token material and invalidated callers do not receive a successful restored `AuthResult`; in-flight cleanup remains bounded to the matching observable, and a later explicit refresh can start fresh when valid token material exists. No bearer, navigation, UI, logout workflow, current-user, `/me`, retry/backoff, direct browser storage, generated/backend/OpenAPI/package behavior was added.
 - scope_summary: Implemented only single-flight refresh coordination in `frontend/src/app/core/auth/refresh-coordinator.ts` with focused tests in `frontend/src/app/core/auth/refresh-coordinator.spec.ts`. No backend, canonical OpenAPI, generated client, package/dependency, auth transport, token storage, session bootstrap, bearer interceptor, guard, route, UI/component, logout, current-user hydration, T-FE-025, T-FE-026, or T-FE-138 implementation files were modified.
 - implementation_summary: `RefreshCoordinator` is an injectable root service. `refresh()` reuses one in-flight observable per app/tab instance, reads the refresh token through `TokenStorage.getRefreshToken()`, calls only `AuthTransport.refresh({ refreshToken })`, writes returned token material through `TokenStorage.setTokenMaterial({ accessToken, accessTokenExpiresAt: expiresAt, refreshToken })`, shares the same result/error with concurrent callers, clears token material through `TokenStorage.clear()` on refresh/no-token/storage failure, and resets its in-flight state after success or failure so later refresh attempts start a new backend request.
 - boundary_summary: The implementation has no retry/backoff policy, no bearer header injection, no interceptor behavior, no failed-request replay queue, no manual Authorization header, no direct `HttpClient`, no `/api/v1/me` or current-user hydration, no route/guard/UI/logout behavior, no direct `sessionStorage`/`localStorage`/`globalThis` storage access, no token logging, and no generated/backend/OpenAPI/package changes.
@@ -1429,6 +1433,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status: `VERIFIED`
 - blocker_types: `SECURITY`
+- logout_safe_support_evidence: Focused refresh-coordinator tests prove refresh starts, logout-style invalidation before completion prevents a late successful refresh response from repopulating token material, invalidated waiting callers do not receive `AuthResult` success, coordinator state resets cleanly, a later refresh starts a fresh backend request when valid token material remains, and forbidden integration checks still exclude direct browser storage, logout/navigation/UI, current-user, `/me`, bearer, guard, retry/backoff, generated/backend/OpenAPI/package behavior.
 - evidence_summary: Subtask implemented a minimal refresh coordinator over `AuthTransport.refresh` and `TokenStorage`, proving shared concurrent refresh, token-material update before release, rotated refresh-token replacement, failure clearing semantics, and in-flight reset for later attempts.
 - closure_evidence: Subtask accepted as complete from focused refresh-coordinator tests, full frontend verification, final-gate source/scope review, and git-guardian scope review.
 

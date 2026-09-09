@@ -50,7 +50,7 @@ Standing authorization never authorizes staging, committing, pushing, destructiv
 
 The Orchestrator must select Tasks by DAG eligibility, not by Task number alone. A Task is eligible only when all declared predecessor Gates are `VERIFIED`, the Standing Implementation Authorization conditions pass, and no blocker type applies. Blocked Tasks do not block unrelated eligible branches unless a declared dependency requires them. Range dependencies such as `GATE-FE-T008..T012` require every Gate in that inclusive range to be `VERIFIED`.
 
-Example: `T-FE-013` must not run while any required predecessor Gate is not `VERIFIED`; in particular, `GATE-FE-T009` remains `BLOCKED`, so `T-FE-013` is not eligible.
+Example: `T-FE-013` must not run while any required predecessor Gate is not `VERIFIED`; after `GATE-FE-T009` closes, it still requires every predecessor in `GATE-FE-T008..T012` to remain `VERIFIED` before eligibility.
 
 ### Mandatory human STOP conditions
 
@@ -1083,7 +1083,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-009` — Angular Material theme bridge
 
-- status: `IN PROGRESS`
+- status: `VERIFIED`
 - blocker_types: `DESIGN`
 - evidence_date: 2026-09-09
 - baseline_head: `1145863`
@@ -1092,18 +1092,22 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - design_decisions_resolved: Technical lead resolved the T-FE-009 Material role mapping as Material M2 primary = Nursing Teal `#006B66`, accent = Professional Navy `#173B57`, warn = Error `#B3261E`; Warning `#8A4B00` remains a separate recoverable-warning semantic; Exam/Focus Indigo `#4F46B8` remains a separate exam/focus semantic. The implementation must not synthesize 50–900 ramps, must not treat Angular default brand palettes as visual authority, and must stop if Angular Material Sass requires invented hue/contrast data.
 - known_focus_conflict: Colors authority says `border/focus = #4F46B8`; Components examples use indigo/blue focus treatment; Elevation & States token authority says `focus.ring.shadow = 0 0 0 4px #006B66` with `focus.ring.offset = 4px`; existing VERIFIED frontend focus-token behavior remains unchanged until explicit reconciliation. `T-FE-009` must not opportunistically change focus behavior.
 - exclusion_summary: Phase A is documentation/governance only. No Material packages are installed in Phase A, no dependency-policy change is made in Phase A, no `_material-theme-bridge.scss` is created in Phase A, no theme source is implemented in Phase A, no backend/OpenAPI/Penpot source is changed, and no `T-FE-013`, routing, screen, or later task is started.
+- implementation_summary: Phase A was committed as `e243976 docs(frontend): add canonical design foundation reference`. Phase B installed exact direct dependencies `@angular/material@22.1.5` and `@angular/cdk@22.1.5` with no direct `@angular/animations`; updated dependency-policy approvals for only those pins; added centralized `frontend/src/styles/_material-theme-bridge.scss`; and integrated it only from `frontend/src/styles.scss`. The bridge uses Angular Material M2 Sass APIs (`mat.m2-define-palette(...)`, `mat.m2-define-light-theme(...)`) with one light theme only, no dark theme, no custom Material typography, and no custom Material density.
+- palette_strategy: The bridge uses flat custom M2 palettes because Penpot did not provide approved 50-900 hue ramps. Each Material role repeats only the approved role color across required M2 hue keys: Primary `#006B66`, Accent `#173B57`, Warn/Error `#B3261E`; all contrast entries use approved `#FFFFFF`. No synthetic shade values, Angular built-in palettes, `#005A56`, semantic Warning `#8A4B00`, or Exam/Focus Indigo `#4F46B8` were introduced into the Material bridge.
+- verification_summary: TDD RED was observed before implementation. Focused Material bridge source-contract tests passed 1 file / 11 tests. Full frontend tests passed 16 files / 160 tests. `npm run lint` passed. `npm run lint:styles` passed. `npm run quality` passed, including dependency guard, lint, stylelint, full tests, and production build. `git diff --check` passed and staged area was empty before final documentation update.
+- integrity_summary: Changed T-FE-009 Phase B implementation/config/test scope is limited to `frontend/package.json`, `frontend/package-lock.json`, `frontend/dependency-policy.json`, `frontend/src/styles.scss`, `frontend/src/styles/_material-theme-bridge.scss`, and `frontend/src/styles/material-theme-bridge.spec.ts`, plus final evidence updates in `PROGRESS.md` and this ledger. Git-guardian scope review returned PASS for exact Phase B scope and confirmed no backend, canonical OpenAPI, generated API, Angular components, focus/accessibility foundation, responsive/RTL foundation, screens, routing, `T-FE-013+`, or canonical design-reference mutation. OpenAI direct fallback was used only after Muse/BigPickle worker attempts were blocked by repository agent command permissions (`npm install` and compound shell checks), and only within the bounded approved Phase B scope.
 
 ### `ST-FE-009` — Bridge tokens to single Angular Material theme
 
-- status: `IN PROGRESS`
+- status: `VERIFIED`
 - blocker_types: `DESIGN`
-- evidence_summary: Phase A records the required Penpot foundation reference and technical-lead Material role mapping. Phase B still must install exact Material/CDK pins, implement the centralized M2 bridge, compile the theme, verify approved primary/accent/warn values, preserve warning/exam/focus semantics, and stop if Material Sass requires invented hue/contrast data.
+- evidence_summary: Phase A records the required Penpot foundation reference and technical-lead Material role mapping. Phase B installed exact Material/CDK `22.1.5` pins, implemented the centralized M2 single-light-theme bridge, compiled successfully through `npm run quality`, verified approved primary/accent/warn values, preserved warning/exam/focus semantics, and avoided invented hue ramps by using flat approved-color M2 palettes.
 
 ### `GATE-FE-T009`
 
-- status_result: `IN PROGRESS`
+- status_result: `VERIFIED`
 - blocker_types: `DESIGN`
-- evidence_summary: Phase A design-reference evidence is being committed first. Gate remains not `VERIFIED` until Phase B supplies exact dependency evidence, Material M2 bridge source checks, build/CSS evidence, focused theme/config checks, full frontend verification, scope review, and completion commit.
+- evidence_summary: Gate evidence is complete. Phase A reference commit is `e243976 docs(frontend): add canonical design foundation reference`. Phase B supplies exact dependency evidence for `@angular/material@22.1.5` and `@angular/cdk@22.1.5` with no direct `@angular/animations`; centralized Material M2 bridge source checks; one-light-theme/no-dark/no-typography/no-density checks; flat approved-color palette evidence; focused test result 1 file / 11 tests; full frontend result 16 files / 160 tests; `npm run lint`, `npm run lint:styles`, and `npm run quality` including production build; `git diff --check`; empty staged area before final evidence update; and git-guardian PASS for exact atomic T-FE-009 Phase B scope.
 
 ### `T-FE-010` — Base accessibility styles
 

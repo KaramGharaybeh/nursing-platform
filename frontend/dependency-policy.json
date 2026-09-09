@@ -4,10 +4,12 @@
   "scope": "Direct dependency guard for frontend/package.json only. Transitive dependencies remain governed by package-lock.json.",
   "approvedDirectDependencies": {
     "dependencies": {
+      "@angular/cdk": "22.1.5",
       "@angular/common": "^22.1.0",
       "@angular/compiler": "^22.1.0",
       "@angular/core": "^22.1.0",
       "@angular/forms": "^22.1.0",
+      "@angular/material": "22.1.5",
       "@angular/platform-browser": "^22.1.0",
       "@angular/router": "^22.1.0",
       "rxjs": "~7.8.0",
@@ -33,8 +35,6 @@
   "deniedDirectDependencies": {
     "primeng": "Unapproved UI component dependency for current frontend architecture.",
     "@ngrx/store": "Unapproved state management dependency; Angular signals and approved project state patterns govern current scope.",
-    "tailwindcss": "Unapproved styling framework dependency; project-owned SCSS/theme architecture governs current scope.",
-    "@angular/material": "Architecturally permitted for future approved theme/component tasks, but not approved or installed by T-FE-004.",
-    "@angular/cdk": "Architecturally permitted for future approved accessibility/overlay tasks, but not approved or installed by T-FE-004."
+    "tailwindcss": "Unapproved styling framework dependency; project-owned SCSS/theme architecture governs current scope."
   }
 }

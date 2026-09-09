@@ -268,6 +268,17 @@ Rules:
 - Product routes extend the canonical route registry through explicitly authorized Feature Tasks.
 - Completed-feature protection must not prevent a future approved Feature Task from intentionally extending the route registry when that registry file is declared in the Task's authorized affected scope.
 
+## 10.1 Angular Component File Separation Governance
+
+The frontend architecture now explicitly requires ordinary production Angular components under `frontend/src/app` to separate component TypeScript, rendered markup, and component styling into colocated `.ts`, `.html`, and `.scss` files, with focused colocated `.spec.ts` coverage where behavior or rendering is testable. Inline component `template:`, inline component `styles:`, and template-local `<style>` blocks are prohibited for ordinary production components; Angular allowing these forms is not project authority to use them. The canonical architecture rule lives in `docs/frontend/frontend-architecture.md`, concrete enforcement and exception boundaries live in `docs/frontend/frontend-project-rules.md`, and compact agent enforcement lives in `AGENTS.md`.
+
+This governance correction is forward-looking and does not retroactively invalidate already-VERIFIED task evidence. Existing source requiring later bounded structural remediation under the newly explicit rule:
+
+- `frontend/src/app/shared/ui/loading-error-retry.ts` — inline production component template from `T-FE-033`.
+- `frontend/src/app/app.html` — scaffold placeholder template contains an embedded `<style>` block while `frontend/src/app/app.scss` exists.
+
+Do not refactor these files opportunistically. Remediate them only in a separately authorized bounded architecture-remediation task or in an explicitly declared reopened/touched scope with focused verification.
+
 ## 11. Task Registry
 
 All Tasks have initial `status: NOT STARTED`.

@@ -177,4 +177,16 @@ describe('LoadingErrorRetry', () => {
     expect(combined).not.toContain('settimeout');
     expect(combined).not.toContain('interval');
   });
+
+  it('uses colocated external template and stylesheet metadata', () => {
+    const componentSource = readTextFile('src/app/shared/ui/loading-error-retry.ts');
+    const templateSource = readTextFile('src/app/shared/ui/loading-error-retry.html');
+
+    expect(componentSource).toContain("templateUrl: './loading-error-retry.html'");
+    expect(componentSource).toContain("styleUrl: './loading-error-retry.scss'");
+    expect(componentSource).not.toContain('template: `');
+    expect(componentSource).not.toContain('styles:');
+    expect(templateSource).toContain('@if (state.kind ===');
+    expect(templateSource).not.toContain('<style');
+  });
 });

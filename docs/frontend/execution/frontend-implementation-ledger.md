@@ -272,12 +272,14 @@ Rules:
 
 The frontend architecture now explicitly requires ordinary production Angular components under `frontend/src/app` to separate component TypeScript, rendered markup, and component styling into colocated `.ts`, `.html`, and `.scss` files, with focused colocated `.spec.ts` coverage where behavior or rendering is testable. Inline component `template:`, inline component `styles:`, and template-local `<style>` blocks are prohibited for ordinary production components; Angular allowing these forms is not project authority to use them. The canonical architecture rule lives in `docs/frontend/frontend-architecture.md`, concrete enforcement and exception boundaries live in `docs/frontend/frontend-project-rules.md`, and compact agent enforcement lives in `AGENTS.md`.
 
-This governance correction is forward-looking and does not retroactively invalidate already-VERIFIED task evidence. Existing source requiring later bounded structural remediation under the newly explicit rule:
+This governance correction is forward-looking and does not retroactively invalidate already-VERIFIED task evidence. Existing source requiring later bounded structural remediation under the newly explicit rule was recorded as:
 
 - `frontend/src/app/shared/ui/loading-error-retry.ts` — inline production component template from `T-FE-033`.
 - `frontend/src/app/app.html` — scaffold placeholder template contains an embedded `<style>` block while `frontend/src/app/app.scss` exists.
 
 Do not refactor these files opportunistically. Remediate them only in a separately authorized bounded architecture-remediation task or in an explicitly declared reopened/touched scope with focused verification.
+
+T-FE-139 later completed the bounded structural remediation for exactly those two recorded targets. T-FE-033 remains historically `VERIFIED`; the later component-separation remediation is recorded separately and does not retroactively invalidate the accepted loading/error/retry behavior or evidence.
 
 ## 11. Task Registry
 
@@ -423,6 +425,7 @@ All Tasks have initial `status: NOT STARTED`.
 | `T-FE-136` | `M-FE-019` | Final responsive audit | responsive + screens | breakpoints | `DESIGN` |
 | `T-FE-137` | `M-FE-019` | Production payment release decision | `GATE-FE-T089` | no provider invention | `BACKEND`,`EXTERNAL` |
 | `T-FE-138` | `M-FE-006` | Authenticated current-user hydration | `GATE-FE-T025` | `GET /api/v1/me` via normal transport; relies on bearer interceptor; current-user/session identity state only | `CONTRACT_CLARIFICATION`,`SECURITY` |
+| `T-FE-139` | `M-FE-008` | Component separation remediation | component-separation governance acceptance, `GATE-FE-T033` | structural-only remediation for recorded inline template/style violations; no UI redesign | `SCOPE` |
 
 ## 12. Subtask Registry
 
@@ -583,6 +586,7 @@ All Subtasks initially have `status: NOT STARTED`. Each Subtask inherits its par
 | `ST-FE-135` | `T-FE-135` | Run final RTL audit. |
 | `ST-FE-136` | `T-FE-136` | Run final responsive audit. |
 | `ST-FE-137` | `T-FE-137` | Record production payment release decision. |
+| `ST-FE-139` | `T-FE-139` | Move recorded inline production component template and template-local style block to colocated external files without behavior or visual redesign. |
 
 ## 13. Verification Gate Registry
 
@@ -728,6 +732,7 @@ All Gates initially have `status_result: NOT STARTED`. Every Gate must use the c
 | `GATE-FE-T136` | `T-FE-136` | responsive + screens | responsive audit | `DESIGN` |
 | `GATE-FE-T137` | `T-FE-137` | `GATE-FE-T089` | payment release decision | `BACKEND`,`EXTERNAL` |
 | `GATE-FE-T138` | `T-FE-138` | `GATE-FE-T025` | current-user hydration tests proving `GET /api/v1/me` is called through normal auth transport/generation path, bearer injection is supplied by `T-FE-025`, current-user/session identity state is established, and no token refresh/storage/interceptor behavior is duplicated | `CONTRACT_CLARIFICATION`,`SECURITY` |
+| `GATE-FE-T139` | `T-FE-139` | component-separation governance acceptance, `GATE-FE-T033` | structural compliance audit, focused component tests, full frontend quality, git scope evidence | `SCOPE` |
 
 ## 14. Screen Ownership Matrix
 
@@ -1940,3 +1945,29 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `BACKEND`
 - evidence_summary: Admin orders/recruitment classification evidence is recorded: OpenAPI absence of admin order/recruitment routes, backend admin-group limitation, permissions absence, distinction from nurse/employer/candidate-search routes, negative source/test searches, no policy decision, and no implementation performed.
 - closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; ADM-009/010 UI remains blocked.
+
+### `T-FE-139` — Component separation remediation
+
+- status: `VERIFIED`
+- blocker_types: `SCOPE`
+- evidence_date: 2026-09-09
+- scope_summary: Structural-only remediation for the two existing Angular component-separation violations recorded after the governance rule was strengthened: `frontend/src/app/shared/ui/loading-error-retry.ts` inline production template and `frontend/src/app/app.html` template-local `<style>` block. No UI redesign, behavior change, shell/routing/guard/screen work, backend/OpenAPI/generated-client/package/dependency mutation, staging, commit, or push occurred.
+- implementation_summary: `LoadingErrorRetry` now uses `templateUrl: './loading-error-retry.html'` with the former inline markup extracted to colocated `frontend/src/app/shared/ui/loading-error-retry.html`; the existing external `styleUrl: './loading-error-retry.scss'` remains in use. `frontend/src/app/app.html` no longer contains a template-local `<style>` block; the moved scaffold/app styles now live in colocated `frontend/src/app/app.scss` with only stylelint-required normalization. Focused structural coverage was added to `frontend/src/app/shared/ui/loading-error-retry.spec.ts`.
+- preservation_summary: T-FE-033 remains historically `VERIFIED`; T-FE-139 does not retroactively invalidate that task. Loading, error, retry, ready-state projection, accessibility semantics, native-button retry behavior, normalized Problem Details usage, and no feature/business/routing/auth/generated coupling remain preserved by the focused component tests.
+- verification_summary: Focused LoadingErrorRetry test first failed RED because `loading-error-retry.html` did not exist, then passed GREEN with 1 file / 8 tests. Full frontend verification passed 15 files / 149 tests. `npm run lint`, `npm run lint:styles`, `npm run quality` including production build, and `git diff --check` passed. Targeted structural audit found no inline production Angular `template:`, no inline production `styles:`, no template-local `<style>` block in the remediated production files or broader `frontend/src/app` production scope excluding `.spec.ts`; `LoadingErrorRetry` external HTML/SCSS metadata was confirmed. Staged area remained empty.
+- scope_evidence: Git-guardian review `T-FE-139-GIT-GUARDIAN-SKILL-CORRECTION-2026-09-09` returned `PASS` with compliant skill preflight. Dirty scope was limited to `PROGRESS.md`, `docs/frontend/execution/frontend-implementation-ledger.md`, `frontend/src/app/app.html`, `frontend/src/app/app.scss`, `frontend/src/app/shared/ui/loading-error-retry.spec.ts`, `frontend/src/app/shared/ui/loading-error-retry.ts`, and new untracked `frontend/src/app/shared/ui/loading-error-retry.html`. No backend, OpenAPI, generated API, package/dependency, routing, shell, screen, unrelated component, database/migration, or `.opencode` paths changed. `docs.zip` remained untracked and outside project scope.
+- closure_evidence: T-FE-139 is closed as `VERIFIED` and ready for atomic commit `refactor(frontend): separate component templates and styles`; do not push or start another frontend task.
+
+### `ST-FE-139` — Move recorded inline/template-local component content to external files
+
+- status: `VERIFIED`
+- blocker_types: `SCOPE`
+- evidence_summary: Recorded inline production component template and template-local app style block were moved to colocated external files without behavior, accessibility, routing, shell, screen, generated-client, backend, OpenAPI, package, or dependency changes.
+- closure_evidence: Subtask accepted as structurally complete from focused RED/GREEN component tests, full frontend verification, structural source audit, and git-guardian PASS.
+
+### `GATE-FE-T139`
+
+- status_result: `VERIFIED`
+- blocker_types: `SCOPE`
+- evidence_summary: Gate evidence is recorded: structural component-separation audit PASS, focused LoadingErrorRetry 1 file / 8 tests PASS, full frontend 15 files / 149 tests PASS, lint/stylelint/quality/build PASS, `git diff --check` PASS, staged area empty, git-guardian scope review PASS, and `docs.zip` remained untracked/out of scope.
+- closure_evidence: Gate is closed as `VERIFIED`; T-FE-033 remains historically `VERIFIED` with no retroactive invalidation. Stop for review; do not stage, commit, push, or start the next task without explicit instruction.

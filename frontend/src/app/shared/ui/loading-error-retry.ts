@@ -12,37 +12,7 @@ export type LoadingErrorRetryState =
 
 @Component({
   selector: 'np-loading-error-retry',
-  template: `
-    @if (state.kind === 'loading') {
-      <section
-        class="np-loading-error-retry np-loading-error-retry-loading"
-        role="status"
-        aria-live="polite"
-        aria-busy="true"
-      >
-        <span class="np-loading-error-retry-indicator" aria-hidden="true"></span>
-        <span>{{ loadingLabel }}</span>
-      </section>
-    } @else if (state.kind === 'error') {
-      <section
-        class="np-loading-error-retry np-loading-error-retry-error"
-        role="alert"
-        aria-live="assertive"
-      >
-        <h2 class="np-loading-error-retry-title">{{ errorTitle }}</h2>
-        @if (errorDetail !== undefined) {
-          <p class="np-loading-error-retry-detail">{{ errorDetail }}</p>
-        }
-        @if (state.canRetry === true) {
-          <button class="np-loading-error-retry-retry" type="button" (click)="requestRetry()">
-            {{ retryLabel }}
-          </button>
-        }
-      </section>
-    } @else {
-      <ng-content />
-    }
-  `,
+  templateUrl: './loading-error-retry.html',
   styleUrl: './loading-error-retry.scss',
 })
 export class LoadingErrorRetry {

@@ -1,0 +1,144 @@
+@if (controlKind === 'input') {
+  <mat-form-field class="np-standard-field" appearance="outline" subscriptSizing="fixed">
+    <mat-label>
+      {{ label }}
+      @if (requirementLabel !== undefined) {
+        <span class="np-standard-control-optional">{{ requirementLabel }}</span>
+      }
+    </mat-label>
+    <input
+      class="np-standard-field-native"
+      matInput
+      [id]="controlId"
+      [type]="type"
+      [value]="value"
+      [placeholder]="placeholder"
+      [required]="required"
+      [disabled]="disabled"
+      [readonly]="readonly"
+      [attr.aria-describedby]="describedBy"
+      [attr.aria-invalid]="hasError ? 'true' : null"
+      (input)="updateTextValue($any($event.target).value)"
+    />
+    @if (hasHelper) {
+      <mat-hint [id]="helperId" align="start">{{ helperText }}</mat-hint>
+    }
+    @if (hasError) {
+      <mat-hint [id]="errorId" align="end" class="np-standard-control-error">{{ errorText }}</mat-hint>
+    }
+  </mat-form-field>
+} @else if (controlKind === 'textarea') {
+  <mat-form-field class="np-standard-field np-standard-textarea" appearance="outline" subscriptSizing="fixed">
+    <mat-label>
+      {{ label }}
+      @if (requirementLabel !== undefined) {
+        <span class="np-standard-control-optional">{{ requirementLabel }}</span>
+      }
+    </mat-label>
+    <textarea
+      class="np-standard-field-native"
+      matInput
+      [id]="controlId"
+      [rows]="rows"
+      [value]="value"
+      [placeholder]="placeholder"
+      [required]="required"
+      [disabled]="disabled"
+      [readonly]="readonly"
+      [attr.aria-describedby]="describedBy"
+      [attr.aria-invalid]="hasError ? 'true' : null"
+      (input)="updateTextValue($any($event.target).value)"
+    ></textarea>
+    @if (hasHelper) {
+      <mat-hint [id]="helperId" align="start">{{ helperText }}</mat-hint>
+    }
+    @if (hasError) {
+      <mat-hint [id]="errorId" align="end" class="np-standard-control-error">{{ errorText }}</mat-hint>
+    }
+  </mat-form-field>
+} @else if (controlKind === 'select') {
+  <mat-form-field class="np-standard-field" appearance="outline" subscriptSizing="fixed">
+    <mat-label>
+      {{ label }}
+      @if (requirementLabel !== undefined) {
+        <span class="np-standard-control-optional">{{ requirementLabel }}</span>
+      }
+    </mat-label>
+    <mat-select
+      [id]="controlId"
+      [value]="value"
+      [required]="required"
+      [disabled]="disabled"
+      [attr.aria-describedby]="describedBy"
+      [attr.aria-invalid]="hasError ? 'true' : null"
+      (selectionChange)="updateSelectValue($event)"
+    >
+      <mat-select-trigger>{{ selectedOptionLabel() }}</mat-select-trigger>
+      @for (option of options; track option.value) {
+        <mat-option [value]="option.value" [disabled]="option.disabled === true">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+    @if (hasHelper) {
+      <mat-hint [id]="helperId" align="start">{{ helperText }}</mat-hint>
+    }
+    @if (hasError) {
+      <mat-hint [id]="errorId" align="end" class="np-standard-control-error">{{ errorText }}</mat-hint>
+    }
+  </mat-form-field>
+} @else if (controlKind === 'checkbox') {
+  <div class="np-standard-selection-control">
+    <mat-checkbox
+      [id]="controlId"
+      [checked]="checked"
+      [required]="required"
+      [disabled]="disabled"
+      [attr.aria-describedby]="describedBy"
+      (change)="updateChecked($event)"
+    >
+      {{ label }}
+    </mat-checkbox>
+    <div class="np-standard-control-support-row">
+      @if (requirementLabel !== undefined) {
+        <span class="np-standard-control-optional">{{ requirementLabel }}</span>
+      }
+      @if (hasHelper) {
+        <span [id]="helperId">{{ helperText }}</span>
+      }
+      @if (hasError) {
+        <span [id]="errorId" role="alert">{{ errorText }}</span>
+      }
+    </div>
+  </div>
+} @else if (controlKind === 'radio') {
+  <fieldset class="np-standard-selection-control np-standard-radio-control">
+    <legend>
+      {{ label }}
+      @if (requirementLabel !== undefined) {
+        <span class="np-standard-control-optional">{{ requirementLabel }}</span>
+      }
+    </legend>
+    <mat-radio-group
+      [id]="controlId"
+      [name]="controlId"
+      [value]="value"
+      [required]="required"
+      [disabled]="disabled"
+      [attr.aria-describedby]="describedBy"
+      (change)="updateRadioValue($event)"
+    >
+      @for (option of options; track option.value) {
+        <mat-radio-button [value]="option.value" [disabled]="option.disabled === true">
+          {{ option.label }}
+        </mat-radio-button>
+      }
+    </mat-radio-group>
+    <div class="np-standard-control-support-row">
+      @if (hasHelper) {
+        <span [id]="helperId">{{ helperText }}</span>
+      }
+      @if (hasError) {
+        <span [id]="errorId" role="alert">{{ errorText }}</span>
+      }
+    </div>
+  </fieldset>
+}

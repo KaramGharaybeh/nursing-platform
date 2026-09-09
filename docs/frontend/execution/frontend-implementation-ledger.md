@@ -1181,6 +1181,33 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Responsive/logical CSS evidence exists and OpenAI final gate accepted it: full frontend tests, Stylelint, quality/build, source-contract tests for breakpoint/gutter/helper/wiring/physical-direction invariants, `git diff --check`, and no staged files.
 - closure_evidence: Technical-lead review accepted T-FE-012 with verdict `PASS`; Gate is closed as `VERIFIED`. Committed scope `67dd5eb`: `frontend/src/styles.scss`, `frontend/src/styles/_responsive.scss`, `frontend/src/styles/abstracts/_responsive.scss`, `frontend/src/styles/responsive.spec.ts`.
 
+### `T-FE-013` — Standard form controls
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-09
+- scope_summary: Implemented the bounded shared standard form-control foundation only under `frontend/src/app/shared/ui/form-controls/`. Added standalone Angular Material wrapper components for standard text-like inputs (`text`, `email`, `password`, `search`, `number`), textarea, select, checkbox, and radio group, plus a barrel export and focused source/behavior tests. No switch, autocomplete, date picker, file upload, password visibility toggle, search clear button, feature form, screen, route, validation policy, backend/OpenAPI/generated API, package/dependency, or Material theme bridge changes were made.
+- design_contract_summary: The implementation consumes the verified runtime tokens, Material bridge, accessibility foundation, direction/locale foundation, and responsive helpers. Field styling records the approved 64px field foundation, 12px radius, 16px logical inline padding, stable support row, logical start alignment, explicit 44px touch-target baseline, and 48px mobile selection-control target. The stylesheet uses existing approved tokens only and no hardcoded parallel brand color values.
+- accessibility_summary: Controls keep visible labels; placeholders remain supplementary. Helper and structural error text are associated through stable IDs and `aria-describedby` without defining timing, business validation, backend field mapping, or Problem Details behavior. Required, optional, disabled, and readonly semantics are preserved distinctly where applicable. Selection controls rely on Angular Material checkbox/radio primitives for native keyboard-focusable inputs.
+- component_separation_summary: All new production Angular components use the project-required external `templateUrl: './standard-form-controls.html'` and `styleUrl: './standard-form-controls.scss'` metadata, with no inline component templates, no inline component styles, and no template-local `<style>` block. Focused colocated tests live in `standard-form-controls.spec.ts`.
+- orchestration_note: Initial T-FE-013 implementation routing used Muse/free-worker-first attempts that stopped before edits because of repository command permission failure; Big Pickle fallback also stopped before edits because of command permission failure. The focused TDD red failed before `standard-form-controls.ts` existed (`Could not resolve "./standard-form-controls"` / `TS2307`), and focused green passed after implementation and targeted compile/test fixes. Resumed run used free-route verification only: Big Pickle verifier API failure, MiMo timeout, Muse verifier PASS; no direct OpenAI implementation or verification fallback was needed in this resumed run.
+- verification_summary: Classification A; Muse scout classification. Focused verification passed `npm test -- --watch=false --include=src/app/shared/ui/form-controls/standard-form-controls.spec.ts` with 1 file / 9 tests PASS. Full frontend verification passed `npm test -- --watch=false` with 17 files / 169 tests PASS, `npm run lint` PASS, `npm run lint:styles` PASS, and `npm run quality` PASS including dependency guard, Angular lint, Stylelint, full tests, and production build. `git diff --check` PASS, `git diff --cached --name-status` empty (cached diff empty), structural audit PASS, and `git status --short` showed only orchestrator-owned `PROGRESS.md`, this ledger after evidence update, and the new `frontend/src/app/shared/ui/form-controls/` task directory.
+- closure_evidence: Gate evidence is sufficient for the standard form-control foundation: standard controls render through Angular Material primitives, visible labels/placeholders/support text and selected/checked/value semantics are covered, required/optional/disabled/readonly distinctions are covered, logical dimensions/touch-target/source-boundary tests pass, component separation is enforced, and excluded advanced controls/validation/forms/routing/screens/dependencies/backend/generated/API work are absent. T-FE-013 is closed as `VERIFIED`; T-FE-014, T-FE-027, T-FE-034, T-FE-036, routing, and screens remain separate tasks and were not started.
+
+### `ST-FE-013` — Implement standard field/select/control foundation
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: The shared standard form-control foundation exists as standalone Angular Material components with external template/style files, focused tests, approved dimensions, logical layout, helper/error association, and no advanced/later controls or validation policy.
+- closure_evidence: Focused standard form-control tests and full frontend quality/build verification passed; no out-of-scope source, dependency, backend, OpenAPI, generated API, route, screen, or Material theme bridge changes were made.
+
+### `GATE-FE-T013`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence covers focused form dimension/a11y/source-boundary tests, full frontend tests, Angular lint, Stylelint, aggregate quality/build, clean whitespace diff, empty staged area, and implementation scope limited to the new shared form-controls task files plus orchestrator-owned evidence docs.
+- closure_evidence: Gate is closed as `VERIFIED`; downstream form validation (`T-FE-034`), shell/routing (`T-FE-027`), feedback/live-region (`T-FE-036`), accessibility automation (`T-FE-014`), screens, and feature forms remain separate tasks and must not start in this checkpoint.
+
 ### `T-FE-015` — API generator spike
 
 - status: `VERIFIED`

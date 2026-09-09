@@ -1,0 +1,73 @@
+@use '../../../../styles/abstracts/mixins' as mixins;
+
+:host {
+  display: block;
+  text-align: start;
+}
+
+.np-standard-field {
+  inline-size: 100%;
+  min-block-size: 64px;
+  border-radius: 12px;
+}
+
+.np-standard-field-native {
+  box-sizing: border-box;
+  min-block-size: 44px;
+  padding-inline: 16px;
+  text-align: start;
+}
+
+.np-standard-textarea .np-standard-field-native {
+  min-block-size: 64px;
+  resize: vertical;
+}
+
+.np-standard-control-optional {
+  margin-inline-start: var(--np-space-8);
+  font-size: 0.875em;
+}
+
+.np-standard-selection-control {
+  display: grid;
+  gap: var(--np-space-8);
+  color: var(--np-color-brand-2);
+  text-align: start;
+}
+
+.np-standard-selection-control mat-checkbox,
+.np-standard-selection-control mat-radio-button {
+  @include mixins.touch-target;
+
+  align-items: center;
+  min-inline-size: 44px;
+}
+
+.np-standard-control-error {
+  color: currentcolor;
+}
+
+.np-standard-radio-control {
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.np-standard-radio-control mat-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-12);
+}
+
+.np-standard-control-support-row {
+  min-block-size: var(--np-space-4);
+  color: currentcolor;
+}
+
+@media (width < 600px) {
+  .np-standard-selection-control mat-checkbox,
+  .np-standard-selection-control mat-radio-button {
+    min-inline-size: 48px;
+    min-block-size: 48px;
+  }
+}

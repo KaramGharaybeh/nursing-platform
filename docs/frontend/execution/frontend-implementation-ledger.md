@@ -1586,6 +1586,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence covers loading/error tests, accessibility semantics, explicit retry-only behavior, normalized frontend error input, absence of empty-state ownership, absence of feature/business copy, no routing/navigation/auth/logout behavior, no generated/backend/OpenAPI/package changes, full frontend verification, stylelint/lint/quality/build, git integrity checks, and scope review.
 
+### `T-FE-034` — Form validation pattern
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-09
+- contract_summary: T-FE-034 owns only a reusable shared validation presentation/interaction pattern over the frontend-owned `NormalizedProblemDetails` shape from T-FE-019 and the standard form-control foundation from T-FE-013. It may present normalized validation errors with caller-owned safe field labels/control IDs and caller-owned generic fallback copy. It must not invent validation timing, business rules, regex/password/email-domain rules, feature-specific mappings, auth forms, routing, screens, backend/OpenAPI behavior, generated API behavior, or feedback/live-region behavior owned by separate tasks.
+- scope_summary: Implemented only `frontend/src/app/shared/ui/form-validation/` with pure mapping helpers, a standalone `np-form-validation-summary` component, external `.html`/`.scss`, a colocated focused spec, and barrel exports. Derived labels remove unsafe markup characters, generated control IDs are constrained to safe anchor characters, non-validation errors use caller-provided fallback text, and raw backend `traceId`, `code`, `title`, and `detail` are not displayed. `fieldKey` is retained only as an internal mapping/track key and is not rendered to users.
+- verification_summary: Muse/free-worker implementation completed the bounded scope; independent Mimo/free-worker review returned PASS for scope, security/sanitization, accessibility, and component separation, including the `fieldKey` retention question. Fresh OpenAI final-gate verification passed focused form-validation tests (1 file / 8 tests), full frontend tests (18 files / 177 tests), `npm run lint`, `npm run lint:styles`, `npm run quality` including dependency guard and production build, `git diff --check`, and structural component-separation audit. No generated/backend/OpenAPI/package/dependency/routing/screen/auth form/T-FE-027/T-FE-036 files were changed.
+
+### `ST-FE-034` — Implement backend validation display pattern
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Subtask implemented a small reusable shared validation display foundation with deterministic field-error item mapping, caller-supplied labels/control IDs, sanitized derived fallback labels/control IDs, safe generic non-validation fallback presentation, accessible summary semantics, and programmatic focus. It does not create form timing policy or feature-specific validators.
+
+### `GATE-FE-T034`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Gate evidence covers validation/form focused tests, normalized Problem Details input handling, sanitization/no raw server trace-code-detail display, accessible persistent summary and field anchors, component separation with external template/style/spec, absence of timing/business/auth/routing/generated behavior, full frontend verification, lint/stylelint/quality/build, git diff checks, and scope review.
+
 ### `T-FE-042` — Registration contract clarification
 
 - status: `VERIFIED`

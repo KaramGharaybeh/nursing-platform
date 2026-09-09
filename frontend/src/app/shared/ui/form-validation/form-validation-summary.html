@@ -1,0 +1,30 @@
+@if (hasSummary) {
+  <section
+    class="np-form-validation-summary"
+    role="alert"
+    tabindex="-1"
+    [id]="summaryId"
+    [attr.aria-labelledby]="titleId"
+  >
+    <div class="np-form-validation-summary-heading">
+      <span class="np-form-validation-summary-icon" aria-hidden="true">!</span>
+      <h2 class="np-form-validation-summary-title" [id]="titleId">{{ summaryTitle }}</h2>
+    </div>
+    @if (items.length > 0) {
+      <ul class="np-form-validation-summary-list">
+        @for (item of items; track item.fieldKey) {
+          <li>
+            <a [href]="'#' + item.controlId">{{ item.label }}: {{ item.message }}</a>
+          </li>
+        }
+      </ul>
+    }
+    @if (formErrors.length > 0) {
+      <ul class="np-form-validation-summary-list np-form-validation-summary-form-errors">
+        @for (error of formErrors; track error) {
+          <li>{{ error }}</li>
+        }
+      </ul>
+    }
+  </section>
+}

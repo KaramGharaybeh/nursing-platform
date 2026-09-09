@@ -1,0 +1,45 @@
+.np-form-validation-summary {
+  display: grid;
+  gap: var(--np-space-12);
+  padding-block: var(--np-space-16);
+  padding-inline-start: var(--np-space-16);
+  border-inline-start: var(--np-focus-ring-width) solid currentcolor;
+  color: var(--np-color-brand-2);
+  text-align: start;
+}
+
+.np-form-validation-summary-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-12);
+}
+
+.np-form-validation-summary-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--np-space-24);
+  block-size: var(--np-space-24);
+  border: var(--np-focus-ring-width) solid currentcolor;
+  border-radius: 50%;
+  font-weight: 700;
+}
+
+.np-form-validation-summary-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.np-form-validation-summary-list {
+  margin: 0;
+  padding-inline-start: var(--np-space-20);
+  display: grid;
+  gap: var(--np-space-8);
+}
+
+.np-form-validation-summary-list a {
+  display: inline-block;
+  padding-block: var(--np-space-4);
+  color: inherit;
+  text-underline-offset: 2px;
+}

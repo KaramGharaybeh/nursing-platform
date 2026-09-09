@@ -1,0 +1,44 @@
+@use '../../../styles/abstracts/mixins' as mixins;
+
+.np-loading-error-retry {
+  display: grid;
+  gap: var(--np-space-3);
+  padding-block: var(--np-space-4);
+  color: var(--np-color-brand-2);
+}
+
+.np-loading-error-retry-loading {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.np-loading-error-retry-error {
+  border-inline-start: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+  padding-inline-start: var(--np-space-4);
+}
+
+.np-loading-error-retry-indicator {
+  inline-size: var(--np-space-4);
+  block-size: var(--np-space-4);
+  border: var(--np-focus-ring-width) solid currentcolor;
+  border-block-start-color: transparent;
+  border-radius: 50%;
+}
+
+.np-loading-error-retry-title,
+.np-loading-error-retry-detail {
+  margin: 0;
+}
+
+.np-loading-error-retry-retry {
+  @include mixins.touch-target;
+
+  justify-self: start;
+  padding-inline: var(--np-space-4);
+  border: var(--np-focus-ring-width) solid currentcolor;
+  border-radius: var(--np-focus-ring-offset);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}

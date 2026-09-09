@@ -1515,6 +1515,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
 - evidence_summary: Gate is closed as `VERIFIED`. Evidence proves `/me` is called through the normal auth transport/generation path after authenticated token bootstrap, bearer injection comes from T-FE-025 with no manual header, current-user identity state is established separately from token-session state, generated `UserDetailDto` is adapted to immutable frontend-owned `CurrentUser`, roles/permissions are preserved from `/me`, CurrentUser is not persisted, `/me` `401` clears token material and resolves anonymous without logout/navigation, transient/network/5xx/unexpected non-401 failures preserve token material and resolve unavailable, no automatic retry/refresh behavior exists, stale exposed user is cleared for a new hydration attempt, and no generated/backend/OpenAPI/package/guard/logout/UI scope is modified.
 
+### `T-FE-033` — Loading/error/retry pattern
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-09
+- contract_summary: T-FE-033 owns only a reusable shared loading/error/retry presentation foundation. The supported state model is `ready`, `loading`, and `error`; empty/no-results/restricted states remain owned by `T-FE-035`. Loading uses explicit visible text plus `role="status"`, `aria-live="polite"`, and `aria-busy="true"`. Error presentation consumes the normalized frontend `NormalizedProblemDetails` shape from T-FE-019, not raw generated Problem Details DTOs, and presents only title/detail plus caller-provided generic fallback labels. Retry is an explicit user action emitted through the component output; no automatic retry policy exists.
+- scope_summary: Implemented only the standalone shared component `frontend/src/app/shared/ui/loading-error-retry.ts`, its SCSS `frontend/src/app/shared/ui/loading-error-retry.scss`, focused tests `frontend/src/app/shared/ui/loading-error-retry.spec.ts`, and governance evidence. Styling uses existing runtime tokens and the T-FE-010 touch-target mixin only. No feature-specific copy, screen-specific layout, business-specific error interpretation, routing/navigation, auth/logout/session behavior, generated/backend/OpenAPI/package/dependency mutation, Angular Material dependency, shell/route registry/guard work, screen implementation, or screen approval task was introduced.
+- verification_summary: Muse/free-worker repository clarification loaded the required authority but was blocked by directory-creation permission before code changes; OpenAI used a narrow direct fallback for the pre-authorized file scope. Focused TDD RED failed before `loading-error-retry.ts` existed with unresolved `./loading-error-retry` / `TS2307`. Focused GREEN passed 1 file / 7 tests. Full verification passed 15 files / 148 tests, `npm run lint`, `npm run lint:styles` after kebab-case class-selector correction, and `npm run quality` including dependency guard and production build. Focused tests prove loading semantics, error rendering from normalized error input, missing detail fallback behavior, explicit retry output with no automatic invocation, native keyboard-usable button, no empty-state behavior, no feature-specific copy, no auth/routing/business/generated behavior, and no timer-based automatic retry.
+
+### `ST-FE-033` — Implement loading/error/retry reusable pattern
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Subtask implemented a small standalone Angular shared component with an explicit `LoadingErrorRetryState`, caller-owned labels, normalized error input, accessible loading/error semantics, and explicit retry output. It does not create a broad state-management framework.
+
+### `GATE-FE-T033`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence covers loading/error tests, accessibility semantics, explicit retry-only behavior, normalized frontend error input, absence of empty-state ownership, absence of feature/business copy, no routing/navigation/auth/logout behavior, no generated/backend/OpenAPI/package changes, full frontend verification, stylelint/lint/quality/build, git integrity checks, and scope review.
+
 ### `T-FE-042` — Registration contract clarification
 
 - status: `VERIFIED`

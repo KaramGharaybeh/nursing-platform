@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LocaleDirectionService } from './core/locale/locale-direction.service';
 
@@ -10,5 +10,4 @@ import { LocaleDirectionService } from './core/locale/locale-direction.service';
 })
 export class App {
   private readonly localeDirection = inject(LocaleDirectionService);
-  protected readonly title = signal('nursing-platform-frontend');
 }

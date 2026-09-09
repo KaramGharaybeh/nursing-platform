@@ -1544,6 +1544,28 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Gate evidence proves access token, access-token expiry, and refresh token clearing; CurrentUserStore and AuthSessionBootstrap anonymous resolution; active-refresh invalidation before late refresh success; no stale refresh resurrection; repeated logout idempotency; no backend logout/revoke/refresh/`/me` request; no direct `sessionStorage`/`localStorage`; no navigation, route guard, UI/toast, server revocation claim, generated/backend/OpenAPI/package mutation, or screen implementation.
 - closure_evidence: Gate is closed as `VERIFIED` and committed via `ffe47af feat(frontend): add local logout`; no route guard, shell, route registry, screen, generated, backend, OpenAPI, package, dependency, or product-source work is included by this gate.
 
+### `T-FE-027` — Shell frame
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-09
+- predecessor_summary: Required predecessor gates from the authoritative DAG are `GATE-FE-T009..T012` and `GATE-FE-T023`; all were confirmed `VERIFIED` before implementation. The shell task was selected by DAG eligibility, not by task number alone.
+- contract_summary: T-FE-027 owns only the shared application shell frame contract recorded as `landmarks/router outlet`, `ST-FE-027` accessible shell frame, and `GATE-FE-T027` shell/a11y tests. The bounded interpretation is a neutral app-root structural shell with a single focusable main content target and the Angular RouterOutlet. T-FE-027 does not own route registry entries, route guards, permission policy, permission-aware navigation, role/product navigation, loading route state, feedback/live-region behavior, screen implementation, feature components, auth/session behavior, backend/OpenAPI/generated API changes, dependencies/tooling, or unapproved visual design decisions. Skip-link/header/nav/sidebar/toolbar/mobile-menu UI is deferred because no navigation/header block is owned by this task.
+- scope_summary: Implemented only `frontend/src/app/app.ts`, `frontend/src/app/app.html`, `frontend/src/app/app.scss`, and `frontend/src/app/app.spec.ts`. The Angular scaffold placeholder logo, links, social content, title, and scaffold styles were removed. The app template now renders `.np-app-shell` with one `main#main-content` carrying `tabindex="-1"` and containing `<router-outlet />`. `app.ts` preserves the T-FE-011 locale/direction service initialization and external `templateUrl`/`styleUrl` metadata. `app.scss` uses logical sizing and `padding-inline: var(--np-page-gutter)`, with approved text token `var(--np-color-brand-2)` and no hardcoded colors, oklch scaffold values, custom breakpoints, motion, radius, elevation, z-index, or physical directional properties.
+- verification_summary: Muse/free-worker TDD RED first failed with 5 expected focused shell-test failures against the scaffold placeholder: missing `main-content` id/focusability, missing RouterOutlet inside main, scaffold SVG/links still present, product/navigation links present, and scaffold SCSS lacking shell logical/token contract. Focused GREEN passed `npm test -- --watch=false --include=src/app/app.spec.ts` with 1 file / 9 tests. Full verification passed `npm test -- --watch=false` with 18 files / 184 tests, `npm run lint`, `npm run lint:styles`, `npm run quality` including dependency guard and production build, `git diff --check`, empty staged area, and git status/scope checks. Independent Mimo/free-worker review returned PASS for scope, design authority, accessibility/responsive/RTL, separation, tests, and git scope. OpenAI final gate performed targeted inspection of the changed app-root files and git scope.
+
+### `ST-FE-027` — Implement accessible shell frame
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: The subtask implemented a small accessible shell frame at the application root with one focusable main content landmark and RouterOutlet, neutral tokenized logical styling, scaffold placeholder removal, and focused shell/a11y tests. It does not create navigation, routes, guards, permission behavior, loading route state, screens, or feature workflows.
+
+### `GATE-FE-T027`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence covers shell/a11y focused tests for one main landmark, stable focus target, RouterOutlet placement, scaffold placeholder removal, absence of navigation/product links, component separation, no embedded template styles, logical tokenized CSS, full frontend tests, lint, stylelint, aggregate quality/build, git diff checks, independent review, and scope confirmation that no route registry/guard/permission/navigation/screen/auth/generated/backend/OpenAPI/dependency work was pulled forward.
+
 ### `T-FE-138` — Authenticated current-user hydration
 
 - status: `VERIFIED`

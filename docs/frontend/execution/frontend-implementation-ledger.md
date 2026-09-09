@@ -1471,6 +1471,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Gate evidence covers interceptor tests for bearer attachment on eligible protected API requests, relative and configured absolute API URL matching, third-party absolute URL exclusion, missing-token passthrough, exact anonymous endpoint exclusions, register/send-verification-email/`/me` bearer behavior, existing `Authorization` preservation, non-API passthrough, provider registration, no direct browser storage, no refresh/401/retry/replay/logout/route/UI/current-user behavior, no generated/backend/OpenAPI/package changes, full frontend verification, and git integrity checks.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream `T-FE-138` current-user hydration and `T-FE-026` local logout remain separate tasks and must not start in this checkpoint.
 
+### `T-FE-026` — Local logout MVP
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- evidence_date: 2026-09-09
+- support_correction_summary: Prerequisite support correction committed via `79f054f fix(frontend): make auth session logout-safe`. `RefreshCoordinator.invalidate()` prevents an earlier in-flight refresh from repopulating tokens or delivering successful `AuthResult` after logout-style invalidation, and `AuthSessionBootstrap.resolveAnonymous()` updates only token-session state to `anonymous`.
+- scope_summary: Implemented only local logout in `frontend/src/app/core/auth/local-logout.ts` with focused tests in `frontend/src/app/core/auth/local-logout.spec.ts` and this ledger evidence. Local logout invalidates refresh, clears token material through `TokenStorage.clear()`, resolves `AuthSessionBootstrap` anonymous, and resolves `CurrentUserStore` anonymous. It performs no backend logout call, server-side revocation claim, navigation, route guard, UI/toast, refresh call, manual bearer behavior, `/me` call, generated/backend/OpenAPI/package/dependency mutation, or screen implementation.
+- verification_summary: Focused TDD RED failed before `local-logout.ts` existed with unresolved `./local-logout` / `TS2307`; focused GREEN passed 1 file / 6 tests. Full verification evidence covers token clearing, current-user/bootstrap anonymous state, active-refresh invalidation before token clearing, late refresh success not resurrecting auth state, repeated logout idempotency, no backend logout/revoke/refresh/`/me` request, source-boundary checks excluding direct browser storage, navigation, route/UI behavior, server revocation claim, manual bearer behavior, generated-file mutation, and no forbidden scope.
+
+### `ST-FE-026` — Implement local logout without server revocation claim
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- evidence_summary: Subtask implemented the minimal `LocalLogout` service. `logout()` is synchronous and idempotent, invalidates refresh first, clears token storage, resets token-session bootstrap state anonymous, and clears current-user state anonymous.
+
+### `GATE-FE-T026`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`,`SECURITY`
+- evidence_summary: Gate evidence proves access token, access-token expiry, and refresh token clearing; CurrentUserStore and AuthSessionBootstrap anonymous resolution; active-refresh invalidation before late refresh success; no stale refresh resurrection; repeated logout idempotency; no backend logout/revoke/refresh/`/me` request; no direct `sessionStorage`/`localStorage`; no navigation, route guard, UI/toast, server revocation claim, generated/backend/OpenAPI/package mutation, or screen implementation.
+
 ### `T-FE-138` — Authenticated current-user hydration
 
 - status: `VERIFIED`

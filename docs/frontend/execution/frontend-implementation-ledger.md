@@ -1635,6 +1635,28 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
 - evidence_summary: Gate evidence satisfies UX permission tests and independent review: production registry covers exactly the 49 current `AUTHENTICATED` canonical routes once, with no PUBLIC/ENTRY policies and count split `11/19/4/1/14`; exact backend permission spelling is implemented, including `ADMIN_PAYMENT_PRODUCTS` with `Exams.View`; evaluator tests prove multi-role union semantics, `ROLE_AND_PERMISSION` AND semantics, and no Admin bypass; guard tests prove `idle`/`loading` wait, `anonymous` pass-through, `unavailable` pass-through, ready-state evaluation, and canonical `SYSTEM_ACCESS_DENIED` redirect only for ready explicit-policy failure; source/scope tests prove no path-prefix matching authority, no backend `403` handling, no business-rule leakage, no route attachment, and no T-FE-032 navigation leakage. Full frontend verification and independent MiMo review passed.
 
+### `T-FE-032` — Permission-aware navigation
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-10
+- scope_decision: Technical lead accepted the read-only T-FE-032 boundary review and authorized `LOGIC-ONLY` implementation. T-FE-032 in this checkpoint owns only reusable non-visual navigation-policy logic for caller-supplied canonical route IDs. It does not define the actual product navigation inventory, labels, icons, groups, order, layout, breadcrumbs, sidebar/header/drawer/mobile navigation, Angular Material navigation UI, Storybook workflow, Penpot governance, route activation, or screens.
+- implementation_summary: Added `frontend/src/app/core/routing/navigation-permission-policy.ts` as a small pure Core routing module. `getNavigationEligibility(routeId, user)` returns explicit per-route `eligible`, `ineligible`, `unresolved`, or `unsupported` results. `filterEligibleNavigationCandidates(candidates, user)` accepts only caller-supplied canonical route IDs, preserves caller order and eligible duplicates in ready-state filtering, introduces no route IDs absent from the caller input, excludes ineligible/unsupported routes from the resolved eligible output, and returns an explicit `unresolved` aggregate result with preserved caller candidates for `idle`, `loading`, `anonymous`, and `unavailable` states. The implementation reuses T-FE-031 `getRoutePermissionPolicy` and `evaluateRoutePermission`; it does not duplicate route-policy registry, role matching, permission matching, access-denied redirect, backend `403`, path-prefix, route-family, JWT, API, or security-enforcement behavior.
+- verification_summary: Genuine TDD RED was captured before the production module existed with unresolved `./navigation-permission-policy` / `TS2307`. A targeted final-gate correction then added explicit aggregate unresolved semantics; its RED failed against the old array-return API with `TS2339` for missing `status` / `eligible` / `candidates`, and final GREEN passed `npm test -- --watch=false --include=src/app/core/routing/navigation-permission-policy.spec.ts` with 1 file / 23 tests. Full frontend verification passed `npm test -- --watch=false` with 25 files / 276 tests, `npm run lint`, `npm run lint:styles`, and `npm run quality` including dependency guard and production build. Independent MiMo read-only review returned PASS with 16/16 checklist items passing and no Critical/High/Medium/Low findings.
+- explicit_exclusions: No actual navigation UI, navigation inventory, menu/sidebar/header/drawer/mobile components, Angular templates, SCSS/CSS, labels/copy, icons, groups, order, active visual state, responsive or RTL navigation presentation, breadcrumbs, page layouts, Storybook, Penpot governance, package/dependency changes, backend/OpenAPI/generated API changes, `frontend/src/app/app.routes.ts` changes, route activation, screen implementation, T-FE-031 redesign, T-FE-030 redesign, access-denied navigation, sign-in redirect, JWT reads, backend API calls, or push occurred.
+
+### `ST-FE-032` — Implement permission-aware navigation presentation
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Subtask is verified for the authorized logic-only presentation primitive boundary. It delivers reusable permission-aware navigation visibility logic only: per-route eligibility and caller-supplied candidate filtering based on T-FE-031 route permission policy and CurrentUser-compatible states. Concrete visual navigation presentation remains unimplemented and requires separate product/design/visual-workflow authority before any UI work begins.
+
+### `GATE-FE-T032`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence satisfies the authorized logic-only nav visibility requirement. Focused tests prove ready-state `AUTHENTICATED_ONLY`, `ROLE`, and `ROLE_AND_PERMISSION` eligibility, missing-role and missing-permission ineligibility, inherited multi-role union semantics, no Admin permission bypass, caller-supplied candidate filtering, order preservation, duplicate preservation for eligible duplicates, no injected route IDs, explicit unresolved results for `idle`, `loading`, `anonymous`, and `unavailable`, explicit unsupported results for PUBLIC/ENTRY/unknown route IDs, T-FE-031 evaluator/policy reuse, no path-prefix inference, no access-denied/sign-in routing, no UI behavior, and `app.routes.ts` unchanged/empty. Full frontend verification and independent MiMo review passed.
+
 ### `T-FE-138` — Authenticated current-user hydration
 
 - status: `VERIFIED`

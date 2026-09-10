@@ -1611,6 +1611,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
 - evidence_summary: Gate evidence satisfies guard/router tests and security review: focused tests passed 3 files / 31 tests; full frontend tests passed 22 files / 228 tests; lint, stylelint, quality/build, diff checks, scope checks, and independent MiMo security review/re-review passed. Newly unblocked tasks may consume only the verified generic auth/public guard primitives according to their own prerequisites and approval gates; T-FE-031/navigation/screens remain separate and were not started by this gate.
 
+### `T-FE-031` — Route-level UX permission policy
+
+- status: `CONTRACT DOCUMENTATION READY — IMPLEMENTATION NOT AUTHORIZED`
+- blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
+- contract_authority_checkpoint: Technical-lead accepted the read-only T-FE-031 extraction and supplied the missing product/permission decisions for documentation finalization only. The accepted contract is persisted in `docs/frontend/design/inventory/route-permission-matrix.md`.
+- contract_summary: `T-FE-031` applies only to the 49 canonical `AUTHENTICATED` routes. It consumes `CurrentUserStore` after hydration: roles from `/api/v1/me` are the actor-context UX source, permissions from `/api/v1/me` are the capability UX source, JWT claims are not used, and backend authorization remains authoritative. Allowed V1 policies are `AUTHENTICATED_ONLY`, `ROLE`, and `ROLE_AND_PERMISSION`; role matching uses union semantics and `ROLE_AND_PERMISSION` requires both role and permission predicates. `idle`/`loading` wait, `ready` evaluates, `anonymous` remains `T-FE-030`, and `unavailable` is not denial/sign-in/access-denied. Ready authenticated users failing an explicit role or role+permission policy redirect to canonical `SYSTEM_ACCESS_DENIED`; backend HTTP `403` handling is outside `T-FE-031`. Every authenticated route requires an explicit policy row; there is no silent default or path-prefix inference.
+- policy_counts: `AUTHENTICATED_ONLY=11`, `NURSE_ROLE=19`, `EMPLOYER_ROLE=4`, `ADMIN_ENTRY_ROLE=1`, `ADMIN_ROLE_AND_PERMISSION=14`, `TOTAL=49`.
+- explicit_exclusions: No Angular source, permission guard, role guard, policy service, route metadata, navigation/sidebar/menu/breadcrumb/link filtering, screen behavior, backend/OpenAPI/generated/package/dependency changes, `T-FE-030` redesign, `T-FE-032`, push, or implementation authorization is granted by this checkpoint.
+
+### `ST-FE-031` — Implement route-level UX permission policy
+
+- status: `NOT STARTED — CONTRACT READY`
+- blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
+- evidence_summary: Implementation remains unauthorized. Future implementation must prove exact 49-policy coverage, route-policy behavior, state handling, access-denied behavior, backend-403 exclusion, path-prefix exclusion, and T-FE-030/T-FE-032 boundaries from the accepted contract.
+
+### `GATE-FE-T031`
+
+- status_result: `NOT VERIFIED — IMPLEMENTATION NOT AUTHORIZED`
+- blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
+- evidence_summary: Gate remains open. Required future gate evidence includes UX permission tests proving `POLICY_ROWS=49`, `UNIQUE_POLICY_ROUTE_IDS=49`, no missing/extra authenticated-route policies, no PUBLIC/ENTRY policies, count split `11/19/4/1/14`, exact backend permission spelling, multi-role union semantics, `ROLE_AND_PERMISSION` AND semantics, `idle`/`loading` wait, `unavailable` not denied, access-denied only for ready users failing explicit route policy, backend `403` handling outside scope, no path-prefix matching authority, and no T-FE-032 navigation leakage.
+
 ### `T-FE-138` — Authenticated current-user hydration
 
 - status: `VERIFIED`

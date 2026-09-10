@@ -1613,24 +1613,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-031` — Route-level UX permission policy
 
-- status: `CONTRACT DOCUMENTATION READY — IMPLEMENTATION NOT AUTHORIZED`
+- status: `VERIFIED`
 - blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-10
 - contract_authority_checkpoint: Technical-lead accepted the read-only T-FE-031 extraction and supplied the missing product/permission decisions for documentation finalization only. The accepted contract is persisted in `docs/frontend/design/inventory/route-permission-matrix.md`.
 - contract_summary: `T-FE-031` applies only to the 49 canonical `AUTHENTICATED` routes. It consumes `CurrentUserStore` after hydration: roles from `/api/v1/me` are the actor-context UX source, permissions from `/api/v1/me` are the capability UX source, JWT claims are not used, and backend authorization remains authoritative. Allowed V1 policies are `AUTHENTICATED_ONLY`, `ROLE`, and `ROLE_AND_PERMISSION`; role matching uses union semantics and `ROLE_AND_PERMISSION` requires both role and permission predicates. `idle`/`loading` wait, `ready` evaluates, `anonymous` remains `T-FE-030`, and `unavailable` is not denial/sign-in/access-denied. Ready authenticated users failing an explicit role or role+permission policy redirect to canonical `SYSTEM_ACCESS_DENIED`; backend HTTP `403` handling is outside `T-FE-031`. Every authenticated route requires an explicit policy row; there is no silent default or path-prefix inference.
 - policy_counts: `AUTHENTICATED_ONLY=11`, `NURSE_ROLE=19`, `EMPLOYER_ROLE=4`, `ADMIN_ENTRY_ROLE=1`, `ADMIN_ROLE_AND_PERMISSION=14`, `TOTAL=49`.
-- explicit_exclusions: No Angular source, permission guard, role guard, policy service, route metadata, navigation/sidebar/menu/breadcrumb/link filtering, screen behavior, backend/OpenAPI/generated/package/dependency changes, `T-FE-030` redesign, `T-FE-032`, push, or implementation authorization is granted by this checkpoint.
+- implementation_summary: Implemented reusable route-level UX permission primitives only: a pure 49-row explicit canonical route policy registry/evaluator in `frontend/src/app/core/routing/route-permission-policy.ts`, plus a small functional route permission guard primitive in `frontend/src/app/core/routing/route-permission.guard.ts` that consumes `CurrentUserStore`, waits for `idle`/`loading`, evaluates only `ready`, passes through `anonymous` and `unavailable`, and redirects ready users failing explicit role/permission policy to canonical `SYSTEM_ACCESS_DENIED` with no `returnUrl`.
+- verification_summary: Focused TDD RED evidence failed before `route-permission-policy.ts` and `route-permission.guard.ts` existed. Focused GREEN passed `route-permission-policy.spec.ts` 1 file / 10 tests and `route-permission.guard.spec.ts` 1 file / 15 tests. Full frontend verification passed 24 files / 253 tests, `npm run lint`, `npm run lint:styles`, and `npm run quality` including dependency guard and production build. Matrix verification proved `TOTAL_AUTHENTICATED_ROUTES=49`, `POLICY_ROWS=49`, `AUTHENTICATED_ONLY=11`, `NURSE_ROLE=19`, `EMPLOYER_ROLE=4`, `ADMIN_ENTRY_ROLE=1`, `ADMIN_ROLE_AND_PERMISSION=14`, `DUPLICATE_ROUTE_POLICIES=0`, `MISSING_ROUTE_POLICIES=0`, `EXTRA_ROUTE_POLICIES=0`, `PUBLIC_ROUTE_POLICIES=0`, and `ROOT_ENTRY_POLICY=false`. Independent MiMo review PASS reported no Critical/High/Medium findings.
+- explicit_exclusions: No route attachment, route activation, placeholder route/component, navigation/sidebar/menu/breadcrumb/link filtering, screen behavior, backend/OpenAPI/generated/package/dependency changes, HTTP `403` handling, business ownership/entitlement/payment/exam/account lifecycle rules, `T-FE-030` behavior redesign, `T-FE-032`, or push occurred.
 
 ### `ST-FE-031` — Implement route-level UX permission policy
 
-- status: `NOT STARTED — CONTRACT READY`
+- status: `VERIFIED`
 - blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
-- evidence_summary: Implementation remains unauthorized. Future implementation must prove exact 49-policy coverage, route-policy behavior, state handling, access-denied behavior, backend-403 exclusion, path-prefix exclusion, and T-FE-030/T-FE-032 boundaries from the accepted contract.
+- evidence_summary: Implemented and verified the reusable route-level UX permission policy registry, evaluator, and guard primitive from the accepted contract. Focused tests prove exact 49-policy coverage/counts, AUTHENTICATED_ONLY behavior, ROLE any-match union behavior, ROLE_AND_PERMISSION AND behavior, no Admin permission bypass, `idle`/`loading` wait, `anonymous` and `unavailable` pass-through without T-FE-030 duplication, canonical access-denied redirect only for ready explicit-policy failure, missing-policy invariant failure, backend-403 exclusion, path-prefix exclusion, and no T-FE-032 navigation leakage.
 
 ### `GATE-FE-T031`
 
-- status_result: `NOT VERIFIED — IMPLEMENTATION NOT AUTHORIZED`
+- status_result: `VERIFIED`
 - blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
-- evidence_summary: Gate remains open. Required future gate evidence includes UX permission tests proving `POLICY_ROWS=49`, `UNIQUE_POLICY_ROUTE_IDS=49`, no missing/extra authenticated-route policies, no PUBLIC/ENTRY policies, count split `11/19/4/1/14`, exact backend permission spelling, multi-role union semantics, `ROLE_AND_PERMISSION` AND semantics, `idle`/`loading` wait, `unavailable` not denied, access-denied only for ready users failing explicit route policy, backend `403` handling outside scope, no path-prefix matching authority, and no T-FE-032 navigation leakage.
+- evidence_summary: Gate evidence satisfies UX permission tests and independent review: production registry covers exactly the 49 current `AUTHENTICATED` canonical routes once, with no PUBLIC/ENTRY policies and count split `11/19/4/1/14`; exact backend permission spelling is implemented, including `ADMIN_PAYMENT_PRODUCTS` with `Exams.View`; evaluator tests prove multi-role union semantics, `ROLE_AND_PERMISSION` AND semantics, and no Admin bypass; guard tests prove `idle`/`loading` wait, `anonymous` pass-through, `unavailable` pass-through, ready-state evaluation, and canonical `SYSTEM_ACCESS_DENIED` redirect only for ready explicit-policy failure; source/scope tests prove no path-prefix matching authority, no backend `403` handling, no business-rule leakage, no route attachment, and no T-FE-032 navigation leakage. Full frontend verification and independent MiMo review passed.
 
 ### `T-FE-138` — Authenticated current-user hydration
 

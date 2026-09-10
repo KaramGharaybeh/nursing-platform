@@ -4,7 +4,7 @@
 
 This document is the canonical textual implementation reference for the approved Penpot file `Frontend Design Foundation` (`01813f71-6684-8025-8008-5d0437a49666`).
 
-Penpot remains the official visual design authority and source of truth for approved visual intent. This Markdown file records the repository-owned textual mapping that Angular workers must consult before frontend UI, SCSS, Angular Material, component, or screen work.
+This Markdown file records the repository-owned textual mapping for the approved Penpot-derived frontend foundation that Angular workers must consult before frontend UI, SCSS, Angular Material, component, or screen work. After the 2026-09-10 visual workflow decision, approved visual foundations and task-required approved Penpot/design artifacts own visual intent; Storybook is the intended future production visual development/review surface after separate tooling authorization, not requirements authority.
 
 If this reference conflicts with the live approved Penpot file, implementation must STOP, record the discrepancy, obtain Penpot/design resolution, and update this reference before coding. Do not silently choose either source.
 

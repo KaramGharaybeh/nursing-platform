@@ -11,6 +11,7 @@ Authoritative frontend rules remain in:
 - `docs/frontend/frontend-project-rules.md`
 - `docs/frontend/frontend-architecture.md`
 - `docs/frontend/design/frontend-design-foundation-reference.md`
+- approved Storybook visual workflow governance in active frontend architecture/project rules; Storybook tooling is not installed until separately authorized
 - approved design specifications under `docs/frontend/design/specs/`
 - canonical backend/OpenAPI contracts under `docs/frontend/design/integration/openapi/`
 
@@ -23,7 +24,7 @@ When frontend sources conflict, use this precedence for implementation execution
 1. Current explicit user or technical-lead decisions.
 2. Current execution state and task/gate authority in this ledger, with `PROGRESS.md` as the concise current-session handoff.
 3. Current frontend architecture and project rules in `docs/frontend/frontend-architecture.md` and `docs/frontend/frontend-project-rules.md`.
-4. `docs/frontend/design/frontend-design-foundation-reference.md`, approved design specifications, and approved Penpot/design evidence.
+4. `docs/frontend/design/frontend-design-foundation-reference.md`, approved visual foundations, approved design specifications, task-required approved Penpot/design evidence, and approved Storybook workflow governance.
 5. Canonical backend/OpenAPI authority for API, validation, auth, authorization, security, and business behavior.
 6. Historical planning, design inventory, evidence packets, trackers, and older prose.
 
@@ -36,15 +37,15 @@ Standing Implementation Authorization replaces the need for a separate user “s
 - every predecessor Gate required by the Task is `VERIFIED`;
 - exact Task scope and expected file boundaries are established from current repository authority;
 - no unresolved `DESIGN`, `BACKEND`, `CONTRACT_CLARIFICATION`, `SECURITY`, `DEPENDENCY`, `TOOLING_APPROVAL`, `SCOPE`, `EXTERNAL`, or runtime-deployment decision requires human authority;
-- no missing screen-family approval, per-screen `APPROVED` decision, Penpot/design approval, or visual/source decision is required;
-- no dependency installation/change, database change, migration, backend/OpenAPI mutation, Penpot mutation, CI/tooling approval, or external-provider decision is required;
+- no missing screen-family approval, per-screen `APPROVED` decision, required Penpot/design approval, required Storybook visual evidence, or visual/source decision is required;
+- no dependency installation/change, database change, migration, backend/OpenAPI mutation, Penpot mutation, Storybook installation/configuration, CI/tooling approval, or external-provider decision is required;
 - Task risk is Low or Medium under `docs/development/model-orchestration.md`;
 - implementation can stay inside a bounded `ALLOWED_FILES` packet;
 - focused tests/source-contract tests and the Gate's full deterministic evidence can be produced with existing approved tooling.
 
 When those conditions are satisfied, the OpenAI Orchestrator may select the next eligible Task from the DAG, delegate repository-heavy exploration and implementation to the approved non-OpenAI worker pool, run required verification, perform the OpenAI final technical gate, update execution state, and proceed to the next eligible Task without a new per-task start message.
 
-Standing authorization never authorizes staging, committing, pushing, destructive Git operations, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, business/product decisions, or High/High-Precision implementation escalation.
+Standing authorization never authorizes staging, committing, pushing, destructive Git operations, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, Storybook installation/configuration, business/product decisions, or High/High-Precision implementation escalation.
 
 ### Automatic Task selection
 
@@ -58,11 +59,11 @@ Continuous execution MUST STOP and ask for user/technical-lead authority when an
 
 - a genuine product, business, architecture, UX, visual, or design decision is required;
 - a design value, token, behavior, responsive rule, RTL rule, screen state, component contract, or page/screen approval is missing;
-- screen-family approval is missing, a per-screen decision is not `APPROVED`, or visual/Penpot evidence is required but absent;
+- screen-family approval is missing, a per-screen decision is not `APPROVED`, or required visual/Penpot/Storybook evidence is absent;
 - dependency, package-manager, tooling, CI, E2E, AXE, browser, or external-service approval is required;
 - security, authentication, authorization, payment, entitlement, exam/session/report, file-authorization, privacy, or production-hardening correctness is uncertain;
 - backend source and canonical OpenAPI conflict, or a required API/DTO/error/permission contract cannot be established;
-- database work, migration creation/application, backend mutation, OpenAPI mutation, or Penpot mutation is required;
+- database work, migration creation/application, backend mutation, OpenAPI mutation, Penpot mutation, or Storybook tooling/configuration is required;
 - Task scope or `ALLOWED_FILES` cannot be bounded safely;
 - High-risk or High-Precision implementation requires escalation under the orchestration policy;
 - staging, committing, pushing, reset, clean, stash, checkout/restore, or repository-history alteration is requested;
@@ -117,7 +118,7 @@ Do not create status values such as `BLOCKED BY DESIGN`, `CONTRACT CLARIFICATION
 
 ### Angular Official AI Guidance Addendum
 
-Official Angular documentation and Angular-maintained AI guidance are framework guidance only. They are subordinate to explicit Nursing Platform decisions, repository governance, backend/OpenAPI business and security contracts, approved Penpot visual evidence, and active task scope. Use official Angular v22-compatible guidance for Angular framework questions; do not silently adopt later-major APIs or behaviors.
+Official Angular documentation and Angular-maintained AI guidance are framework guidance only. They are subordinate to explicit Nursing Platform decisions, repository governance, backend/OpenAPI business and security contracts, approved visual evidence, and active task scope. Use official Angular v22-compatible guidance for Angular framework questions; do not silently adopt later-major APIs or behaviors.
 
 Official Angular Agent Skills (`angular-developer`, `angular-new-app`) and Angular CLI MCP are optional advisory aids only when already available and explicitly allowed by the active Task. Do not install skills, add MCP configuration, run write-capable MCP operations, or widen Task scope because a tool suggests it. Absence of those tools is not a blocker.
 
@@ -250,6 +251,28 @@ A screen implementation Task may begin only when: its family approval Gate is `V
 `T-FE-039` / `GATE-FE-T039` defines the reusable Visual/Penpot Verification method only: reference handling, viewport evidence, screenshot procedure, responsive comparison, RTL comparison, and intentional-difference documentation.
 
 `T-FE-122` is a reusable execution/template mechanism, not a once-only global completion gate. Its state cannot substitute for individual screen verification. Each screen's own Gate remains authoritative and must attach per-screen visual evidence after implementation.
+
+Storybook is adopted by technical-lead decision on 2026-09-10 as the intended future primary visual development and review surface for production Angular components and production screen states. This governance decision does not install or configure Storybook, add dependencies/scripts, create stories, modify Angular source, authorize navigation UI, approve any screen, or approve automated visual regression.
+
+After Storybook tooling is separately installed and verified, reviewed Storybook rendering of production Angular components/screens may serve as visual implementation/review evidence for an owning component or screen Gate. Storybook evidence does not self-approve a Gate; the owning Gate and technical-lead decision remain authoritative.
+
+Storybook stories must render production Angular source. They must not create Storybook-only component copies, duplicate markup, duplicate SCSS, parallel token definitions, alternate Storybook implementations, a second design system, product requirements, route/navigation inventory, labels/groups/order/icons, security behavior, backend contracts, validation semantics, payment/exam/entitlement behavior, or screen existence.
+
+Penpot is no longer mandatory as a procedural intermediate artifact for every component or routine screen composition. Penpot/design authority remains required when materially new visual intent is unresolved, including novel page layouts, new navigation/layout concepts, complex multi-step visual flows, new major interaction paradigms, new visual language outside approved foundations, cross-screen flows whose composition cannot be derived from approved patterns, or explicit design tasks.
+
+Approved future screen workflow:
+
+1. Establish screen/task eligibility.
+2. Approve the screen's functional/page contract: purpose, route, API/data, access, states, validation/business behavior, and ownership boundaries.
+3. Determine whether materially new visual design is unresolved.
+4. If yes, create/approve the required Penpot/design artifact before implementation; if no, reuse approved visual foundations/components/patterns without a duplicate Penpot artifact.
+5. Implement or reuse production Angular components.
+6. Render appropriate production component/screen states in Storybook after tooling authorization.
+7. Review interaction, loading/error/empty, responsive, RTL/LTR, and accessibility-relevant states.
+8. Perform the owning screen/component verification and approval Gate.
+9. Commit only after all applicable verification passes.
+
+Automated Storybook visual-regression/baseline testing remains unapproved. Screenshot regression services, image snapshot frameworks, browser/DPR matrices, pixel tolerance policies, hosted visual-review services, and CI visual-regression integration require separate technical-lead/tooling approval.
 
 ## 10. Routing / Permission Architecture
 
@@ -835,6 +858,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - API generator selection after spike.
 - Production auth/session posture.
 - Production payment scope.
+- Storybook tooling installation/configuration checkpoint.
 - Browser support matrix.
 - Visual-regression tolerance/approval process.
 - Whether confirmed backend-gap screens create backend backlog work or remain outside frontend scope.
@@ -842,7 +866,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 ## 17. Scope Protection Rules
 
 - Do not begin `T-FE-001` without explicit authorization.
-- Do not scaffold Angular, create `frontend/`, install dependencies, generate the API client, modify backend source/tests, modify canonical OpenAPI, modify Penpot, stage, commit, or push unless a later explicit approval says otherwise.
+- Do not scaffold Angular, create `frontend/`, install dependencies, generate the API client, modify backend source/tests, modify canonical OpenAPI, modify Penpot, install/configure Storybook, create stories, stage, commit, or push unless a later explicit approval says otherwise.
 - Do not mark implementation Tasks `VERIFIED` because they are planned.
 - Do not modify completed `VERIFIED` scope unless an approved Task explicitly marks it `REOPENED`.
 - Do not use this ledger to expand task scope during implementation.
@@ -851,6 +875,20 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - Next-step handoff: after the docs-only checkpoint commit, resume `T-FE-017` with `ng-openapi-gen@1.0.5` and `services: false` using the standard function-based generated client from clean generated output; paused partials (`frontend/package.json`, `frontend/package-lock.json`, `frontend/dependency-policy.json`, `frontend/eslint.config.js`, `frontend/src/app/core/api/generated/**`) stay uncommitted until that resume. `T-FE-015`/`T-FE-016` remain `VERIFIED`; no `T-FE-017` verification is claimed.
 
 ## 18. Execution Status Records
+
+### Storybook visual workflow governance decision — no T-FE task ID assigned
+
+- status: `VERIFIED` once committed by documentation-only checkpoint `docs(frontend): adopt storybook visual workflow`
+- decision_date: 2026-09-10
+- accepted_baseline: `75e7a4c feat(frontend): add permission-aware navigation logic`
+- closed_predecessor_context: `T-FE-029`, `T-FE-030`, `T-FE-031`, and `T-FE-032` are closed; actual navigation UI and product screens remain unimplemented.
+- governance_summary: Storybook is adopted as the intended future primary visual development/review surface for production Angular components and production screen states, but this checkpoint authorizes documentation only. Storybook is not business, backend, API, route, auth, permission, validation, payment, exam, entitlement, screen-existence, page-ownership, or product-requirements authority.
+- implementation_source_boundary: Production Angular source remains the single implementation source. Future stories must import/render production components and must not create Storybook-only copies, duplicate markup, duplicate SCSS, alternate implementations, parallel token definitions, or a second design system.
+- Penpot_boundary: Penpot is no longer mandatory as a procedural intermediate artifact for every component or routine screen composition. Penpot/design authority remains required when materially new visual intent is unresolved or explicitly designated by a design task.
+- screen_boundary: Screen-family eligibility, exact screen approval, task dependencies, implementation gates, technical-lead approval, functional/accessibility/testing requirements, and current screen `BLOCKED`/`NOT STARTED` statuses remain unchanged. No screen becomes implementation-authorized by Storybook adoption.
+- tooling_boundary: No existing ledger task currently owns Storybook installation/configuration. `T-FE-039` may later own visual verification method updates and `T-FE-122` remains the per-screen visual verification template, but actual Storybook tooling/setup still requires separate technical-lead authorization or an explicitly authorized execution checkpoint. Do not invent or activate a new DAG task without authority.
+- visual_regression_boundary: Automated Storybook visual regression, screenshot services, image snapshots, browser/DPR matrix, pixel tolerance policy, hosted visual review, and CI integration remain unapproved future decisions.
+- explicit_exclusions: No Storybook installation/configuration, package changes, `angular.json` changes, lockfile changes, stories, Angular source changes, navigation UI, screen implementation, backend changes, OpenAPI/generated API changes, Penpot changes, push, or screen gate verification occurred in this governance checkpoint.
 
 ### `T-FE-001` — Scaffold Angular workspace
 
@@ -1088,7 +1126,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_date: 2026-09-09
 - baseline_head: `1145863`
 - technical_decisions_resolved: Future T-FE-009 implementation is approved to use exact direct pins `@angular/material@22.1.5` and `@angular/cdk@22.1.5`; `@angular/animations` is not approved and not required; theme family remains M2 using `mat.m2-define-palette(...)` and `mat.m2-define-light-theme(...)`; scope is a single light theme only; bridge path remains `frontend/src/styles/_material-theme-bridge.scss`; future integration remains through `frontend/src/styles.scss`; custom Material typography and density remain deferred unless separately approved.
-- design_reference_checkpoint: Phase A creates `docs/frontend/design/frontend-design-foundation-reference.md` as the canonical textual implementation mapping for the live Penpot `Frontend Design Foundation` while preserving Penpot as visual source of truth and backend/OpenAPI as behavior/security authority. Live Penpot MCP inspection verified the file name, page set, `0` local colors, `34` local typographies, `1` local component, token sets `Spacing Shape` and `Elevation States`, approved color values, spacing/radius values, elevation/focus/state tokens, and documented focus evidence conflict.
+- design_reference_checkpoint: Phase A created `docs/frontend/design/frontend-design-foundation-reference.md` as the canonical textual implementation mapping for the live Penpot `Frontend Design Foundation` under the then-current Penpot visual source-of-truth wording; that wording is superseded for current implementation governance by the 2026-09-10 Storybook visual workflow decision while preserving the approved foundation values. Backend/OpenAPI remains behavior/security authority. Live Penpot MCP inspection verified the file name, page set, `0` local colors, `34` local typographies, `1` local component, token sets `Spacing Shape` and `Elevation States`, approved color values, spacing/radius values, elevation/focus/state tokens, and documented focus evidence conflict.
 - design_decisions_resolved: Technical lead resolved the T-FE-009 Material role mapping as Material M2 primary = Nursing Teal `#006B66`, accent = Professional Navy `#173B57`, warn = Error `#B3261E`; Warning `#8A4B00` remains a separate recoverable-warning semantic; Exam/Focus Indigo `#4F46B8` remains a separate exam/focus semantic. The implementation must not synthesize 50–900 ramps, must not treat Angular default brand palettes as visual authority, and must stop if Angular Material Sass requires invented hue/contrast data.
 - known_focus_conflict: Colors authority says `border/focus = #4F46B8`; Components examples use indigo/blue focus treatment; Elevation & States token authority says `focus.ring.shadow = 0 0 0 4px #006B66` with `focus.ring.offset = 4px`; existing VERIFIED frontend focus-token behavior remains unchanged until explicit reconciliation. `T-FE-009` must not opportunistically change focus behavior.
 - exclusion_summary: Phase A is documentation/governance only. No Material packages are installed in Phase A, no dependency-policy change is made in Phase A, no `_material-theme-bridge.scss` is created in Phase A, no theme source is implemented in Phase A, no backend/OpenAPI/Penpot source is changed, and no `T-FE-013`, routing, screen, or later task is started.

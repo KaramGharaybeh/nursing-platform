@@ -10,7 +10,8 @@ This document does not define temporary phase scope, visual design, acceptance c
 
 Separate documents own those decisions:
 
-- Approved Penpot artifacts own final visual design decisions. Penpot is the official visual design authority and single source of truth within the security, accessibility, and architecture constraints in this document.
+- Approved frontend visual foundations, approved design specifications, and approved Penpot/design artifacts own visual intent within the security, accessibility, and architecture constraints in this document. Penpot remains the approved design-exploration and specification tool when materially new visual intent is unresolved, but it is no longer mandatory as a procedural intermediate artifact for every component or routine screen composition.
+- Storybook is the approved intended frontend visual development and review tooling model for production Angular components and production screen states after separate tooling installation/configuration authorization. Storybook is not requirements authority and is not currently installed.
 - `docs/frontend/design/frontend-design-foundation-reference.md` is the canonical textual implementation mapping of the approved Penpot frontend foundation and MUST be consulted before Angular UI, SCSS, Angular Material theme, component, or screen work.
 - Figma is non-authoritative unless Karam explicitly records a future decision changing the Penpot-only authority.
 - Future approved frontend design specifications own phase scope, behavior, and acceptance criteria.
@@ -29,7 +30,7 @@ Approved Penpot artifacts are authoritative for visual decisions only. Backend s
 
 Official Angular documentation and Angular-maintained AI guidance matching the Angular version pinned in the workspace are the preferred authority for Angular APIs, compatibility, defaults, tooling, and recommended patterns. Relevant official framework guidance includes `https://angular.dev/ai/develop-with-ai`, `https://angular.dev/ai/agent-skills`, `https://angular.dev/ai/mcp`, and `https://angular.dev/cli/new`.
 
-Official Angular guidance is framework guidance only. It is subordinate to explicit Nursing Platform decisions, repository governance, backend/OpenAPI business and security contracts, approved Penpot visual evidence, and active task scope. Do not silently adopt APIs or behavior from a later Angular major. If current Angular documentation describes a patch-sensitive API or CLI behavior whose availability in the installed/pinned Angular version is uncertain, verify it against the actual installed/pinned version, do not upgrade Angular merely to use it, and STOP AND ESCALATE if incompatible.
+Official Angular guidance is framework guidance only. It is subordinate to explicit Nursing Platform decisions, repository governance, backend/OpenAPI business and security contracts, approved visual evidence, and active task scope. Do not silently adopt APIs or behavior from a later Angular major. If current Angular documentation describes a patch-sensitive API or CLI behavior whose availability in the installed/pinned Angular version is uncertain, verify it against the actual installed/pinned version, do not upgrade Angular merely to use it, and STOP AND ESCALATE if incompatible.
 
 Endpoint fields, validation limits, content types, status behavior, and other volatile contract details MUST be verified against the implemented backend and generated Development OpenAPI during each feature design and implementation phase.
 
@@ -346,9 +347,9 @@ Composition operators such as `switchMap` SHOULD be preferred over nested subscr
 
 Long-lived subscriptions require explicit ownership and cleanup documentation.
 
-## Penpot And Visual Design Boundary
+## Visual Design, Penpot, And Storybook Boundary
 
-Visual design is handled separately through approved Penpot artifacts. Penpot is the official visual design authority and single source of truth for approved visual design decisions.
+Visual design authority is separated from implementation and review tooling. Approved frontend visual foundations, approved design specifications, and approved Penpot/design artifacts own visual intent. Penpot remains the approved design-exploration and specification tool when materially new visual intent is unresolved, but Penpot is no longer mandatory merely to reproduce already-approved foundations, components, patterns, or straightforward compositions.
 
 `docs/frontend/design/frontend-design-foundation-reference.md` records the canonical textual implementation mapping for the approved Penpot frontend foundation. If live Penpot evidence conflicts with that reference, implementation MUST stop for design resolution and reference update instead of guessing or silently choosing either source.
 
@@ -369,13 +370,25 @@ Penpot decisions MUST operate within repository security, accessibility, perform
 
 When an approved Penpot design conflicts with accessibility, security, privacy, performance, backend contracts, or permanent architecture rules, implementation MUST stop and request explicit design and engineering review.
 
-SCSS and the project-owned Angular Material theme are executable mappings of approved Penpot visual intent. They are not independent sources of final visual-design decisions and MUST NOT silently override that intent.
+SCSS and the project-owned Angular Material theme are executable mappings of approved visual intent from the frontend foundation and any required Penpot/design artifact. They are not independent sources of final visual-design decisions and MUST NOT silently override that intent.
 
 Frontend implementation agents MUST NOT invent final visual design.
 
 No current product screen is automatically implementation-approved merely because it exists in Penpot or the PDF export. This explicitly includes Sign In, Preparation Package Offers, Preparation Package Details, and Checkout.
 
-Before a product screen is implemented, its task MUST identify the approved Penpot/design reference, backend/OpenAPI contract, required states, responsive behavior, RTL behavior, accessibility acceptance criteria, and unresolved design/backend conflicts. If any required input is missing, implementation MUST stop and escalate.
+Before a product screen is implemented, its task MUST identify the approved functional/page contract, route/access/API contracts, visual foundation or approved design reference, required states, responsive behavior, RTL behavior, accessibility acceptance criteria, and unresolved design/backend conflicts. If any required input is missing, implementation MUST stop and escalate.
+
+Storybook is adopted as the intended primary visual development and review surface for production Angular components and production screen states after separate tooling authorization. Stories MUST import and render the same production Angular components used by the application. Storybook MUST NOT create Storybook-only component copies, duplicate markup, duplicate SCSS, parallel token definitions, alternate implementations, a second design system, or product requirements.
+
+Storybook is not authoritative for business behavior, backend contracts, OpenAPI, DTOs, routes, authentication, roles, permissions, security, validation semantics, payment behavior, exam behavior, entitlement behavior, screen existence, page ownership, or product requirements. A story may demonstrate an already-authorized state; it may not invent a missing state or requirement. If functionality, UX behavior, or product intent is unresolved, implementation MUST stop for authority.
+
+When a screen or component can be composed from an approved functional contract, approved route/access/API contracts, approved visual foundation, and approved existing component/layout patterns, a duplicate Penpot artifact is not required solely for procedure. When materially new visual intent is unresolved—such as a novel page layout, new navigation/layout concept, complex multi-step visual flow, new major interaction paradigm, new visual language not covered by existing foundations, or a cross-screen flow whose intended composition cannot be derived from approved patterns—an explicit Penpot/design decision is normally required before implementation.
+
+For novel design, the approved workflow is: Penpot/design exploration and approval → production Angular implementation → Storybook production-state review. For routine compositions, the approved workflow is: approved contracts/foundations → production Angular implementation → Storybook production-state review. Storybook never replaces functional tests, component behavior tests, route/auth/permission tests, API verification, accessibility checks, lint, quality checks, or production build verification.
+
+Storybook visual evidence may serve a future owning component/screen gate only after Storybook tooling is separately installed, configured, and verified. Storybook evidence never self-approves a component or screen, and it does not bypass screen-family approval, exact screen approval, task dependencies, implementation gates, or technical-lead approval. No currently blocked screen becomes implementation-authorized because of Storybook adoption.
+
+Automated Storybook visual-regression or baseline testing is not approved by this architecture decision. Screenshot regression services, image snapshot frameworks, browser/DPR matrices, pixel tolerance policies, hosted visual-review services, or CI visual-regression integration require separate technical-lead/tooling approval.
 
 Before approved Penpot designs exist, frontend work MAY use only neutral structural UI to verify:
 
@@ -409,9 +422,9 @@ Angular Material customization MUST use supported theming APIs, design tokens, C
 
 The existing prohibition on `::ng-deep` remains enforceable.
 
-Penpot-approved visual intent and the project theme determine colors, typography, density, shape, spacing, and component appearance within accessibility and architecture constraints.
+Approved visual intent and the project theme determine colors, typography, density, shape, spacing, and component appearance within accessibility and architecture constraints. Use the approved frontend foundation and any task-required Penpot/design artifact; do not invent new values from Angular Material defaults or Storybook convenience.
 
-Final colors, typography values, density values, elevations, breakpoints, and dark-mode behavior MUST be defined only through later approved Penpot and feature or foundation design scope.
+Final colors, typography values, density values, elevations, breakpoints, and dark-mode behavior MUST be defined only through approved visual foundations, task-required approved Penpot/design artifacts, or later approved feature/foundation design scope.
 
 ## SCSS Architecture
 
@@ -470,7 +483,7 @@ Stylesheet optimization MUST NOT reduce accessibility, focus visibility, readabl
 
 The Nursing Platform owns one internal application theme system. The initial foundation MUST NOT create a separately published design-system npm package.
 
-The theme maps approved Penpot tokens into Angular Material theming and application-level SCSS tokens.
+The theme maps approved visual foundation tokens, including Penpot-derived foundation values, into Angular Material theming and application-level SCSS tokens.
 
 There MUST be one authoritative token source for each visual decision. Material theme configuration and application tokens MUST NOT drift into separate conflicting values.
 
@@ -482,7 +495,7 @@ Theme changes MUST be reviewable and testable.
 
 Future light, dark, high-contrast, brand, or tenant variants require approved design scope. This architecture does not promise dark mode.
 
-Penpot remains the official visual design authority and source of approved visual intent. The repository theme implementation becomes the executable mapping of that approved intent.
+Approved visual foundations and task-required approved Penpot/design artifacts are the source of approved visual intent. The repository theme implementation becomes the executable mapping of that approved intent.
 
 A Penpot design MUST NOT override accessibility, security, privacy, performance, backend contracts, or permanent architecture rules.
 
@@ -499,7 +512,7 @@ The Nursing Platform enforces a strict token-to-theme pipeline. No ad-hoc overri
 - Typography: font family, font size scale
 - Elevation: shadow definitions
 
-All token values MUST originate from approved Penpot artifacts. Manual edits to `_tokens.scss` without a corresponding Penpot design decision are forbidden.
+All token values MUST originate from approved visual foundations or task-required approved Penpot/design artifacts. Manual edits to `_tokens.scss` without a corresponding approved design decision are forbidden.
 
 ### Material Theme Bridge
 

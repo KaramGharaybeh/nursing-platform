@@ -10,7 +10,7 @@ For frontend task execution, consult the following in order, together with expli
 2. `AGENTS.md`
 3. Current execution state and task/gate authority in `docs/frontend/execution/frontend-implementation-ledger.md`, with `PROGRESS.md` as concise current-session handoff.
 4. `docs/frontend/frontend-architecture.md`
-5. `docs/frontend/design/frontend-design-foundation-reference.md` for the canonical textual implementation mapping of the approved Penpot foundation; approved design specifications and approved Penpot evidence remain visual authority, and Figma is non-authoritative unless Karam explicitly changes the recorded Penpot-only decision.
+5. `docs/frontend/design/frontend-design-foundation-reference.md` for the canonical textual implementation mapping of the approved Penpot-derived foundation; approved visual foundations, approved design specifications, and task-required approved Penpot/design evidence remain visual-intent authority. Storybook is the intended future production visual development/review surface, not requirements authority, and is not installed until a separate tooling authorization.
 6. Implemented backend source and the generated Development OpenAPI contract for runtime API behavior.
 7. `docs/frontend/design/GOAL_STATE.md`
 8. `docs/frontend/design/MASTER_PLAN.md`
@@ -22,9 +22,9 @@ Unresolved open questions block the affected implementation decision. Historical
 
 Architectural, business, design, API, security, or exception decisions that affect future implementation MUST be persisted in repository-backed documentation. Chat history alone is not a durable project decision record.
 
-Generic skills, including design, brand, design-system, ui-styling, ui-ux-pro-max, brainstorming, or similar capabilities, are subordinate to Nursing Platform repository governance, approved Penpot evidence, backend/OpenAPI contracts, business rules, security, accessibility, and task scope. A generic skill MUST NOT silently introduce Tailwind, shadcn, a second UI library, new design tokens, new business behavior, new architecture, or a conflicting visual decision.
+Generic skills, including design, brand, design-system, ui-styling, ui-ux-pro-max, brainstorming, or similar capabilities, are subordinate to Nursing Platform repository governance, approved visual evidence, backend/OpenAPI contracts, business rules, security, accessibility, and task scope. A generic skill MUST NOT silently introduce Tailwind, shadcn, a second UI library, new design tokens, new business behavior, new architecture, or a conflicting visual decision.
 
-Official Angular documentation and Angular-maintained AI guidance are framework guidance only. They are subordinate to explicit Nursing Platform decisions, repository governance, backend/OpenAPI business and security contracts, approved Penpot visual evidence, and active task scope. For Angular framework implementation questions, prefer current official Angular documentation and official Angular-maintained AI guidance compatible with the project's locked Angular major/version, including:
+Official Angular documentation and Angular-maintained AI guidance are framework guidance only. They are subordinate to explicit Nursing Platform decisions, repository governance, backend/OpenAPI business and security contracts, approved visual evidence, and active task scope. For Angular framework implementation questions, prefer current official Angular documentation and official Angular-maintained AI guidance compatible with the project's locked Angular major/version, including:
 
 - `https://angular.dev/ai/develop-with-ai`
 - `https://angular.dev/ai/agent-skills`
@@ -44,14 +44,14 @@ No Angular implementation, including scaffolding, may start until all of the fol
 - A route registry and route/actor/permission matrix are drafted and approved for the intended slice.
 - Design tokens and their source authority are accepted.
 - Component contracts are drafted for the intended slice.
-- Penpot source status and approval status are confirmed.
+- Penpot/design source status and approval status are confirmed when materially new visual intent is unresolved; routine work may instead cite approved visual foundations and approved existing component/layout patterns.
 - The npm/package-manager policy and Angular project-creation command are explicitly approved.
 
 G0 was accepted on 2026-08-12 as a governance/re-entry baseline only, as recorded in `docs/frontend/design/governance/decision-log.md` (DEC-PH0-016) and `docs/frontend/design/GOAL_STATE.md`. A later implementation approval must not be inferred from this document, a running Penpot container, a draft board, or backend readiness.
 
 ### 2.1 Standing Implementation Authorization
 
-Standing Implementation Authorization for ordinary eligible Low/Medium frontend Tasks is defined in `docs/frontend/execution/frontend-implementation-ledger.md` and `docs/development/model-orchestration.md`. It may replace a separate per-task start message only when all declared predecessor Gates are `VERIFIED`, exact scope is established, no unresolved blocker/approval/security/business/design/tooling/dependency/backend/OpenAPI/Penpot/database/migration decision is required, risk remains Low/Medium, implementation can stay within bounded `ALLOWED_FILES`, and required focused plus full Gate evidence can be produced. It never authorizes staging, committing, pushing, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, screen work without screen approval, or human-owned product/business decisions.
+Standing Implementation Authorization for ordinary eligible Low/Medium frontend Tasks is defined in `docs/frontend/execution/frontend-implementation-ledger.md` and `docs/development/model-orchestration.md`. It may replace a separate per-task start message only when all declared predecessor Gates are `VERIFIED`, exact scope is established, no unresolved blocker/approval/security/business/design/tooling/dependency/backend/OpenAPI/Penpot/Storybook/database/migration decision is required, risk remains Low/Medium, implementation can stay within bounded `ALLOWED_FILES`, and required focused plus full Gate evidence can be produced. It never authorizes staging, committing, pushing, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, Storybook installation/configuration, screen work without screen approval, or human-owned product/business decisions.
 
 ## 3. Angular stack rules
 
@@ -150,11 +150,11 @@ This section defines rules only; it does not create the directory structure.
 - Canonical standard form-field/select foundation: `height = 64px`, `radius = 12px`, and minimum trailing action target `48 × 48px`. The 48px Preparation Package filter draft does not establish a compact control variant. A compact field/select variant may be created only through a later explicit design-system decision.
 - There are currently no approved canonical project motion duration/easing tokens. Do not invent or hard-code project-authored motion duration or easing values. Until canonical motion tokens are approved, prefer no custom decorative transition over arbitrary animation. Required state meaning must remain complete without animation. Framework-internal behavior is not visual authority and must not be copied into project tokens.
 - Do not invent a project numeric z-index scale. Angular CDK Overlay owns overlay stacking mechanics unless an evidenced implementation conflict requires an explicit project token. Project-owned elevation remains semantic: level-1 raised, level-2 menus/overlays, level-3 dialogs/modals, and scrim opacity `0.48`. Any custom z-index value requires an explicit architecture/design decision.
-- The project-owned Material theme and SCSS are executable mappings of approved Penpot intent, not alternate visual authorities. Emit theme CSS once at the application boundary.
+- The project-owned Material theme and SCSS are executable mappings of approved visual intent, including approved visual foundations and task-required approved Penpot/design artifacts, not alternate visual authorities. Emit theme CSS once at the application boundary.
 - Customize Angular Material only through supported theming APIs, approved tokens, CSS custom properties where appropriate, documented component APIs, and narrowly owned application classes. Do not use `::ng-deep`, undocumented Material DOM/classes, or a global `MaterialModule`.
 - Typography, spacing, radius, elevation, focus, disabled, and state values must follow accepted token contracts. Components use semantic token names rather than raw literals.
 - Component contracts must cover purpose, anatomy, allowed variants/sizes, inputs/outputs, semantic/ARIA behavior, responsive and RTL behavior, and hover, focus, active, disabled, error, loading, empty, and success states as applicable.
-- Implement only approved Penpot visual evidence. Any necessary deviation requires explicit design/engineering approval and a corresponding decision-log entry; do not silently alter visual intent.
+- Implement only approved visual intent from approved visual foundations, approved design specifications, and task-required approved Penpot/design artifacts. Any necessary deviation requires explicit design/engineering approval and a corresponding decision-log entry; do not silently alter visual intent.
 - Current design-system evidence is not yet implementation-ready: Utilities, canonical token registry, breakpoint authority, local Penpot components/colors/themes, Arabic validation, elevation/z-index, patterns, and component implementation contracts remain unresolved or deferred.
 
 ### 8.1 Spacing Grid and Utilities Rules
@@ -179,10 +179,24 @@ The following SCSS files constitute the canonical global styling foundation. No 
 
 | File | Ownership |
 |------|-----------|
-| `src/styles/_tokens.scss` | Penpot-derived canonical design tokens — **single source of truth** for all colors, typography, and elevation values. |
+| `src/styles/_tokens.scss` | Approved visual-foundation design tokens, including Penpot-derived foundation values — **single source of truth** for all colors, typography, and elevation values. |
 | `src/styles/_material-theme-bridge.scss` | Maps `_tokens.scss` values into Angular Material 22 component palettes. Prevents ad-hoc Material overrides. |
 | `src/styles/abstracts/_mixins.scss` | Project-wide SCSS mixins including `touch-target($mobile)`. |
 | `src/styles/_utilities.scss` | 4px grid spacing utilities, 2px precision helpers, text truncation, and WCAG accessibility helper classes. |
+
+### 8.3 Storybook Visual Development and Review Rules
+
+Storybook is adopted as the intended frontend visual development and review tooling model for production Angular components and production screen states. Storybook installation, configuration, dependencies, scripts, stories, and visual-regression integration are not authorized until a separate tooling implementation authorization explicitly approves them.
+
+- Stories MUST render the same production Angular components used by the application. Do not create Storybook-only component copies, duplicate markup, duplicate SCSS, alternate implementations, parallel token definitions, or a second design system.
+- Storybook is not authoritative for business behavior, backend contracts, OpenAPI, DTOs, routes, authentication, roles, permissions, security, validation semantics, payment behavior, exam behavior, entitlement behavior, screen existence, page ownership, or product requirements.
+- A story may demonstrate an already-authorized component or screen state. It must not invent missing functionality, UX behavior, product intent, copy, route inventory, labels/groups/order/icons, navigation layout, or screen states.
+- Reusable production components may later expose meaningful approved states in Storybook, including default, hover, focus, disabled, loading, error, empty, success, validation, interaction, responsive, and RTL/LTR states where applicable. Story fixtures may provide inputs needed to demonstrate states but do not create business authority.
+- Production screen components may later have stories for approved screen states when it improves review. Screen stories may only represent states authorized by the screen's functional/design contract.
+- If a component or screen can be composed from approved functional contracts, route/access/API contracts, visual foundations, and existing component/layout patterns, Penpot is not required solely as a procedural duplicate. If materially new visual intent is unresolved, STOP for visual authority, normally through an explicit Penpot/design decision.
+- Storybook visual evidence may satisfy a future owning component/screen gate only after Storybook tooling is installed and verified. The owning gate and technical lead still approve; Storybook never self-approves.
+- Storybook does not replace unit tests, Angular component behavior tests, route/auth/permission tests, API/integration verification, accessibility checks, lint, quality checks, or production build verification.
+- Automated visual regression remains unapproved. Do not add screenshot regression services, image snapshot frameworks, browser/DPR matrices, pixel tolerance policy, hosted visual-review services, or CI visual-regression integration without separate technical-lead/tooling approval.
 
 ## 9. Accessibility rules
 
@@ -287,7 +301,7 @@ A frontend Task may be marked `VERIFIED` only when all applicable requirements p
 - backend/OpenAPI contract respected exactly;
 - no guessed response fields/contracts;
 - architecture/dependency rules respected;
-- approved Penpot/design contract respected;
+- approved visual foundation and any task-required Penpot/design contract respected;
 - relevant loading/error/empty/disabled/success states implemented;
 - desktop/tablet/mobile verified where applicable;
 - RTL behavior verified where applicable;

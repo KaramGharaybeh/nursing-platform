@@ -5,8 +5,8 @@ document_id: NPS-DES-STATE-001
 version: 1.4
 updated_at: 2026-08-12
 timezone: Asia/Amman
-manager_model: openai/gpt-5.6-sol
-design_authority: Penpot
+manager_model: openai/gpt-5.5
+design_authority: approved visual foundations plus task-required Penpot/design artifacts
 viewport_scope: Desktop browser
 current_phase: PHASE-1-EVIDENCE-PACKET-AWAITING-AUTHORIZATION
 current_batch: none
@@ -24,14 +24,15 @@ Create evidence-backed Markdown specifications and approved Penpot Desktop desig
 - No RTL or Arabic boards in the current scope; readiness remains required.
 - No Angular implementation in the current scope.
 - No automated test implementation in the current scope.
-- No alternate visual-design authority.
+- Storybook is approved as the intended future production visual development/review surface after separate tooling authorization, but it is not a requirements authority and is not installed by this governance checkpoint.
+- No alternate requirements authority is created by Storybook.
 - No use of `claude-fable-5.md` as project evidence.
 
 ## Locked decisions
 
 | ID | Decision | Status |
 |---|---|---|
-| DEC-001 | Penpot is the sole visual authority | Locked |
+| DEC-001 | Penpot was the sole visual authority for the original Desktop design-documentation program; after the 2026-09-10 governance decision, approved visual foundations plus task-required Penpot/design artifacts own visual intent, and Storybook is the intended production visual development/review surface after separate tooling authorization | Superseded for current implementation governance; preserved as historical design-program baseline |
 | DEC-002 | Desktop browser only for this design pass | Locked |
 | DEC-003 | One Markdown file per canonical route-level page | Locked |
 | DEC-004 | Page states stay inside the owning page spec unless independently routed | Locked |
@@ -39,8 +40,9 @@ Create evidence-backed Markdown specifications and approved Penpot Desktop desig
 | DEC-006 | Angular 22 + Angular Material/CDK + SCSS + custom Material theme | Locked and present in the live frontend architecture working copy |
 | DEC-007 | WCAG 2.2 AA | Locked |
 | DEC-008 | Future Arabic and RTL readiness | Locked |
-| DEC-009 | `openai/gpt-5.6-sol` manages and approves agent work | Locked |
-| DEC-010 | Karam provides final visual approval | Locked |
+| DEC-009 | Current repository orchestration is governed by `docs/development/model-orchestration.md`: `openai/gpt-5.5` is the sole OpenAI orchestrator/final gate, approved non-OpenAI workers may provide bounded execution/review evidence, and no delegated worker or alternate OpenAI model may approve or reject specifications, gates, or agent-produced artifacts | Locked |
+| DEC-010 | Karam/technical-lead approval remains required for final visual approval gates | Locked |
+| DEC-011 | Storybook may provide future production component/screen visual evidence after separate tooling authorization but never self-approves screens or creates requirements | Locked |
 
 ## Phase 0 evidence reviewed
 
@@ -55,7 +57,7 @@ Create evidence-backed Markdown specifications and approved Penpot Desktop desig
 ## Current findings
 
 1. The live repository is the evidence source; the earlier uploaded documentation dump is historical and insufficient for page specifications.
-2. Penpot is the sole visual authority; Figma is non-authoritative unless Karam records a future decision changing that rule. The working copy reconciles the prior historical Figma wording; integration remains subject to review.
+2. Current implementation governance uses separated authority: approved visual foundations and task-required approved Penpot/design artifacts own visual intent; Storybook is the intended future production visual development/review surface after separate tooling authorization; Figma is non-authoritative unless Karam records a future decision changing that rule.
 3. Angular 22, Angular Material/CDK where required, Signals, RxJS, SCSS, and a project-owned Material theme are approved architecture; the frontend workspace is not initialized.
 4. Karam accepted G0 on 2026-08-12 as a governance/re-entry baseline only. The current milestone and roadmap still do not authorize frontend implementation, Penpot writes, page specifications, or a route registry.
 5. Eleven live Penpot pages exist from `00` through `10`. Their presence and exports are evidence, not approval.
@@ -104,11 +106,11 @@ The detailed object IDs, library inventory, and discrepancy evidence are central
 
 | Role | Model | Qualification/status |
 |---|---|---|
-| Manager and final agent reviewer | `openai/gpt-5.6-sol` | Locked |
-| Markdown author | `opencode/nemotron-3-ultra-free` | Must pass two-page pilot |
-| Independent reviewer | `opencode/deepseek-v4-flash-free` | Must pass two-page pilot |
-| Penpot executor | `openai/gpt-5.6-terra` | Not authorized until G5/G6 |
-| Big Pickle | None in critical path | Prohibited from canonical docs, approval, trackers, and Penpot writes |
+| Manager and final agent reviewer | `openai/gpt-5.5` | Locked by `docs/development/model-orchestration.md` |
+| Markdown author | Approved non-OpenAI worker per `docs/development/model-orchestration.md` | Requires bounded packet and review gate |
+| Independent reviewer | Approved non-OpenAI supporting reviewer per `docs/development/model-orchestration.md` | Findings only; no approval authority |
+| Penpot executor | Separately authorized bounded executor under current repository orchestration | Not authorized until a future approved Penpot checkpoint |
+| Big Pickle | Approved non-OpenAI worker only when routed by `docs/development/model-orchestration.md` | No approval, tracker, or Penpot-write authority |
 
 ## Usage state
 
@@ -165,7 +167,7 @@ Do not modify Penpot, AUTH-001, Page 09, .agent/goal-state.md, CURRENT_TASK.md, 
 |---|---|---|
 | 2026-07-23 | Penpot-only, Desktop-first, Markdown-per-page strategy locked | Current user decision |
 | 2026-07-23 | Uploaded project documentation fully read and audited | 4,193-line source dump |
-| 2026-07-23 | Manager model selected | `openai/gpt-5.6-sol` |
+| 2026-07-23 | Historical manager model selected for original design-program plan | Superseded by current repository orchestration: `openai/gpt-5.5` |
 | 2026-07-23 | Master plan and initial goal-state ledger created | `NPS-DES-PLAN-001`, `NPS-DES-STATE-001` |
 | 2026-07-23 | Read-only live repository and 11-page Penpot inventories completed | Commit `2c60554f`; Penpot file `01813f71-6684-8025-8008-5d0437a49666` |
 | 2026-07-23 | Phase 0 documentation-only reconciliation authorized | `NPS-DES-PH0-G0-RECONCILE` |

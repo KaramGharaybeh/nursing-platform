@@ -29,7 +29,19 @@ Use sources in this order:
 7. Penpot for approved visual geometry, composition, styling, and hierarchy.
 8. Agent inference is never authoritative.
 
-Penpot is the sole visual authority. Figma is non-authoritative unless Karam explicitly records a future decision changing that rule. Penpot cannot override repository security, accessibility, privacy, backend-contract, or architecture rules. A live Penpot artifact is evidence until it passes the applicable manager gate and Karam explicitly grants visual approval.
+Current visual workflow authority after the 2026-09-10 technical-lead decision is separated by concern. Approved frontend visual foundations, approved design specifications, and task-required approved Penpot/design artifacts own visual intent. Storybook is adopted as the intended production visual development/review surface after separate tooling authorization, but it is not requirements authority and is not currently installed. Penpot remains the approved design-exploration/specification tool when materially new visual intent is unresolved; it is no longer mandatory merely as a procedural intermediate artifact for every component or routine screen composition. Figma remains non-authoritative unless Karam explicitly records a future decision changing that rule. Penpot and Storybook cannot override repository security, accessibility, privacy, backend-contract, or architecture rules. A live Penpot artifact is evidence until it passes the applicable manager gate and Karam explicitly grants visual approval.
+
+Authority separation:
+
+1. Explicit technical-lead decisions.
+2. Backend/OpenAPI runtime, security, and business behavior authority.
+3. Approved functional/page/route/access contracts.
+4. Approved visual foundation: tokens, theme bridge, typography, spacing, shape, color rules, responsive helpers, accessibility requirements, RTL/LTR infrastructure, shared form controls, validation patterns, loading/error/retry patterns, and other approved reusable visual primitives.
+5. Approved Penpot/design artifact when novel visual intent is required.
+6. Production Angular source as the single implementation source.
+7. Storybook rendering production source as visual development/review evidence after separate tooling authorization.
+
+Do not treat Storybook stories as authorization for product requirements, screen existence, backend behavior, route inventory, permissions, validation semantics, navigation UI, or screen approval. Do not treat routine omission of Penpot as permission for agents to design from imagination; unresolved material visual decisions still require explicit visual authority.
 
 ## Repository snapshot
 

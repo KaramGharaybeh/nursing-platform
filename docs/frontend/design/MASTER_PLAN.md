@@ -6,16 +6,17 @@ version: 1.1
 status: phase-0-reentry-reconciliation
 created_at: 2026-07-23
 timezone: Asia/Amman
-design_authority: Penpot
+design_authority: approved visual foundations plus task-required approved Penpot/design artifacts
 design_scope: Desktop browser
-manager_model: openai/gpt-5.6-sol
+manager_model: openai/gpt-5.5
 ```
 
 ## 1. Intended outcome
 
 Build a reliable, repeatable production system for Nursing Platform frontend design in which:
 
-- Penpot is the single visual authority.
+- Approved visual foundations and task-required approved Penpot/design artifacts own visual intent.
+- Storybook is the intended future production visual development/review surface after separate tooling authorization, not requirements authority.
 - Desktop browser pages are designed first.
 - Every canonical routed page has one evidence-backed Markdown specification before visual production starts.
 - Business rules, permissions, API contracts, validation rules, security requirements, accessibility requirements, and test scenarios remain traceable.
@@ -31,7 +32,7 @@ The following decisions are fixed unless Karam explicitly changes them:
 
 | ID | Decision |
 |---|---|
-| DEC-001 | Penpot is the only visual design authority. |
+| DEC-001 | Current implementation governance separates visual intent from review tooling: approved visual foundations and task-required approved Penpot/design artifacts own visual intent; Storybook is the intended future production visual development/review surface after separate tooling authorization and is not requirements authority. Historical Penpot-only decisions remain preserved as the original Desktop design-documentation baseline. |
 | DEC-002 | Current production scope is Desktop browser only. |
 | DEC-003 | One Markdown specification is created per canonical route-level page or independent route-level user task. |
 | DEC-004 | Loading, error, validation, empty, permission, and interaction states normally remain inside the owning page specification; they do not become separate page files. |
@@ -39,10 +40,12 @@ The following decisions are fixed unless Karam explicitly changes them:
 | DEC-006 | Angular 22, Angular Material, Angular CDK where required, SCSS, and a project-owned custom Angular Material theme are the approved frontend direction. |
 | DEC-007 | WCAG 2.2 AA is mandatory. |
 | DEC-008 | Arabic and RTL are future production requirements; current Desktop LTR work must preserve readiness without creating RTL boards now. |
-| DEC-009 | `openai/gpt-5.6-sol` is the sole model manager and the sole model allowed to approve or reject specifications and agent-produced artifacts. |
+| DEC-009 | Current repository orchestration is governed by `docs/development/model-orchestration.md`: `openai/gpt-5.5` is the sole OpenAI orchestrator/final gate, approved non-OpenAI workers may provide bounded execution/review evidence, and no delegated worker or alternate OpenAI model may approve or reject specifications, gates, or agent-produced artifacts. Historical design-program model names in older sections are superseded. |
 | DEC-010 | Human visual review by Karam is required before a Penpot page becomes visually approved. |
 | DEC-011 | An agent must never invent a route, permission, field, validation rule, state transition, business rule, API behavior, performance budget, or visual-diff threshold. |
 | DEC-012 | `claude-fable-5.md` is excluded from this program because it is unrelated to Nursing Platform requirements. |
+| DEC-013 | Penpot is no longer mandatory as a procedural intermediate artifact for every component or routine screen composition. Penpot remains required when materially new visual intent is unresolved. |
+| DEC-014 | Storybook stories must render production Angular source and must not create duplicate components, duplicate SCSS, a parallel design system, screen authorization, product requirements, or automated visual-regression authority. |
 
 ## 3. Authority hierarchy and conflict handling
 
@@ -61,8 +64,10 @@ When sources disagree, use this order:
 5. Approved shared frontend/design/test contracts.
 6. Page-family patterns.
 7. The individual page specification.
-8. Penpot for approved geometry, composition, styling, and hierarchy.
-9. Agent inference is never authoritative.
+8. Approved visual foundation and any task-required Penpot/design artifact for visual intent.
+9. Production Angular source as implementation authority.
+10. Storybook rendering production source as visual development/review evidence after separate tooling authorization.
+11. Agent inference is never authoritative.
 
 If code and documentation disagree, neither is silently chosen as product truth. The discrepancy is recorded in `governance/open-questions.md`, the affected page becomes `blocked`, and the manager requests a decision when the difference affects behavior or design.
 
@@ -604,7 +609,7 @@ No candidate becomes a Markdown page until it has an approved page-registry entr
 
 ### 16.1 Non-delegable manager
 
-`openai/gpt-5.6-sol` owns:
+`openai/gpt-5.5` owns the current OpenAI orchestration/final-gate role under `docs/development/model-orchestration.md`:
 
 - the authoritative plan and goal state;
 - task decomposition and task packets;
@@ -622,14 +627,14 @@ No worker may edit shared governance, inventory, traceability, or goal-state fil
 
 | Role | Default model | Scope |
 |---|---|---|
-| Markdown author | `opencode/nemotron-3-ultra-free` | Evidence extraction and page drafts from narrow approved packets only |
-| Independent reviewer | `opencode/deepseek-v4-flash-free` | Findings against evidence and schema; no edits or approvals |
-| Penpot executor | `openai/gpt-5.6-terra` | Serial execution of approved Penpot packets; no independent design decisions |
-| Manager/final reviewer | `openai/gpt-5.6-sol` | Non-delegable decisions and gates |
+| Markdown author | Approved non-OpenAI worker per `docs/development/model-orchestration.md` | Evidence extraction and page drafts from narrow approved packets only |
+| Independent reviewer | Approved non-OpenAI supporting reviewer per `docs/development/model-orchestration.md` | Findings against evidence and schema; no edits or approvals |
+| Penpot executor | Separately authorized bounded executor under current repository orchestration | Serial execution of approved Penpot packets; no independent design decisions |
+| Manager/final reviewer | `openai/gpt-5.5` | Non-delegable decisions and gates |
 
 The author and reviewer defaults must pass a pilot containing one simple page and one high-risk page. Measure omission rate, unsupported claims, source accuracy, schema compliance, correction rate, calls, tokens, and elapsed time.
 
-If the default author fails the pilot twice, the manager may temporarily promote authoring to `openai/gpt-5.6-terra`. There is no automatic model roulette.
+If the default author fails the pilot twice, the manager must escalate under `docs/development/model-orchestration.md`; authoring must not be promoted to another OpenAI model. There is no automatic model roulette.
 
 `opencode/big-pickle` is outside the critical path:
 
@@ -836,7 +841,7 @@ The reconciliation records:
 
 - live repository commit `2c60554f3de5d35b3c6264e4115d24baedc73568` on branch `main`;
 - an uncommitted working tree whose pre-existing changes are preserved and not treated as approved or committed;
-- Penpot as the sole visual authority;
+- Penpot as the sole visual authority for the original Phase 0 design-documentation baseline, now superseded for current implementation governance by the 2026-09-10 Storybook visual workflow decision;
 - Desktop browser as the only current design-documentation viewport scope;
 - Tablet, Mobile, Arabic, and RTL boards as future scope;
 - the live 11-page Penpot inventory as evidence only, not visual approval;
@@ -1069,7 +1074,7 @@ Karam accepted G0 on 2026-08-12 as a frontend design governance/re-entry baselin
 ```text
 TASK: NPS-DES-G0-ACCEPTANCE-20260812
 STATUS: G0 accepted for governance/re-entry only; Phase 1 not authorized
-MANAGER: openai/gpt-5.6-sol
+MANAGER: openai/gpt-5.5
 
 REVIEW:
 - docs/frontend/design/MASTER_PLAN.md

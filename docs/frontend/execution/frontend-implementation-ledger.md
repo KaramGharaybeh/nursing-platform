@@ -317,7 +317,7 @@ All Tasks have initial `status: NOT STARTED`.
 | `T-FE-027` | `M-FE-007` | Shell frame | `GATE-FE-T009..T012`,`GATE-FE-T023` | landmarks/router outlet | `DESIGN` |
 | `T-FE-028` | `M-FE-017` | System loading route state | `GATE-FE-T027`,`GATE-FE-T113` | owns `SYS-001` | `DESIGN` |
 | `T-FE-029` | `M-FE-007` | Canonical route registry | `GATE-FE-T027` | all product routes register here | `SCOPE` |
-| `T-FE-030` | `M-FE-007` | Auth/public guards | `GATE-FE-T023..T025`,`GATE-FE-T029`,`GATE-FE-T138` | auth guard/public-only guard | `SECURITY` |
+| `T-FE-030` | `M-FE-007` | Auth/public guards | `GATE-FE-T023..T025`,`GATE-FE-T029`,`GATE-FE-T138` | auth guard/public guard using the generic auth-routing contract in `docs/frontend/design/inventory/route-permission-matrix.md` | `SECURITY` |
 | `T-FE-031` | `M-FE-007` | Route-level UX permission policy | `GATE-FE-T023`,`GATE-FE-T029`,`GATE-FE-T138` | UX only; backend is security | `SECURITY`,`CONTRACT_CLARIFICATION` |
 | `T-FE-032` | `M-FE-007` | Permission-aware navigation | `GATE-FE-T031` | presentation only | `DESIGN` |
 | `T-FE-033` | `M-FE-008` | Loading/error/retry pattern | `GATE-FE-T019`,`GATE-FE-T010` | no feature copy | `DESIGN` |
@@ -1587,6 +1587,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: `SCOPE`
 - evidence_summary: Gate evidence covers exact 62/62 approved canonical route representation, duplicate-free IDs/templates, full mechanical contract comparison against `docs/frontend/design/inventory/page-registry.md`, path hygiene, non-routable/blocked/deferred exclusions, dynamic builder correctness and template immutability, `app.routes.ts` unchanged/empty, full frontend tests/lint/stylelint/quality/build, independent review PASS, git diff checks, and forbidden-scope confirmation. Downstream `T-FE-030`, `T-FE-031`, and `T-FE-032` remain separate tasks and were not started.
+
+### `T-FE-030` — Auth/public guards
+
+- status: `BLOCKED`
+- blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-10
+- contract_authority_checkpoint: Technical-lead auth-routing decisions were accepted for documentation/contract finalization only and persisted in `docs/frontend/design/inventory/route-permission-matrix.md`. The contract classifies the exact 62 canonical route IDs from `frontend/src/app/core/routing/canonical-routes.ts` as 12 `PUBLIC`, 1 `ENTRY`, and 49 derived `AUTHENTICATED` routes. `PUBLIC` is not anonymous-only; authenticated users are not redirected away from public routes in V1. Anonymous access to an `AUTHENTICATED` route redirects to `AUTH_SIGN_IN` using the canonical registry with `returnUrl` query intent. `T-FE-030` owns generic safe-return validation, returnUrl production/key, and AuthSessionBootstrap-based token-session gating; post-login consumption is owned by later authorized auth screens. CurrentUserStore does not control generic auth-only routing, and `CurrentUserState.unavailable` is not authentication failure.
+- explicit_exclusions: This documentation checkpoint does not authorize Angular implementation, guard creation, safe-return helper source, `frontend/src/app/app.routes.ts` changes, route activation, placeholders, fake lazy routes, navigation/menu/sidebar behavior, screens, session-expired auto-navigation, access-denied decisions based on auth alone, role checks, permission checks, actor-family authorization, backend/OpenAPI/generated/dependency changes, T-FE-031, or push.
+- implementation_status: T-FE-030 remains blocked for implementation until separate technical-lead implementation authorization. Do not mark `T-FE-030`, `ST-FE-030`, or `GATE-FE-T030` as `VERIFIED` from this documentation-only checkpoint.
+
+### `ST-FE-030` — Implement auth/public guard primitives
+
+- status: `BLOCKED`
+- blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
+- evidence_summary: Generic auth-routing contract is now documented, but no implementation is authorized in this checkpoint.
+
+### `GATE-FE-T030`
+
+- status_result: `BLOCKED`
+- blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
+- evidence_summary: Guard/router tests and implementation evidence are not present because this checkpoint is documentation-only. Separate T-FE-030 implementation authorization is required.
 
 ### `T-FE-138` — Authenticated current-user hydration
 

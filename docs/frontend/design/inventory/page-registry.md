@@ -89,7 +89,7 @@ Angular wildcard/catch-all mechanics are implementation concerns. `SYS-002` is a
 
 ### 2.16 Canonical documentation ownership
 
-This `docs/frontend/design/inventory/page-registry.md` document owns the frontend page and canonical route inventory contract. A future `docs/frontend/design/inventory/route-permission-matrix.md`, if explicitly authorized, owns route/actor/access/permission relationships and is downstream input to `T-FE-030`. Do not duplicate permission/guard responsibility here.
+This `docs/frontend/design/inventory/page-registry.md` document owns the frontend page and canonical route inventory contract. `docs/frontend/design/inventory/route-permission-matrix.md` owns generic route authentication classification for `T-FE-030` and later route/actor/access/permission relationships for downstream work. Do not duplicate access or guard responsibility here.
 
 ## 3. Route identifier and table conventions
 
@@ -97,7 +97,7 @@ This `docs/frontend/design/inventory/page-registry.md` document owns the fronten
 - Route IDs are internal source identifiers only and must not appear as public URL segments.
 - Approved paths are lowercase, kebab-case, no trailing slash, and contain no `/api/v1`, `/en`, or `/ar` prefixes.
 - `—` in the path column means the destination is intentionally non-routable or blocked/deferred until more authority exists.
-- Access classification is intentionally absent from the canonical route table. Actor/access/permission mapping belongs in a separate route-permission matrix and `T-FE-030`/`T-FE-031` work.
+- Access classification is intentionally absent from the canonical route table. Generic authentication classification and later actor/access/permission mapping belong in the separate route-permission matrix and `T-FE-030`/`T-FE-031` work.
 
 ## 4. Approved canonical route inventory
 
@@ -251,7 +251,7 @@ Every route with an exact path in this table is part of the **APPROVED CANONICAL
 | `:candidateId` | Candidate detail/request | BLOCKED | Parameter name is reserved as the semantic convention, but route is blocked by missing backend candidate detail. |
 | `:materialId` | Material reader | BLOCKED | Parameter name is reserved as the semantic convention, but material reader is backend blocked. |
 
-Query parameters are approved for filters, search, sorting, pagination, return-url intent, and link tokens. Return-url validation and redirect execution are explicitly outside this document.
+Query parameters are approved for filters, search, sorting, pagination, return-url intent, and link tokens. Return-url validation and authentication redirect behavior are owned by `docs/frontend/design/inventory/route-permission-matrix.md` for `T-FE-030`; post-login consumption is owned by the later authorized authentication screen/workflow.
 
 ## 8. Special route decisions
 
@@ -278,7 +278,7 @@ Query parameters are approved for filters, search, sorting, pagination, return-u
 
 `T-FE-029` may consume this approved document only after a separate implementation authorization to implement the canonical route ID/path/path-builder source. It must not implement guard execution, permission checks, redirects, return-url validation, navigation menus, page titles, breadcrumbs, screen components, or feature workflows.
 
-`T-FE-030` consumes approved route identities as destinations for authentication/public guard behavior. `T-FE-031` consumes approved route identities plus a future access/permission matrix for UX permission policy. `T-FE-032` consumes those later decisions for navigation presentation.
+`T-FE-030` consumes approved route identities plus `docs/frontend/design/inventory/route-permission-matrix.md` as the generic authentication/public guard contract. `T-FE-031` consumes approved route identities plus later access/permission matrix decisions for UX permission policy. `T-FE-032` consumes those later decisions for navigation presentation.
 
 Screen implementation tasks consume approved route identities only after their family approval gates and per-screen approvals pass.
 
@@ -301,4 +301,4 @@ Screen implementation tasks consume approved route identities only after their f
 
 ## 11. Implementation authorization
 
-T-FE-029 IMPLEMENTATION IS NOT AUTHORIZED YET.
+T-FE-029 is implemented and verified in `47b38dc feat(frontend): add canonical route registry`. T-FE-030 IMPLEMENTATION IS NOT AUTHORIZED YET by this documentation update.

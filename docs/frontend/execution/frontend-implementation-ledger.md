@@ -1566,6 +1566,28 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence covers shell/a11y focused tests for one main landmark, stable focus target, RouterOutlet placement, scaffold placeholder removal, absence of navigation/product links, component separation, no embedded template styles, logical tokenized CSS, full frontend tests, lint, stylelint, aggregate quality/build, git diff checks, independent review, and scope confirmation that no route registry/guard/permission/navigation/screen/auth/generated/backend/OpenAPI/dependency work was pulled forward.
 
+### `T-FE-029` — Canonical route registry
+
+- status: `VERIFIED`
+- blocker_types: `SCOPE`
+- evidence_date: 2026-09-10
+- predecessor_summary: Required predecessor gate `GATE-FE-T027` was already `VERIFIED`; implementation was explicitly authorized by the technical lead from approved route-authority commit `de6bc16 docs(frontend): approve canonical route contract`.
+- contract_summary: T-FE-029 owns only stable canonical frontend route IDs, the exact approved canonical paths/path templates, and minimal deterministic dynamic path construction. The implementation consumes `docs/frontend/design/inventory/page-registry.md` as the approved route authority and does not reopen route-design decisions, infer URLs from backend/Penpot/Angular conventions, or implement route access behavior.
+- scope_summary: Implemented only the pure Core route registry in `frontend/src/app/core/routing/canonical-routes.ts` with focused source-contract tests in `frontend/src/app/core/routing/canonical-routes.spec.ts`. `frontend/src/app/app.routes.ts` remains unchanged and empty. No Angular route activation, placeholders, guards, redirects, return-url validation, safe-return behavior, role/permission/access policy, navigation, breadcrumbs, route titles/copy, feature query-state logic, screen/component implementation, backend/OpenAPI/generated API, auth/session/interceptor/current-user/logout, shared UI, styling, dependency, or package changes were introduced.
+- verification_summary: TDD RED was captured before implementation with unresolved `./canonical-routes` / `TS2307` plus expected compile failures from the missing registry. Focused GREEN passed `npm test -- --watch=false --include=src/app/core/routing/canonical-routes.spec.ts` with 1 file / 13 tests. Full frontend verification passed `npm test -- --watch=false` with 19 files / 197 tests, `npm run lint`, `npm run lint:styles`, and `npm run quality` including dependency guard and production build. Deterministic contract checks confirmed 62 implemented canonical entries, 62 unique IDs, 62 unique templates, exact match to the approved page-registry rows, no forbidden route/path leakage, `NURSE_ENTRY`/`ADMIN_ENTRY` present, `NURSE_HOME`/`ADMIN_HOME` absent, `app.routes.ts` unchanged, and no backend/OpenAPI/generated/package/auth/shared/features/styles diff. Independent Big Pickle review returned PASS with no Critical/High/Medium findings.
+
+### `ST-FE-029` — Implement canonical route registry entries/policy shape
+
+- status: `VERIFIED`
+- blocker_types: `SCOPE`
+- evidence_summary: Subtask implemented the route ID/path template registry and deterministic dynamic builders for every approved dynamic canonical route. It includes no route metadata for guards, roles, permissions, redirects, titles, labels, icons, breadcrumbs, menus, or feature workflow state.
+
+### `GATE-FE-T029`
+
+- status_result: `VERIFIED`
+- blocker_types: `SCOPE`
+- evidence_summary: Gate evidence covers exact 62/62 approved canonical route representation, duplicate-free IDs/templates, full mechanical contract comparison against `docs/frontend/design/inventory/page-registry.md`, path hygiene, non-routable/blocked/deferred exclusions, dynamic builder correctness and template immutability, `app.routes.ts` unchanged/empty, full frontend tests/lint/stylelint/quality/build, independent review PASS, git diff checks, and forbidden-scope confirmation. Downstream `T-FE-030`, `T-FE-031`, and `T-FE-032` remain separate tasks and were not started.
+
 ### `T-FE-138` — Authenticated current-user hydration
 
 - status: `VERIFIED`

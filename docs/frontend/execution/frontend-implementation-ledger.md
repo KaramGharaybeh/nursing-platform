@@ -1590,24 +1590,26 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 ### `T-FE-030` — Auth/public guards
 
-- status: `BLOCKED`
+- status: `VERIFIED`
 - blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
 - evidence_date: 2026-09-10
-- contract_authority_checkpoint: Technical-lead auth-routing decisions were accepted for documentation/contract finalization only and persisted in `docs/frontend/design/inventory/route-permission-matrix.md`. The contract classifies the exact 62 canonical route IDs from `frontend/src/app/core/routing/canonical-routes.ts` as 12 `PUBLIC`, 1 `ENTRY`, and 49 derived `AUTHENTICATED` routes. `PUBLIC` is not anonymous-only; authenticated users are not redirected away from public routes in V1. Anonymous access to an `AUTHENTICATED` route redirects to `AUTH_SIGN_IN` using the canonical registry with `returnUrl` query intent. `T-FE-030` owns generic safe-return validation, returnUrl production/key, and AuthSessionBootstrap-based token-session gating; post-login consumption is owned by later authorized auth screens. CurrentUserStore does not control generic auth-only routing, and `CurrentUserState.unavailable` is not authentication failure.
-- explicit_exclusions: This documentation checkpoint does not authorize Angular implementation, guard creation, safe-return helper source, `frontend/src/app/app.routes.ts` changes, route activation, placeholders, fake lazy routes, navigation/menu/sidebar behavior, screens, session-expired auto-navigation, access-denied decisions based on auth alone, role checks, permission checks, actor-family authorization, backend/OpenAPI/generated/dependency changes, T-FE-031, or push.
-- implementation_status: T-FE-030 remains blocked for implementation until separate technical-lead implementation authorization. Do not mark `T-FE-030`, `ST-FE-030`, or `GATE-FE-T030` as `VERIFIED` from this documentation-only checkpoint.
+- contract_authority_checkpoint: Technical-lead auth-routing decisions were accepted for documentation/contract finalization and persisted in `docs/frontend/design/inventory/route-permission-matrix.md`, then a separate technical-lead continuation explicitly authorized T-FE-030 implementation from accepted contract commit `35ad4e6 docs(frontend): define auth routing contract` and canonical route registry commit `47b38dc feat(frontend): add canonical route registry`.
+- implementation_summary: Implemented only reusable generic T-FE-030 primitives: canonical-registry-based route auth classification (`PUBLIC`, `ENTRY`, derived `AUTHENTICATED`), pure internal-only safe-return validation with decoded-path hardening, and an AuthSessionBootstrap-based authenticated route guard that returns Angular UrlTree redirects for anonymous access to authenticated routes using canonical `AUTH_SIGN_IN` and exact query key `returnUrl`. Guard primitives remain unattached because `frontend/src/app/app.routes.ts` has no approved route targets and remains empty.
+- verification_summary: Focused RED evidence first failed on missing T-FE-030 modules, then targeted safe-return hardening RED failed on slash-prefixed scheme and encoded path-confusion cases. Final focused tests passed 3 files / 31 tests, proving exact route classification counts (`TOTAL=62`, `PUBLIC=12`, `ENTRY=1`, `AUTHENTICATED=49`), public/entry/authenticated examples, anonymous redirect with preserved path/query/fragment, canonical sign-in destination, exact `returnUrl` key, initializing wait, no duplicate bootstrap/refresh, no CurrentUserStore dependency, PUBLIC access while authenticated, ROOT_ENTRY unrestricted, safe-return positive/negative/security cases, and no role/permission behavior. Full frontend verification passed 22 files / 228 tests, `npm run lint`, `npm run lint:styles`, `npm run quality` including dependency guard and production build, `git diff --check`, empty staged-area checks, and scope checks.
+- independent_security_review: MiMo deep-reviewer read-only review and targeted safe-return re-review passed with no Critical/High/Medium findings. The initial Low encoded-path hardening observation was resolved by validating the decoded path portion while preserving safe encoded query values.
+- explicit_exclusions: No `frontend/src/app/app.routes.ts` route population or placeholders, no route activation, no fake lazy routes, no anonymous-only guard, no authenticated-user redirect away from PUBLIC routes, no post-login navigation, no role checks, no permission checks, no actor-family authorization, no navigation/menu/sidebar visibility, no screen components, no session-expired automatic navigation, no access-denied decision, no backend/OpenAPI/generated/dependency/package/tooling changes, no T-FE-031, and no push.
 
 ### `ST-FE-030` — Implement auth/public guard primitives
 
-- status: `BLOCKED`
+- status: `VERIFIED`
 - blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
-- evidence_summary: Generic auth-routing contract is now documented, but no implementation is authorized in this checkpoint.
+- evidence_summary: Verified reusable auth/public guard primitives are present under `frontend/src/app/core/routing/` and `frontend/src/app/core/auth/`: route classification, safe-return validation, authenticated-route guard, and focused tests. `app.routes.ts` remains empty and guard attachment is deferred until an authorized route/screen integration task supplies real route targets.
 
 ### `GATE-FE-T030`
 
-- status_result: `BLOCKED`
+- status_result: `VERIFIED`
 - blocker_types: `SECURITY`,`CONTRACT_CLARIFICATION`
-- evidence_summary: Guard/router tests and implementation evidence are not present because this checkpoint is documentation-only. Separate T-FE-030 implementation authorization is required.
+- evidence_summary: Gate evidence satisfies guard/router tests and security review: focused tests passed 3 files / 31 tests; full frontend tests passed 22 files / 228 tests; lint, stylelint, quality/build, diff checks, scope checks, and independent MiMo security review/re-review passed. Newly unblocked tasks may consume only the verified generic auth/public guard primitives according to their own prerequisites and approval gates; T-FE-031/navigation/screens remain separate and were not started by this gate.
 
 ### `T-FE-138` — Authenticated current-user hydration
 

@@ -23,12 +23,12 @@ function readJson(path: string): Record<string, unknown> {
 }
 
 describe('Angular Material theme bridge', () => {
-  it('pins @angular/material and @angular/cdk to exact 22.1.5 without @angular/animations', () => {
+  it('pins @angular/material and @angular/cdk to exact 22.1.6 without @angular/animations', () => {
     const packageJson = readJson(packageJsonPath);
     const dependencies = packageJson['dependencies'] as Record<string, string>;
 
-    expect(dependencies['@angular/material']).toBe('22.1.5');
-    expect(dependencies['@angular/cdk']).toBe('22.1.5');
+    expect(dependencies['@angular/material']).toBe('22.1.6');
+    expect(dependencies['@angular/cdk']).toBe('22.1.6');
     expect(dependencies['@angular/animations']).toBeUndefined();
   });
 
@@ -36,8 +36,8 @@ describe('Angular Material theme bridge', () => {
     const lockfile = readJson(lockfilePath);
     const packages = lockfile['packages'] as Record<string, { version?: string }>;
 
-    expect(packages['node_modules/@angular/material']?.version).toBe('22.1.5');
-    expect(packages['node_modules/@angular/cdk']?.version).toBe('22.1.5');
+    expect(packages['node_modules/@angular/material']?.version).toBe('22.1.6');
+    expect(packages['node_modules/@angular/cdk']?.version).toBe('22.1.6');
   });
 
   it('approves Material and CDK as exact direct dependencies in the dependency policy', () => {
@@ -45,8 +45,8 @@ describe('Angular Material theme bridge', () => {
     const approved = (policy['approvedDirectDependencies'] as Record<string, Record<string, string>>)['dependencies'];
     const denied = policy['deniedDirectDependencies'] as Record<string, string>;
 
-    expect(approved['@angular/material']).toBe('22.1.5');
-    expect(approved['@angular/cdk']).toBe('22.1.5');
+    expect(approved['@angular/material']).toBe('22.1.6');
+    expect(approved['@angular/cdk']).toBe('22.1.6');
     expect(denied['@angular/material']).toBeUndefined();
     expect(denied['@angular/cdk']).toBeUndefined();
   });

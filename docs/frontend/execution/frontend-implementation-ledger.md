@@ -890,6 +890,19 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - visual_regression_boundary: Automated Storybook visual regression, screenshot services, image snapshots, browser/DPR matrix, pixel tolerance policy, hosted visual review, and CI integration remain unapproved future decisions.
 - explicit_exclusions: No Storybook installation/configuration, package changes, `angular.json` changes, lockfile changes, stories, Angular source changes, navigation UI, screen implementation, backend changes, OpenAPI/generated API changes, Penpot changes, push, or screen gate verification occurred in this governance checkpoint.
 
+### Angular patch-alignment checkpoint before Storybook tooling — no T-FE task ID assigned
+
+- status: `VERIFIED` once committed by dependency-alignment checkpoint `chore(frontend): align angular patch versions`
+- decision_date: 2026-09-11
+- checkpoint_purpose: Resolve the npm Angular peer patch-resolution blocker discovered before Storybook installation without installing Storybook or weakening zoneless architecture.
+- preserved_Storybook_history: The initial `zone.js` concern was resolved by official `@storybook/angular-vite` metadata/docs showing optional `zone.js` and default zoneless behavior. The second blocker was npm Angular patch skew during Storybook install attempts. This checkpoint aligns Angular patches only; it does not mark Storybook tooling installed or verified.
+- alignment_strategy: Official npm metadata and Angular-supported update mechanics selected Angular framework/Material/CDK `22.1.6` and CLI/build `22.1.8` as the compatible Angular `22.1` patch set. Framework packages that have exact same-patch peer constraints now resolve together at `22.1.6`; Material/CDK remain exact direct pins at `22.1.6`; CLI/build follow their own compatible patch cadence at `22.1.8`.
+- dependency_scope: `frontend/package.json`, `frontend/package-lock.json`, and `frontend/dependency-policy.json` record the aligned direct dependency policy. `frontend/src/styles/material-theme-bridge.spec.ts` updates only the existing Material/CDK version contract assertions from `22.1.5` to `22.1.6` after the first full test run failed on the old expected patch.
+- zoneless_integrity: `@angular/animations`, `zone.js`, `zone.js/testing`, and `provideZoneChangeDetection` remain absent; no zone compatibility exception was introduced.
+- explicit_exclusions: No Storybook packages, `.storybook/**`, `*.stories.*`, production Angular source, Angular config, backend, canonical OpenAPI/generated API, navigation UI, product screens, visual-regression tooling, overrides, `--force`, or `--legacy-peer-deps` were introduced.
+- verification_summary: Normal `npm install` passed; `npm ls` shows Angular framework packages at `22.1.6`, Material/CDK at `22.1.6`, CLI/build at `22.1.8`, and no invalid Angular peer graph; `npm test -- --watch=false` passed 25 files / 276 tests after the intentional version-contract test update; `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, and `npm run quality` including production build passed. Lockfile changed only Angular/Angular-devkit/Schematics patch packages.
+- Storybook_status: Storybook tooling remains pending and was not installed in this checkpoint.
+
 ### `T-FE-001` — Scaffold Angular workspace
 
 - status: `VERIFIED`

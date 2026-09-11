@@ -903,6 +903,19 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - verification_summary: Normal `npm install` passed; `npm ls` shows Angular framework packages at `22.1.6`, Material/CDK at `22.1.6`, CLI/build at `22.1.8`, and no invalid Angular peer graph; `npm test -- --watch=false` passed 25 files / 276 tests after the intentional version-contract test update; `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, and `npm run quality` including production build passed. Lockfile changed only Angular/Angular-devkit/Schematics patch packages.
 - Storybook_status: Storybook tooling remains pending and was not installed in this checkpoint.
 
+### Storybook tooling/configuration checkpoint — no T-FE task ID assigned
+
+- status: `VERIFIED` once committed by tooling checkpoint `chore(frontend): configure storybook`
+- decision_date: 2026-09-11
+- accepted_baseline: Angular alignment commit `0f79849` and Storybook governance commit `19ee376`.
+- checkpoint_purpose: Install and configure the smallest official Storybook Angular-Vite tooling surface needed to render a production Angular component in Storybook while preserving the existing Angular 22 zoneless architecture.
+- dependency_scope: Added direct dev dependencies only: `storybook@10.6.0` and `@storybook/angular-vite@10.6.0`, recorded in `frontend/package.json`, `frontend/package-lock.json`, and `frontend/dependency-policy.json`. No direct `@angular/animations` dependency was added; npm resolves `@angular/animations@22.1.6` only as an official peer/transitive dependency required by `@storybook/angular-vite` / Angular platform packages. No `zone.js` dependency was added.
+- configuration_scope: Added minimal `.storybook/main.ts`, `.storybook/preview.ts`, and `.storybook/tsconfig.json`; imported the existing production `frontend/src/styles.scss`; configured SCSS load paths for existing project styles; added `/storybook-static` to `frontend/.gitignore`; and excluded `src/**/*.stories.ts` from production `tsconfig.app.json` while allowing the Storybook tsconfig to include stories.
+- story_scope: Added exactly one smoke story, `frontend/src/app/shared/ui/loading-error-retry.stories.ts`, which imports and renders the existing production `LoadingErrorRetry` component. No Storybook-only component copy, duplicate markup, duplicate SCSS, alternate design system, route/navigation inventory, labels/groups/icons/order, product requirement, backend contract, validation/auth/payment/exam/entitlement behavior, screen implementation, or additional story was added.
+- zoneless_integrity: Official `@storybook/angular-vite@10.6.0` metadata supports Angular `>=21 <23`; `zone.js` is an optional peer; Storybook Angular-Vite docs state zoneless is default and `zone.js` imports occur only when `zoneless: false`. This checkpoint did not add `zone.js`, `zone.js/testing`, or `provideZoneChangeDetection`, and did not enable a zone compatibility mode.
+- verification_summary: Normal Storybook install and subsequent `npm install` completed without `--force`, `--legacy-peer-deps`, overrides, or vulnerabilities. `npm run storybook -- --ci --smoke-test --no-open` passed. `npm run build-storybook` completed successfully and discovered the smoke story bundle. `npm test -- --watch=false` passed 25 files / 276 tests. `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, and `npm run quality` including production build passed. Dependency and source scans found no `zone.js/testing`, no `provideZoneChangeDetection`, and no visual-regression tooling.
+- explicit_exclusions: No Angular version/patch changes, production component behavior changes, product screens, navigation UI, route activation, visual-regression tooling, Playwright/AXE/CI tooling, backend source, canonical OpenAPI, generated API, Penpot mutation, database/migration work, push, or next frontend DAG task occurred.
+
 ### `T-FE-001` — Scaffold Angular workspace
 
 - status: `VERIFIED`

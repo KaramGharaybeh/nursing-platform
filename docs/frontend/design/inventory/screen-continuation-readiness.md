@@ -13,6 +13,8 @@ This is a readiness map for continuing the design program. It is not a page appr
 | G2 — shared contracts frozen | Not started | Tokens, theme, component, accessibility, NFR, fixture, and visual contracts must be approved. |
 | G3 — inventory approved | Not started | Canonical route/page boundaries, actors, permissions, risk, and batches must be approved. |
 
+Current frontend execution after the 2026-09-11 `T-FE-040` packet has superseded the earlier Authentication-family row below for implementation selection: the detailed screen decisions now live in `docs/frontend/execution/frontend-implementation-ledger.md` under `T-FE-040`, `ST-FE-040`, `GATE-FE-T040`, and the Screen Ownership Matrix. This readiness map remains historical/governance context and is not the approval ledger.
+
 ## 3. Approved-to-preserve screen/design evidence
 
 The following Penpot evidence must be preserved but is not visually approved or implementation-ready:
@@ -29,7 +31,7 @@ All families below are candidates only and cannot enter page-spec production or 
 
 | Family | Business purpose / likely actors | Evidence available | Blockers | Phase 1 evidence packet | Page-spec production now | Penpot now |
 |---|---|---|---|---|---|---|
-| Authentication | Sign-in, account recovery, verification; anonymous users | Backend/auth architecture and legacy AUTH-001 notes | Current OpenAPI/error capture and legacy-board reconciliation | Eligible for separately authorized Phase 1 evidence | No | No |
+| Authentication | Sign-in, account recovery, verification; anonymous users | Backend/auth architecture, route/access contracts, auth/session foundation, shared form/validation/error foundations, and legacy AUTH-001 notes | `T-FE-040` has resolved the family approval packet in the frontend ledger; individual blocked screens still require their recorded blocker resolution | Completed in `T-FE-040`; use the frontend ledger for exact screen decisions | No | No |
 | Account | Current-user profile and security actions; authenticated users | `/me` architecture contract and backend roadmap | Routes/DTOs/error states | Eligible for separately authorized Phase 1 evidence | No | No |
 | Nurse | Nurse profile and professional data; nurses | Roadmap/backend modules | Route/permission/contract extraction | Eligible for separately authorized Phase 1 evidence | No | No |
 | Employer | Organization and candidate workflows; employers | Roadmap/backend modules | Employer ownership evidence | Eligible for separately authorized Phase 1 evidence | No | No |

@@ -764,17 +764,17 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 
 | screen_id | primary_owner_task | family_approval_gate | approval_decision | execution_status | blocker_types | contract_dependency | post_implementation_visual_verification |
 |---|---|---|---|---|---|---|---|
-| `AUTH-001` | `T-FE-041` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-AUTH-LOGIN`,`C-ME` | required in owning gate evidence |
-| `AUTH-002` | `T-FE-043` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-AUTH-REGISTER` | required in owning gate evidence |
-| `AUTH-003` | `T-FE-044` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-AUTH-REGISTER` | required in owning gate evidence |
-| `AUTH-004` | `T-FE-045` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-AUTH-REGISTER` | required in owning gate evidence |
-| `AUTH-005` | `T-FE-047` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-AUTH-SEND-VERIFY`,`C-AUTH-VERIFY` | required in owning gate evidence |
-| `AUTH-006` | `T-FE-047` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-AUTH-SEND-VERIFY`,`C-AUTH-VERIFY` | required in owning gate evidence |
-| `AUTH-007` | `T-FE-048` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-AUTH-FORGOT` | required in owning gate evidence |
-| `AUTH-008` | `T-FE-049` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-AUTH-RESET` | required in owning gate evidence |
-| `AUTH-009` | `T-FE-050` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-AUTH-RESET` | required in owning gate evidence |
-| `AUTH-010` | `T-FE-051` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-ME` | required in owning gate evidence |
-| `AUTH-011` | `T-FE-053` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-ERROR` | required in owning gate evidence |
+| `AUTH-001` | `T-FE-041` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-LOGIN`,`C-ME` | required in owning gate evidence |
+| `AUTH-002` | `T-FE-043` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-REGISTER` | required in owning gate evidence |
+| `AUTH-003` | `T-FE-044` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-REGISTER` | required in owning gate evidence |
+| `AUTH-004` | `T-FE-045` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-REGISTER` | required in owning gate evidence |
+| `AUTH-005` | `T-FE-047` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-SEND-VERIFY`,`C-AUTH-VERIFY` | required in owning gate evidence |
+| `AUTH-006` | `T-FE-047` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-VERIFY` | required in owning gate evidence |
+| `AUTH-007` | `T-FE-048` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-FORGOT` | required in owning gate evidence |
+| `AUTH-008` | `T-FE-049` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-RESET` | required in owning gate evidence |
+| `AUTH-009` | `T-FE-050` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-RESET` | required in owning gate evidence |
+| `AUTH-010` | `T-FE-051` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-ME` | required in owning gate evidence |
+| `AUTH-011` | `T-FE-053` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-ERROR` | required in owning gate evidence |
 | `AUTH-012` | `T-FE-055` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-AUTH-LOGIN`,`C-ME` | required if implemented |
 | `NUR-001` | `T-FE-056` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-PROFILE` | required in owning gate evidence |
 | `NUR-002` | `T-FE-056` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-PROFILE` | required in owning gate evidence |
@@ -1783,6 +1783,31 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`
 - evidence_summary: Gate evidence covers validation/form focused tests, normalized Problem Details input handling, sanitization/no raw server trace-code-detail display, accessible persistent summary and field anchors, component separation with external template/style/spec, absence of timing/business/auth/routing/generated behavior, full frontend verification, lint/stylelint/quality/build, git diff checks, and scope review.
+
+### `T-FE-040` — Authentication screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-11
+- scope_summary: Completed the screen-family approval packet only. No Angular screen components, routes, navigation UI, Storybook stories/configuration, Penpot work, backend/OpenAPI mutation, dependency/package changes, screen implementation, push, or runtime behavior change occurred.
+- contract_summary: `T-FE-040` owns the `AUTH-001..012` approval packet review. The family gate may close when every included screen has an explicit `approval_decision`; per-screen approval does not authorize implementation, and blocked screens may remain blocked with explicit reasons. Screen implementation remains governed by each screen's own task dependencies and gate evidence.
+- approved_screens: `AUTH-006` Verify email link, `AUTH-007` Forgot password, `AUTH-008` Reset password, `AUTH-009` Reset success state, `AUTH-010` Session expired, and `AUTH-011` Access denied are approved for later separately authorized implementation because route or non-routable state identity, access semantics, functional/API behavior, error/status handling, prerequisite clarification evidence, and existing visual foundations are sufficient. Penpot is not required before these screens merely as procedural duplication; post-implementation screen gates still require per-screen visual evidence.
+- blocked_screens: `AUTH-001` Sign In remains blocked because although `AUTH_SIGN_IN`, `C-AUTH-LOGIN`, token storage, bearer injection, current-user hydration, and `returnUrl` safe-return production are established, no approved login-success session handoff API currently transitions `AuthSessionBootstrap` from `anonymous` to `authenticated` after an interactive login, and the no/invalid-`returnUrl` post-login fallback destination is not yet authorized. `AUTH-002` Role Selection, `AUTH-003` Nurse Registration, and `AUTH-004` Employer Registration remain blocked because `POST /api/v1/auth/register` is permission-protected by `Users.Create`, not anonymous/public self-registration, and no public role-to-roleId acquisition/self-registration product contract exists. `AUTH-005` Send verification email remains blocked because its backend action is authenticated-only while its route is `PUBLIC`; the anonymous-route UX and sign-in/retry boundary are not product-authorized. `AUTH-012` Account Inactive remains blocked because `T-FE-054` found no stable coded inactive-account contract beyond generic login `401` and passive `/me.isActive`.
+- visual_readiness_summary: Existing approved visual foundations, Material theme bridge, standard form controls, form validation pattern, loading/error/retry pattern, responsive helpers, RTL/LTR direction foundation, accessibility rules, and reusable authentication/core visual precedent are sufficient for the approved routine Auth screens. Legacy Page 10/Auth material remains reusable historical/reference evidence only; it is not active approved visual authority and must not override current tokens, accessibility, responsive, or backend/access contracts. No materially new visual intent was found for the approved routine screens. Blocked screens are blocked by functional/security/product contract gaps, not by a mandatory Penpot recreation requirement.
+- boundary_summary: `T-FE-030` remains the owner of `PUBLIC`/`ENTRY`/`AUTHENTICATED`, anonymous redirects to `AUTH_SIGN_IN`, `returnUrl`, and safe-return validation. `T-FE-031` remains the owner of route-level role/permission UX and canonical `SYSTEM_ACCESS_DENIED` navigation for ready policy failure. `T-FE-040` does not redesign those foundations. PUBLIC auth/system routes remain accessible to authenticated users under V1; `SYSTEM_SESSION_EXPIRED` remains PUBLIC without automatic expiry routing; `SYSTEM_ACCESS_DENIED` remains PUBLIC.
+- first_screen_recommendation: `AUTH-001` must not be the first product screen until a bounded login-success session handoff/fallback contract is approved. The nearest approved Auth implementation candidate is `AUTH-007` Forgot Password because it is anonymous/public, has a stable one-field API contract, generic success response, validation/error behavior, and routine visual composition from approved foundations.
+
+### `ST-FE-040` — Prepare Authentication screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Subtask completed the explicit Authentication family decision packet. All `AUTH-001..012` screens now have explicit approval decisions in the Screen Ownership Matrix; approved screens and blocked screens have evidence-backed rationale, visual/Penpot requirements are classified, and no screen implementation or visual-tooling/source mutation occurred.
+
+### `GATE-FE-T040`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence satisfies the Auth approval packet requirement: every included Auth/System screen has an explicit decision; approved screens have route/state identity, access semantics, functional/API contracts, status/error behavior, and sufficient existing visual authority; blocked screens preserve explicit blockers without invented behavior; Storybook is not treated as authority; draft Penpot/Auth evidence is not silently promoted; and implementation remains unauthorized until a separate screen task is approved.
 
 ### `T-FE-042` — Registration contract clarification
 

@@ -772,7 +772,7 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `AUTH-006` | `T-FE-047` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-VERIFY` | required in owning gate evidence |
 | `AUTH-007` | `T-FE-048` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-FORGOT` | implementation, automated verification, render-ready Storybook evidence, and human visual approval complete |
 | `AUTH-008` | `T-FE-049` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-RESET` | required in owning gate evidence |
-| `AUTH-009` | `T-FE-050` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-RESET` | required in owning gate evidence |
+| `AUTH-009` | `T-FE-050` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-RESET` | implementation, automated verification, render-ready Storybook state evidence complete |
 | `AUTH-010` | `T-FE-051` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-ME` | required in owning gate evidence |
 | `AUTH-011` | `T-FE-053` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-ERROR` | required in owning gate evidence |
 | `AUTH-012` | `T-FE-055` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-AUTH-LOGIN`,`C-ME` | required if implemented |
@@ -1936,6 +1936,30 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: —
 - evidence_summary: Gate is closed as `VERIFIED` for AUTH-008 only. Evidence includes AUTH-008 functionality, route activation, API adapter verification, route regression, AUTH-001/AUTH-007 regression, full frontend verification, lint/style/dependency/quality/build/build-storybook, independent MiMo review PASS with no Critical/High/Medium findings, and render-ready desktop/tablet/mobile screenshot artifact capture. `AUTH-009` remains separate and is not implemented by this gate.
+
+### `T-FE-050` — `AUTH-009` Reset Success
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_date: 2026-09-12
+- scope_summary: AUTH-009 Reset Success State implementation is complete and verified. Scope is limited to the existing reset-password workflow production component/template/styles/spec/story, this ledger, and `PROGRESS.md`. No independent `AUTH_RESET_PASSWORD_SUCCESS` route, `/auth/reset-password/success`, success redirect, sign-in CTA, automatic sign-in, auth/session foundation behavior, CurrentUserStore behavior, TokenStorage behavior, sibling Auth screen implementation, navigation UI, backend/OpenAPI/generated API mutation, dependency change, package change, or Storybook configuration change occurred.
+- functional_contract_summary: AUTH-009 uses the already-verified `C-AUTH-RESET` success path from AUTH-008. After the existing reset-password API submission succeeds, the screen renders the exact success message `Password has been reset successfully.` as an in-workflow state. The message is not used as a route, session/auth token, redirect trigger, or additional API call. The reset token remains opaque reset-flow input only and is not stored or interpreted.
+- route_summary: `AUTH_RESET_PASSWORD_SUCCESS` remains `NOT_ROUTABLE` and is presented inside the `AUTH_RESET_PASSWORD` workflow. Repository route inspection and focused tests confirm no `/auth/reset-password/success` route exists and no navigation occurs on success.
+- accessibility_summary: The success message is rendered through the production template with `role="status"`. No CTA or focus-moving behavior was invented.
+- visual_summary: AUTH-009 reuses the approved AUTH-001/AUTH-007/AUTH-008 Auth-family visual language as visual/pattern precedent only. Storybook evidence renders the existing production component Success state by filling and submitting the real reset-password form through the existing story fixture; no Storybook addon/config/tooling expansion and no artificial component API were added. Render-ready desktop/tablet/mobile screenshots were captured only after DOM readiness verified visible `Password has been reset successfully.`, `role="status"`, `<body>` class `sb-show-main`, no `<body>` preparing/error class, and no success route. Current artifacts are `/tmp/opencode/auth-009-success-desktop.png`, `/tmp/opencode/auth-009-success-tablet.png`, and `/tmp/opencode/auth-009-success-mobile.png`.
+- verification_summary: RED evidence first failed before production implementation because the success message was absent. Focused GREEN passed AUTH-008/AUTH-009 reset workflow component/API tests (2 files / 12 tests). Relevant Auth/route regressions passed (5 files / 40 tests). Full frontend tests passed 30 files / 305 tests. `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, `npm run quality`, `npm run build`, `npm run build-storybook`, and `git diff --check` passed. Independent MiMo review passed with no Critical/High/Medium findings; three Low informational notes required no correction for AUTH-009 closure.
+
+### `ST-FE-050` — Build `AUTH-009` Reset Success
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Subtask implementation is complete. The production reset-password component now renders the non-routable reset-success state after successful reset submission. Tests cover the exact success message, `role="status"`, no navigation, no success route, exact request DTO preservation, and absence of auth/session/token-storage/CurrentUserStore behavior.
+
+### `GATE-FE-T050`
+
+- status_result: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Gate is closed as `VERIFIED` for AUTH-009. Evidence includes reset-success state behavior, non-routable route preservation, accessibility state evidence, bounded Storybook production-component Success state, full frontend verification, lint/style/dependency/quality/build/build-storybook, independent MiMo review PASS with no Critical/High/Medium findings, and render-ready desktop/tablet/mobile screenshot artifact capture.
 
 ### `T-FE-054` — Account inactive contract clarification
 

@@ -173,7 +173,7 @@ describe('AUTH-008 Reset Password', () => {
     expect(resetPasswordApi.calls).toEqual([]);
   });
 
-  it('sends the exact ResetPasswordRequest with the opaque query token without navigating to AUTH-009', async () => {
+  it('sends the exact ResetPasswordRequest with the opaque query token without navigating to a success route', async () => {
     const { fixture, resetPasswordApi, router } = await setup('opaque-token');
     const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
@@ -186,7 +186,27 @@ describe('AUTH-008 Reset Password', () => {
       { email: 'nurse@example.com', token: 'opaque-token', newPassword: 'NewPass1x' },
     ]);
     expect(navigateSpy).not.toHaveBeenCalled();
-    expect(textContent(fixture).toLowerCase()).not.toContain('reset success');
+    expect(routes.some((route) => route.path === 'auth/reset-password/success')).toBe(false);
+  });
+
+  it('renders the non-routable AUTH-009 reset-success state after the reset succeeds', async () => {
+    const { fixture, resetPasswordApi, router } = await setup('opaque-token');
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+    await enterCredentials(fixture, 'nurse@example.com', 'NewPass1x');
+    submitButton(fixture).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(resetPasswordApi.calls).toEqual([
+      { email: 'nurse@example.com', token: 'opaque-token', newPassword: 'NewPass1x' },
+    ]);
+    expect(textContent(fixture)).toContain('Password has been reset successfully.');
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent).toContain(
+      'Password has been reset successfully.',
+    );
+    expect(navigateSpy).not.toHaveBeenCalled();
+    expect(routes.some((route) => route.path === 'auth/reset-password/success')).toBe(false);
   });
 
   it('prevents duplicate submission while the approved request is in flight', async () => {

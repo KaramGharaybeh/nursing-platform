@@ -32,6 +32,8 @@ const CONTROL_IDS = Object.freeze({
 const MISSING_TOKEN_MESSAGE =
   'This reset link is invalid or missing. Request a new reset link to continue.';
 
+const SUCCESS_MESSAGE = 'Password has been reset successfully.';
+
 @Component({
   selector: 'np-reset-password',
   imports: [
@@ -68,6 +70,7 @@ export class ResetPassword {
   });
 
   protected readonly isSubmitting = signal(false);
+  protected readonly successMessage = signal('');
   private readonly submitted = signal(false);
   private readonly normalizedError = signal<NormalizedProblemDetails | undefined>(undefined);
 
@@ -127,6 +130,7 @@ export class ResetPassword {
 
     this.submitted.set(true);
     this.normalizedError.set(undefined);
+    this.successMessage.set('');
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -145,6 +149,7 @@ export class ResetPassword {
           newPassword: this.newPasswordValue,
         }),
       );
+      this.successMessage.set(SUCCESS_MESSAGE);
     } catch (error: unknown) {
       this.normalizedError.set(normalizeProblemDetails(this.errorBody(error)));
       this.form.enable({ emitEvent: false });
@@ -195,6 +200,7 @@ export class ResetPassword {
 
   private clearFeedback(): void {
     this.normalizedError.set(undefined);
+    this.successMessage.set('');
   }
 
   private errorBody(error: unknown): unknown {

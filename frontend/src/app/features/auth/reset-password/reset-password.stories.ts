@@ -46,6 +46,30 @@ type Story = StoryObj<ResetPassword>;
 
 export const Default: Story = {};
 
+export const Success: Story = {
+  play: async ({ canvasElement }) => {
+    const emailInput = canvasElement.querySelector<HTMLInputElement>('#auth-reset-password-email');
+    const newPasswordInput = canvasElement.querySelector<HTMLInputElement>(
+      '#auth-reset-password-new-password',
+    );
+    const submitButton = canvasElement.querySelector<HTMLButtonElement>(
+      '.np-reset-password-submit',
+    );
+
+    if (emailInput === null || newPasswordInput === null || submitButton === null) {
+      throw new Error('Reset password success story could not find the production form controls.');
+    }
+
+    emailInput.value = 'nurse@example.com';
+    emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+    newPasswordInput.value = 'NewPass1x';
+    newPasswordInput.dispatchEvent(new Event('input', { bubbles: true }));
+    submitButton.click();
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  },
+};
+
 export const MissingToken: Story = {
   decorators: [
     applicationConfig({

@@ -17,4 +17,8 @@ export const routes: Routes = [
     path: 'session-expired',
     loadComponent: () => import('./features/auth/session-expired/session-expired').then((m) => m.SessionExpired),
   },
+  {
+    path: 'access-denied',
+    loadComponent: () => import('./features/auth/access-denied/access-denied').then((m) => m.AccessDenied),
+  },
 ];

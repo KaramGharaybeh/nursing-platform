@@ -774,7 +774,7 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `AUTH-008` | `T-FE-049` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-RESET` | implementation, automated verification, render-ready Storybook evidence complete |
 | `AUTH-009` | `T-FE-050` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-RESET` | implementation, automated verification, render-ready Storybook state evidence complete |
 | `AUTH-010` | `T-FE-051` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-ME` | implementation, automated verification, render-ready Storybook evidence complete |
-| `AUTH-011` | `T-FE-053` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-ERROR` | required in owning gate evidence |
+| `AUTH-011` | `T-FE-053` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-ERROR` | implementation, automated verification, and render-ready Storybook evidence complete |
 | `AUTH-012` | `T-FE-055` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-AUTH-LOGIN`,`C-ME` | required if implemented |
 | `NUR-001` | `T-FE-056` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-PROFILE` | required in owning gate evidence |
 | `NUR-002` | `T-FE-056` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-PROFILE` | required in owning gate evidence |
@@ -1983,6 +1983,29 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: —
 - evidence_summary: Gate is closed as `VERIFIED` for AUTH-010. Evidence includes session-expired focused tests, route activation and PUBLIC/no-guard/no-redirect preservation, per-screen Storybook visual evidence, full frontend verification, lint/style/dependency/quality/build/build-storybook, fallback Big Pickle read-only review PASS with no Critical/High/Medium findings, and render-ready desktop/tablet/mobile screenshot artifact capture.
+
+### `T-FE-053` — `AUTH-011` Access Denied
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_date: 2026-09-13
+- scope_summary: AUTH-011 Access Denied implementation is complete and verified at worker level. Scope is limited to the static `AccessDenied` production component, external template and styles, colocated focused spec and Storybook story, canonical `/access-denied` lazy route activation, focused route-regression assertion updates, and this ledger. No permission checks, route-policy edits, route guard attachment, backend 403 interception, automatic redirects, auth/session/token/current-user/logout behavior, navigation UI, sibling Auth screen implementation, backend/OpenAPI/generated API mutation, dependency change, package change, or Storybook configuration change occurred.
+- route_summary: `SYSTEM_ACCESS_DENIED` is activated at canonical `/access-denied` via lazy `loadComponent`. PUBLIC semantics are preserved: no `canActivate`, no `redirectTo`, no permission metadata, and no automatic routing trigger was added.
+- copy_summary: The only screen-specific visible content is the authoritative screen identity `Access denied`. No CTA, link, button, routerLink, sign-in/retry/support instruction, or extra product copy was invented. The visible `Nursing Platform` label and decorative context treatment reuse the approved Auth-family visual pattern as brand treatment only.
+- visual_summary: AUTH-011 reuses the approved AUTH-010 Session Expired Auth-family visual language as visual/pattern precedent. Storybook evidence renders the production component only with fullscreen layout and no config changes. Render-ready desktop/tablet/mobile screenshots were captured from the static Storybook Default story after DOM readiness verified `np-access-denied`, visible `Access denied`, rendered `#storybook-root` content, and no component CTA/link/button. Current artifacts are `/tmp/opencode/auth-011-access-denied-desktop.png`, `/tmp/opencode/auth-011-access-denied-tablet.png`, and `/tmp/opencode/auth-011-access-denied-mobile.png`.
+- verification_summary: RED evidence first failed before production implementation with `TS2307: Cannot find module './access-denied'`. Focused GREEN passed AUTH-011 component and route-regression tests (2 files / 16 tests). Full frontend tests passed 32 files / 311 tests. `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, `npm run quality` (including production build with `access-denied` lazy chunk), `npm run build-storybook` (including `access-denied.stories` chunk), DOM readiness validation, Storybook screenshot capture, and `git diff --check` passed.
+
+### `ST-FE-053` — Build `AUTH-011` Access Denied
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Subtask implementation is complete. The production component renders the static terminal `Access denied` screen, route activation uses canonical `/access-denied`, focused tests prove no CTA/link/button/routerLink, no guards/redirects, and no auth/session/token/current-user/logout/API behavior.
+
+### `GATE-FE-T053`
+
+- status_result: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Gate is closed as `VERIFIED` for AUTH-011. Evidence includes access-denied focused tests, route activation and PUBLIC/no-guard/no-redirect preservation, per-screen Storybook production-component story, full frontend verification, lint/style/dependency/quality/build/build-storybook, DOM readiness validation, and render-ready desktop/tablet/mobile screenshot artifact capture. No independent delegated review was invoked for this bounded screen because the implementation is a direct static-screen analogue of AUTH-010 and final-gate targeted review found no material issue.
 
 ### `T-FE-054` — Account inactive contract clarification
 

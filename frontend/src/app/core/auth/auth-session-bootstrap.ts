@@ -3,6 +3,7 @@ import type { Signal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { catchError, firstValueFrom, map, of } from 'rxjs';
 import { AuthTransport } from '../api/auth-transport';
+import type { AuthResult } from '../api/generated/models/auth-result';
 import { TokenStorage } from './token-storage';
 
 export type TokenSessionStatus = 'initializing' | 'authenticated' | 'anonymous';
@@ -21,6 +22,16 @@ export class AuthSessionBootstrap {
     this.statusSignal.set('anonymous');
   }
 
+  establishAuthenticatedSession(result: AuthResult): TokenSessionStatus {
+    this.tokens.setTokenMaterial({
+      accessToken: result.accessToken,
+      accessTokenExpiresAt: result.expiresAt,
+      refreshToken: result.refreshToken,
+    });
+    this.statusSignal.set('authenticated');
+    return 'authenticated';
+  }
+
   bootstrap(): Observable<TokenSessionStatus> {
     const refreshToken = this.tokens.getRefreshToken();
 
@@ -31,13 +42,7 @@ export class AuthSessionBootstrap {
 
     return this.transport.refresh({ refreshToken }).pipe(
       map((result): TokenSessionStatus => {
-        this.tokens.setTokenMaterial({
-          accessToken: result.accessToken,
-          accessTokenExpiresAt: result.expiresAt,
-          refreshToken: result.refreshToken,
-        });
-        this.statusSignal.set('authenticated');
-        return 'authenticated';
+        return this.establishAuthenticatedSession(result);
       }),
       catchError(() => {
         this.tokens.clear();

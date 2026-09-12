@@ -261,9 +261,12 @@ describe('navigation-permission-policy', () => {
     expect(lowered).not.toContain('breadcrumb');
   });
 
-  it('leaves app.routes.ts empty and unchanged', () => {
+  it('keeps app.routes.ts limited to sign-in activation without navigation policy wiring', () => {
     const appRoutes = readTextFile('src/app/app.routes.ts');
 
-    expect(appRoutes).toContain('Routes = []');
+    expect(appRoutes).toContain("path: 'auth/sign-in'");
+    expect(appRoutes).not.toContain('navigation');
+    expect(appRoutes).not.toContain('sidebar');
+    expect(appRoutes).not.toContain('breadcrumb');
   });
 });

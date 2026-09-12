@@ -303,10 +303,17 @@ describe('canonical-routes', () => {
     expect(Object.isFrozen(CANONICAL_ROUTES)).toBe(true);
   });
 
-  it('leaves app.routes.ts empty for downstream route work', () => {
+  it('activates only the public sign-in route while leaving downstream route work untouched', () => {
     const appRoutes = readTextFile('src/app/app.routes.ts');
 
-    expect(appRoutes).toContain('Routes = []');
+    expect(appRoutes).toContain("path: 'auth/sign-in'");
+    expect(appRoutes).toContain('loadComponent');
+    expect(appRoutes).toContain("./features/auth/sign-in/sign-in");
+    expect(appRoutes).not.toContain('auth/register');
+    expect(appRoutes).not.toContain('auth/forgot-password');
+    expect(appRoutes).not.toContain('auth/reset-password');
+    expect(appRoutes).not.toContain('canActivate');
+    expect(appRoutes).not.toContain('redirectTo');
   });
 
   it('keeps the registry free of guard, redirect, navigation, and UI behavior', () => {

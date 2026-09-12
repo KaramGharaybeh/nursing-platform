@@ -177,6 +177,29 @@ describe('auth-session-bootstrap', () => {
     });
   });
 
+  it('establishes an authenticated session from a successful login result without refreshing', () => {
+    const { bootstrap, httpMock, tokens } = setup();
+    const result: AuthResult = {
+      accessToken: 'login-access-token',
+      expiresAt: '2026-09-08T12:00:00Z',
+      refreshToken: 'login-refresh-token',
+    };
+
+    const actual = bootstrap.establishAuthenticatedSession(result);
+
+    httpMock.expectNone('/api/v1/auth/refresh');
+    httpMock.expectNone('/api/v1/me');
+    httpMock.verify();
+
+    expect(actual).toBe('authenticated');
+    expect(bootstrap.state()).toBe('authenticated');
+    expect(tokens.getTokenState()).toEqual({
+      accessToken: 'login-access-token',
+      accessTokenExpiresAt: '2026-09-08T12:00:00Z',
+      refreshToken: 'login-refresh-token',
+    });
+  });
+
   it('clears token material and resolves anonymous on invalid refresh', () => {
     const backingStore = new MemoryStorageBackend();
     backingStore.setItem('np.auth.refreshToken', 'refresh-token-invalid');

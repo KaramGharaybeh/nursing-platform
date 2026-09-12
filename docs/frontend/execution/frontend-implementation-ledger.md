@@ -764,7 +764,7 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 
 | screen_id | primary_owner_task | family_approval_gate | approval_decision | execution_status | blocker_types | contract_dependency | post_implementation_visual_verification |
 |---|---|---|---|---|---|---|---|
-| `AUTH-001` | `T-FE-041` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-LOGIN`,`C-ME` | required in owning gate evidence |
+| `AUTH-001` | `T-FE-041` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-LOGIN`,`C-ME` | implementation, automated verification, visual calibration, and human visual approval complete |
 | `AUTH-002` | `T-FE-043` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-REGISTER` | required in owning gate evidence |
 | `AUTH-003` | `T-FE-044` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-REGISTER` | required in owning gate evidence |
 | `AUTH-004` | `T-FE-045` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-REGISTER` | required in owning gate evidence |
@@ -1813,6 +1813,30 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence satisfies the Auth approval packet requirement: every included Auth/System screen has an explicit decision; approved screens have route/state identity, access semantics, functional/API contracts, status/error behavior, and sufficient existing visual authority; blocked screens preserve explicit blockers without invented behavior; Storybook is not treated as authority; draft Penpot/Auth evidence is not silently promoted; and implementation remains unauthorized until a separate screen task is approved. The later 2026-09-12 AUTH-001 blocker-resolution contract supplies the missing successful-login token-session handoff, current-user hydration, safe-return consumption, and `ACCOUNT_OVERVIEW` `/account` fallback authority; therefore AUTH-001 is APPROVED for future implementation authorization.
+
+### `T-FE-041` — `AUTH-001` Sign In
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_date: 2026-09-12
+- scope_summary: AUTH-001 Sign In implementation and visual calibration are complete and accepted. Human visual review was granted as APPROVED on 2026-09-12, closing the outstanding visual-review requirement. Current closure scope is limited to the approved AUTH-001 implementation/visual files, the minimal route/session/test support files, approved app-shell/body overflow fixes, this ledger, and `PROGRESS.md`. No other Auth screen, navigation UI, backend/OpenAPI/generated/package/dependency file, or Storybook configuration change is included.
+- functional_freeze_summary: Functional behavior remains frozen during visual calibration. The verified successful-login order remains `AuthTransport.login(LoginCommand)` -> `AuthSessionBootstrap.establishAuthenticatedSession(AuthResult)` -> `CurrentUserStore.hydrate()` -> safe navigation; failed login remains in the Sign In workflow without establishing a session; `returnUrl`, `ACCOUNT_OVERVIEW` fallback, route/access policy, TokenStorage semantics, CurrentUserStore semantics, and `/me` flow were preserved.
+- visual_calibration_summary: Desktop/tablet/mobile visual calibration is complete using approved foundations and authoritative text identity `Nursing Platform`. The pass improved desktop composition, product hierarchy, typography, CTA treatment, background treatment, responsive single-column behavior, and form/error spacing without introducing an invented logo/mark/tagline.
+- overflow_evidence: Production-route desktop, tablet, and mobile measurements all reported `hasHorizontal: false` and `hasVertical: false`. The app-shell horizontal overflow root cause was corrected through the approved `.np-app-shell { box-sizing: border-box; }` change, and unnecessary vertical overflow from browser-default body margin was corrected through the approved `body { margin: 0; }` change. No `overflow-x: hidden` or broad global reset was added.
+- verification_summary: Automated verification passed for focused Sign In tests (8/8), auth-session-bootstrap tests (13/13), full frontend tests (26 files / 285 tests), dependency guard, lint, stylelint, `npm run quality` with only the known initial bundle budget warning, production build, `npm run build-storybook`, production-route desktop/tablet/mobile overflow metrics, and `git diff --check`. Human visual review is APPROVED; no T-FE-041 blocker remains.
+- closure_summary: `T-FE-041` is closed as `VERIFIED` for AUTH-001 only. Minor future polish opportunities are non-blocking and not part of this closure scope. Do not infer authorization for sibling Auth screens, redesign, unrelated polish, push, or next-task work from this closure.
+
+### `ST-FE-041` — Build `AUTH-001` Sign In route/form after approval
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Implementation and visual calibration are complete with automated functional, quality, Storybook, and production overflow evidence recorded. Human visual review is APPROVED, closing the subtask for AUTH-001 only.
+
+### `GATE-FE-T041`
+
+- status_result: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Gate evidence covers Sign In focused behavior, auth session handoff, CurrentUser hydration ordering, safe navigation contract preservation, per-screen desktop/tablet/mobile screenshots, clean desktop/tablet/mobile overflow metrics, global overflow root-cause fixes, full frontend quality verification, Storybook static build, Angular CLI drift absence, scope review, and human visual review APPROVED. `GATE-FE-T041` is closed as `VERIFIED`; no T-FE-041 blocker remains.
 
 ### `T-FE-042` — Registration contract clarification
 

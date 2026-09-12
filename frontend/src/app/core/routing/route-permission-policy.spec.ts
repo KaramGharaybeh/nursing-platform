@@ -224,10 +224,13 @@ describe('route-permission-policy', () => {
     expect(registryIds.has('SYSTEM_ACCESS_DENIED' as CanonicalRouteId)).toBe(false);
   });
 
-  it('leaves app.routes.ts empty and canonical classification unchanged', () => {
+  it('keeps sign-in route activation public and canonical classification unchanged', () => {
     const appRoutes = readTextFile('src/app/app.routes.ts');
 
-    expect(appRoutes).toContain('Routes = []');
+    expect(appRoutes).toContain("path: 'auth/sign-in'");
+    expect(appRoutes).not.toContain('canActivate');
+    expect(appRoutes).not.toContain('canMatch');
+    expect(appRoutes).not.toContain('RequirePermission');
 
     const authenticated = CANONICAL_ROUTE_IDS.filter((id) => isAuthenticatedRoute(id));
     expect(authenticated).toHaveLength(49);

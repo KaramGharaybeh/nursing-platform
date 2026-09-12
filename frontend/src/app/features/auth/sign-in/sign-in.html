@@ -1,0 +1,55 @@
+<section class="np-sign-in" aria-labelledby="auth-sign-in-title">
+  <div class="np-sign-in-composition">
+    <div class="np-sign-in-context" aria-hidden="true">
+      <p class="np-sign-in-kicker">Nursing Platform</p>
+      <div class="np-sign-in-anchor"></div>
+      <div class="np-sign-in-orbit np-sign-in-orbit-primary"></div>
+      <div class="np-sign-in-orbit np-sign-in-orbit-secondary"></div>
+    </div>
+
+    <div class="np-sign-in-card">
+      <div class="np-sign-in-header">
+        <p class="np-sign-in-product">Nursing Platform</p>
+        <h1 id="auth-sign-in-title">Sign in</h1>
+      </div>
+
+      <np-form-validation-summary
+        [summaryTitle]="validationSummary().title"
+        [items]="validationSummary().items"
+        [formErrors]="validationSummary().formErrors"
+      />
+
+      @if (backendFailureMessage() !== '') {
+        <p class="np-sign-in-error" role="alert">{{ backendFailureMessage() }}</p>
+      }
+
+      <form class="np-sign-in-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <np-text-input-control
+          controlId="auth-sign-in-email"
+          label="Email address"
+          type="email"
+          [required]="true"
+          [disabled]="isSubmitting()"
+          [value]="emailValue"
+          [errorText]="emailError"
+          (valueChange)="updateEmail($event)"
+        />
+
+        <np-text-input-control
+          controlId="auth-sign-in-password"
+          label="Password"
+          type="password"
+          [required]="true"
+          [disabled]="isSubmitting()"
+          [value]="passwordValue"
+          [errorText]="passwordError"
+          (valueChange)="updatePassword($event)"
+        />
+
+        <button class="np-sign-in-submit" type="submit" mat-flat-button color="primary" [disabled]="isSubmitting()">
+          Sign in
+        </button>
+      </form>
+    </div>
+  </div>
+</section>

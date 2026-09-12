@@ -358,7 +358,7 @@ All Tasks have initial `status: NOT STARTED`.
 | `T-FE-045` | `M-FE-009` | `AUTH-004` Employer Registration | `GATE-FE-T040`,`GATE-FE-T042`,`GATE-FE-T034` | screen implementation after exact approval | `DESIGN`,`CONTRACT_CLARIFICATION` |
 | `T-FE-046` | `M-FE-009` | Verification email contract clarification | local only | send/verify behavior | `CONTRACT_CLARIFICATION` |
 | `T-FE-047` | `M-FE-009` | `AUTH-005/006` Email Verification journey | `GATE-FE-T040`,`GATE-FE-T046` | screen implementation after exact approval | `DESIGN`,`CONTRACT_CLARIFICATION` |
-| `T-FE-048` | `M-FE-009` | `AUTH-007` Forgot Password | `GATE-FE-T040`,`GATE-FE-T034` | screen implementation after exact approval | `DESIGN` |
+| `T-FE-048` | `M-FE-009` | `AUTH-007` Forgot Password | `GATE-FE-T040`,`GATE-FE-T034` | screen implementation after exact approval | — |
 | `T-FE-049` | `M-FE-009` | `AUTH-008` Reset Password | `GATE-FE-T048`,`GATE-FE-T034` | screen implementation after exact approval | `DESIGN`,`CONTRACT_CLARIFICATION` |
 | `T-FE-050` | `M-FE-009` | `AUTH-009` Reset Success | `GATE-FE-T049` | screen implementation after exact approval | `DESIGN` |
 | `T-FE-051` | `M-FE-009` | `AUTH-010` Session Expired | `GATE-FE-T026`,`GATE-FE-T040` | screen implementation after exact approval | `DESIGN` |
@@ -665,7 +665,7 @@ All Gates initially have `status_result: NOT STARTED`. Every Gate must use the c
 | `GATE-FE-T045` | `T-FE-045` | `GATE-FE-T040`, `GATE-FE-T042`, `GATE-FE-T034` | Employer registration tests + per-screen visual evidence | `DESIGN`,`CONTRACT_CLARIFICATION` |
 | `GATE-FE-T046` | `T-FE-046` | local source/OpenAPI inspection | verification auth clarification | `CONTRACT_CLARIFICATION` |
 | `GATE-FE-T047` | `T-FE-047` | `GATE-FE-T040`, `GATE-FE-T046` | email verification tests + per-screen visual evidence | `DESIGN`,`CONTRACT_CLARIFICATION` |
-| `GATE-FE-T048` | `T-FE-048` | `GATE-FE-T040`, `GATE-FE-T034` | forgot password tests + per-screen visual evidence | `DESIGN` |
+| `GATE-FE-T048` | `T-FE-048` | `GATE-FE-T040`, `GATE-FE-T034` | forgot password tests + per-screen visual evidence | — |
 | `GATE-FE-T049` | `T-FE-049` | `GATE-FE-T048`, `GATE-FE-T034` | reset password tests + per-screen visual evidence | `DESIGN`,`CONTRACT_CLARIFICATION` |
 | `GATE-FE-T050` | `T-FE-050` | `GATE-FE-T049` | reset success visual/state evidence | `DESIGN` |
 | `GATE-FE-T051` | `T-FE-051` | `GATE-FE-T026`, `GATE-FE-T040` | session expired tests + per-screen visual evidence | `DESIGN` |
@@ -770,7 +770,7 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `AUTH-004` | `T-FE-045` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-REGISTER` | required in owning gate evidence |
 | `AUTH-005` | `T-FE-047` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-SEND-VERIFY`,`C-AUTH-VERIFY` | required in owning gate evidence |
 | `AUTH-006` | `T-FE-047` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-VERIFY` | required in owning gate evidence |
-| `AUTH-007` | `T-FE-048` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-FORGOT` | required in owning gate evidence |
+| `AUTH-007` | `T-FE-048` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-FORGOT` | implementation, automated verification, render-ready Storybook evidence, and human visual approval complete |
 | `AUTH-008` | `T-FE-049` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-RESET` | required in owning gate evidence |
 | `AUTH-009` | `T-FE-050` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-RESET` | required in owning gate evidence |
 | `AUTH-010` | `T-FE-051` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-ME` | required in owning gate evidence |
@@ -1889,6 +1889,29 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `CONTRACT_CLARIFICATION`
 - evidence_summary: Verification-email clarification evidence is recorded: backend endpoint mapping, auth requirements, request/response contracts, validation/error behavior, integration-test behavior, and OpenAPI metadata comparison.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream email-verification screen tasks remain separately blocked by their own dependencies, design/screen approval gates, and visual evidence prerequisites.
+
+### `T-FE-048` — `AUTH-007` Forgot Password
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_date: 2026-09-12
+- scope_summary: AUTH-007 Forgot Password implementation is complete, automated verification passed, narrowed Big Pickle read-only review passed with no Critical/High/Medium findings, valid render-ready desktop/tablet/mobile Storybook visual evidence exists, and human visual review is APPROVED. Scope is limited to the AUTH-007 feature files, minimal lazy route activation, focused route/test expectation updates, this ledger, and `PROGRESS.md`. No AUTH-008 Reset Password, sibling Auth screen implementation, navigation UI, auth/session foundation behavior, backend/OpenAPI/generated API mutation, dependency change, or Storybook configuration change occurred.
+- functional_contract_summary: AUTH-007 uses `C-AUTH-FORGOT`: `POST /api/v1/auth/forgot-password`, operation `ForgotPassword`, request `ForgotPasswordRequest { email }`, and success `200`. The feature-local API adapter delegates to the generated `forgotPassword` function without editing generated files. The screen sends only the email field, performs only required/email-format form validation, shows the approved generic no-account-enumeration success message (`If the email exists, a password reset link has been sent.`), remains in the workflow for recoverable errors, and does not navigate to AUTH-008 or claim account existence/email delivery.
+- route_summary: `AUTH_FORGOT_PASSWORD` is activated at canonical `/auth/forgot-password` via lazy `loadComponent`. PUBLIC route semantics are preserved: no anonymous-only guard, no authenticated-user redirect, no `canActivate`, no route-permission policy change, and no auth/session/current-user behavior.
+- visual_summary: AUTH-007 reuses the approved AUTH-001 Auth-family visual language as a visual/pattern precedent only: full-page Auth composition, card proportions, restrained branded context panel, typography hierarchy, spacing rhythm, primary CTA treatment, responsive behavior, logical CSS, and accessibility patterns. Penpot was not required. Initial desktop/tablet Storybook screenshots captured the loader race and are superseded/not accepted as evidence. Regenerated Storybook screenshots were captured only after DOM readiness verified visible `Forgot password` heading, visible email field, visible `Send reset link` primary action, and no visible Storybook loader/spinner. Current visual evidence artifacts are `/tmp/opencode/auth-007-desktop.png`, `/tmp/opencode/auth-007-tablet.png`, and `/tmp/opencode/auth-007-mobile.png`; desktop, tablet, and mobile are rendered and human-approved. Human visual approval: `APPROVED`.
+- verification_summary: RED evidence first failed before production implementation with missing `ForgotPassword` / `ForgotPasswordApi` modules. Focused GREEN passed AUTH-007 component tests (1 file / 7 tests) and feature-local API tests (1 file / 1 test). Focused route regression passed `canonical-routes.spec.ts` (1 file / 13 tests). AUTH-001 focused regression passed `sign-in.spec.ts` (1 file / 8 tests). Full frontend tests passed 28 files / 293 tests. `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, `npm run quality`, `npm run build`, and `npm run build-storybook` passed. Initial `npm run quality` exposed a new AUTH-007 component-style budget warning; the warning was resolved by removing nonessential decorative orbit styling from AUTH-007 only and rerunning focused tests plus quality/build successfully. Independent review status: MiMo review timed out before verdict; first Big Pickle attempt failed because it attempted an unapproved command; narrowed Big Pickle read-only review passed with no Critical/High/Medium findings.
+
+### `ST-FE-048` — Build `AUTH-007` Forgot Password
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Subtask implementation is complete and human visual approval is APPROVED. The production component uses external `.html` and `.scss`, a colocated focused spec, feature-local generated-API adapter, and a bounded Storybook story rendering the production component. Tests cover rendering, validation, exact request DTO, duplicate-submit prevention, success, failure, route activation, PUBLIC semantics, and absence of auth/session/reset-password behavior.
+
+### `GATE-FE-T048`
+
+- status_result: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Gate is closed as `VERIFIED` for AUTH-007 only. Evidence includes AUTH-007 functionality, route activation, Storybook rendering, route regression, AUTH-001 regression, full frontend verification, lint/style/dependency/quality/build/build-storybook, narrowed Big Pickle read-only review PASS, render-ready desktop/tablet/mobile screenshot artifact capture, and human visual review APPROVED. Earlier loader-only desktop/tablet captures were superseded and are not accepted evidence.
 
 ### `T-FE-054` — Account inactive contract clarification
 

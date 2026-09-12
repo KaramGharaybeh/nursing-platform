@@ -237,14 +237,13 @@ describe('AUTH-001 Sign In', () => {
     expect(navigateSpy).not.toHaveBeenCalled();
   });
 
-  it('keeps AUTH_SIGN_IN public by lazily activating only the real sign-in route without anonymous-only redirect behavior', async () => {
+  it('keeps AUTH_SIGN_IN public by lazily activating the real sign-in route without anonymous-only redirect behavior', async () => {
     const signInRoute = routes.find((route) => route.path === canonicalRoutePath('AUTH_SIGN_IN').slice(1));
 
     await expect(signInRoute?.loadComponent?.()).resolves.toBe(SignIn);
     expect(signInRoute?.component).toBeUndefined();
     expect(signInRoute?.canActivate).toBeUndefined();
     expect(routes.some((route) => route.path?.includes('role-selection'))).toBe(false);
-    expect(routes.some((route) => route.path?.includes('forgot-password'))).toBe(false);
     expect(routes.some((route) => route.path?.includes('reset-password'))).toBe(false);
   });
 

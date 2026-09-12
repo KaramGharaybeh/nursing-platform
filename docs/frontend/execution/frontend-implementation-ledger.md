@@ -771,9 +771,9 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `AUTH-005` | `T-FE-047` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-SEND-VERIFY`,`C-AUTH-VERIFY` | required in owning gate evidence |
 | `AUTH-006` | `T-FE-047` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-VERIFY` | required in owning gate evidence |
 | `AUTH-007` | `T-FE-048` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-FORGOT` | implementation, automated verification, render-ready Storybook evidence, and human visual approval complete |
-| `AUTH-008` | `T-FE-049` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-RESET` | required in owning gate evidence |
+| `AUTH-008` | `T-FE-049` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-RESET` | implementation, automated verification, render-ready Storybook evidence complete |
 | `AUTH-009` | `T-FE-050` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-RESET` | implementation, automated verification, render-ready Storybook state evidence complete |
-| `AUTH-010` | `T-FE-051` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-ME` | required in owning gate evidence |
+| `AUTH-010` | `T-FE-051` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-ME` | implementation, automated verification, render-ready Storybook evidence complete |
 | `AUTH-011` | `T-FE-053` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-ERROR` | required in owning gate evidence |
 | `AUTH-012` | `T-FE-055` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-AUTH-LOGIN`,`C-ME` | required if implemented |
 | `NUR-001` | `T-FE-056` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-PROFILE` | required in owning gate evidence |
@@ -1960,6 +1960,29 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: —
 - evidence_summary: Gate is closed as `VERIFIED` for AUTH-009. Evidence includes reset-success state behavior, non-routable route preservation, accessibility state evidence, bounded Storybook production-component Success state, full frontend verification, lint/style/dependency/quality/build/build-storybook, independent MiMo review PASS with no Critical/High/Medium findings, and render-ready desktop/tablet/mobile screenshot artifact capture.
+
+### `T-FE-051` — `AUTH-010` Session Expired
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_date: 2026-09-12
+- scope_summary: AUTH-010 Session Expired implementation is complete and verified. Scope is limited to the static `SessionExpired` production component, external template and styles, colocated focused spec and Storybook story, canonical `/session-expired` lazy route activation, focused route-regression assertions, this ledger, and `PROGRESS.md`. No automatic session-expiry routing, route guard, redirect, token clearing, logout behavior, TokenStorage behavior, AuthSessionBootstrap mutation, CurrentUserStore behavior, backend 401/403 interception logic, permission logic, navigation UI, sibling Auth screen implementation, backend/OpenAPI/generated API mutation, dependency change, package change, or Storybook configuration change occurred.
+- route_summary: `SYSTEM_SESSION_EXPIRED` is activated at canonical `/session-expired` via lazy `loadComponent`. PUBLIC semantics are preserved: no `canActivate`, no `redirectTo`, no permission metadata, and no automatic routing trigger was added.
+- copy_summary: The only screen-specific visible content is the authoritative screen identity `Session expired`. No explanatory text, sign-in CTA, recovery instruction, secondary action, or destination was invented. The visible `Nursing Platform` label and decorative context treatment reuse the approved Auth-family visual pattern as brand treatment only.
+- visual_summary: AUTH-010 reuses the approved AUTH-001/AUTH-007/AUTH-008/AUTH-009 Auth-family visual language as visual/pattern precedent. Storybook evidence renders the production component without interaction tooling or config changes. Render-ready desktop/tablet/mobile screenshots were captured only after DOM readiness verified `np-session-expired`, visible `Session expired`, `<body>` class `sb-show-main`, no `<body>` preparing/error class, and no component CTA/link/button. Current artifacts are `/tmp/opencode/auth-010-session-expired-desktop.png`, `/tmp/opencode/auth-010-session-expired-tablet.png`, and `/tmp/opencode/auth-010-session-expired-mobile.png`.
+- verification_summary: RED evidence first failed before production implementation with missing `SessionExpired` module/template. Focused GREEN passed AUTH-010 component and route-regression tests (2 files / 16 tests). Relevant Auth/route regressions passed 8 files / 76 tests. Full frontend tests passed 31 files / 308 tests. `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, `npm run quality`, `npm run build`, `npm run build-storybook`, and `git diff --check` passed after targeted mechanical lint/style fixes. Initial MiMo review timed out without verdict; fallback Big Pickle read-only review passed with no Critical/High/Medium findings and one informational Low note requiring no correction.
+
+### `ST-FE-051` — Build `AUTH-010` Session Expired
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Subtask implementation is complete. The production component renders the static terminal `Session expired` screen, route activation uses canonical `/session-expired`, focused tests prove no CTA/link/button/routerLink, no guards/redirects, and no auth/session/token/current-user/logout/API behavior.
+
+### `GATE-FE-T051`
+
+- status_result: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Gate is closed as `VERIFIED` for AUTH-010. Evidence includes session-expired focused tests, route activation and PUBLIC/no-guard/no-redirect preservation, per-screen Storybook visual evidence, full frontend verification, lint/style/dependency/quality/build/build-storybook, fallback Big Pickle read-only review PASS with no Critical/High/Medium findings, and render-ready desktop/tablet/mobile screenshot artifact capture.
 
 ### `T-FE-054` — Account inactive contract clarification
 

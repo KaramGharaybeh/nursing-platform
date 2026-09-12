@@ -13,4 +13,8 @@ export const routes: Routes = [
     path: 'auth/reset-password',
     loadComponent: () => import('./features/auth/reset-password/reset-password').then((m) => m.ResetPassword),
   },
+  {
+    path: 'session-expired',
+    loadComponent: () => import('./features/auth/session-expired/session-expired').then((m) => m.SessionExpired),
+  },
 ];

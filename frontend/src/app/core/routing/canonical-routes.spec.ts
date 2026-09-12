@@ -309,10 +309,12 @@ describe('canonical-routes', () => {
     expect(appRoutes).toContain("path: 'auth/sign-in'");
     expect(appRoutes).toContain("path: 'auth/forgot-password'");
     expect(appRoutes).toContain("path: 'auth/reset-password'");
+    expect(appRoutes).toContain("path: 'session-expired'");
     expect(appRoutes).toContain('loadComponent');
     expect(appRoutes).toContain("./features/auth/sign-in/sign-in");
     expect(appRoutes).toContain("./features/auth/forgot-password/forgot-password");
     expect(appRoutes).toContain("./features/auth/reset-password/reset-password");
+    expect(appRoutes).toContain("./features/auth/session-expired/session-expired");
     expect(appRoutes).not.toContain('auth/register');
     expect(appRoutes).not.toContain('canActivate');
     expect(appRoutes).not.toContain('redirectTo');

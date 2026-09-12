@@ -172,7 +172,7 @@ describe('AUTH-007 Forgot Password', () => {
     await expect(forgotPasswordRoute?.loadComponent?.()).resolves.toBe(ForgotPassword);
     expect(forgotPasswordRoute?.component).toBeUndefined();
     expect(forgotPasswordRoute?.canActivate).toBeUndefined();
-    expect(routes.some((route) => route.path === canonicalRoutePath('AUTH_RESET_PASSWORD').slice(1))).toBe(false);
+    expect(routes.some((route) => route.path === canonicalRoutePath('AUTH_RESET_PASSWORD').slice(1))).toBe(true);
   });
 
   it('keeps the Forgot Password screen free of auth session, token storage, and reset-password behavior', () => {

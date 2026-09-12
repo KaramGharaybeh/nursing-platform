@@ -244,7 +244,7 @@ describe('AUTH-001 Sign In', () => {
     expect(signInRoute?.component).toBeUndefined();
     expect(signInRoute?.canActivate).toBeUndefined();
     expect(routes.some((route) => route.path?.includes('role-selection'))).toBe(false);
-    expect(routes.some((route) => route.path?.includes('reset-password'))).toBe(false);
+    expect(routes.some((route) => route.path?.includes('reset-password'))).toBe(true);
   });
 
   it('keeps the Sign In screen free of direct token storage, browser storage, JWT parsing, and role redirects', () => {

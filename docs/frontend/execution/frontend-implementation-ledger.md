@@ -1913,6 +1913,30 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: —
 - evidence_summary: Gate is closed as `VERIFIED` for AUTH-007 only. Evidence includes AUTH-007 functionality, route activation, Storybook rendering, route regression, AUTH-001 regression, full frontend verification, lint/style/dependency/quality/build/build-storybook, narrowed Big Pickle read-only review PASS, render-ready desktop/tablet/mobile screenshot artifact capture, and human visual review APPROVED. Earlier loader-only desktop/tablet captures were superseded and are not accepted evidence.
 
+### `T-FE-049` — `AUTH-008` Reset Password
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_date: 2026-09-12
+- scope_summary: AUTH-008 Reset Password implementation is complete and verified. Scope is limited to the AUTH-008 feature files, minimal lazy route activation, focused route/test expectation updates, this ledger, and `PROGRESS.md`. No AUTH-009 Reset Success route/component/story/redirect/success-state UI, sibling Auth screen implementation, navigation UI, auth/session foundation behavior, CurrentUserStore behavior, backend/OpenAPI/generated API mutation, dependency change, package change, or Storybook configuration change occurred.
+- functional_contract_summary: AUTH-008 uses `C-AUTH-RESET`: `POST /api/v1/auth/reset-password`, operation `ResetPassword`, request `ResetPasswordRequest { email, token, newPassword }`, and success `200`. The feature-local API adapter delegates to the generated `resetPassword` function without editing generated files. The screen reads the exact `token` query parameter as opaque reset-flow input, trims only for missing/empty detection, never stores it, blocks submission and backend calls when it is absent or empty, and offers recovery through the canonical `AUTH_FORGOT_PASSWORD` route. For non-empty tokens, backend remains authoritative for invalid, expired, consumed, revoked, or otherwise rejected tokens. The form fields are exactly email and new password; no confirm-password field or additional password rule is introduced. Client validation mirrors the backend validator only: email required/format, newPassword required/minimum length 8/uppercase/digit.
+- auth_009_boundary_summary: T-FE-049 implements only reset-password submission and in-workflow blocking/error behavior. `AUTH-009` / `T-FE-050` remains a separate reset-success state after `GATE-FE-T049`; no `AUTH_RESET_PASSWORD_SUCCESS` route, `/auth/reset-password/success`, reset-success component, reset-success story, success redirect, or AUTH-009 UI/copy/title was implemented in T-FE-049.
+- route_summary: `AUTH_RESET_PASSWORD` is activated at canonical `/auth/reset-password` via lazy `loadComponent`. PUBLIC route semantics are preserved: no anonymous-only guard, no authenticated-user redirect, no `canActivate`, no route-permission policy change, and no auth/session/current-user behavior.
+- visual_summary: AUTH-008 reuses the approved AUTH-001/AUTH-007 Auth-family visual language as visual/pattern precedent only: full-page Auth composition, card proportions adapted for two form controls, restrained branded context panel, typography hierarchy, spacing rhythm, primary CTA treatment, responsive behavior, logical CSS, and accessibility patterns. Penpot was not required. Storybook evidence renders the production component. Render-ready desktop/tablet/mobile screenshots were captured only after DOM readiness verified visible `Reset password` heading, visible `Email address` control, visible `New password` control, `<body>` in `sb-show-main`, and no `<body>` `sb-show-preparing-story` or `sb-show-errordisplay`. Current artifacts are `/tmp/opencode/auth-008-desktop.png`, `/tmp/opencode/auth-008-tablet.png`, and `/tmp/opencode/auth-008-mobile.png`.
+- verification_summary: RED evidence first failed before production implementation with missing `ResetPassword` / `ResetPasswordApi` modules. Focused GREEN passed AUTH-008 component/API tests (2 files / 11 tests). Focused route and AUTH-001/AUTH-007 regressions passed (4 files / 29 tests). Full frontend tests passed 30 files / 304 tests. `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, `npm run quality`, `npm run build`, `npm run build-storybook`, and `git diff --check` passed. An initial component-style budget warning on AUTH-008 SCSS was resolved within AUTH-008 scope and rerun clean. Independent MiMo review passed with no Critical/High/Medium findings; two Low cleanup items were addressed by merging duplicate SCSS selector blocks and adding a production-component missing-token Storybook state.
+
+### `ST-FE-049` — Build `AUTH-008` Reset Password
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Subtask implementation is complete. The production component uses external `.html` and `.scss`, a colocated focused spec, feature-local generated-API adapter, and bounded Storybook stories rendering the production component. Tests cover rendering, exact token query behavior, missing/empty token blocking without backend calls, authoritative validation, exact request DTO, duplicate-submit prevention, failure handling, route activation, PUBLIC semantics, and absence of auth/session/token-storage/CurrentUserStore/AUTH-009 behavior.
+
+### `GATE-FE-T049`
+
+- status_result: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Gate is closed as `VERIFIED` for AUTH-008 only. Evidence includes AUTH-008 functionality, route activation, API adapter verification, route regression, AUTH-001/AUTH-007 regression, full frontend verification, lint/style/dependency/quality/build/build-storybook, independent MiMo review PASS with no Critical/High/Medium findings, and render-ready desktop/tablet/mobile screenshot artifact capture. `AUTH-009` remains separate and is not implemented by this gate.
+
 ### `T-FE-054` — Account inactive contract clarification
 
 - status: `VERIFIED`

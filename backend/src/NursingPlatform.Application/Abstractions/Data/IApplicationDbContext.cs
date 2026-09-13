@@ -88,6 +88,7 @@ public interface IApplicationDbContext
     bool IsUniqueEffectiveExamAccessGrantViolation(DbUpdateException exception);
     bool IsUniqueInProgressExamSessionViolation(DbUpdateException exception);
     bool IsUniquePackageAnalyticalReportSessionViolation(DbUpdateException exception) => false;
+    bool IsUniqueUserEmailViolation(DbUpdateException exception) => false;
     Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,

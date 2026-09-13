@@ -48,6 +48,7 @@ public class ExceptionMiddleware
             PackageExamSessionConflictException => (StatusCodes.Status409Conflict, "Conflict"),
             PackageReportConflictException => (StatusCodes.Status409Conflict, "Conflict"),
             CheckoutInitializationInProgressException => (StatusCodes.Status409Conflict, "Conflict"),
+            EmailVerificationRequiredException => (StatusCodes.Status403Forbidden, "Forbidden"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
             ForbiddenAccessException => (StatusCodes.Status403Forbidden, "Forbidden"),
             UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
@@ -125,6 +126,19 @@ public class ExceptionMiddleware
                 Detail = problem.Detail,
                 TraceId = problem.TraceId,
                 Code = packageReportConflictException.Code
+            };
+        }
+
+        if (exception is EmailVerificationRequiredException emailVerificationRequiredException)
+        {
+            problem = new CodedProblemDetailsContract
+            {
+                Type = problem.Type,
+                Title = problem.Title,
+                Status = problem.Status,
+                Detail = problem.Detail,
+                TraceId = problem.TraceId,
+                Code = emailVerificationRequiredException.Code
             };
         }
 

@@ -27,6 +27,7 @@ using NursingPlatform.Application.Exams.Queries.ListExams;
 using NursingPlatform.Application.Exams.Queries.ListMyExamAttempts;
 using NursingPlatform.Application.Identity.Commands.ForgotPassword;
 using NursingPlatform.Application.Identity.Commands.Login;
+using NursingPlatform.Application.Identity.Commands.PublicRegister;
 using NursingPlatform.Application.Identity.Commands.Register;
 using NursingPlatform.Application.Identity.Commands.RotateRefreshToken;
 using NursingPlatform.Application.Identity.Commands.ResetPassword;
@@ -163,6 +164,38 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("RegisterUser")
         .RequirePermission(Permissions.Users.Create);
+
+        api.MapPost("/auth/register/nurse", async (PublicRegisterRequest request, ISender sender) =>
+        {
+            await sender.Send(new PublicRegisterCommand
+            {
+                Email = request.Email,
+                Password = request.Password,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                RoleName = PublicRegistrationRoleNames.Nurse
+            });
+
+            return Results.Accepted();
+        })
+        .WithName("PublicRegisterNurse")
+        .AllowAnonymous();
+
+        api.MapPost("/auth/register/employer", async (PublicRegisterRequest request, ISender sender) =>
+        {
+            await sender.Send(new PublicRegisterCommand
+            {
+                Email = request.Email,
+                Password = request.Password,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                RoleName = PublicRegistrationRoleNames.Employer
+            });
+
+            return Results.Accepted();
+        })
+        .WithName("PublicRegisterEmployer")
+        .AllowAnonymous();
 
         api.MapPost("/auth/send-verification-email", async (ISender sender) =>
         {

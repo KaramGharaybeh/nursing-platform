@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using NursingPlatform.Application.Abstractions.Auth;
 using NursingPlatform.Application.Abstractions.Data;
+using NursingPlatform.Application.Common.Exceptions;
 using NursingPlatform.Application.Identity.Common;
 using NursingPlatform.Domain.Identity;
 
@@ -33,6 +34,9 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
 
         if (!_passwordHasher.Verify(command.Password, user.PasswordHash))
             throw new UnauthorizedAccessException("Invalid credentials.");
+
+        if (!user.EmailVerified)
+            throw new EmailVerificationRequiredException();
 
         var roles = await _context.UserRoles
             .Where(ur => ur.UserId == user.Id)

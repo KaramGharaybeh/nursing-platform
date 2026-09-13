@@ -160,6 +160,15 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         };
     }
 
+    public bool IsUniqueUserEmailViolation(DbUpdateException exception)
+    {
+        return exception.GetBaseException() is PostgresException
+        {
+            SqlState: PostgresErrorCodes.UniqueViolation,
+            ConstraintName: "IX_Users_Email"
+        };
+    }
+
     public Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,

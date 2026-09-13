@@ -15,6 +15,7 @@ export type { AdminStudyMaterialDto } from './models/admin-study-material-dto';
 export type { AdminStudyMaterialVersionDto } from './models/admin-study-material-version-dto';
 export type { AuthResult } from './models/auth-result';
 export type { CodedProblemDetails } from './models/coded-problem-details';
+export type { CodedProblemDetailsContract } from './models/coded-problem-details-contract';
 export type { ContactRequestStatus } from './models/contact-request-status';
 export type { CreateAdminExamCategoryRequest } from './models/create-admin-exam-category-request';
 export type { CreateAdminExamRequest } from './models/create-admin-exam-request';
@@ -77,6 +78,7 @@ export type { PreparationPackageOfferListItemDto } from './models/preparation-pa
 export type { PreparationPackageVersionMaterialDto } from './models/preparation-package-version-material-dto';
 export type { PreparationPackageVersionMaterialRequest } from './models/preparation-package-version-material-request';
 export type { ProblemDetails } from './models/problem-details';
+export type { PublicRegisterRequest } from './models/public-register-request';
 export type { PublishAdminReportingProfileRequest } from './models/publish-admin-reporting-profile-request';
 export type { RegisterUserRequest } from './models/register-user-request';
 export type { ReportingProfileQuestionAssignmentRequest } from './models/reporting-profile-question-assignment-request';

@@ -33,6 +33,8 @@ using NursingPlatform.Application.Identity.Commands.RotateRefreshToken;
 using NursingPlatform.Application.Identity.Commands.ResetPassword;
 using NursingPlatform.Application.Identity.Commands.SendVerificationEmail;
 using NursingPlatform.Application.Identity.Commands.VerifyEmail;
+using NursingPlatform.Application.Identity.Common;
+using NursingPlatform.Application.Identity.DTOs;
 using NursingPlatform.Application.Identity.Queries.GetCurrentUser;
 using NursingPlatform.Application.Identity.Queries.GetUser;
 using NursingPlatform.Application.Identity.Queries.ListUsers;
@@ -79,6 +81,7 @@ using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Payments;
 using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Infrastructure.Persistence;
+using NursingPlatform.WebApi.Contracts;
 using NursingPlatform.WebApi.Middleware;
 using Serilog;
 
@@ -137,6 +140,8 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("Login")
+        .Produces<AuthResult>(StatusCodes.Status200OK)
+        .Produces<CodedProblemDetailsContract>(StatusCodes.Status403Forbidden, "application/problem+json")
         .AllowAnonymous();
 
         api.MapPost("/auth/refresh", async (RotateRefreshTokenCommand command, ISender sender) =>
@@ -145,6 +150,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("RefreshToken")
+        .Produces<AuthResult>(StatusCodes.Status200OK)
         .AllowAnonymous();
 
         api.MapPost("/auth/register", async (RegisterUserRequest request, ISender sender) =>
@@ -179,6 +185,7 @@ public static class ApplicationBuilderExtensions
             return Results.Accepted();
         })
         .WithName("PublicRegisterNurse")
+        .Produces(StatusCodes.Status202Accepted)
         .AllowAnonymous();
 
         api.MapPost("/auth/register/employer", async (PublicRegisterRequest request, ISender sender) =>
@@ -195,6 +202,7 @@ public static class ApplicationBuilderExtensions
             return Results.Accepted();
         })
         .WithName("PublicRegisterEmployer")
+        .Produces(StatusCodes.Status202Accepted)
         .AllowAnonymous();
 
         api.MapPost("/auth/send-verification-email", async (ISender sender) =>
@@ -243,6 +251,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(user);
         })
         .WithName("GetCurrentUser")
+        .Produces<UserDetailDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/users", async (
@@ -1288,7 +1297,8 @@ public static class ApplicationBuilderExtensions
             await sender.Send(new DeleteNurseCvCommand());
             return Results.NoContent();
         })
-        .WithName("DeleteNurseCv");
+        .WithName("DeleteNurseCv")
+        .Produces(StatusCodes.Status204NoContent);
 
         return app;
     }

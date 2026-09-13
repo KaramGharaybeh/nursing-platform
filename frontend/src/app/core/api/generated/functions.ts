@@ -9,6 +9,10 @@ export type { RefreshToken$Params as RefreshToken$Params } from './fn/nursing-pl
 export { refreshToken as refreshToken } from './fn/nursing-platform-web-api/refresh-token';
 export type { RegisterUser$Params as RegisterUser$Params } from './fn/nursing-platform-web-api/register-user';
 export { registerUser as registerUser } from './fn/nursing-platform-web-api/register-user';
+export type { PublicRegisterNurse$Params as PublicRegisterNurse$Params } from './fn/nursing-platform-web-api/public-register-nurse';
+export { publicRegisterNurse as publicRegisterNurse } from './fn/nursing-platform-web-api/public-register-nurse';
+export type { PublicRegisterEmployer$Params as PublicRegisterEmployer$Params } from './fn/nursing-platform-web-api/public-register-employer';
+export { publicRegisterEmployer as publicRegisterEmployer } from './fn/nursing-platform-web-api/public-register-employer';
 export type { SendVerificationEmail$Params as SendVerificationEmail$Params } from './fn/nursing-platform-web-api/send-verification-email';
 export { sendVerificationEmail as sendVerificationEmail } from './fn/nursing-platform-web-api/send-verification-email';
 export type { VerifyEmail$Params as VerifyEmail$Params } from './fn/nursing-platform-web-api/verify-email';

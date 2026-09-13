@@ -3333,6 +3333,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodedProblemDetailsContract"
+                }
+              }
+            }
           }
         }
       }
@@ -3401,6 +3411,52 @@
             "Bearer": [ ]
           }
         ]
+      }
+    },
+    "/api/v1/auth/register/nurse": {
+      "post": {
+        "tags": [
+          "NursingPlatform.WebApi"
+        ],
+        "operationId": "PublicRegisterNurse",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicRegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register/employer": {
+      "post": {
+        "tags": [
+          "NursingPlatform.WebApi"
+        ],
+        "operationId": "PublicRegisterEmployer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicRegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          }
+        }
       }
     },
     "/api/v1/auth/send-verification-email": {
@@ -8338,6 +8394,38 @@
           }
         }
       },
+      "CodedProblemDetailsContract": {
+        "required": [
+          "code",
+          "type",
+          "title",
+          "status",
+          "detail",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
       "ContactRequestStatus": {
         "type": "integer"
       },
@@ -10515,6 +10603,29 @@
             "type": "string"
           },
           "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicRegisterRequest": {
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
             "type": "string"
           }
         }

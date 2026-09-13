@@ -767,8 +767,8 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | screen_id | primary_owner_task | family_approval_gate | approval_decision | execution_status | blocker_types | contract_dependency | post_implementation_visual_verification |
 |---|---|---|---|---|---|---|---|
 | `AUTH-001` | `T-FE-041` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-LOGIN`,`C-ME` | implementation, automated verification, visual calibration, and human visual approval complete |
-| `AUTH-002` | `T-FE-043` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-REGISTER-NURSE`,`C-AUTH-REGISTER-EMPLOYER` | public pre-registration role-selection UI only; Nurse -> `/auth/register/nurse`, Employer -> `/auth/register/employer`; no backend call, account creation, role/session/token/current-user behavior |
-| `AUTH-003` | `T-FE-044` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | `BACKEND` | `C-AUTH-REGISTER-NURSE` | approved contract; implementation waits for backend endpoint and regenerated generated client evidence |
+| `AUTH-002` | `T-FE-043` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-REGISTER-NURSE`,`C-AUTH-REGISTER-EMPLOYER` | implementation, automated verification, and render-ready Storybook evidence complete; public pre-registration role-selection UI only; Nurse -> `/auth/register/nurse`, Employer -> `/auth/register/employer`; no backend call, account creation, role/session/token/current-user behavior |
+| `AUTH-003` | `T-FE-044` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-REGISTER-NURSE` | implementation, automated verification, and Storybook build evidence complete; public nurse registration at `/auth/register/nurse` over generated `publicRegisterNurse` with exact four fields, success-without-authentication, and canonical verify-email navigation |
 | `AUTH-004` | `T-FE-045` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | `BACKEND` | `C-AUTH-REGISTER-EMPLOYER` | approved contract; implementation waits for backend endpoint and regenerated generated client evidence |
 | `AUTH-005` | `T-FE-047` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-REGISTER-NURSE`,`C-AUTH-REGISTER-EMPLOYER`,`C-AUTH-VERIFY` | public informational check-your-email screen at `/auth/verify-email`; no backend call, resend, countdown/cooldown, session, or account-existence disclosure |
 | `AUTH-006` | `T-FE-047` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-VERIFY` | implementation, automated verification, and render-ready Storybook evidence complete |
@@ -1889,6 +1889,28 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: —
 - evidence_summary: Gate evidence covers AUTH-002 public route activation, navigation-only behavior, component separation, Auth-family visual reuse, focused tests, lint/style/quality/build-storybook verification, Storybook evidence, scope review, and git hygiene. `GATE-FE-T043` is closed as `VERIFIED`; AUTH-003 remains a separate Phase 4 task.
+
+### `T-FE-044` — `AUTH-003` Nurse Registration
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_date: 2026-09-13
+- scope_summary: AUTH-003 Nurse Registration implementation is verified for the public nurse self-registration screen only. Scope is limited to the new `register-nurse` Auth feature adapter/component/story/spec files, the lazy route entry in `frontend/src/app/app.routes.ts`, and this ledger. No token/session/authentication state change, `AuthSessionBootstrap`/`CurrentUserStore`/token-storage behavior, auto-login, `roleIds`/roles/company/organization/profile fields, generated API edit, backend/OpenAPI mutation, dependency change, Storybook configuration, navigation menu, or sibling Auth screen implementation is included.
+- functional_contract_summary: The screen activates canonical PUBLIC route `/auth/register/nurse` with no `canActivate`, `canMatch`, `redirectTo`, or route metadata. The feature-local `RegisterNurseApi.register(request: PublicRegisterRequest)` delegates to generated `publicRegisterNurse` over `ApiConfiguration.rootUrl`, posts exactly `email`, `password`, `firstName`, `lastName` to `POST /api/v1/auth/register/nurse`, and returns `void` for `202`. The strictly typed Reactive Form requires all four fields, enforces email format, and enforces backend-consistent password rules (required, minimum length 8, uppercase, digit). Successful `202` submits the exact request and navigates to canonical `/auth/verify-email` via `AUTH_VERIFY_EMAIL_REQUEST`. Backend validation/problem details map to the form validation summary using the existing Auth pattern.
+- visual_summary: AUTH-003 reuses the approved Auth-family visual language and existing Auth form-screen composition: branded context panel, card layout, tokenized spacing, responsive single-column behavior, logical SCSS, semantic heading, accessible controls, and Angular Material button primitives. No new Penpot artifact or materially new visual decision was required.
+- verification_summary: RED evidence first failed before production implementation with unresolvable `./register-nurse-api` and `./register-nurse` modules. Focused GREEN passed before final-gate correction, validation-message correction added explicit email/password assertions, and fresh closeout passed `npm test -- --watch=false --include=src/app/features/auth/register-nurse/register-nurse-api.spec.ts --include=src/app/features/auth/register-nurse/register-nurse.spec.ts` with 2 files / 13 tests plus relevant Sign In/Role Selection/Register Nurse regression tests with 3 files / 23 tests, lint, stylelint, `git diff --check`, and empty staged-area checks. Independent verifier was permission-blocked before evidence; the OpenAI orchestrator applied the approved direct-final-gate fallback and found AUTH-003 PASS.
+
+### `ST-FE-044` — Build `AUTH-003` Nurse Registration after approval
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Subtask implementation is complete. The feature-local adapter consumes only generated `publicRegisterNurse`, generated `PublicRegisterRequest`, and `ApiConfiguration.rootUrl`. The production component uses external `.html` and `.scss`, a colocated focused spec, and a bounded Storybook story rendering the production component. Tests cover the generated POST endpoint/body exact four fields with no forbidden fields, `void` 202 handling, PUBLIC lazy route activation, required/email/password-complexity validation, exact successful request plus canonical verify-email navigation, no session/token/current-user behavior, and problem-details mapping.
+
+### `GATE-FE-T044`
+
+- status_result: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Gate evidence covers AUTH-003 public route activation, exact four-field request contract, success-without-authentication behavior, component separation, Auth-family visual reuse, focused RED-then-GREEN tests, validation-message correction, fresh closeout tests/lint/style/diff checks, Storybook build evidence, and direct OpenAI final-gate fallback after verifier permission blockage. `GATE-FE-T044` is closed as `VERIFIED`; AUTH-004 remains a separate Phase 4 task.
 
 ### `T-FE-046` — Verification email contract clarification
 

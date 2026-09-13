@@ -1,0 +1,78 @@
+<section class="np-register-nurse" aria-labelledby="auth-register-nurse-title">
+  <div class="np-register-nurse-composition">
+    <div class="np-register-nurse-context" aria-hidden="true">
+      <p class="np-register-nurse-kicker">Nursing Platform</p>
+      <div class="np-register-nurse-anchor"></div>
+    </div>
+
+    <div class="np-register-nurse-card">
+      <div class="np-register-nurse-header">
+        <p class="np-register-nurse-product">Nursing Platform</p>
+        <h1 id="auth-register-nurse-title">Create a nurse account</h1>
+        <p class="np-register-nurse-instruction">
+          Enter your details to create a nurse account. We will send a verification email next.
+        </p>
+      </div>
+
+      <np-form-validation-summary
+        [summaryTitle]="validationSummary().title"
+        [items]="validationSummary().items"
+        [formErrors]="validationSummary().formErrors"
+      />
+
+      @if (backendFailureMessage() !== '') {
+        <p class="np-register-nurse-error" role="alert">{{ backendFailureMessage() }}</p>
+      }
+
+      <form class="np-register-nurse-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <np-text-input-control
+          controlId="auth-register-nurse-email"
+          label="Email address"
+          type="email"
+          [required]="true"
+          [disabled]="isSubmitting()"
+          [value]="emailValue"
+          [errorText]="emailError"
+          (valueChange)="updateEmail($event)"
+        />
+
+        <np-text-input-control
+          controlId="auth-register-nurse-password"
+          label="Password"
+          type="password"
+          [required]="true"
+          [disabled]="isSubmitting()"
+          [value]="passwordValue"
+          [errorText]="passwordError"
+          (valueChange)="updatePassword($event)"
+        />
+
+        <np-text-input-control
+          controlId="auth-register-nurse-first-name"
+          label="First name"
+          type="text"
+          [required]="true"
+          [disabled]="isSubmitting()"
+          [value]="firstNameValue"
+          [errorText]="firstNameError"
+          (valueChange)="updateFirstName($event)"
+        />
+
+        <np-text-input-control
+          controlId="auth-register-nurse-last-name"
+          label="Last name"
+          type="text"
+          [required]="true"
+          [disabled]="isSubmitting()"
+          [value]="lastNameValue"
+          [errorText]="lastNameError"
+          (valueChange)="updateLastName($event)"
+        />
+
+        <button class="np-register-nurse-submit" type="submit" mat-flat-button color="primary" [disabled]="isSubmitting()">
+          Create account
+        </button>
+      </form>
+    </div>
+  </div>
+</section>

@@ -10,6 +10,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/role-selection/role-selection').then((m) => m.RoleSelection),
   },
   {
+    path: 'auth/register/nurse',
+    loadComponent: () => import('./features/auth/register-nurse/register-nurse').then((m) => m.RegisterNurse),
+  },
+  {
     path: 'auth/verify-email/confirm',
     loadComponent: () => import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
   },

@@ -103,6 +103,11 @@ public static class ApplicationBuilderExtensions
 
         app.UseHttpsRedirection();
 
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseCors(ServiceCollectionExtensions.LocalDevelopmentCorsPolicy);
+        }
+
         app.UseAuthentication();
         app.UseAuthorization();
 

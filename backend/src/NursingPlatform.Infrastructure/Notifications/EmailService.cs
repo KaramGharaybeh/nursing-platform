@@ -53,7 +53,14 @@ public sealed class EmailService : IEmailService
             throw new InvalidOperationException("ApplicationUrl is not configured.");
 
         var encodedToken = Uri.EscapeDataString(token);
-        return $"{_settings.ApplicationUrl.TrimEnd('/')}/{path}?token={encodedToken}";
+        var frontendPath = path switch
+        {
+            "verify-email" => "auth/verify-email/confirm",
+            "reset-password" => "auth/reset-password",
+            _ => path.TrimStart('/')
+        };
+
+        return $"{_settings.ApplicationUrl.TrimEnd('/')}/{frontendPath}?token={encodedToken}";
     }
 
     private async Task SendEmailAsync(

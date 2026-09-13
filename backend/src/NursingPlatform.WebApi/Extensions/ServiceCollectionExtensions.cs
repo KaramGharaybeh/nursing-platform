@@ -15,6 +15,8 @@ namespace NursingPlatform.WebApi.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public const string LocalDevelopmentCorsPolicy = "LocalDevelopmentCors";
+
     public static IServiceCollection AddApplicationServices(
         this IServiceCollection services,
         IConfiguration configuration,
@@ -23,14 +25,15 @@ public static class ServiceCollectionExtensions
         services.AddEndpointsApiExplorer();
         services.AddApplication();
         services.AddInfrastructure(configuration, environment);
-        services.AddPresentation(configuration);
+        services.AddPresentation(configuration, environment);
 
         return services;
     }
 
     public static IServiceCollection AddPresentation(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IWebHostEnvironment environment)
     {
         var healthChecks = services.AddHealthChecks();
 
@@ -85,6 +88,31 @@ public static class ServiceCollectionExtensions
             });
 
         services.AddAuthorization();
+
+        if (environment.IsDevelopment())
+        {
+            var allowedOrigins = configuration
+                .GetSection("Cors:AllowedOrigins")
+                .Get<string[]>()?
+                .Where(origin => !string.IsNullOrWhiteSpace(origin))
+                .Select(origin => origin.TrimEnd('/'))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray() ?? [];
+
+            if (allowedOrigins.Length > 0)
+            {
+                services.AddCors(options =>
+                {
+                    options.AddPolicy(LocalDevelopmentCorsPolicy, policy =>
+                    {
+                        policy
+                            .WithOrigins(allowedOrigins)
+                            .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                            .WithHeaders("Authorization", "Content-Type", "Accept");
+                    });
+                });
+            }
+        }
 
         services.AddOpenApi(options =>
         {

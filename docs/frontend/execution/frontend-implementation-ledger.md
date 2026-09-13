@@ -1980,7 +1980,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - blocker_types: —
-- evidence_summary: Gate evidence covers AUTH-005 public route activation, static enumeration-safe no-backend behavior, component separation, Auth-family visual reuse, RED-then-GREEN focused tests, and bounded AUTH-006 route regression repair. Final integrated verification remains in the Phase 4 final gate.
+- evidence_summary: Gate evidence covers AUTH-005 public route activation, static enumeration-safe no-backend behavior, component separation, Auth-family visual reuse, RED-then-GREEN focused tests, and bounded AUTH-006 route regression repair. Final integrated Phase 4 verification passed on 2026-09-13 with focused canonical-routes tests (1 file / 13 tests), focused Auth Phase 4 suite (8 files / 53 tests), full frontend tests (40 files / 357 tests), lint, stylelint, dependency policy, quality including production build, Storybook build, `git diff --check`, final scope review, and staged-area checks. A bounded test-only correction updated stale `canonical-routes.spec.ts` assertions to positively recognize the already-approved committed `/auth/register/nurse`, `/auth/register/employer`, and `/auth/verify-email` routes without changing production route code or route semantics.
 
 ### `T-FE-047` — `AUTH-006` Verify Email Link
 

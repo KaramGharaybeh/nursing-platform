@@ -1,0 +1,40 @@
+<section class="np-role-selection" aria-labelledby="auth-role-selection-title">
+  <div class="np-role-selection-composition">
+    <div class="np-role-selection-context" aria-hidden="true">
+      <p class="np-role-selection-kicker">Nursing Platform</p>
+      <div class="np-role-selection-anchor"></div>
+    </div>
+
+    <article class="np-role-selection-card">
+      <p class="np-role-selection-product">Nursing Platform</p>
+      <h1 id="auth-role-selection-title">Choose how to register</h1>
+      <p class="np-role-selection-intro">
+        Select the account type that matches how you will use Nursing Platform.
+      </p>
+
+      <div class="np-role-selection-actions" aria-label="Registration account type">
+        <button
+          type="button"
+          mat-flat-button
+          class="np-role-selection-option"
+          data-testid="auth-role-selection-nurse"
+          (click)="registerAsNurse()"
+        >
+          <span class="np-role-selection-option-title">Nurse</span>
+          <span class="np-role-selection-option-copy">Create a nurse account</span>
+        </button>
+
+        <button
+          type="button"
+          mat-stroked-button
+          class="np-role-selection-option"
+          data-testid="auth-role-selection-employer"
+          (click)="registerAsEmployer()"
+        >
+          <span class="np-role-selection-option-title">Employer</span>
+          <span class="np-role-selection-option-copy">Create an employer account</span>
+        </button>
+      </div>
+    </article>
+  </div>
+</section>

@@ -243,7 +243,8 @@ describe('AUTH-001 Sign In', () => {
     await expect(signInRoute?.loadComponent?.()).resolves.toBe(SignIn);
     expect(signInRoute?.component).toBeUndefined();
     expect(signInRoute?.canActivate).toBeUndefined();
-    expect(routes.some((route) => route.path?.includes('role-selection'))).toBe(false);
+    expect(signInRoute?.canMatch).toBeUndefined();
+    expect(signInRoute?.redirectTo).toBeUndefined();
     expect(routes.some((route) => route.path?.includes('reset-password'))).toBe(true);
   });
 

@@ -1868,6 +1868,28 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Register clarification evidence is recorded: backend endpoint mapping, permission requirement, request/response contract, validation constraints, integration-test authorization behavior, and OpenAPI metadata comparison.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream registration screen tasks remain separately blocked by their own dependencies, design/screen approval gates, and form-validation prerequisites.
 
+### `T-FE-043` — `AUTH-002` Role Selection
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_date: 2026-09-13
+- scope_summary: AUTH-002 Role Selection implementation is complete for the public pre-registration choice screen only. Scope is limited to the new `role-selection` Auth feature component/story/spec files, the lazy route entry in `frontend/src/app/app.routes.ts`, and this ledger. No backend API adapter/call, account creation, form submission, role/session/token/current-user/logout behavior, generated API, backend/OpenAPI, dependency, Storybook configuration, navigation menu, or sibling Auth screen implementation is included.
+- functional_contract_summary: The screen activates canonical PUBLIC route `/auth/role-selection`, renders the approved Nurse and Employer choices, navigates Nurse to canonical `/auth/register/nurse`, and navigates Employer to canonical `/auth/register/employer`. The route has no `canActivate`, `canMatch`, `redirectTo`, or route metadata. The component injects only Angular `Router` and uses canonical route IDs for destinations.
+- visual_summary: AUTH-002 reuses the approved Auth-family visual language and existing static Auth screen composition: branded context panel, card layout, tokenized spacing, responsive single-column behavior, logical SCSS, semantic heading, and accessible button choices. No new Penpot artifact or materially new visual decision was required.
+- verification_summary: RED evidence first failed before production implementation with missing `RoleSelection` module. Focused GREEN passed `npm test -- --watch=false --include=src/app/features/auth/role-selection/role-selection.spec.ts` with 1 file / 5 tests. Final closeout verification is recorded in the Phase 4 commit evidence for this task.
+
+### `ST-FE-043` — Build `AUTH-002` Role Selection after approval
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Subtask implementation is complete. The production component uses external `.html` and `.scss`, a colocated focused spec, and a bounded Storybook story rendering the production component. Tests cover visible choices, canonical Nurse/Employer navigation, PUBLIC lazy route activation, no guards/redirects/metadata, and absence of backend/auth/session/current-user/token/logout behavior.
+
+### `GATE-FE-T043`
+
+- status_result: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Gate evidence covers AUTH-002 public route activation, navigation-only behavior, component separation, Auth-family visual reuse, focused tests, lint/style/quality/build-storybook verification, Storybook evidence, scope review, and git hygiene. `GATE-FE-T043` is closed as `VERIFIED`; AUTH-003 remains a separate Phase 4 task.
+
 ### `T-FE-046` — Verification email contract clarification
 
 - status: `VERIFIED`

@@ -67,6 +67,16 @@ Location:
 docs/backend/backend-architecture.md
 ```
 
+### execution/backend-implementation-ledger.md
+
+Defines backend Task → Subtask → Verification Gate ownership and execution status for backend implementation work.
+
+Location:
+
+```
+docs/backend/execution/backend-implementation-ledger.md
+```
+
 ---
 
 ## Frontend

@@ -304,11 +304,11 @@ Role assignment is server-owned:
 - `POST /api/v1/auth/register/employer` assigns only the `Employer` role.
 - `Admin`, `SuperAdmin`, and any privileged role must not be anonymously assignable.
 
-Successful public registration does not authenticate the user. It must not return `AuthResult`, access tokens, refresh tokens, frontend session bootstrap data, current-user data, or any other session-establishing payload. Newly registered accounts start with `EmailVerified = false`, and the backend initiates the initial verification email.
+Successful public registration returns HTTP `202 Accepted` with no response body and does not authenticate the user. It must not return `AuthResult`, access tokens, refresh tokens, frontend session bootstrap data, current-user data, or any other session-establishing payload. Newly registered accounts start with `EmailVerified = false`, and the backend initiates the initial verification email.
 
-Login for an unverified account must not issue tokens and must return a stable coded Problem Details response with code `email_verification_required`.
+Login with correct credentials for an otherwise authenticatable unverified account must not issue tokens and must return HTTP `403 Forbidden` using the existing coded Problem Details mechanism with code `email_verification_required`. Wrong credentials must preserve the existing generic invalid-credentials behavior and must not return `email_verification_required`.
 
-Duplicate-email public registration responses must remain enumeration-safe and expose only a generic externally observable outcome.
+Duplicate-email public registration responses must be externally indistinguishable from successful new public registrations: HTTP `202 Accepted` with no response body. Duplicate public registration must not disclose whether the email exists, reveal role/account details, mutate the existing account or roles, create a second account, issue tokens, establish a session, or implicitly resend a verification email.
 
 ---
 

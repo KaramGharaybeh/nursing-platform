@@ -6,6 +6,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/sign-in/sign-in').then((m) => m.SignIn),
   },
   {
+    path: 'auth/verify-email/confirm',
+    loadComponent: () => import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
+  },
+  {
     path: 'auth/forgot-password',
     loadComponent: () => import('./features/auth/forgot-password/forgot-password').then((m) => m.ForgotPassword),
   },

@@ -769,7 +769,7 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `AUTH-003` | `T-FE-044` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-REGISTER` | required in owning gate evidence |
 | `AUTH-004` | `T-FE-045` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-REGISTER` | required in owning gate evidence |
 | `AUTH-005` | `T-FE-047` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`SECURITY` | `C-AUTH-SEND-VERIFY`,`C-AUTH-VERIFY` | required in owning gate evidence |
-| `AUTH-006` | `T-FE-047` | `GATE-FE-T040` | `APPROVED` | `NOT STARTED` | — | `C-AUTH-VERIFY` | required in owning gate evidence |
+| `AUTH-006` | `T-FE-047` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-VERIFY` | implementation, automated verification, and render-ready Storybook evidence complete |
 | `AUTH-007` | `T-FE-048` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-FORGOT` | implementation, automated verification, render-ready Storybook evidence, and human visual approval complete |
 | `AUTH-008` | `T-FE-049` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-RESET` | implementation, automated verification, render-ready Storybook evidence complete |
 | `AUTH-009` | `T-FE-050` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-RESET` | implementation, automated verification, render-ready Storybook state evidence complete |
@@ -1889,6 +1889,29 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `CONTRACT_CLARIFICATION`
 - evidence_summary: Verification-email clarification evidence is recorded: backend endpoint mapping, auth requirements, request/response contracts, validation/error behavior, integration-test behavior, and OpenAPI metadata comparison.
 - closure_evidence: Gate is closed as `VERIFIED`; downstream email-verification screen tasks remain separately blocked by their own dependencies, design/screen approval gates, and visual evidence prerequisites.
+
+### `T-FE-047` — `AUTH-006` Verify Email Link
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_date: 2026-09-13
+- scope_summary: AUTH-006 Verify Email Link implementation is complete at worker level for AUTH-006 only. Scope is limited to the AUTH-006 feature files, minimal lazy route activation, focused route/test expectation updates, and this ledger. AUTH-005 Send verification email remains BLOCKED and NOT STARTED; no send-verification-email route/component/story/adapter was implemented. No sibling Auth screen implementation, navigation UI, auth/session foundation behavior, CurrentUserStore behavior, TokenStorage behavior, backend/OpenAPI/generated API mutation, dependency change, package change, or Storybook configuration change occurred.
+- functional_contract_summary: AUTH-006 uses `C-AUTH-VERIFY`: `POST /api/v1/auth/verify-email`, operation `VerifyEmail`, request `VerifyEmailRequest { token }`, anonymous/public success `200`. The feature-local `VerifyEmailApi` adapter delegates to the generated `verifyEmail` function without editing generated files. The screen reads the exact `token` query parameter as opaque input, trims only for missing/empty detection, never persists/decodes/displays/logs the token, blocks the backend call when it is absent or empty/whitespace, and calls the adapter exactly once for a non-empty token. Success renders the safe status `Email verified successfully.` with `role="status"`; missing token renders `This verification link is invalid or missing.` with `role="alert"`; backend failures render authoritative detail or `Email verification failed.` with `role="alert"`. No automatic sign-in/session/current-user/token/logout/navigation, no resend/retry/recovery CTA, and no invented copy/CTA/navigation was added.
+- route_summary: `AUTH_VERIFY_EMAIL_CONFIRM` is activated at canonical `/auth/verify-email/confirm` via lazy `loadComponent`. PUBLIC route semantics are preserved: no `canActivate`, no `redirectTo`, no guard, no permission metadata, and no AUTH-005 `/auth/verify-email` route activation.
+- visual_summary: AUTH-006 reuses the approved AUTH-007/AUTH-008 Auth-family visual language as visual/pattern precedent only. Storybook evidence renders the production component states through a mocked `VerifyEmailApi` provider with no Storybook configuration change. Render-ready desktop/tablet/mobile screenshots were captured from the static Storybook Default story after DOM readiness verified `np-verify-email`, visible `Verify email`, visible source-authoritative success status `Email verified successfully.`, no displayed opaque token, and no component CTA/link/button. Current artifacts are `/tmp/opencode/auth-006-verify-email-desktop.png`, `/tmp/opencode/auth-006-verify-email-tablet.png`, and `/tmp/opencode/auth-006-verify-email-mobile.png`.
+- verification_summary: RED evidence first failed before production implementation with missing `VerifyEmail` / `VerifyEmailApi` modules. Focused GREEN passed AUTH-006 component/API tests plus route-regression tests (3 files / 21 tests). Full frontend tests passed 34 files / 319 tests. `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, `npm run quality` (including production build with `verify-email` lazy chunk), `npm run build-storybook` (including `verify-email.stories` chunk), backend-source success-message check, DOM readiness validation, Storybook screenshot capture, and `git diff --check` passed.
+
+### `ST-FE-047` — Build `AUTH-006` Verify Email Link
+
+- status: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Subtask implementation is complete for AUTH-006 only. The production component uses external `.html` and `.scss`, a colocated focused spec, feature-local generated-API adapter, and bounded Storybook stories rendering the production component. Tests cover missing/empty token blocking without backend calls, exact opaque request DTO with single call, success status without token exposure, safe error without token exposure, PUBLIC lazy route activation without guard/redirect, absence of AUTH-005/send-verification behavior, and absence of auth/session/token-storage/CurrentUserStore/navigation behavior. AUTH-005 remains BLOCKED and NOT STARTED.
+
+### `GATE-FE-T047`
+
+- status_result: `VERIFIED`
+- blocker_types: —
+- evidence_summary: Gate is closed as `VERIFIED` for AUTH-006 only. Evidence includes AUTH-006 functionality, PUBLIC lazy route activation, API adapter verification, route regression without AUTH-005 activation, full frontend verification, lint/style/dependency/quality/build/build-storybook, source-authoritative success message confirmation, DOM readiness validation, render-ready desktop/tablet/mobile screenshot artifact capture, and `git diff --check`. AUTH-005 remains BLOCKED by CONTRACT_CLARIFICATION/SECURITY and is explicitly out of scope.
 
 ### `T-FE-048` — `AUTH-007` Forgot Password
 

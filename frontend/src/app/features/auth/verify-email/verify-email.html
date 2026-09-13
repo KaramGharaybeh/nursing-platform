@@ -1,0 +1,30 @@
+<section class="np-verify-email" aria-labelledby="auth-verify-email-title">
+  <div class="np-verify-email-composition">
+    <div class="np-verify-email-context" aria-hidden="true">
+      <p class="np-verify-email-kicker">Nursing Platform</p>
+      <div class="np-verify-email-anchor"></div>
+    </div>
+
+    <div class="np-verify-email-card">
+      <div class="np-verify-email-header">
+        <p class="np-verify-email-product">Nursing Platform</p>
+        <h1 id="auth-verify-email-title">Verify email</h1>
+      </div>
+
+      @if (tokenMissingMessage() !== '') {
+        <p class="np-verify-email-error" role="alert">{{ tokenMissingMessage() }}</p>
+      } @else if (loadingMessage() !== '') {
+        <p class="np-verify-email-loading" role="status" aria-live="polite" aria-busy="true">
+          {{ loadingMessage() }}
+        </p>
+      } @else {
+        @if (successMessage() !== '') {
+          <p class="np-verify-email-success" role="status">{{ successMessage() }}</p>
+        }
+        @if (backendFailureMessage() !== '') {
+          <p class="np-verify-email-error" role="alert">{{ backendFailureMessage() }}</p>
+        }
+      }
+    </div>
+  </div>
+</section>

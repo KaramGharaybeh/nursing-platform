@@ -307,17 +307,20 @@ describe('canonical-routes', () => {
     const appRoutes = readTextFile('src/app/app.routes.ts');
 
     expect(appRoutes).toContain("path: 'auth/sign-in'");
+    expect(appRoutes).toContain("path: 'auth/verify-email/confirm'");
     expect(appRoutes).toContain("path: 'auth/forgot-password'");
     expect(appRoutes).toContain("path: 'auth/reset-password'");
     expect(appRoutes).toContain("path: 'session-expired'");
     expect(appRoutes).toContain("path: 'access-denied'");
     expect(appRoutes).toContain('loadComponent');
     expect(appRoutes).toContain("./features/auth/sign-in/sign-in");
+    expect(appRoutes).toContain("./features/auth/verify-email/verify-email");
     expect(appRoutes).toContain("./features/auth/forgot-password/forgot-password");
     expect(appRoutes).toContain("./features/auth/reset-password/reset-password");
     expect(appRoutes).toContain("./features/auth/session-expired/session-expired");
     expect(appRoutes).toContain("./features/auth/access-denied/access-denied");
     expect(appRoutes).not.toContain('auth/register');
+    expect(appRoutes).not.toContain("path: 'auth/verify-email'");
     expect(appRoutes).not.toContain('canActivate');
     expect(appRoutes).not.toContain('redirectTo');
   });

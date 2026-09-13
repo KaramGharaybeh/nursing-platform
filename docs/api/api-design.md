@@ -278,6 +278,38 @@ Public endpoints should remain explicitly documented.
 
 Authentication configuration is defined separately.
 
+## V1 public self-registration
+
+V1 public self-registration is an additive authentication contract and must not repurpose the existing administrative user-registration endpoint.
+
+The existing `POST /api/v1/auth/register` endpoint remains a permission-protected administrative operation. It must continue to require the authorized user-management permission and must not become anonymous/public.
+
+The public V1 self-registration endpoints are:
+
+- `POST /api/v1/auth/register/nurse`
+- `POST /api/v1/auth/register/employer`
+
+Both public endpoints accept only:
+
+- `email`
+- `password`
+- `firstName`
+- `lastName`
+
+Public clients must not submit `roleIds`, administrative role identifiers, permission identifiers, company/organization details, nurse profile details, session state, or token material during V1 registration.
+
+Role assignment is server-owned:
+
+- `POST /api/v1/auth/register/nurse` assigns only the `Nurse` role.
+- `POST /api/v1/auth/register/employer` assigns only the `Employer` role.
+- `Admin`, `SuperAdmin`, and any privileged role must not be anonymously assignable.
+
+Successful public registration does not authenticate the user. It must not return `AuthResult`, access tokens, refresh tokens, frontend session bootstrap data, current-user data, or any other session-establishing payload. Newly registered accounts start with `EmailVerified = false`, and the backend initiates the initial verification email.
+
+Login for an unverified account must not issue tokens and must return a stable coded Problem Details response with code `email_verification_required`.
+
+Duplicate-email public registration responses must remain enumeration-safe and expose only a generic externally observable outcome.
+
 ---
 
 # Authorization

@@ -18,6 +18,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register-employer/register-employer').then((m) => m.RegisterEmployer),
   },
   {
+    path: 'auth/verify-email',
+    loadComponent: () => import('./features/auth/check-email/check-email').then((m) => m.CheckEmail),
+  },
+  {
     path: 'auth/verify-email/confirm',
     loadComponent: () => import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
   },

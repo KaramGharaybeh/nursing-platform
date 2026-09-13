@@ -154,15 +154,22 @@ describe('AUTH-006 Verify Email', () => {
     expect(verifyEmailApi.calls).toEqual([{ token: 'opaque-token' }]);
   });
 
-  it('keeps AUTH_VERIFY_EMAIL_CONFIRM public by lazily activating only the real confirm route', async () => {
+  it('keeps AUTH_VERIFY_EMAIL_CONFIRM public and distinct from the check-email notice route', async () => {
     const confirmRoute = routes.find(
       (route) => route.path === canonicalRoutePath('AUTH_VERIFY_EMAIL_CONFIRM').slice(1),
+    );
+    const checkEmailRoute = routes.find(
+      (route) => route.path === canonicalRoutePath('AUTH_VERIFY_EMAIL_REQUEST').slice(1),
     );
 
     await expect(confirmRoute?.loadComponent?.()).resolves.toBe(VerifyEmail);
     expect(confirmRoute?.component).toBeUndefined();
     expect(confirmRoute?.canActivate).toBeUndefined();
-    expect(routes.some((route) => route.path === 'auth/verify-email')).toBe(false);
+    expect(confirmRoute?.canMatch).toBeUndefined();
+    expect(confirmRoute?.redirectTo).toBeUndefined();
+    expect(confirmRoute?.data).toBeUndefined();
+    expect(checkEmailRoute).toBeDefined();
+    expect(checkEmailRoute).not.toBe(confirmRoute);
   });
 
   it('keeps the Verify Email screen free of AUTH-005, session, navigation, and token-handling behavior', () => {

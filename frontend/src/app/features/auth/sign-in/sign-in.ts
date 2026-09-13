@@ -32,6 +32,9 @@ const CONTROL_IDS = Object.freeze({
   Password: 'auth-sign-in-password',
 });
 
+const EMAIL_VERIFICATION_REQUIRED_CODE = 'email_verification_required';
+const EMAIL_VERIFICATION_REQUIRED_MESSAGE = 'Please verify your email address before signing in.';
+
 const REQUIRED_VALIDATION: NormalizedProblemDetails = Object.freeze({
   kind: 'validation',
   type: '',
@@ -86,6 +89,9 @@ export class SignIn {
     const error = this.normalizedError();
     if (error === undefined || error.kind === 'validation') {
       return '';
+    }
+    if (this.isEmailVerificationRequired(error)) {
+      return EMAIL_VERIFICATION_REQUIRED_MESSAGE;
     }
     return error.detail.trim() !== '' ? error.detail : 'The form could not be submitted.';
   });
@@ -161,6 +167,12 @@ export class SignIn {
 
   private clearServerError(): void {
     this.normalizedError.set(undefined);
+  }
+
+  private isEmailVerificationRequired(error: NormalizedProblemDetails): boolean {
+    return error.kind === 'coded'
+      && error.status === 403
+      && error.code === EMAIL_VERIFICATION_REQUIRED_CODE;
   }
 
   private errorBody(error: unknown): unknown {

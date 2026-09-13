@@ -237,6 +237,34 @@ describe('AUTH-001 Sign In', () => {
     expect(navigateSpy).not.toHaveBeenCalled();
   });
 
+  it('presents unverified-email failures safely without redirecting or establishing a session', async () => {
+    const { fixture, authTransport, authSession, currentUser, router } = await setup('/account');
+    authTransport.nextError = {
+      status: 403,
+      error: {
+        type: 'https://httpstatuses.com/403',
+        title: 'Email verification required',
+        status: 403,
+        detail: 'Your email address must be verified before you can sign in.',
+        code: 'email_verification_required',
+        traceId: 'trace-auth-001',
+      },
+    };
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+
+    await enterCredentials(fixture, 'unverified@example.com', 'secret-password');
+    submitButton(fixture).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(textContent(fixture)).toContain('Please verify your email address before signing in.');
+    expect(textContent(fixture)).not.toContain('Your email address must be verified before you can sign in.');
+    expect(textContent(fixture).toLowerCase()).not.toContain('resend');
+    expect(authSession.established).toEqual([]);
+    expect(currentUser.hydrateCalls).toBe(0);
+    expect(navigateSpy).not.toHaveBeenCalled();
+  });
+
   it('keeps AUTH_SIGN_IN public by lazily activating the real sign-in route without anonymous-only redirect behavior', async () => {
     const signInRoute = routes.find((route) => route.path === canonicalRoutePath('AUTH_SIGN_IN').slice(1));
 

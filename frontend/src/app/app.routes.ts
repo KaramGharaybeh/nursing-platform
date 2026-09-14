@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { authenticatedRouteGuard } from './core/auth/authenticated-route.guard';
+import { routePermissionGuard } from './core/routing/route-permission.guard';
 
 export const routes: Routes = [
   {
@@ -40,5 +42,11 @@ export const routes: Routes = [
   {
     path: 'access-denied',
     loadComponent: () => import('./features/auth/access-denied/access-denied').then((m) => m.AccessDenied),
+  },
+  {
+    path: 'account',
+    loadComponent: () => import('./features/account/account').then((m) => m.Account),
+    canActivate: [authenticatedRouteGuard, routePermissionGuard],
+    data: { routeId: 'ACCOUNT_OVERVIEW' },
   },
 ];

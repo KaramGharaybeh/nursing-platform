@@ -1,6 +1,7 @@
 import { CANONICAL_ROUTES } from './canonical-routes';
 import type { CanonicalRouteId } from './canonical-routes';
 import { CANONICAL_ROUTE_IDS } from './canonical-routes';
+import { routes } from '../../app.routes';
 import { isAuthenticatedRoute } from './route-classification';
 import {
   ROUTE_PERMISSION_POLICIES,
@@ -226,9 +227,11 @@ describe('route-permission-policy', () => {
 
   it('keeps sign-in route activation public and canonical classification unchanged', () => {
     const appRoutes = readTextFile('src/app/app.routes.ts');
+    const signInRoute = routes.find((route) => route.path === 'auth/sign-in');
 
     expect(appRoutes).toContain("path: 'auth/sign-in'");
-    expect(appRoutes).not.toContain('canActivate');
+    expect(signInRoute?.canActivate).toBeUndefined();
+    expect(signInRoute?.canMatch).toBeUndefined();
     expect(appRoutes).not.toContain('canMatch');
     expect(appRoutes).not.toContain('RequirePermission');
 

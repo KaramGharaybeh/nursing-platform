@@ -48,10 +48,13 @@ class AuthTransportStub {
 
 class AuthSessionBootstrapStub {
   readonly established: AuthResult[] = [];
-  readonly state = () => 'anonymous' as const;
+  sessionState: 'anonymous' | 'authenticated' = 'anonymous';
+
+  readonly state = () => this.sessionState;
 
   establishAuthenticatedSession(result: AuthResult) {
     this.established.push(result);
+    this.sessionState = 'authenticated';
     return 'authenticated' as const;
   }
 }
@@ -63,6 +66,14 @@ class CurrentUserStoreStub {
   hydrate() {
     this.hydrateCalls += 1;
     return of(this.nextHydration);
+  }
+
+  status() {
+    return this.nextHydration;
+  }
+
+  currentUser() {
+    return undefined;
   }
 }
 
@@ -216,6 +227,21 @@ describe('AUTH-001 Sign In', () => {
     expect(authSession.established.length).toBe(1);
     expect(currentUser.hydrateCalls).toBe(1);
     expect(navigateSpy).toHaveBeenCalledWith(canonicalRoutePath('ACCOUNT_OVERVIEW'));
+  });
+
+  it('navigates to the mounted ACCOUNT_OVERVIEW destination after verified sign-in without rendering a generic failure', async () => {
+    const { fixture, router, authTransport, authSession, currentUser } = await setup();
+    authTransport.nextResult = authResultFixture();
+
+    await enterCredentials(fixture, 'nurse@example.com', 'secret-password');
+    submitButton(fixture).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(authSession.established.length).toBe(1);
+    expect(currentUser.hydrateCalls).toBe(1);
+    expect(textContent(fixture)).not.toContain('The form could not be submitted.');
+    expect(router.url).toBe(canonicalRoutePath('ACCOUNT_OVERVIEW'));
   });
 
   it('keeps failed login inside Sign In without establishing session or hydrating current user', async () => {

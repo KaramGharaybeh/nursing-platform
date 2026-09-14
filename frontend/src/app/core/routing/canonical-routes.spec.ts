@@ -25,6 +25,9 @@ import {
   CANONICAL_ROUTES,
   canonicalRoutePath,
 } from './canonical-routes';
+import { routes } from '../../app.routes';
+import { authenticatedRouteGuard } from '../auth/authenticated-route.guard';
+import { routePermissionGuard } from './route-permission.guard';
 
 const nodeGlobal = globalThis as unknown as { process: { cwd(): string } };
 
@@ -303,8 +306,10 @@ describe('canonical-routes', () => {
     expect(Object.isFrozen(CANONICAL_ROUTES)).toBe(true);
   });
 
-  it('activates only the approved public Auth routes while leaving downstream route work untouched', () => {
+  it('activates approved Auth routes and the QA-AUTH-001 account fallback only', () => {
     const appRoutes = readTextFile('src/app/app.routes.ts');
+    const signInRoute = routes.find((route) => route.path === 'auth/sign-in');
+    const accountRoute = routes.find((route) => route.path === 'account');
 
     expect(appRoutes).toContain("path: 'auth/sign-in'");
     expect(appRoutes).toContain("path: 'auth/role-selection'");
@@ -327,7 +332,12 @@ describe('canonical-routes', () => {
     expect(appRoutes).toContain("./features/auth/reset-password/reset-password");
     expect(appRoutes).toContain("./features/auth/session-expired/session-expired");
     expect(appRoutes).toContain("./features/auth/access-denied/access-denied");
-    expect(appRoutes).not.toContain('canActivate');
+    expect(appRoutes).toContain("path: 'account'");
+    expect(appRoutes).toContain("./features/account/account");
+    expect(signInRoute?.canActivate).toBeUndefined();
+    expect(signInRoute?.canMatch).toBeUndefined();
+    expect(accountRoute?.canActivate).toEqual([authenticatedRouteGuard, routePermissionGuard]);
+    expect(accountRoute?.data).toEqual({ routeId: 'ACCOUNT_OVERVIEW' });
     expect(appRoutes).not.toContain('redirectTo');
   });
 

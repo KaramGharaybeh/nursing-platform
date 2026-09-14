@@ -320,6 +320,71 @@ describe('AUTH-001 Sign In', () => {
     expect(combined).not.toContain('/admin');
     expect(combined).not.toContain('/nurse');
     expect(combined).not.toContain('/employer');
-    expect(combined).not.toContain('role-selection');
+  });
+
+  it('exposes Forgot password and Create account recovery links on canonical routes', async () => {
+    const { fixture } = await setup();
+
+    const forgotLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_FORGOT_PASSWORD')}"]`,
+    ) as HTMLAnchorElement | null;
+    const registerLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_ROLE_SELECTION')}"]`,
+    ) as HTMLAnchorElement | null;
+
+    expect(forgotLink).not.toBeNull();
+    expect(forgotLink?.textContent).toContain('Forgot password?');
+    expect(registerLink).not.toBeNull();
+    expect(registerLink?.textContent).toContain('Create an account');
+  });
+
+  it('announces server submission failures exactly once', async () => {
+    const { fixture, authTransport } = await setup();
+    authTransport.nextError = {
+      status: 401,
+      error: { title: 'Unauthorized', status: 401, detail: 'Invalid credentials.' },
+    };
+
+    await enterCredentials(fixture, 'nurse@example.com', 'wrong-password');
+    submitButton(fixture).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const alerts = Array.from(
+      fixture.nativeElement.querySelectorAll('[role="alert"]'),
+    ) as HTMLElement[];
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0]?.textContent).toContain('Invalid credentials.');
+  });
+
+  it('announces unverified-account failures exactly once with the safe message', async () => {
+    const { fixture, authTransport } = await setup();
+    authTransport.nextError = {
+      status: 403,
+      error: {
+        title: 'Email verification required',
+        status: 403,
+        detail: 'Your email address must be verified before you can sign in.',
+        code: 'email_verification_required',
+      },
+    };
+
+    await enterCredentials(fixture, 'unverified@example.com', 'secret-password');
+    submitButton(fixture).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const alerts = Array.from(
+      fixture.nativeElement.querySelectorAll('[role="alert"]'),
+    ) as HTMLElement[];
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0]?.textContent).toContain('Please verify your email address before signing in.');
+  });
+
+  it('exposes required autocomplete semantics on email and password fields', async () => {
+    const { fixture } = await setup();
+
+    expect(input(fixture, '#auth-sign-in-email').getAttribute('autocomplete')).toBe('email');
+    expect(input(fixture, '#auth-sign-in-password').getAttribute('autocomplete')).toBe('current-password');
   });
 });

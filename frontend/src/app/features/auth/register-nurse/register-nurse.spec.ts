@@ -311,4 +311,29 @@ describe('AUTH-003 Nurse Registration', () => {
     expect(combined).not.toContain('authtransport');
     expect(combined).not.toContain('locallogout');
   });
+
+  it('exposes Sign in and Back to account type recovery links on canonical routes', async () => {
+    const { fixture } = await setup();
+
+    const signInLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+    ) as HTMLAnchorElement | null;
+    const roleSelectionLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_ROLE_SELECTION')}"]`,
+    ) as HTMLAnchorElement | null;
+
+    expect(signInLink).not.toBeNull();
+    expect(signInLink?.textContent).toContain('Sign in');
+    expect(roleSelectionLink).not.toBeNull();
+    expect(roleSelectionLink?.textContent).toContain('Back to account type');
+  });
+
+  it('exposes required autocomplete semantics on email, new-password, given-name, and family-name fields', async () => {
+    const { fixture } = await setup();
+
+    expect(emailInput(fixture).getAttribute('autocomplete')).toBe('email');
+    expect(passwordInput(fixture).getAttribute('autocomplete')).toBe('new-password');
+    expect(firstNameInput(fixture).getAttribute('autocomplete')).toBe('given-name');
+    expect(lastNameInput(fixture).getAttribute('autocomplete')).toBe('family-name');
+  });
 });

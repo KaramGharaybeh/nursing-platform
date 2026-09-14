@@ -37,12 +37,21 @@ describe('AUTH-005 Check Email', () => {
     expect(text).toContain('check your inbox');
   });
 
-  it('renders no action, link, resend, or navigation affordance', async () => {
+  it('renders a Go to sign in link on the canonical sign-in route', async () => {
+    const fixture = await createComponent();
+
+    const signInLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+    ) as HTMLAnchorElement | null;
+
+    expect(signInLink).not.toBeNull();
+    expect(signInLink?.textContent).toContain('Go to sign in');
+  });
+
+  it('renders no resend, countdown, or delivery guarantee behavior', async () => {
     const fixture = await createComponent();
 
     expect(fixture.nativeElement.querySelector('button')).toBeNull();
-    expect(fixture.nativeElement.querySelector('a')).toBeNull();
-    expect(fixture.nativeElement.querySelector('[routerLink]')).toBeNull();
   });
 
   it('activates the canonical PUBLIC /auth/verify-email route without guards or redirects', async () => {
@@ -68,7 +77,7 @@ describe('AUTH-005 Check Email', () => {
     expect(confirmRoute?.canActivate).toBeUndefined();
   });
 
-  it('does not reference backend, resend, token, session, current user, or navigation behavior', () => {
+  it('does not reference backend, resend, token, session, current user, or countdown behavior', () => {
     const component = readTextFile('src/app/features/auth/check-email/check-email.ts');
     const template = readTextFile('src/app/features/auth/check-email/check-email.html');
     const source = `${component}\n${template}`.toLowerCase();
@@ -86,8 +95,5 @@ describe('AUTH-005 Check Email', () => {
     expect(source).not.toContain('tokenstorage');
     expect(source).not.toContain('sessionstorage');
     expect(source).not.toContain('localstorage');
-    expect(source).not.toContain('navigate');
-    expect(source).not.toContain('routerlink');
-    expect(source).not.toContain('router');
   });
 });

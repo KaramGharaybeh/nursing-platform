@@ -13,6 +13,9 @@
 
       @if (tokenMissingMessage() !== '') {
         <p class="np-verify-email-error" role="alert">{{ tokenMissingMessage() }}</p>
+        <p class="np-verify-email-recovery">
+          <a [routerLink]="signInPath">Back to sign in</a>
+        </p>
       } @else if (loadingMessage() !== '') {
         <p class="np-verify-email-loading" role="status" aria-live="polite" aria-busy="true">
           {{ loadingMessage() }}
@@ -20,9 +23,15 @@
       } @else {
         @if (successMessage() !== '') {
           <p class="np-verify-email-success" role="status">{{ successMessage() }}</p>
+          <p class="np-verify-email-recovery">
+            <a [routerLink]="signInPath">Continue to sign in</a>
+          </p>
         }
         @if (backendFailureMessage() !== '') {
           <p class="np-verify-email-error" role="alert">{{ backendFailureMessage() }}</p>
+          <p class="np-verify-email-recovery">
+            <a [routerLink]="signInPath">Back to sign in</a>
+          </p>
         }
       }
     </div>

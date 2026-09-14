@@ -13,11 +13,13 @@
         <h1 id="auth-sign-in-title">Sign in</h1>
       </div>
 
-      <np-form-validation-summary
-        [summaryTitle]="validationSummary().title"
-        [items]="validationSummary().items"
-        [formErrors]="validationSummary().formErrors"
-      />
+      @if (backendFailureMessage() === '') {
+        <np-form-validation-summary
+          [summaryTitle]="validationSummary().title"
+          [items]="validationSummary().items"
+          [formErrors]="validationSummary().formErrors"
+        />
+      }
 
       @if (backendFailureMessage() !== '') {
         <p class="np-sign-in-error" role="alert">{{ backendFailureMessage() }}</p>
@@ -50,6 +52,13 @@
           Sign in
         </button>
       </form>
+
+      <p class="np-sign-in-recovery">
+        <a [routerLink]="forgotPasswordPath">Forgot password?</a>
+      </p>
+      <p class="np-sign-in-register">
+        New to Nursing Platform? <a [routerLink]="roleSelectionPath">Create an account</a>
+      </p>
     </div>
   </div>
 </section>

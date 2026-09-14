@@ -84,4 +84,16 @@ describe('AUTH-002 Role Selection', () => {
     expect(source).not.toContain('sessionstorage');
     expect(source).not.toContain('localstorage');
   });
+
+  it('offers Already have an account Sign in onward navigation', async () => {
+    const fixture = await createComponent();
+
+    const signInLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+    ) as HTMLAnchorElement | null;
+
+    expect(signInLink).not.toBeNull();
+    expect(signInLink?.textContent).toContain('Sign in');
+    expect(fixture.nativeElement.textContent).toContain('Already have an account?');
+  });
 });

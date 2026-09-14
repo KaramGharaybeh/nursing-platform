@@ -1,8 +1,9 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
+import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { VerifyEmailApi } from './verify-email-api';
 
 const MISSING_TOKEN_MESSAGE = 'This verification link is invalid or missing.';
@@ -15,6 +16,7 @@ const FAILURE_FALLBACK = 'Email verification failed.';
 
 @Component({
   selector: 'np-verify-email',
+  imports: [RouterLink],
   templateUrl: './verify-email.html',
   styleUrl: './verify-email.scss',
 })
@@ -22,6 +24,8 @@ export class VerifyEmail implements OnInit {
   private readonly verifyEmailApi = inject(VerifyEmailApi);
   private readonly verificationToken: string =
     (inject(ActivatedRoute).snapshot.queryParamMap.get('token') ?? '').trim();
+
+  protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
 
   protected readonly isLoading = signal(false);
   protected readonly successMessage = signal('');

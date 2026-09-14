@@ -151,3 +151,15 @@ h1 {
   font-size: 0.875rem;
   opacity: 0.82;
 }
+
+.np-role-selection-sign-in {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--np-color-brand-2) 72%, white);
+}
+
+.np-role-selection-sign-in a {
+  color: var(--np-color-brand-1);
+  font-weight: 700;
+}

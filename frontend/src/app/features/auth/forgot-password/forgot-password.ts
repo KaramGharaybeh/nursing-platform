@@ -1,9 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
+import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { NpTextInputControl } from '../../../shared/ui/form-controls';
 import {
   NpFormValidationSummary,
@@ -57,12 +59,16 @@ const EMAIL_VALIDATION: NormalizedProblemDetails = Object.freeze({
     NpFormValidationSummary,
     NpTextInputControl,
     ReactiveFormsModule,
+    RouterLink,
   ],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.scss',
 })
-export class ForgotPassword {
+export class ForgotPassword implements AfterViewInit {
   private readonly forgotPasswordApi = inject(ForgotPasswordApi);
+  private readonly host = inject(ElementRef);
+
+  protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
 
   protected readonly form: ForgotPasswordForm = new FormGroup({
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
@@ -72,6 +78,10 @@ export class ForgotPassword {
   protected readonly successMessage = signal('');
   private readonly submitted = signal(false);
   private readonly normalizedError = signal<NormalizedProblemDetails | undefined>(undefined);
+
+  ngAfterViewInit(): void {
+    this.applyAutocompleteSemantics();
+  }
 
   protected readonly validationSummary = computed(() => toFormValidationSummary(
     this.normalizedError(),
@@ -153,5 +163,10 @@ export class ForgotPassword {
       return (error as { error?: unknown }).error;
     }
     return error;
+  }
+
+  private applyAutocompleteSemantics(): void {
+    const root = this.host.nativeElement as HTMLElement;
+    root.querySelector(`#${CONTROL_IDS.Email}`)?.setAttribute('autocomplete', 'email');
   }
 }

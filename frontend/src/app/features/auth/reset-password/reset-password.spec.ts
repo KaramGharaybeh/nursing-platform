@@ -209,6 +209,52 @@ describe('AUTH-008 Reset Password', () => {
     expect(routes.some((route) => route.path === 'auth/reset-password/success')).toBe(false);
   });
 
+  it('renders Continue to sign in on the reset-success state', async () => {
+    const { fixture } = await setup('opaque-token');
+
+    await enterCredentials(fixture, 'nurse@example.com', 'NewPass1x');
+    submitButton(fixture).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const signInLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+    ) as HTMLAnchorElement | null;
+
+    expect(signInLink).not.toBeNull();
+    expect(signInLink?.textContent).toContain('Continue to sign in');
+  });
+
+  it('exposes required autocomplete semantics on reset credentials', async () => {
+    const { fixture } = await setup('opaque-token');
+
+    expect(emailInput(fixture).getAttribute('autocomplete')).toBe('email');
+    expect(passwordInput(fixture).getAttribute('autocomplete')).toBe('new-password');
+  });
+
+  it('announces backend reset failures exactly once', async () => {
+    const { fixture, resetPasswordApi } = await setup('opaque-token');
+    resetPasswordApi.nextError = {
+      status: 409,
+      error: {
+        title: 'Conflict',
+        status: 409,
+        detail: 'Password reset token has expired.',
+      },
+    };
+
+    await enterCredentials(fixture, 'nurse@example.com', 'NewPass1x');
+    submitButton(fixture).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const alerts = Array.from(
+      fixture.nativeElement.querySelectorAll('[role="alert"]'),
+    ) as HTMLElement[];
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0]?.textContent).toContain('Password reset token has expired.');
+  });
+
   it('prevents duplicate submission while the approved request is in flight', async () => {
     const { fixture, resetPasswordApi } = await setup('opaque-token');
 

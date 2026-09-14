@@ -1,7 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthTransport } from '../../../core/api/auth-transport';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
@@ -55,16 +55,21 @@ const REQUIRED_VALIDATION: NormalizedProblemDetails = Object.freeze({
     NpFormValidationSummary,
     NpTextInputControl,
     ReactiveFormsModule,
+    RouterLink,
   ],
   templateUrl: './sign-in.html',
   styleUrl: './sign-in.scss',
 })
-export class SignIn {
+export class SignIn implements AfterViewInit {
   private readonly authTransport = inject(AuthTransport);
   private readonly authSession = inject(AuthSessionBootstrap);
   private readonly currentUserStore = inject(CurrentUserStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly host = inject(ElementRef);
+
+  protected readonly forgotPasswordPath = canonicalRoutePath('AUTH_FORGOT_PASSWORD');
+  protected readonly roleSelectionPath = canonicalRoutePath('AUTH_ROLE_SELECTION');
 
   protected readonly form: SignInForm = new FormGroup({
     email: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -110,6 +115,10 @@ export class SignIn {
 
   protected get passwordError(): string {
     return this.fieldError('Password');
+  }
+
+  ngAfterViewInit(): void {
+    this.applyAutocompleteSemantics();
   }
 
   protected updateEmail(value: string): void {
@@ -173,6 +182,12 @@ export class SignIn {
     return error.kind === 'coded'
       && error.status === 403
       && error.code === EMAIL_VERIFICATION_REQUIRED_CODE;
+  }
+
+  private applyAutocompleteSemantics(): void {
+    const root = this.host.nativeElement as HTMLElement;
+    root.querySelector(`#${CONTROL_IDS.Email}`)?.setAttribute('autocomplete', 'email');
+    root.querySelector(`#${CONTROL_IDS.Password}`)?.setAttribute('autocomplete', 'current-password');
   }
 
   private errorBody(error: unknown): unknown {

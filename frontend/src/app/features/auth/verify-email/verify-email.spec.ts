@@ -172,7 +172,7 @@ describe('AUTH-006 Verify Email', () => {
     expect(checkEmailRoute).not.toBe(confirmRoute);
   });
 
-  it('keeps the Verify Email screen free of AUTH-005, session, navigation, and token-handling behavior', () => {
+  it('keeps the Verify Email screen free of AUTH-005, session, token-handling, and resend behavior', () => {
     const source = readTextFile('src/app/features/auth/verify-email/verify-email.ts');
     const template = readTextFile('src/app/features/auth/verify-email/verify-email.html');
     const apiSource = readTextFile('src/app/features/auth/verify-email/verify-email-api.ts');
@@ -182,14 +182,33 @@ describe('AUTH-006 Verify Email', () => {
     expect(combined).not.toContain('sendverificationemail');
     expect(combined).not.toContain('send-verification');
     expect(combined).not.toContain('resend');
-    expect(combined).not.toContain('sign-in');
-    expect(combined).not.toContain('signin');
     expect(combined).not.toContain('authsessionbootstrap');
     expect(combined).not.toContain('currentuserstore');
     expect(combined).not.toContain('tokenstorage');
     expect(combined).not.toContain('sessionstorage');
     expect(combined).not.toContain('localstorage');
     expect(combined).not.toContain('navigate');
-    expect(combined).not.toContain('routerlink');
+  });
+
+  it('renders a Continue to sign in link on success', async () => {
+    const { fixture } = await setup('opaque-token');
+
+    const signInLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+    ) as HTMLAnchorElement | null;
+
+    expect(signInLink).not.toBeNull();
+    expect(signInLink?.textContent).toContain('Continue to sign in');
+  });
+
+  it('renders a Back to sign in link when token is missing', async () => {
+    const { fixture } = await setup(null);
+
+    const signInLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+    ) as HTMLAnchorElement | null;
+
+    expect(signInLink).not.toBeNull();
+    expect(signInLink?.textContent).toContain('Back to sign in');
   });
 });

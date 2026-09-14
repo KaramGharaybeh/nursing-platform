@@ -173,3 +173,15 @@ h1 {
 
   @include mixins.touch-target(true);
 }
+
+.np-sign-in-recovery,
+.np-sign-in-register {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.np-sign-in-recovery a,
+.np-sign-in-register a {
+  color: var(--np-color-brand-1);
+}

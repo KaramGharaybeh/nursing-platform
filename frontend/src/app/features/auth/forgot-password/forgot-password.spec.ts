@@ -166,6 +166,23 @@ describe('AUTH-007 Forgot Password', () => {
     expect(navigateSpy).not.toHaveBeenCalled();
   });
 
+  it('offers Back to sign in navigation on the canonical sign-in route', async () => {
+    const { fixture } = await setup();
+
+    const signInLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+    ) as HTMLAnchorElement | null;
+
+    expect(signInLink).not.toBeNull();
+    expect(signInLink?.textContent).toContain('Back to sign in');
+  });
+
+  it('exposes required autocomplete semantics on the email field', async () => {
+    const { fixture } = await setup();
+
+    expect(emailInput(fixture).getAttribute('autocomplete')).toBe('email');
+  });
+
   it('keeps AUTH_FORGOT_PASSWORD public by lazily activating only the real forgot-password route', async () => {
     const forgotPasswordRoute = routes.find((route) => route.path === canonicalRoutePath('AUTH_FORGOT_PASSWORD').slice(1));
 

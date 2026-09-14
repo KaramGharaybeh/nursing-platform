@@ -1,7 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
@@ -42,14 +42,18 @@ const CONTROL_IDS = Object.freeze({
     NpFormValidationSummary,
     NpTextInputControl,
     ReactiveFormsModule,
+    RouterLink,
   ],
   templateUrl: './register-nurse.html',
   styleUrl: './register-nurse.scss',
 })
-export class RegisterNurse {
+export class RegisterNurse implements AfterViewInit {
   private readonly registerNurseApi = inject(RegisterNurseApi);
   private readonly router = inject(Router);
+  private readonly host = inject(ElementRef);
 
+  protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
+  protected readonly roleSelectionPath = canonicalRoutePath('AUTH_ROLE_SELECTION');
   protected readonly verifyEmailPath = canonicalRoutePath('AUTH_VERIFY_EMAIL_REQUEST');
 
   protected readonly form: RegisterNurseForm = new FormGroup({
@@ -79,6 +83,10 @@ export class RegisterNurse {
   protected readonly isSubmitting = signal(false);
   private readonly submitted = signal(false);
   private readonly normalizedError = signal<NormalizedProblemDetails | undefined>(undefined);
+
+  ngAfterViewInit(): void {
+    this.applyAutocompleteSemantics();
+  }
 
   protected readonly validationSummary = computed(() =>
     toFormValidationSummary(this.normalizedError(), {
@@ -246,5 +254,13 @@ export class RegisterNurse {
       return (error as { error?: unknown }).error;
     }
     return error;
+  }
+
+  private applyAutocompleteSemantics(): void {
+    const root = this.host.nativeElement as HTMLElement;
+    root.querySelector(`#${CONTROL_IDS.Email}`)?.setAttribute('autocomplete', 'email');
+    root.querySelector(`#${CONTROL_IDS.Password}`)?.setAttribute('autocomplete', 'new-password');
+    root.querySelector(`#${CONTROL_IDS.FirstName}`)?.setAttribute('autocomplete', 'given-name');
+    root.querySelector(`#${CONTROL_IDS.LastName}`)?.setAttribute('autocomplete', 'family-name');
   }
 }

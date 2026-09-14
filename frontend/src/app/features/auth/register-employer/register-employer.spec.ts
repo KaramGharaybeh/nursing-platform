@@ -320,4 +320,13 @@ describe('AUTH-004 Employer Registration', () => {
     expect(combined).not.toContain('organization');
     expect(fixture.nativeElement.querySelectorAll('input').length).toBe(4);
   });
+
+  it('exposes required autocomplete semantics on email, new-password, given-name, and family-name fields', async () => {
+    const { fixture } = await setup();
+
+    expect(emailInput(fixture).getAttribute('autocomplete')).toBe('email');
+    expect(passwordInput(fixture).getAttribute('autocomplete')).toBe('new-password');
+    expect(firstNameInput(fixture).getAttribute('autocomplete')).toBe('given-name');
+    expect(lastNameInput(fixture).getAttribute('autocomplete')).toBe('family-name');
+  });
 });

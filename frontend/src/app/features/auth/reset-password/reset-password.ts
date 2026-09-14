@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -46,12 +46,14 @@ const SUCCESS_MESSAGE = 'Password has been reset successfully.';
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.scss',
 })
-export class ResetPassword {
+export class ResetPassword implements AfterViewInit {
   private readonly resetPasswordApi = inject(ResetPasswordApi);
+  private readonly host = inject(ElementRef);
   private readonly resetToken: string =
     (inject(ActivatedRoute).snapshot.queryParamMap.get('token') ?? '').trim();
 
   protected readonly forgotPasswordPath = canonicalRoutePath('AUTH_FORGOT_PASSWORD');
+  protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
 
   protected readonly form: ResetPasswordForm = new FormGroup({
     email: new FormControl('', {
@@ -73,6 +75,10 @@ export class ResetPassword {
   protected readonly successMessage = signal('');
   private readonly submitted = signal(false);
   private readonly normalizedError = signal<NormalizedProblemDetails | undefined>(undefined);
+
+  ngAfterViewInit(): void {
+    this.applyAutocompleteSemantics();
+  }
 
   protected readonly isTokenMissing = computed(() => this.resetToken === '');
 
@@ -211,5 +217,11 @@ export class ResetPassword {
       return (error as { error?: unknown }).error;
     }
     return error;
+  }
+
+  private applyAutocompleteSemantics(): void {
+    const root = this.host.nativeElement as HTMLElement;
+    root.querySelector(`#${CONTROL_IDS.Email}`)?.setAttribute('autocomplete', 'email');
+    root.querySelector(`#${CONTROL_IDS.NewPassword}`)?.setAttribute('autocomplete', 'new-password');
   }
 }

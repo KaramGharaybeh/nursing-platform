@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 // @ts-expect-error - Vitest runs in Node; node builtins resolve at runtime.
 import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { routes } from '../../../app.routes';
 import { AccessDenied } from './access-denied';
 
@@ -13,8 +15,11 @@ function readTextFile(relativePath: string): string {
 }
 
 describe('AUTH-011 Access Denied', () => {
-  it('renders only the authorized terminal screen identity without invented copy or actions', async () => {
-    await TestBed.configureTestingModule({ imports: [AccessDenied] }).compileComponents();
+  it('renders the authorized terminal screen identity with an account recovery action', async () => {
+    await TestBed.configureTestingModule({
+      imports: [AccessDenied],
+      providers: [provideRouter(routes)],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(AccessDenied);
     fixture.detectChanges();
@@ -23,9 +28,12 @@ describe('AUTH-011 Access Denied', () => {
       'Nursing Platform',
     );
     expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Access denied');
-    expect(fixture.nativeElement.querySelector('a')).toBeNull();
+    const accountLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('ACCOUNT_OVERVIEW')}"]`,
+    ) as HTMLAnchorElement | null;
+    expect(accountLink).not.toBeNull();
+    expect(accountLink?.textContent).toContain('Go to account');
     expect(fixture.nativeElement.querySelector('button')).toBeNull();
-    expect(fixture.nativeElement.querySelector('[routerLink]')).toBeNull();
   });
 
   it('does not reference auth/session/token/current-user behavior', () => {

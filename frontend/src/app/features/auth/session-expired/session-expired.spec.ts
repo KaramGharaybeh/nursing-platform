@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 // @ts-expect-error - Vitest runs in Node; node builtins resolve at runtime.
 import { join } from 'node:path';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { routes } from '../../../app.routes';
 import { SessionExpired } from './session-expired';
 
@@ -13,8 +15,11 @@ function readTextFile(relativePath: string): string {
 }
 
 describe('AUTH-010 Session Expired', () => {
-  it('renders only the authorized terminal screen identity without invented copy or actions', async () => {
-    await TestBed.configureTestingModule({ imports: [SessionExpired] }).compileComponents();
+  it('renders the authorized terminal screen identity with a sign-in recovery action', async () => {
+    await TestBed.configureTestingModule({
+      imports: [SessionExpired],
+      providers: [provideRouter(routes)],
+    }).compileComponents();
 
     const fixture = TestBed.createComponent(SessionExpired);
     fixture.detectChanges();
@@ -23,9 +28,12 @@ describe('AUTH-010 Session Expired', () => {
       'Nursing Platform',
     );
     expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Session expired');
-    expect(fixture.nativeElement.querySelector('a')).toBeNull();
+    const signInLink = fixture.nativeElement.querySelector(
+      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+    ) as HTMLAnchorElement | null;
+    expect(signInLink).not.toBeNull();
+    expect(signInLink?.textContent).toContain('Sign in again');
     expect(fixture.nativeElement.querySelector('button')).toBeNull();
-    expect(fixture.nativeElement.querySelector('[routerLink]')).toBeNull();
   });
 
   it('does not reference auth/session/token/current-user behavior', () => {

@@ -15,7 +15,7 @@ public class NurseCertificateConfiguration : IEntityTypeConfiguration<NurseCerti
 
         builder.Property(c => c.Name).IsRequired().HasMaxLength(200);
         builder.Property(c => c.IssuingOrganization).IsRequired().HasMaxLength(200);
-        builder.Property(c => c.CredentialId).HasMaxLength(160);
+        builder.Property(c => c.CredentialId).HasMaxLength(200);
         builder.Property(c => c.CredentialUrl).HasMaxLength(500);
 
         builder.HasOne(c => c.NurseProfile)

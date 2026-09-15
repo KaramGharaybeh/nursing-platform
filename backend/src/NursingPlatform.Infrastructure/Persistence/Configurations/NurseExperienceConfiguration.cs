@@ -15,7 +15,7 @@ public class NurseExperienceConfiguration : IEntityTypeConfiguration<NurseExperi
         builder.HasIndex(e => e.CountryId);
 
         builder.Property(e => e.FacilityName).IsRequired().HasMaxLength(200);
-        builder.Property(e => e.JobTitle).IsRequired().HasMaxLength(160);
+        builder.Property(e => e.JobTitle).IsRequired().HasMaxLength(200);
         builder.Property(e => e.StartDate).IsRequired();
         builder.Property(e => e.IsCurrent).IsRequired();
         builder.Property(e => e.Description).HasMaxLength(2000);

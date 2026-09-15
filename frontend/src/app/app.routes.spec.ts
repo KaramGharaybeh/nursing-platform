@@ -18,3 +18,38 @@ describe('app.routes ACCOUNT_OVERVIEW', () => {
     expect(accountRoute?.redirectTo).toBeUndefined();
   });
 });
+
+describe('app.routes legacy registration redirects', () => {
+  it('redirects /auth/role-selection to /auth/sign-up', () => {
+    const route = routes.find(
+      (entry) => entry.path === canonicalRoutePath('AUTH_ROLE_SELECTION').slice(1),
+    );
+
+    expect(route).toBeDefined();
+    expect(route?.redirectTo).toBe('auth/sign-up');
+    expect(route?.pathMatch).toBe('full');
+    expect(route?.loadComponent).toBeUndefined();
+  });
+
+  it('redirects /auth/register/nurse to /auth/sign-up', () => {
+    const route = routes.find(
+      (entry) => entry.path === canonicalRoutePath('AUTH_REGISTER_NURSE').slice(1),
+    );
+
+    expect(route).toBeDefined();
+    expect(route?.redirectTo).toBe('auth/sign-up');
+    expect(route?.pathMatch).toBe('full');
+    expect(route?.loadComponent).toBeUndefined();
+  });
+
+  it('redirects /auth/register/employer to /auth/sign-up', () => {
+    const route = routes.find(
+      (entry) => entry.path === canonicalRoutePath('AUTH_REGISTER_EMPLOYER').slice(1),
+    );
+
+    expect(route).toBeDefined();
+    expect(route?.redirectTo).toBe('auth/sign-up');
+    expect(route?.pathMatch).toBe('full');
+    expect(route?.loadComponent).toBeUndefined();
+  });
+});

@@ -269,7 +269,7 @@ public class NurseProfileOpenApiContractTests
         var responses = GetOperation(document, path, method).GetProperty("responses");
 
         Assert.True(responses.TryGetProperty("204", out var noContent));
-        Assert.Empty(noContent.EnumerateObject().Where(property => property.NameEquals("content")));
+        Assert.DoesNotContain(noContent.EnumerateObject(), property => property.NameEquals("content"));
         Assert.False(responses.TryGetProperty("200", out _));
     }
 

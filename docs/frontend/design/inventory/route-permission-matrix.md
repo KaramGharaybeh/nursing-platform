@@ -66,11 +66,12 @@ Backend authentication and authorization remain authoritative. Frontend route ac
 
 ## 3. Exact PUBLIC routes
 
-The following 12 canonical route IDs are `PUBLIC`:
+The following 13 canonical route IDs are `PUBLIC`:
 
 | Route ID | Canonical path/template |
 |---|---|
 | `AUTH_SIGN_IN` | `/auth/sign-in` |
+| `AUTH_SIGN_UP` | `/auth/sign-up` |
 | `AUTH_ROLE_SELECTION` | `/auth/role-selection` |
 | `AUTH_REGISTER_NURSE` | `/auth/register/nurse` |
 | `AUTH_REGISTER_EMPLOYER` | `/auth/register/employer` |
@@ -95,9 +96,9 @@ The following canonical route ID is `ENTRY`:
 
 ## 5. AUTHENTICATED classification rule
 
-Every exact canonical route from the approved 62-route registry that is not one of the 12 `PUBLIC` route IDs and is not `ROOT_ENTRY` is classified `AUTHENTICATED`.
+Every exact canonical route from the approved 64-route registry that is not one of the 13 `PUBLIC` route IDs and is not `ROOT_ENTRY` is classified `AUTHENTICATED`.
 
-The expected count is 49 `AUTHENTICATED` canonical routes.
+The expected count is 50 `AUTHENTICATED` canonical routes.
 
 Do not maintain a manually divergent second exhaustive `AUTHENTICATED` route list in implementation when the classification can be represented deterministically from the canonical route registry plus the `PUBLIC`/`ENTRY` sets.
 
@@ -398,8 +399,8 @@ There must be no silent fallback for an `AUTHENTICATED` canonical route missing 
 All 49 routes must be covered explicitly. Implementation/tests must prove:
 
 ```text
-POLICY_ROWS=49
-UNIQUE_POLICY_ROUTE_IDS=49
+POLICY_ROWS=50
+UNIQUE_POLICY_ROUTE_IDS=50
 MISSING_AUTHENTICATED_ROUTE_POLICIES=0
 EXTRA_ROUTE_POLICIES=0
 ```
@@ -408,25 +409,26 @@ A future authenticated canonical route may not silently inherit `AUTHENTICATED_O
 
 If runtime lookup somehow receives an authenticated canonical route with no policy, treat that as an invalid/unresolved policy configuration rather than inventing permission semantics. Do not silently allow or infer from path prefix.
 
-### 15.8 Explicit 49-route policy matrix
+### 15.8 Explicit 50-route policy matrix
 
 Counts:
 
 ```text
-TOTAL_AUTHENTICATED_ROUTES=49
-AUTHENTICATED_ONLY=11
+TOTAL_AUTHENTICATED_ROUTES=50
+AUTHENTICATED_ONLY=12
 NURSE_ROLE=19
 EMPLOYER_ROLE=4
 ADMIN_ENTRY_ROLE=1
 ADMIN_ROLE_AND_PERMISSION=14
 ```
 
-Arithmetic: `11 + 19 + 4 + 1 + 14 = 49`.
+Arithmetic: `12 + 19 + 4 + 1 + 14 = 50`.
 
 No `PUBLIC` route receives a `T-FE-031` policy. `ROOT_ENTRY` receives no `T-FE-031` policy.
 
 | Route ID | Canonical path/template | T-FE-031 policy | Accepted roles | Required permission | Notes |
 |---|---|---|---|---|---|
+| `ONBOARDING_PROFILE` | `/onboarding/profile` | `AUTHENTICATED_ONLY` | — | — | Profile-completion routing is UX-only and backend profile state remains authoritative. |
 | `ACCOUNT_OVERVIEW` | `/account` | `AUTHENTICATED_ONLY` | — | — | No additional actor, ownership, account-active, or permission gate at route level. |
 | `EXAMS_CATALOG` | `/exams` | `AUTHENTICATED_ONLY` | — | — | Exam eligibility remains backend/feature-owned. |
 | `EXAMS_DETAIL` | `/exams/:examId` | `AUTHENTICATED_ONLY` | — | — | Exam access details remain backend/feature-owned. |

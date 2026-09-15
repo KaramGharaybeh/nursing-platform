@@ -3918,6 +3918,42 @@
         ]
       }
     },
+    "/api/v1/countries": {
+      "get": {
+        "tags": [
+          "NursingPlatform.WebApi"
+        ],
+        "operationId": "ListCountries",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountryListItemDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer authentication challenge."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/exams": {
       "get": {
         "tags": [
@@ -8896,6 +8932,26 @@
       },
       "ContactRequestStatus": {
         "type": "integer"
+      },
+      "CountryListItemDto": {
+        "required": [
+          "id",
+          "name",
+          "code"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
       },
       "CreateAdminExamCategoryRequest": {
         "required": [

@@ -35,6 +35,8 @@ export type { UpdateAdminUserRole$Params as UpdateAdminUserRole$Params } from '.
 export { updateAdminUserRole as updateAdminUserRole } from './fn/nursing-platform-web-api/update-admin-user-role';
 export type { ListRecruitmentCandidates$Params as ListRecruitmentCandidates$Params } from './fn/nursing-platform-web-api/list-recruitment-candidates';
 export { listRecruitmentCandidates as listRecruitmentCandidates } from './fn/nursing-platform-web-api/list-recruitment-candidates';
+export type { ListCountries$Params as ListCountries$Params } from './fn/nursing-platform-web-api/list-countries';
+export { listCountries as listCountries } from './fn/nursing-platform-web-api/list-countries';
 export type { ListExams$Params as ListExams$Params } from './fn/nursing-platform-web-api/list-exams';
 export { listExams as listExams } from './fn/nursing-platform-web-api/list-exams';
 export type { GetExam$Params as GetExam$Params } from './fn/nursing-platform-web-api/get-exam';

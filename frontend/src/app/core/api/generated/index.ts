@@ -25,6 +25,7 @@ export type { CodedProblemDetails } from './models/coded-problem-details';
 export type { CodedProblemDetailsContract } from './models/coded-problem-details-contract';
 export type { ContactRequestDto } from './models/contact-request-dto';
 export type { ContactRequestStatus } from './models/contact-request-status';
+export type { CountryListItemDto } from './models/country-list-item-dto';
 export type { CreateAdminExamCategoryRequest } from './models/create-admin-exam-category-request';
 export type { CreateAdminExamRequest } from './models/create-admin-exam-request';
 export type { CreateAdminPaymentProductRequest } from './models/create-admin-payment-product-request';
@@ -174,6 +175,8 @@ export type { UpdateAdminUserRole$Params as UpdateAdminUserRole$Params } from '.
 export { updateAdminUserRole as updateAdminUserRole } from './fn/nursing-platform-web-api/update-admin-user-role';
 export type { ListRecruitmentCandidates$Params as ListRecruitmentCandidates$Params } from './fn/nursing-platform-web-api/list-recruitment-candidates';
 export { listRecruitmentCandidates as listRecruitmentCandidates } from './fn/nursing-platform-web-api/list-recruitment-candidates';
+export type { ListCountries$Params as ListCountries$Params } from './fn/nursing-platform-web-api/list-countries';
+export { listCountries as listCountries } from './fn/nursing-platform-web-api/list-countries';
 export type { ListExams$Params as ListExams$Params } from './fn/nursing-platform-web-api/list-exams';
 export { listExams as listExams } from './fn/nursing-platform-web-api/list-exams';
 export type { GetExam$Params as GetExam$Params } from './fn/nursing-platform-web-api/get-exam';

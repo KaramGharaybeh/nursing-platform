@@ -16,23 +16,20 @@ import { RegisterEmployerApi } from './register-employer-api';
 
 type RegisterEmployerForm = FormGroup<{
   email: FormControl<string>;
+  username: FormControl<string>;
   password: FormControl<string>;
-  firstName: FormControl<string>;
-  lastName: FormControl<string>;
 }>;
 
 const FIELD_LABELS = Object.freeze({
   Email: 'Email address',
+  Username: 'Username',
   Password: 'Password',
-  FirstName: 'First name',
-  LastName: 'Last name',
 });
 
 const CONTROL_IDS = Object.freeze({
   Email: 'auth-register-employer-email',
+  Username: 'auth-register-employer-username',
   Password: 'auth-register-employer-password',
-  FirstName: 'auth-register-employer-first-name',
-  LastName: 'auth-register-employer-last-name',
 });
 
 @Component({
@@ -53,13 +50,17 @@ export class RegisterEmployer implements AfterViewInit {
   private readonly host = inject(ElementRef);
 
   protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
-  protected readonly roleSelectionPath = canonicalRoutePath('AUTH_ROLE_SELECTION');
+  protected readonly signUpPath = '/auth/sign-up';
   protected readonly verifyEmailPath = canonicalRoutePath('AUTH_VERIFY_EMAIL_REQUEST');
 
   protected readonly form: RegisterEmployerForm = new FormGroup({
     email: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.email],
+    }),
+    username: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
     }),
     password: new FormControl('', {
       nonNullable: true,
@@ -69,14 +70,6 @@ export class RegisterEmployer implements AfterViewInit {
         Validators.pattern(/[A-Z]/),
         Validators.pattern(/[0-9]/),
       ],
-    }),
-    firstName: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    lastName: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
     }),
   });
 
@@ -109,32 +102,24 @@ export class RegisterEmployer implements AfterViewInit {
     return this.form.controls.email.value;
   }
 
+  protected get usernameValue(): string {
+    return this.form.controls.username.value;
+  }
+
   protected get passwordValue(): string {
     return this.form.controls.password.value;
-  }
-
-  protected get firstNameValue(): string {
-    return this.form.controls.firstName.value;
-  }
-
-  protected get lastNameValue(): string {
-    return this.form.controls.lastName.value;
   }
 
   protected get emailError(): string {
     return this.fieldError('Email');
   }
 
+  protected get usernameError(): string {
+    return this.fieldError('Username');
+  }
+
   protected get passwordError(): string {
     return this.fieldError('Password');
-  }
-
-  protected get firstNameError(): string {
-    return this.fieldError('FirstName');
-  }
-
-  protected get lastNameError(): string {
-    return this.fieldError('LastName');
   }
 
   protected updateEmail(value: string): void {
@@ -142,18 +127,13 @@ export class RegisterEmployer implements AfterViewInit {
     this.clearFeedback();
   }
 
+  protected updateUsername(value: string): void {
+    this.form.controls.username.setValue(value);
+    this.clearFeedback();
+  }
+
   protected updatePassword(value: string): void {
     this.form.controls.password.setValue(value);
-    this.clearFeedback();
-  }
-
-  protected updateFirstName(value: string): void {
-    this.form.controls.firstName.setValue(value);
-    this.clearFeedback();
-  }
-
-  protected updateLastName(value: string): void {
-    this.form.controls.lastName.setValue(value);
     this.clearFeedback();
   }
 
@@ -178,9 +158,8 @@ export class RegisterEmployer implements AfterViewInit {
       await firstValueFrom(
         this.registerEmployerApi.register({
           email: this.emailValue,
+          username: this.usernameValue,
           password: this.passwordValue,
-          firstName: this.firstNameValue,
-          lastName: this.lastNameValue,
         }),
       );
       await this.router.navigateByUrl(this.verifyEmailPath);
@@ -195,14 +174,17 @@ export class RegisterEmployer implements AfterViewInit {
   private describeClientValidationFailure(): NormalizedProblemDetails {
     const errors: Record<string, readonly string[]> = {};
     const emailControl = this.form.controls.email;
+    const usernameControl = this.form.controls.username;
     const passwordControl = this.form.controls.password;
-    const firstNameControl = this.form.controls.firstName;
-    const lastNameControl = this.form.controls.lastName;
 
     if (emailControl.hasError('required')) {
       errors['Email'] = ["'Email' must not be empty."];
     } else if (emailControl.hasError('email')) {
       errors['Email'] = ["'Email' is not a valid email address."];
+    }
+
+    if (usernameControl.hasError('required')) {
+      errors['Username'] = ["'Username' must not be empty."];
     }
 
     if (passwordControl.hasError('required')) {
@@ -216,14 +198,6 @@ export class RegisterEmployer implements AfterViewInit {
         : ['Password must contain at least one digit.'];
     }
 
-    if (firstNameControl.hasError('required')) {
-      errors['FirstName'] = ["'First Name' must not be empty."];
-    }
-
-    if (lastNameControl.hasError('required')) {
-      errors['LastName'] = ["'Last Name' must not be empty."];
-    }
-
     return {
       kind: 'validation',
       type: '',
@@ -235,7 +209,7 @@ export class RegisterEmployer implements AfterViewInit {
     };
   }
 
-  private fieldError(field: 'Email' | 'Password' | 'FirstName' | 'LastName'): string {
+  private fieldError(field: 'Email' | 'Username' | 'Password'): string {
     if (!this.submitted()) {
       return '';
     }
@@ -259,8 +233,7 @@ export class RegisterEmployer implements AfterViewInit {
   private applyAutocompleteSemantics(): void {
     const root = this.host.nativeElement as HTMLElement;
     root.querySelector(`#${CONTROL_IDS.Email}`)?.setAttribute('autocomplete', 'email');
+    root.querySelector(`#${CONTROL_IDS.Username}`)?.setAttribute('autocomplete', 'username');
     root.querySelector(`#${CONTROL_IDS.Password}`)?.setAttribute('autocomplete', 'new-password');
-    root.querySelector(`#${CONTROL_IDS.FirstName}`)?.setAttribute('autocomplete', 'given-name');
-    root.querySelector(`#${CONTROL_IDS.LastName}`)?.setAttribute('autocomplete', 'family-name');
   }
 }

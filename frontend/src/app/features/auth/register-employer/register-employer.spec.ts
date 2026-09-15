@@ -71,26 +71,18 @@ function emailInput(fixture: { nativeElement: HTMLElement }): HTMLInputElement {
   return element;
 }
 
+function usernameInput(fixture: { nativeElement: HTMLElement }): HTMLInputElement {
+  const element = fixture.nativeElement.querySelector<HTMLInputElement>('#auth-register-employer-username');
+  if (element === null) {
+    throw new Error('Missing employer registration username input');
+  }
+  return element;
+}
+
 function passwordInput(fixture: { nativeElement: HTMLElement }): HTMLInputElement {
   const element = fixture.nativeElement.querySelector<HTMLInputElement>('#auth-register-employer-password');
   if (element === null) {
     throw new Error('Missing employer registration password input');
-  }
-  return element;
-}
-
-function firstNameInput(fixture: { nativeElement: HTMLElement }): HTMLInputElement {
-  const element = fixture.nativeElement.querySelector<HTMLInputElement>('#auth-register-employer-first-name');
-  if (element === null) {
-    throw new Error('Missing employer registration first-name input');
-  }
-  return element;
-}
-
-function lastNameInput(fixture: { nativeElement: HTMLElement }): HTMLInputElement {
-  const element = fixture.nativeElement.querySelector<HTMLInputElement>('#auth-register-employer-last-name');
-  if (element === null) {
-    throw new Error('Missing employer registration last-name input');
   }
   return element;
 }
@@ -110,22 +102,18 @@ async function enterRegistration(
   const email = emailInput(fixture);
   email.value = request.email;
   email.dispatchEvent(new Event('input'));
+  const username = usernameInput(fixture);
+  username.value = request.username;
+  username.dispatchEvent(new Event('input'));
   const password = passwordInput(fixture);
   password.value = request.password;
   password.dispatchEvent(new Event('input'));
-  const firstName = firstNameInput(fixture);
-  firstName.value = request.firstName;
-  firstName.dispatchEvent(new Event('input'));
-  const lastName = lastNameInput(fixture);
-  lastName.value = request.lastName;
-  lastName.dispatchEvent(new Event('input'));
 }
 
 const VALID_REQUEST: PublicRegisterRequest = {
   email: 'employer@example.com',
+  username: 'employer01',
   password: 'NewPass1x',
-  firstName: 'Amal',
-  lastName: 'Haddad',
 };
 
 describe('AUTH-004 Employer Registration', () => {
@@ -138,17 +126,16 @@ describe('AUTH-004 Employer Registration', () => {
     TestBed.resetTestingModule();
   });
 
-  it('renders the approved four-field employer registration form with an accessible submit action', async () => {
+  it('renders the employer registration form with email, username, password, and an accessible submit action', async () => {
     const { fixture } = await setup();
 
     expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Create an employer account');
     expect(emailInput(fixture).type).toBe('email');
+    expect(usernameInput(fixture).type).toBe('text');
     expect(passwordInput(fixture).type).toBe('password');
-    expect(firstNameInput(fixture).type).toBe('text');
-    expect(lastNameInput(fixture).type).toBe('text');
     expect(submitButton(fixture).textContent).toContain('Create account');
     expect(submitButton(fixture).disabled).toBe(false);
-    expect(fixture.nativeElement.querySelectorAll('input').length).toBe(4);
+    expect(fixture.nativeElement.querySelectorAll('input').length).toBe(3);
   });
 
   it('renders only backend-authorized required validation and guards submission', async () => {
@@ -159,9 +146,8 @@ describe('AUTH-004 Employer Registration', () => {
 
     expect(textContent(fixture)).toContain('Check the highlighted fields');
     expect(textContent(fixture)).toContain("'Email' must not be empty.");
+    expect(textContent(fixture)).toContain("'Username' must not be empty.");
     expect(textContent(fixture)).toContain("'Password' must not be empty.");
-    expect(textContent(fixture)).toContain("'First Name' must not be empty.");
-    expect(textContent(fixture)).toContain("'Last Name' must not be empty.");
     expect(emailInput(fixture).getAttribute('aria-invalid')).toBe('true');
     expect(registerEmployerApi.calls).toEqual([]);
   });
@@ -171,9 +157,8 @@ describe('AUTH-004 Employer Registration', () => {
 
     await enterRegistration(fixture, {
       email: 'not-an-email',
+      username: 'validuser',
       password: 'short',
-      firstName: 'Amal',
-      lastName: 'Haddad',
     });
     submitButton(fixture).click();
     fixture.detectChanges();
@@ -189,9 +174,8 @@ describe('AUTH-004 Employer Registration', () => {
 
     await enterRegistration(uppercaseFixture, {
       email: 'employer@example.com',
+      username: 'employer01',
       password: 'longenough1',
-      firstName: 'Amal',
-      lastName: 'Haddad',
     });
     submitButton(uppercaseFixture).click();
     uppercaseFixture.detectChanges();
@@ -204,9 +188,8 @@ describe('AUTH-004 Employer Registration', () => {
 
     await enterRegistration(digitFixture, {
       email: 'employer@example.com',
+      username: 'employer02',
       password: 'Longenoughx',
-      firstName: 'Amal',
-      lastName: 'Haddad',
     });
     submitButton(digitFixture).click();
     digitFixture.detectChanges();
@@ -284,16 +267,17 @@ describe('AUTH-004 Employer Registration', () => {
     expect(navigateSpy).not.toHaveBeenCalled();
   });
 
-  it('keeps AUTH_REGISTER_EMPLOYER public by lazily activating only the real employer-registration route', async () => {
+  it('redirects AUTH_REGISTER_EMPLOYER to unified Sign Up instead of loading actor-specific registration', () => {
     const employerRoute = routes.find(
       (route) => route.path === canonicalRoutePath('AUTH_REGISTER_EMPLOYER').slice(1),
     );
 
-    await expect(employerRoute?.loadComponent?.()).resolves.toBe(RegisterEmployer);
+    expect(employerRoute?.redirectTo).toBe('auth/sign-up');
+    expect(employerRoute?.pathMatch).toBe('full');
+    expect(employerRoute?.loadComponent).toBeUndefined();
     expect(employerRoute?.component).toBeUndefined();
     expect(employerRoute?.canActivate).toBeUndefined();
     expect(employerRoute?.canMatch).toBeUndefined();
-    expect(employerRoute?.redirectTo).toBeUndefined();
     expect(employerRoute?.data).toBeUndefined();
   });
 
@@ -318,15 +302,14 @@ describe('AUTH-004 Employer Registration', () => {
 
     expect(combined).not.toContain('company');
     expect(combined).not.toContain('organization');
-    expect(fixture.nativeElement.querySelectorAll('input').length).toBe(4);
+    expect(fixture.nativeElement.querySelectorAll('input').length).toBe(3);
   });
 
-  it('exposes required autocomplete semantics on email, new-password, given-name, and family-name fields', async () => {
+  it('exposes required autocomplete semantics on email, username, and new-password fields', async () => {
     const { fixture } = await setup();
 
     expect(emailInput(fixture).getAttribute('autocomplete')).toBe('email');
+    expect(usernameInput(fixture).getAttribute('autocomplete')).toBe('username');
     expect(passwordInput(fixture).getAttribute('autocomplete')).toBe('new-password');
-    expect(firstNameInput(fixture).getAttribute('autocomplete')).toBe('given-name');
-    expect(lastNameInput(fixture).getAttribute('autocomplete')).toBe('family-name');
   });
 });

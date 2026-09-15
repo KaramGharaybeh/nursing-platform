@@ -1,0 +1,71 @@
+<section class="np-sign-up" aria-labelledby="auth-sign-up-title">
+  <div class="np-sign-up-card">
+    <p class="np-sign-up-product">Nursing Platform</p>
+    <h1 id="auth-sign-up-title">Sign up</h1>
+    <p class="np-sign-up-instruction">Create one account. Your role is assigned securely by Nursing Platform.</p>
+
+    @if (backendFailureMessage() === '') {
+      <np-form-validation-summary
+        [summaryTitle]="validationSummary().title"
+        [items]="validationSummary().items"
+        [formErrors]="validationSummary().formErrors"
+      />
+    }
+
+    @if (backendFailureMessage() !== '') {
+      <p class="np-sign-up-error" role="alert">{{ backendFailureMessage() }}</p>
+    }
+
+    <form class="np-sign-up-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <np-text-input-control
+        controlId="auth-sign-up-email"
+        label="Email address"
+        type="email"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="emailValue"
+        [errorText]="emailError"
+        (valueChange)="updateEmail($event)"
+      />
+
+      <np-text-input-control
+        controlId="auth-sign-up-username"
+        label="Username"
+        type="text"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="usernameValue"
+        [errorText]="usernameError"
+        (valueChange)="updateUsername($event)"
+      />
+
+      <np-text-input-control
+        controlId="auth-sign-up-password"
+        label="Password"
+        type="password"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="passwordValue"
+        [errorText]="passwordError"
+        (valueChange)="updatePassword($event)"
+      />
+
+      <np-text-input-control
+        controlId="auth-sign-up-confirm-password"
+        label="Confirm password"
+        type="password"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="confirmPasswordValue"
+        [errorText]="confirmPasswordError"
+        (valueChange)="updateConfirmPassword($event)"
+      />
+
+      <button class="np-sign-up-submit" type="submit" mat-flat-button color="primary" [disabled]="isSubmitting()">
+        Create account
+      </button>
+    </form>
+
+    <p class="np-sign-up-sign-in">Already have an account? <a [routerLink]="signInPath">Sign in</a></p>
+  </div>
+</section>

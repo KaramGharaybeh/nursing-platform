@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authenticatedRouteGuard } from './core/auth/authenticated-route.guard';
+import { profileCompletionGuard } from './core/auth/profile-completion.guard';
 import { routePermissionGuard } from './core/routing/route-permission.guard';
 
 export const routes: Routes = [
@@ -8,16 +9,23 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/sign-in/sign-in').then((m) => m.SignIn),
   },
   {
+    path: 'auth/sign-up',
+    loadComponent: () => import('./features/auth/sign-up/sign-up').then((m) => m.SignUp),
+  },
+  {
     path: 'auth/role-selection',
-    loadComponent: () => import('./features/auth/role-selection/role-selection').then((m) => m.RoleSelection),
+    redirectTo: 'auth/sign-up',
+    pathMatch: 'full',
   },
   {
     path: 'auth/register/nurse',
-    loadComponent: () => import('./features/auth/register-nurse/register-nurse').then((m) => m.RegisterNurse),
+    redirectTo: 'auth/sign-up',
+    pathMatch: 'full',
   },
   {
     path: 'auth/register/employer',
-    loadComponent: () => import('./features/auth/register-employer/register-employer').then((m) => m.RegisterEmployer),
+    redirectTo: 'auth/sign-up',
+    pathMatch: 'full',
   },
   {
     path: 'auth/verify-email',
@@ -46,7 +54,25 @@ export const routes: Routes = [
   {
     path: 'account',
     loadComponent: () => import('./features/account/account').then((m) => m.Account),
-    canActivate: [authenticatedRouteGuard, routePermissionGuard],
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'ACCOUNT_OVERVIEW' },
+  },
+  {
+    path: 'onboarding/profile',
+    loadComponent: () => import('./features/onboarding/profile/profile-onboarding').then((m) => m.ProfileOnboarding),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'ONBOARDING_PROFILE' },
+  },
+  {
+    path: 'admin/users',
+    loadComponent: () => import('./features/admin/users/admin-users').then((m) => m.AdminUsers),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'ADMIN_USERS' },
+  },
+  {
+    path: 'admin/users/:userId',
+    loadComponent: () => import('./features/admin/users/admin-user-detail').then((m) => m.AdminUserDetail),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'ADMIN_USER_DETAIL' },
   },
 ];

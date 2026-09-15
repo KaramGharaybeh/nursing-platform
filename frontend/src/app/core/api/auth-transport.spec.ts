@@ -37,9 +37,11 @@ function userDetailFixture(): UserDetailDto {
     firstName: 'Nurse',
     id: 'user-1',
     isActive: true,
+    isProfileComplete: false,
     lastName: 'Example',
     permissions: ['Exams.View'],
     roles: ['Nurse'],
+    username: 'nurse',
   };
 }
 

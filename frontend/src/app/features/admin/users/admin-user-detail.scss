@@ -1,0 +1,55 @@
+.np-admin-user-detail {
+  display: grid;
+  gap: 1.5rem;
+  padding: var(--np-page-gutter);
+}
+
+.np-admin-user-detail-kicker,
+.np-admin-user-detail-header p {
+  color: var(--np-color-text-muted, #52616b);
+}
+
+.np-admin-user-detail-summary {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+
+.np-admin-user-detail-summary div {
+  padding: 1rem;
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: 1rem;
+}
+
+.np-admin-user-detail-summary dt {
+  color: var(--np-color-text-muted, #52616b);
+  font-weight: 700;
+}
+
+.np-admin-user-detail-summary dd {
+  margin: 0.25rem 0 0;
+}
+
+.np-admin-user-detail-form {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+.np-admin-user-detail-success {
+  color: var(--np-color-success, #146c43);
+}
+
+.np-admin-user-detail-error {
+  color: var(--np-color-error, #b3261e);
+}
+
+@media (width >= 48rem) {
+  .np-admin-user-detail-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .np-admin-user-detail-form {
+    grid-template-columns: minmax(0, 24rem) auto;
+  }
+}

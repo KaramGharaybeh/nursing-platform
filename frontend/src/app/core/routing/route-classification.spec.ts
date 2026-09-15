@@ -42,6 +42,7 @@ function parsePublicRouteIdsFromMatrix(): string[] {
 
 const EXPECTED_PUBLIC_ROUTE_IDS: readonly CanonicalRouteId[] = [
   'AUTH_SIGN_IN',
+  'AUTH_SIGN_UP',
   'AUTH_ROLE_SELECTION',
   'AUTH_REGISTER_NURSE',
   'AUTH_REGISTER_EMPLOYER',
@@ -59,23 +60,23 @@ describe('route-classification', () => {
   it('matches the approved PUBLIC route IDs in route-permission-matrix.md mechanically', () => {
     const approved = parsePublicRouteIdsFromMatrix();
 
-    expect(approved).toHaveLength(12);
+    expect(approved).toHaveLength(13);
     expect([...PUBLIC_ROUTE_IDS]).toEqual(approved);
   });
 
-  it('exposes the locked classification counts for the 62-route registry', () => {
-    expect(CANONICAL_ROUTE_IDS).toHaveLength(62);
+  it('exposes the locked classification counts for the 64-route registry', () => {
+    expect(CANONICAL_ROUTE_IDS).toHaveLength(64);
     expect(ROUTE_CLASSIFICATION_COUNTS).toEqual({
-      total: 62,
-      public: 12,
+      total: 64,
+      public: 13,
       entry: 1,
-      authenticated: 49,
+      authenticated: 50,
     });
     expect(
       ROUTE_CLASSIFICATION_COUNTS.public +
         ROUTE_CLASSIFICATION_COUNTS.entry +
         ROUTE_CLASSIFICATION_COUNTS.authenticated,
-    ).toBe(62);
+    ).toBe(64);
   });
 
   it('classifies every approved PUBLIC route as PUBLIC and never AUTHENTICATED', () => {
@@ -93,14 +94,15 @@ describe('route-classification', () => {
     expect(isAuthenticatedRoute('ROOT_ENTRY')).toBe(false);
   });
 
-  it('derives exactly 49 AUTHENTICATED routes without a manual exhaustive list', () => {
+  it('derives exactly 50 AUTHENTICATED routes without a manual exhaustive list', () => {
     const authenticated = CANONICAL_ROUTE_IDS.filter((id) => isAuthenticatedRoute(id));
 
-    expect(authenticated).toHaveLength(49);
+    expect(authenticated).toHaveLength(50);
     expect(authenticated).toContain('NURSE_ENTRY');
     expect(authenticated).toContain('EMPLOYER_HOME');
     expect(authenticated).toContain('ADMIN_ENTRY');
     expect(authenticated).toContain('ACCOUNT_OVERVIEW');
+    expect(authenticated).toContain('ONBOARDING_PROFILE');
     expect(authenticated).toContain('EXAMS_CATALOG');
     expect(authenticated).toContain('COMMERCE_PRODUCTS');
   });
@@ -114,8 +116,8 @@ describe('route-classification', () => {
       classified.add(id);
     }
 
-    expect(classified.size).toBe(62);
-    expect(CANONICAL_ROUTE_IDS.length).toBe(62);
+    expect(classified.size).toBe(64);
+    expect(CANONICAL_ROUTE_IDS.length).toBe(64);
   });
 
   it('keeps the classification counts consistent with the derived registry sets', () => {
@@ -123,10 +125,10 @@ describe('route-classification', () => {
     const entryCount = CANONICAL_ROUTE_IDS.filter((id) => classifyRoute(id) === 'ENTRY').length;
     const authenticatedCount = CANONICAL_ROUTE_IDS.filter((id) => isAuthenticatedRoute(id)).length;
 
-    expect(publicCount).toBe(12);
+    expect(publicCount).toBe(13);
     expect(entryCount).toBe(1);
-    expect(authenticatedCount).toBe(49);
-    expect(publicCount + entryCount + authenticatedCount).toBe(62);
+    expect(authenticatedCount).toBe(50);
+    expect(publicCount + entryCount + authenticatedCount).toBe(64);
   });
 
   it('keeps the classification module free of Angular, router, guard, and navigation behavior', () => {

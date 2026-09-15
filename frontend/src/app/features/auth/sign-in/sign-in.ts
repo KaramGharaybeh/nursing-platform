@@ -69,7 +69,7 @@ export class SignIn implements AfterViewInit {
   private readonly host = inject(ElementRef);
 
   protected readonly forgotPasswordPath = canonicalRoutePath('AUTH_FORGOT_PASSWORD');
-  protected readonly roleSelectionPath = canonicalRoutePath('AUTH_ROLE_SELECTION');
+  protected readonly signUpPath = canonicalRoutePath('AUTH_SIGN_UP');
 
   protected readonly form: SignInForm = new FormGroup({
     email: new FormControl('', { nonNullable: true, validators: [Validators.required] }),

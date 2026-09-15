@@ -51,10 +51,12 @@ function userDetailFixture(roles: string[], permissions: string[]): UserDetailDt
     firstName: 'Test',
     id: 'user-1',
     isActive: true,
+    isProfileComplete: false,
     lastLoginAt: '2026-09-08T09:00:00Z',
     lastName: 'User',
     permissions,
     roles,
+    username: 'testuser',
   };
 }
 

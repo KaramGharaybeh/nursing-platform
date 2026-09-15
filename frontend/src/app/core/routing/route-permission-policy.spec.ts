@@ -34,7 +34,7 @@ interface ApprovedMatrixRow {
 function parseApprovedPolicyMatrix(): ApprovedMatrixRow[] {
   const text = readTextFile('../docs/frontend/design/inventory/route-permission-matrix.md');
   const section =
-    text.split('### 15.8 Explicit 49-route policy matrix')[1]?.split('### 15.9')[0] ?? '';
+    text.split('### 15.8 Explicit 50-route policy matrix')[1]?.split('### 15.9')[0] ?? '';
   const rows: ApprovedMatrixRow[] = [];
   for (const line of section.split('\n')) {
     if (!line.trimStart().startsWith('| `')) {
@@ -78,11 +78,11 @@ describe('route-permission-policy', () => {
   it('matches the approved 49-route matrix mechanically with no gaps or extras', () => {
     const approved = parseApprovedPolicyMatrix();
 
-    expect(approved).toHaveLength(49);
-    expect(ROUTE_PERMISSION_POLICIES).toHaveLength(49);
+    expect(approved).toHaveLength(50);
+    expect(ROUTE_PERMISSION_POLICIES).toHaveLength(50);
 
     const registryById = new Map(ROUTE_PERMISSION_POLICIES.map((entry) => [entry.routeId, entry]));
-    expect(registryById.size).toBe(49);
+    expect(registryById.size).toBe(50);
 
     for (const row of approved) {
       const policy = registryById.get(row.routeId as CanonicalRouteId);
@@ -135,9 +135,9 @@ describe('route-permission-policy', () => {
       (entry) => entry.kind === 'ROLE_AND_PERMISSION',
     );
 
-    expect(authenticatedRoutes).toHaveLength(49);
-    expect(ROUTE_PERMISSION_POLICIES).toHaveLength(49);
-    expect(authenticatedOnly).toHaveLength(11);
+    expect(authenticatedRoutes).toHaveLength(50);
+    expect(ROUTE_PERMISSION_POLICIES).toHaveLength(50);
+    expect(authenticatedOnly).toHaveLength(12);
     expect(nurseRole).toHaveLength(19);
     expect(employerRole).toHaveLength(4);
     expect(adminEntryRole).toHaveLength(1);
@@ -148,9 +148,9 @@ describe('route-permission-policy', () => {
         employerRole.length +
         adminEntryRole.length +
         adminRoleAndPermission.length,
-    ).toBe(49);
+    ).toBe(50);
 
-    expect(new Set(registryIds).size).toBe(49);
+    expect(new Set(registryIds).size).toBe(50);
 
     const registryIdSet = new Set(registryIds);
     const missing = authenticatedRoutes.filter((id) => !registryIdSet.has(id));
@@ -236,8 +236,8 @@ describe('route-permission-policy', () => {
     expect(appRoutes).not.toContain('RequirePermission');
 
     const authenticated = CANONICAL_ROUTE_IDS.filter((id) => isAuthenticatedRoute(id));
-    expect(authenticated).toHaveLength(49);
-    expect(CANONICAL_ROUTE_IDS).toHaveLength(62);
+    expect(authenticated).toHaveLength(50);
+    expect(CANONICAL_ROUTE_IDS).toHaveLength(64);
   });
 
   it('keeps the policy module pure without prefix inference or navigation behavior', () => {

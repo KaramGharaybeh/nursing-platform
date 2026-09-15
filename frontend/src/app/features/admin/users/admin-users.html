@@ -1,0 +1,60 @@
+<section class="np-admin-users" aria-labelledby="admin-users-title">
+  <header class="np-admin-users-header">
+    <p class="np-admin-users-kicker">Administration</p>
+    <h1 id="admin-users-title">Admin users</h1>
+    <p>Search users by name, username, or email and open a user to manage their role.</p>
+  </header>
+
+  <form class="np-admin-users-search" (ngSubmit)="submitSearch()" novalidate>
+    <np-text-input-control
+      controlId="admin-users-search"
+      label="Search users"
+      type="search"
+      helperText="Search by name, username, or email."
+      [value]="searchValue"
+      (valueChange)="updateSearch($event)"
+    />
+    <button type="submit" mat-flat-button color="primary">Search</button>
+  </form>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading users"
+    fallbackErrorTitle="Users could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (users().length === 0 && searchValue.trim() === '') {
+      <p class="np-admin-users-empty">No users are available yet.</p>
+    } @else if (users().length === 0) {
+      <p class="np-admin-users-empty">No users match your search.</p>
+    } @else {
+      <div class="np-admin-users-table" role="table" aria-label="Admin users">
+        <div class="np-admin-users-row np-admin-users-row-heading" role="row">
+          <span role="columnheader">Name</span>
+          <span role="columnheader">Username</span>
+          <span role="columnheader">Email</span>
+          <span role="columnheader">Role</span>
+          <span role="columnheader">Status</span>
+          <span role="columnheader">Action</span>
+        </div>
+        @for (user of users(); track user.id) {
+          <div class="np-admin-users-row" role="row">
+            <span role="cell">{{ displayName(user) }}</span>
+            <span role="cell">{{ user.username }}</span>
+            <span role="cell">{{ user.email }}</span>
+            <span role="cell">{{ displayRoles(user) }}</span>
+            <span role="cell">{{ user.isActive ? 'Active' : 'Inactive' }}</span>
+            <span role="cell"><a [routerLink]="detailPath(user.id)">Open</a></span>
+          </div>
+        }
+      </div>
+      <nav class="np-admin-users-pagination" aria-label="Users pagination">
+        <button type="button" mat-button (click)="previousPage()" [disabled]="page() <= 1">Previous</button>
+        <span>Page {{ page() }} of {{ totalPages() }} · {{ totalCount() }} users</span>
+        <button type="button" mat-button (click)="nextPage()" [disabled]="page() >= totalPages()">Next</button>
+      </nav>
+    }
+  }
+</section>

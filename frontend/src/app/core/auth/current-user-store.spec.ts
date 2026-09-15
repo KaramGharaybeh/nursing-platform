@@ -53,10 +53,12 @@ function userDetailFixture(): UserDetailDto {
     firstName: 'Nurse',
     id: 'user-1',
     isActive: true,
+    isProfileComplete: false,
     lastLoginAt: '2026-09-08T09:00:00Z',
     lastName: 'Example',
     permissions: ['Exams.View', 'Users.Create'],
     roles: ['Admin', 'Nurse'],
+    username: 'nurse',
   };
 }
 
@@ -185,10 +187,12 @@ describe('current-user-store', () => {
     expect(user).toEqual({
       id: 'user-1',
       email: 'nurse@example.com',
+      username: 'nurse',
       firstName: 'Nurse',
       lastName: 'Example',
       isActive: true,
       emailVerified: true,
+      isProfileComplete: false,
       roles: ['Admin', 'Nurse'],
       permissions: ['Exams.View', 'Users.Create'],
       createdAt: '2026-09-08T10:00:00Z',

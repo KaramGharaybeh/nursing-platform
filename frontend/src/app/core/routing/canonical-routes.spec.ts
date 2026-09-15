@@ -27,6 +27,7 @@ import {
 } from './canonical-routes';
 import { routes } from '../../app.routes';
 import { authenticatedRouteGuard } from '../auth/authenticated-route.guard';
+import { profileCompletionGuard } from '../auth/profile-completion.guard';
 import { routePermissionGuard } from './route-permission.guard';
 
 const nodeGlobal = globalThis as unknown as { process: { cwd(): string } };
@@ -67,6 +68,7 @@ function parseApprovedCanonicalFromRegistry(): Map<string, string> {
 const EXPECTED_APPROVED_CANONICAL: Readonly<Record<string, string>> = {
   ROOT_ENTRY: '/',
   AUTH_SIGN_IN: '/auth/sign-in',
+  AUTH_SIGN_UP: '/auth/sign-up',
   AUTH_ROLE_SELECTION: '/auth/role-selection',
   AUTH_REGISTER_NURSE: '/auth/register/nurse',
   AUTH_REGISTER_EMPLOYER: '/auth/register/employer',
@@ -77,6 +79,7 @@ const EXPECTED_APPROVED_CANONICAL: Readonly<Record<string, string>> = {
   SYSTEM_SESSION_EXPIRED: '/session-expired',
   SYSTEM_ACCESS_DENIED: '/access-denied',
   ACCOUNT_OVERVIEW: '/account',
+  ONBOARDING_PROFILE: '/onboarding/profile',
   NURSE_ENTRY: '/nurse',
   NURSE_PROFILE_OVERVIEW: '/nurse/profile',
   NURSE_PROFILE_PERSONAL_INFORMATION: '/nurse/profile/personal-information',
@@ -163,18 +166,18 @@ describe('canonical-routes', () => {
   it('matches the approved exact-path rows in page-registry.md mechanically', () => {
     const parsed = parseApprovedCanonicalFromRegistry();
 
-    expect(parsed.size).toBe(62);
+    expect(parsed.size).toBe(64);
     expect(Object.fromEntries(parsed)).toEqual(EXPECTED_APPROVED_CANONICAL);
     expect({ ...CANONICAL_ROUTES }).toEqual(EXPECTED_APPROVED_CANONICAL);
   });
 
-  it('contains exactly 62 entries with unique IDs and unique templates', () => {
+  it('contains exactly 64 entries with unique IDs and unique templates', () => {
     const ids = Object.keys(CANONICAL_ROUTES);
     const templates = Object.values(CANONICAL_ROUTES);
 
-    expect(ids).toHaveLength(62);
-    expect(new Set(ids).size).toBe(62);
-    expect(new Set(templates).size).toBe(62);
+    expect(ids).toHaveLength(64);
+    expect(new Set(ids).size).toBe(64);
+    expect(new Set(templates).size).toBe(64);
   });
 
   it('exposes every template through the typed accessor', () => {
@@ -312,6 +315,7 @@ describe('canonical-routes', () => {
     const accountRoute = routes.find((route) => route.path === 'account');
 
     expect(appRoutes).toContain("path: 'auth/sign-in'");
+    expect(appRoutes).toContain("path: 'auth/sign-up'");
     expect(appRoutes).toContain("path: 'auth/role-selection'");
     expect(appRoutes).toContain("path: 'auth/register/nurse'");
     expect(appRoutes).toContain("path: 'auth/register/employer'");
@@ -323,9 +327,10 @@ describe('canonical-routes', () => {
     expect(appRoutes).toContain("path: 'access-denied'");
     expect(appRoutes).toContain('loadComponent');
     expect(appRoutes).toContain("./features/auth/sign-in/sign-in");
-    expect(appRoutes).toContain("./features/auth/role-selection/role-selection");
-    expect(appRoutes).toContain("./features/auth/register-nurse/register-nurse");
-    expect(appRoutes).toContain("./features/auth/register-employer/register-employer");
+    expect(appRoutes).toContain("./features/auth/sign-up/sign-up");
+    expect(appRoutes).not.toContain("./features/auth/role-selection/role-selection");
+    expect(appRoutes).not.toContain("./features/auth/register-nurse/register-nurse");
+    expect(appRoutes).not.toContain("./features/auth/register-employer/register-employer");
     expect(appRoutes).toContain("./features/auth/check-email/check-email");
     expect(appRoutes).toContain("./features/auth/verify-email/verify-email");
     expect(appRoutes).toContain("./features/auth/forgot-password/forgot-password");
@@ -334,11 +339,13 @@ describe('canonical-routes', () => {
     expect(appRoutes).toContain("./features/auth/access-denied/access-denied");
     expect(appRoutes).toContain("path: 'account'");
     expect(appRoutes).toContain("./features/account/account");
+    expect(appRoutes).toContain("path: 'onboarding/profile'");
+    expect(appRoutes).toContain("./features/onboarding/profile/profile-onboarding");
     expect(signInRoute?.canActivate).toBeUndefined();
     expect(signInRoute?.canMatch).toBeUndefined();
-    expect(accountRoute?.canActivate).toEqual([authenticatedRouteGuard, routePermissionGuard]);
+    expect(accountRoute?.canActivate).toEqual([authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard]);
     expect(accountRoute?.data).toEqual({ routeId: 'ACCOUNT_OVERVIEW' });
-    expect(appRoutes).not.toContain('redirectTo');
+    expect(appRoutes).toContain('redirectTo');
   });
 
   it('keeps the registry free of guard, redirect, navigation, and UI behavior', () => {

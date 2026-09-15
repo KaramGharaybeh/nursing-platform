@@ -56,10 +56,12 @@ function userDetailFixture(): UserDetailDto {
     firstName: 'Nurse',
     id: 'user-1',
     isActive: true,
+    isProfileComplete: false,
     lastLoginAt: '2026-09-09T09:00:00Z',
     lastName: 'Example',
     permissions: ['Exams.View'],
     roles: ['Nurse'],
+    username: 'nurse',
   };
 }
 

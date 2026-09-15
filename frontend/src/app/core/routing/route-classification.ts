@@ -7,6 +7,7 @@ export const ENTRY_ROUTE_ID: CanonicalRouteId = 'ROOT_ENTRY';
 
 export const PUBLIC_ROUTE_IDS: readonly CanonicalRouteId[] = Object.freeze([
   'AUTH_SIGN_IN',
+  'AUTH_SIGN_UP',
   'AUTH_ROLE_SELECTION',
   'AUTH_REGISTER_NURSE',
   'AUTH_REGISTER_EMPLOYER',

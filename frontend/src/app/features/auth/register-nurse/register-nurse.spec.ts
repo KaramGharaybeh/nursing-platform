@@ -71,26 +71,18 @@ function emailInput(fixture: { nativeElement: HTMLElement }): HTMLInputElement {
   return element;
 }
 
+function usernameInput(fixture: { nativeElement: HTMLElement }): HTMLInputElement {
+  const element = fixture.nativeElement.querySelector<HTMLInputElement>('#auth-register-nurse-username');
+  if (element === null) {
+    throw new Error('Missing nurse registration username input');
+  }
+  return element;
+}
+
 function passwordInput(fixture: { nativeElement: HTMLElement }): HTMLInputElement {
   const element = fixture.nativeElement.querySelector<HTMLInputElement>('#auth-register-nurse-password');
   if (element === null) {
     throw new Error('Missing nurse registration password input');
-  }
-  return element;
-}
-
-function firstNameInput(fixture: { nativeElement: HTMLElement }): HTMLInputElement {
-  const element = fixture.nativeElement.querySelector<HTMLInputElement>('#auth-register-nurse-first-name');
-  if (element === null) {
-    throw new Error('Missing nurse registration first-name input');
-  }
-  return element;
-}
-
-function lastNameInput(fixture: { nativeElement: HTMLElement }): HTMLInputElement {
-  const element = fixture.nativeElement.querySelector<HTMLInputElement>('#auth-register-nurse-last-name');
-  if (element === null) {
-    throw new Error('Missing nurse registration last-name input');
   }
   return element;
 }
@@ -110,22 +102,18 @@ async function enterRegistration(
   const email = emailInput(fixture);
   email.value = request.email;
   email.dispatchEvent(new Event('input'));
+  const username = usernameInput(fixture);
+  username.value = request.username;
+  username.dispatchEvent(new Event('input'));
   const password = passwordInput(fixture);
   password.value = request.password;
   password.dispatchEvent(new Event('input'));
-  const firstName = firstNameInput(fixture);
-  firstName.value = request.firstName;
-  firstName.dispatchEvent(new Event('input'));
-  const lastName = lastNameInput(fixture);
-  lastName.value = request.lastName;
-  lastName.dispatchEvent(new Event('input'));
 }
 
 const VALID_REQUEST: PublicRegisterRequest = {
   email: 'nurse@example.com',
+  username: 'nurse01',
   password: 'NewPass1x',
-  firstName: 'Amal',
-  lastName: 'Haddad',
 };
 
 describe('AUTH-003 Nurse Registration', () => {
@@ -138,17 +126,16 @@ describe('AUTH-003 Nurse Registration', () => {
     TestBed.resetTestingModule();
   });
 
-  it('renders the approved four-field nurse registration form with an accessible submit action', async () => {
+  it('renders the nurse registration form with email, username, password, and an accessible submit action', async () => {
     const { fixture } = await setup();
 
     expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Create a nurse account');
     expect(emailInput(fixture).type).toBe('email');
+    expect(usernameInput(fixture).type).toBe('text');
     expect(passwordInput(fixture).type).toBe('password');
-    expect(firstNameInput(fixture).type).toBe('text');
-    expect(lastNameInput(fixture).type).toBe('text');
     expect(submitButton(fixture).textContent).toContain('Create account');
     expect(submitButton(fixture).disabled).toBe(false);
-    expect(fixture.nativeElement.querySelectorAll('input').length).toBe(4);
+    expect(fixture.nativeElement.querySelectorAll('input').length).toBe(3);
   });
 
   it('renders only backend-authorized required validation and guards submission', async () => {
@@ -159,9 +146,8 @@ describe('AUTH-003 Nurse Registration', () => {
 
     expect(textContent(fixture)).toContain('Check the highlighted fields');
     expect(textContent(fixture)).toContain("'Email' must not be empty.");
+    expect(textContent(fixture)).toContain("'Username' must not be empty.");
     expect(textContent(fixture)).toContain("'Password' must not be empty.");
-    expect(textContent(fixture)).toContain("'First Name' must not be empty.");
-    expect(textContent(fixture)).toContain("'Last Name' must not be empty.");
     expect(emailInput(fixture).getAttribute('aria-invalid')).toBe('true');
     expect(registerNurseApi.calls).toEqual([]);
   });
@@ -171,9 +157,8 @@ describe('AUTH-003 Nurse Registration', () => {
 
     await enterRegistration(fixture, {
       email: 'not-an-email',
+      username: 'validuser',
       password: 'short',
-      firstName: 'Amal',
-      lastName: 'Haddad',
     });
     submitButton(fixture).click();
     fixture.detectChanges();
@@ -189,9 +174,8 @@ describe('AUTH-003 Nurse Registration', () => {
 
     await enterRegistration(uppercaseFixture, {
       email: 'nurse@example.com',
+      username: 'nurse01',
       password: 'longenough1',
-      firstName: 'Amal',
-      lastName: 'Haddad',
     });
     submitButton(uppercaseFixture).click();
     uppercaseFixture.detectChanges();
@@ -204,9 +188,8 @@ describe('AUTH-003 Nurse Registration', () => {
 
     await enterRegistration(digitFixture, {
       email: 'nurse@example.com',
+      username: 'nurse02',
       password: 'Longenoughx',
-      firstName: 'Amal',
-      lastName: 'Haddad',
     });
     submitButton(digitFixture).click();
     digitFixture.detectChanges();
@@ -284,16 +267,17 @@ describe('AUTH-003 Nurse Registration', () => {
     expect(navigateSpy).not.toHaveBeenCalled();
   });
 
-  it('keeps AUTH_REGISTER_NURSE public by lazily activating only the real nurse-registration route', async () => {
+  it('redirects AUTH_REGISTER_NURSE to unified Sign Up instead of loading actor-specific registration', () => {
     const nurseRoute = routes.find(
       (route) => route.path === canonicalRoutePath('AUTH_REGISTER_NURSE').slice(1),
     );
 
-    await expect(nurseRoute?.loadComponent?.()).resolves.toBe(RegisterNurse);
+    expect(nurseRoute?.redirectTo).toBe('auth/sign-up');
+    expect(nurseRoute?.pathMatch).toBe('full');
+    expect(nurseRoute?.loadComponent).toBeUndefined();
     expect(nurseRoute?.component).toBeUndefined();
     expect(nurseRoute?.canActivate).toBeUndefined();
     expect(nurseRoute?.canMatch).toBeUndefined();
-    expect(nurseRoute?.redirectTo).toBeUndefined();
     expect(nurseRoute?.data).toBeUndefined();
   });
 
@@ -312,28 +296,20 @@ describe('AUTH-003 Nurse Registration', () => {
     expect(combined).not.toContain('locallogout');
   });
 
-  it('exposes Sign in and Back to account type recovery links on canonical routes', async () => {
+  it('renders no company or organization fields', async () => {
     const { fixture } = await setup();
+    const combined = `${fixture.nativeElement.innerHTML}`.toLowerCase();
 
-    const signInLink = fixture.nativeElement.querySelector(
-      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
-    ) as HTMLAnchorElement | null;
-    const roleSelectionLink = fixture.nativeElement.querySelector(
-      `a[href="${canonicalRoutePath('AUTH_ROLE_SELECTION')}"]`,
-    ) as HTMLAnchorElement | null;
-
-    expect(signInLink).not.toBeNull();
-    expect(signInLink?.textContent).toContain('Sign in');
-    expect(roleSelectionLink).not.toBeNull();
-    expect(roleSelectionLink?.textContent).toContain('Back to account type');
+    expect(combined).not.toContain('company');
+    expect(combined).not.toContain('organization');
+    expect(fixture.nativeElement.querySelectorAll('input').length).toBe(3);
   });
 
-  it('exposes required autocomplete semantics on email, new-password, given-name, and family-name fields', async () => {
+  it('exposes required autocomplete semantics on email, username, and new-password fields', async () => {
     const { fixture } = await setup();
 
     expect(emailInput(fixture).getAttribute('autocomplete')).toBe('email');
+    expect(usernameInput(fixture).getAttribute('autocomplete')).toBe('username');
     expect(passwordInput(fixture).getAttribute('autocomplete')).toBe('new-password');
-    expect(firstNameInput(fixture).getAttribute('autocomplete')).toBe('given-name');
-    expect(lastNameInput(fixture).getAttribute('autocomplete')).toBe('family-name');
   });
 });

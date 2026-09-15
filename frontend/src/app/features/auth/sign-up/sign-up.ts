@@ -3,6 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { SignUpApi } from '../../../core/api/sign-up-api';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
@@ -12,28 +13,30 @@ import {
   toFieldErrorText,
   toFormValidationSummary,
 } from '../../../shared/ui/form-validation';
-import { RegisterNurseApi } from './register-nurse-api';
 
-type RegisterNurseForm = FormGroup<{
+type SignUpForm = FormGroup<{
   email: FormControl<string>;
   username: FormControl<string>;
   password: FormControl<string>;
+  confirmPassword: FormControl<string>;
 }>;
 
 const FIELD_LABELS = Object.freeze({
   Email: 'Email address',
   Username: 'Username',
   Password: 'Password',
+  ConfirmPassword: 'Confirm password',
 });
 
 const CONTROL_IDS = Object.freeze({
-  Email: 'auth-register-nurse-email',
-  Username: 'auth-register-nurse-username',
-  Password: 'auth-register-nurse-password',
+  Email: 'auth-sign-up-email',
+  Username: 'auth-sign-up-username',
+  Password: 'auth-sign-up-password',
+  ConfirmPassword: 'auth-sign-up-confirm-password',
 });
 
 @Component({
-  selector: 'np-register-nurse',
+  selector: 'np-sign-up',
   imports: [
     MatButtonModule,
     NpFormValidationSummary,
@@ -41,27 +44,23 @@ const CONTROL_IDS = Object.freeze({
     ReactiveFormsModule,
     RouterLink,
   ],
-  templateUrl: './register-nurse.html',
-  styleUrl: './register-nurse.scss',
+  templateUrl: './sign-up.html',
+  styleUrl: './sign-up.scss',
 })
-export class RegisterNurse implements AfterViewInit {
-  private readonly registerNurseApi = inject(RegisterNurseApi);
+export class SignUp implements AfterViewInit {
+  private readonly signUpApi = inject(SignUpApi);
   private readonly router = inject(Router);
   private readonly host = inject(ElementRef);
 
   protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
-  protected readonly signUpPath = '/auth/sign-up';
-  protected readonly verifyEmailPath = canonicalRoutePath('AUTH_VERIFY_EMAIL_REQUEST');
+  protected readonly checkEmailPath = canonicalRoutePath('AUTH_VERIFY_EMAIL_REQUEST');
 
-  protected readonly form: RegisterNurseForm = new FormGroup({
+  protected readonly form: SignUpForm = new FormGroup({
     email: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.email],
     }),
-    username: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
+    username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     password: new FormControl('', {
       nonNullable: true,
       validators: [
@@ -71,31 +70,29 @@ export class RegisterNurse implements AfterViewInit {
         Validators.pattern(/[0-9]/),
       ],
     }),
+    confirmPassword: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
 
   protected readonly isSubmitting = signal(false);
   private readonly submitted = signal(false);
   private readonly normalizedError = signal<NormalizedProblemDetails | undefined>(undefined);
 
-  ngAfterViewInit(): void {
-    this.applyAutocompleteSemantics();
-  }
-
-  protected readonly validationSummary = computed(() =>
-    toFormValidationSummary(this.normalizedError(), {
+  protected readonly validationSummary = computed(() => toFormValidationSummary(
+    this.normalizedError(),
+    {
       fieldLabels: FIELD_LABELS,
       controlIds: CONTROL_IDS,
       summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'The registration could not be completed.',
-    }),
-  );
+      formErrorFallback: 'The account could not be created.',
+    },
+  ));
 
   protected readonly backendFailureMessage = computed(() => {
     const error = this.normalizedError();
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'The registration could not be completed.';
+    return error.detail.trim() !== '' ? error.detail : 'The account could not be created.';
   });
 
   protected get emailValue(): string {
@@ -110,6 +107,10 @@ export class RegisterNurse implements AfterViewInit {
     return this.form.controls.password.value;
   }
 
+  protected get confirmPasswordValue(): string {
+    return this.form.controls.confirmPassword.value;
+  }
+
   protected get emailError(): string {
     return this.fieldError('Email');
   }
@@ -120,6 +121,14 @@ export class RegisterNurse implements AfterViewInit {
 
   protected get passwordError(): string {
     return this.fieldError('Password');
+  }
+
+  protected get confirmPasswordError(): string {
+    return this.fieldError('ConfirmPassword');
+  }
+
+  ngAfterViewInit(): void {
+    this.applyAutocompleteSemantics();
   }
 
   protected updateEmail(value: string): void {
@@ -137,17 +146,19 @@ export class RegisterNurse implements AfterViewInit {
     this.clearFeedback();
   }
 
-  protected async submit(): Promise<void> {
-    if (this.isSubmitting()) {
-      return;
-    }
+  protected updateConfirmPassword(value: string): void {
+    this.form.controls.confirmPassword.setValue(value);
+    this.clearFeedback();
+  }
 
+  protected async submit(): Promise<void> {
     this.submitted.set(true);
     this.normalizedError.set(undefined);
 
-    if (this.form.invalid) {
+    const validationFailure = this.clientValidationFailure();
+    if (validationFailure !== undefined) {
       this.form.markAllAsTouched();
-      this.normalizedError.set(this.describeClientValidationFailure());
+      this.normalizedError.set(validationFailure);
       return;
     }
 
@@ -155,14 +166,12 @@ export class RegisterNurse implements AfterViewInit {
     this.form.disable({ emitEvent: false });
 
     try {
-      await firstValueFrom(
-        this.registerNurseApi.register({
-          email: this.emailValue,
-          username: this.usernameValue,
-          password: this.passwordValue,
-        }),
-      );
-      await this.router.navigateByUrl(this.verifyEmailPath);
+      await firstValueFrom(this.signUpApi.signUp({
+        email: this.emailValue,
+        username: this.usernameValue,
+        password: this.passwordValue,
+      }));
+      await this.router.navigateByUrl(this.checkEmailPath);
     } catch (error: unknown) {
       this.normalizedError.set(normalizeProblemDetails(this.errorBody(error)));
       this.form.enable({ emitEvent: false });
@@ -171,45 +180,43 @@ export class RegisterNurse implements AfterViewInit {
     }
   }
 
-  private describeClientValidationFailure(): NormalizedProblemDetails {
+  private clientValidationFailure(): NormalizedProblemDetails | undefined {
     const errors: Record<string, readonly string[]> = {};
-    const emailControl = this.form.controls.email;
-    const usernameControl = this.form.controls.username;
-    const passwordControl = this.form.controls.password;
+    const email = this.form.controls.email;
+    const username = this.form.controls.username;
+    const password = this.form.controls.password;
+    const confirm = this.form.controls.confirmPassword;
 
-    if (emailControl.hasError('required')) {
+    if (email.hasError('required')) {
       errors['Email'] = ["'Email' must not be empty."];
-    } else if (emailControl.hasError('email')) {
+    } else if (email.hasError('email')) {
       errors['Email'] = ["'Email' is not a valid email address."];
     }
-
-    if (usernameControl.hasError('required')) {
+    if (username.hasError('required')) {
       errors['Username'] = ["'Username' must not be empty."];
     }
-
-    if (passwordControl.hasError('required')) {
+    if (password.hasError('required')) {
       errors['Password'] = ["'Password' must not be empty."];
-    } else if (passwordControl.hasError('minlength')) {
+    } else if (password.hasError('minlength')) {
       errors['Password'] = ["'Password' must be at least 8 characters."];
-    } else if (passwordControl.hasError('pattern')) {
-      const value = this.passwordValue;
-      errors['Password'] = !/[A-Z]/.test(value)
+    } else if (password.hasError('pattern')) {
+      errors['Password'] = !/[A-Z]/.test(this.passwordValue)
         ? ['Password must contain at least one uppercase letter.']
         : ['Password must contain at least one digit.'];
     }
+    if (confirm.hasError('required')) {
+      errors['ConfirmPassword'] = ["'Confirm password' must not be empty."];
+    } else if (this.confirmPasswordValue !== this.passwordValue) {
+      errors['ConfirmPassword'] = ['Confirm password must match password.'];
+    }
 
-    return {
-      kind: 'validation',
-      type: '',
-      title: 'Validation failed',
-      status: 400,
-      detail: '',
-      traceId: '',
-      errors,
-    };
+    if (Object.keys(errors).length === 0) {
+      return undefined;
+    }
+    return { kind: 'validation', type: '', title: 'Validation failed', status: 400, detail: '', traceId: '', errors };
   }
 
-  private fieldError(field: 'Email' | 'Username' | 'Password'): string {
+  private fieldError(field: keyof typeof FIELD_LABELS): string {
     if (!this.submitted()) {
       return '';
     }
@@ -235,5 +242,6 @@ export class RegisterNurse implements AfterViewInit {
     root.querySelector(`#${CONTROL_IDS.Email}`)?.setAttribute('autocomplete', 'email');
     root.querySelector(`#${CONTROL_IDS.Username}`)?.setAttribute('autocomplete', 'username');
     root.querySelector(`#${CONTROL_IDS.Password}`)?.setAttribute('autocomplete', 'new-password');
+    root.querySelector(`#${CONTROL_IDS.ConfirmPassword}`)?.setAttribute('autocomplete', 'new-password');
   }
 }

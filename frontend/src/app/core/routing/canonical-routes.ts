@@ -1,6 +1,7 @@
 const CANONICAL_ROUTE_TABLE = {
   ROOT_ENTRY: '/',
   AUTH_SIGN_IN: '/auth/sign-in',
+  AUTH_SIGN_UP: '/auth/sign-up',
   AUTH_ROLE_SELECTION: '/auth/role-selection',
   AUTH_REGISTER_NURSE: '/auth/register/nurse',
   AUTH_REGISTER_EMPLOYER: '/auth/register/employer',
@@ -10,6 +11,7 @@ const CANONICAL_ROUTE_TABLE = {
   AUTH_RESET_PASSWORD: '/auth/reset-password',
   SYSTEM_SESSION_EXPIRED: '/session-expired',
   SYSTEM_ACCESS_DENIED: '/access-denied',
+  ONBOARDING_PROFILE: '/onboarding/profile',
   ACCOUNT_OVERVIEW: '/account',
   NURSE_ENTRY: '/nurse',
   NURSE_PROFILE_OVERVIEW: '/nurse/profile',

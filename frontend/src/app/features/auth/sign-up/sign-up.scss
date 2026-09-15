@@ -1,0 +1,37 @@
+@use '../../../../styles/abstracts/responsive' as responsive;
+
+.np-sign-up {
+  display: grid;
+  min-height: 100%;
+  padding: var(--np-page-gutter);
+  place-items: center;
+}
+
+.np-sign-up-card {
+  inline-size: min(100%, 30rem);
+  padding: 2rem;
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: 1.25rem;
+  background: var(--np-color-surface, #fff);
+  box-shadow: 0 1rem 2.5rem rgb(23 59 87 / 10%);
+}
+
+.np-sign-up-product,
+.np-sign-up-instruction,
+.np-sign-up-sign-in {
+  color: var(--np-color-text-muted, #52616b);
+}
+
+.np-sign-up-form {
+  display: grid;
+  gap: 1rem;
+  margin-block-start: 1.5rem;
+}
+
+.np-sign-up-error {
+  color: var(--np-color-error, #b3261e);
+}
+
+.np-sign-up-submit {
+  inline-size: 100%;
+}

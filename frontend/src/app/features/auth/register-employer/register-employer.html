@@ -37,6 +37,17 @@
         />
 
         <np-text-input-control
+          controlId="auth-register-employer-username"
+          label="Username"
+          type="text"
+          [required]="true"
+          [disabled]="isSubmitting()"
+          [value]="usernameValue"
+          [errorText]="usernameError"
+          (valueChange)="updateUsername($event)"
+        />
+
+        <np-text-input-control
           controlId="auth-register-employer-password"
           label="Password"
           type="password"
@@ -45,28 +56,6 @@
           [value]="passwordValue"
           [errorText]="passwordError"
           (valueChange)="updatePassword($event)"
-        />
-
-        <np-text-input-control
-          controlId="auth-register-employer-first-name"
-          label="First name"
-          type="text"
-          [required]="true"
-          [disabled]="isSubmitting()"
-          [value]="firstNameValue"
-          [errorText]="firstNameError"
-          (valueChange)="updateFirstName($event)"
-        />
-
-        <np-text-input-control
-          controlId="auth-register-employer-last-name"
-          label="Last name"
-          type="text"
-          [required]="true"
-          [disabled]="isSubmitting()"
-          [value]="lastNameValue"
-          [errorText]="lastNameError"
-          (valueChange)="updateLastName($event)"
         />
 
         <button class="np-register-employer-submit" type="submit" mat-flat-button color="primary" [disabled]="isSubmitting()">
@@ -78,7 +67,7 @@
         Already have an account? <a [routerLink]="signInPath">Sign in</a>
       </p>
       <p class="np-register-employer-back">
-        <a [routerLink]="roleSelectionPath">Back to account type</a>
+        <a [routerLink]="signUpPath">Back to sign up</a>
       </p>
     </div>
   </div>

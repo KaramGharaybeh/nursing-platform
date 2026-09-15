@@ -8,8 +8,7 @@ import { RegisterEmployerApi } from './register-employer-api';
 const VALID_REQUEST: PublicRegisterRequest = {
   email: 'employer@example.com',
   password: 'NewPass1x',
-  firstName: 'Amal',
-  lastName: 'Haddad',
+  username: 'employer',
 };
 
 describe('RegisterEmployerApi', () => {
@@ -18,7 +17,7 @@ describe('RegisterEmployerApi', () => {
     TestBed.resetTestingModule();
   });
 
-  it('posts the exact PublicRegisterRequest to the generated public-register-employer endpoint', () => {
+  it('posts the exact PublicRegisterRequest to the unified public sign-up endpoint', () => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -34,13 +33,13 @@ describe('RegisterEmployerApi', () => {
       expect(result).toBeUndefined();
     });
 
-    const request = httpMock.expectOne('/api/v1/auth/register/employer');
+    const request = httpMock.expectOne('/api/v1/auth/sign-up');
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual({ ...VALID_REQUEST });
     request.flush(null);
   });
 
-  it('submits exactly the four public fields with no forbidden role, company, token, or session fields', () => {
+  it('submits exactly the three public fields with no forbidden role, accountType, token, or session fields', () => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -54,20 +53,22 @@ describe('RegisterEmployerApi', () => {
 
     api.register({ ...VALID_REQUEST }).subscribe();
 
-    const request = httpMock.expectOne('/api/v1/auth/register/employer');
+    const request = httpMock.expectOne('/api/v1/auth/sign-up');
     const body = request.request.body as Record<string, unknown>;
-    expect(Object.keys(body).sort()).toEqual(['email', 'firstName', 'lastName', 'password']);
+    expect(Object.keys(body).sort()).toEqual(['email', 'password', 'username']);
     expect(body).not.toHaveProperty('roleIds');
     expect(body).not.toHaveProperty('roles');
-    expect(body).not.toHaveProperty('company');
-    expect(body).not.toHaveProperty('organization');
+    expect(body).not.toHaveProperty('firstName');
+    expect(body).not.toHaveProperty('lastName');
+    expect(body).not.toHaveProperty('accountType');
+    expect(body).not.toHaveProperty('actorType');
     expect(body).not.toHaveProperty('token');
     expect(body).not.toHaveProperty('refreshToken');
     expect(body).not.toHaveProperty('accessToken');
     request.flush(null);
   });
 
-  it('returns void for the accepted 202 response', () => {
+  it('returns void for the accepted response', () => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -85,7 +86,7 @@ describe('RegisterEmployerApi', () => {
       expect(result).toBeUndefined();
     });
 
-    const request = httpMock.expectOne('/api/v1/auth/register/employer');
+    const request = httpMock.expectOne('/api/v1/auth/sign-up');
     request.flush(null, { status: 202, statusText: 'Accepted' });
     expect(emitted).toBe(true);
   });

@@ -329,7 +329,7 @@ describe('AUTH-001 Sign In', () => {
       `a[href="${canonicalRoutePath('AUTH_FORGOT_PASSWORD')}"]`,
     ) as HTMLAnchorElement | null;
     const registerLink = fixture.nativeElement.querySelector(
-      `a[href="${canonicalRoutePath('AUTH_ROLE_SELECTION')}"]`,
+      `a[href="${canonicalRoutePath('AUTH_SIGN_UP')}"]`,
     ) as HTMLAnchorElement | null;
 
     expect(forgotLink).not.toBeNull();

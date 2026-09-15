@@ -1,0 +1,45 @@
+<section class="np-profile-onboarding" aria-labelledby="onboarding-profile-title">
+  <div class="np-profile-onboarding-card">
+    <p class="np-profile-onboarding-kicker">Profile onboarding</p>
+    <h1 id="onboarding-profile-title">Complete your profile</h1>
+    <p class="np-profile-onboarding-instruction">Add your first and last name to continue.</p>
+
+    @if (backendFailureMessage() === '') {
+      <np-form-validation-summary
+        [summaryTitle]="validationSummary().title"
+        [items]="validationSummary().items"
+        [formErrors]="validationSummary().formErrors"
+      />
+    }
+
+    @if (backendFailureMessage() !== '') {
+      <p class="np-profile-onboarding-error" role="alert">{{ backendFailureMessage() }}</p>
+    }
+
+    <form class="np-profile-onboarding-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <np-text-input-control
+        controlId="onboarding-profile-first-name"
+        label="First name"
+        type="text"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="firstNameValue"
+        [errorText]="firstNameError"
+        (valueChange)="updateFirstName($event)"
+      />
+
+      <np-text-input-control
+        controlId="onboarding-profile-last-name"
+        label="Last name"
+        type="text"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="lastNameValue"
+        [errorText]="lastNameError"
+        (valueChange)="updateLastName($event)"
+      />
+
+      <button type="submit" mat-flat-button color="primary" [disabled]="isSubmitting()">Save profile</button>
+    </form>
+  </div>
+</section>

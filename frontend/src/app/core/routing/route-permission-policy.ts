@@ -31,6 +31,7 @@ export interface ReadyRouteUser {
 }
 
 export const ROUTE_PERMISSION_POLICIES: readonly RoutePermissionPolicy[] = Object.freeze([
+  { kind: 'AUTHENTICATED_ONLY', routeId: 'ONBOARDING_PROFILE' },
   { kind: 'AUTHENTICATED_ONLY', routeId: 'ACCOUNT_OVERVIEW' },
   { kind: 'AUTHENTICATED_ONLY', routeId: 'EXAMS_CATALOG' },
   { kind: 'AUTHENTICATED_ONLY', routeId: 'EXAMS_DETAIL' },

@@ -1,0 +1,44 @@
+<section class="np-admin-user-detail" aria-labelledby="admin-user-detail-title">
+  <a [routerLink]="usersPath">Back to users</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading user"
+    fallbackErrorTitle="User could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready' && user(); as loadedUser) {
+    <header class="np-admin-user-detail-header">
+      <p class="np-admin-user-detail-kicker">Role management</p>
+      <h1 id="admin-user-detail-title">{{ displayName(loadedUser) }}</h1>
+      <p>{{ loadedUser.username }} · {{ loadedUser.email }}</p>
+    </header>
+
+    <dl class="np-admin-user-detail-summary">
+      <div><dt>Current role</dt><dd>{{ displayRoles(loadedUser) }}</dd></div>
+      <div><dt>Status</dt><dd>{{ loadedUser.isActive ? 'Active' : 'Inactive' }}</dd></div>
+      <div><dt>Email status</dt><dd>{{ loadedUser.emailVerified ? 'Verified' : 'Not verified' }}</dd></div>
+    </dl>
+
+    <form class="np-admin-user-detail-form" novalidate>
+      <np-select-control
+        controlId="admin-user-role"
+        label="Business role"
+        [required]="true"
+        [disabled]="savePending()"
+        [value]="roleValue"
+        [options]="roleOptions"
+        (valueChange)="updateRole($event)"
+      />
+      <button type="button" mat-flat-button color="primary" [disabled]="savePending()" (click)="saveRole()">Save role</button>
+    </form>
+
+    @if (saveStatus() !== '') {
+      <p class="np-admin-user-detail-success" role="status">{{ saveStatus() }}</p>
+    }
+    @if (saveError() !== '') {
+      <p class="np-admin-user-detail-error" role="alert">{{ saveError() }}</p>
+    }
+  }
+</section>

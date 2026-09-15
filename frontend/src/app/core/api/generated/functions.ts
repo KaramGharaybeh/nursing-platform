@@ -9,10 +9,14 @@ export type { RefreshToken$Params as RefreshToken$Params } from './fn/nursing-pl
 export { refreshToken as refreshToken } from './fn/nursing-platform-web-api/refresh-token';
 export type { RegisterUser$Params as RegisterUser$Params } from './fn/nursing-platform-web-api/register-user';
 export { registerUser as registerUser } from './fn/nursing-platform-web-api/register-user';
-export type { PublicRegisterNurse$Params as PublicRegisterNurse$Params } from './fn/nursing-platform-web-api/public-register-nurse';
-export { publicRegisterNurse as publicRegisterNurse } from './fn/nursing-platform-web-api/public-register-nurse';
-export type { PublicRegisterEmployer$Params as PublicRegisterEmployer$Params } from './fn/nursing-platform-web-api/public-register-employer';
-export { publicRegisterEmployer as publicRegisterEmployer } from './fn/nursing-platform-web-api/public-register-employer';
+export type { PublicSignUp$Params as PublicSignUp$Params } from './fn/nursing-platform-web-api/public-sign-up';
+export { publicSignUp as publicSignUp } from './fn/nursing-platform-web-api/public-sign-up';
+export type { PublicRegisterNurseRetired$Params as PublicRegisterNurseRetired$Params } from './fn/nursing-platform-web-api/public-register-nurse-retired';
+export { publicRegisterNurseRetired as publicRegisterNurseRetired } from './fn/nursing-platform-web-api/public-register-nurse-retired';
+export type { PublicRegisterEmployerRetired$Params as PublicRegisterEmployerRetired$Params } from './fn/nursing-platform-web-api/public-register-employer-retired';
+export { publicRegisterEmployerRetired as publicRegisterEmployerRetired } from './fn/nursing-platform-web-api/public-register-employer-retired';
+export type { UpdateCurrentUserProfile$Params as UpdateCurrentUserProfile$Params } from './fn/nursing-platform-web-api/update-current-user-profile';
+export { updateCurrentUserProfile as updateCurrentUserProfile } from './fn/nursing-platform-web-api/update-current-user-profile';
 export type { SendVerificationEmail$Params as SendVerificationEmail$Params } from './fn/nursing-platform-web-api/send-verification-email';
 export { sendVerificationEmail as sendVerificationEmail } from './fn/nursing-platform-web-api/send-verification-email';
 export type { VerifyEmail$Params as VerifyEmail$Params } from './fn/nursing-platform-web-api/verify-email';
@@ -27,6 +31,8 @@ export type { ListUsers$Params as ListUsers$Params } from './fn/nursing-platform
 export { listUsers as listUsers } from './fn/nursing-platform-web-api/list-users';
 export type { GetUser$Params as GetUser$Params } from './fn/nursing-platform-web-api/get-user';
 export { getUser as getUser } from './fn/nursing-platform-web-api/get-user';
+export type { UpdateAdminUserRole$Params as UpdateAdminUserRole$Params } from './fn/nursing-platform-web-api/update-admin-user-role';
+export { updateAdminUserRole as updateAdminUserRole } from './fn/nursing-platform-web-api/update-admin-user-role';
 export type { ListRecruitmentCandidates$Params as ListRecruitmentCandidates$Params } from './fn/nursing-platform-web-api/list-recruitment-candidates';
 export { listRecruitmentCandidates as listRecruitmentCandidates } from './fn/nursing-platform-web-api/list-recruitment-candidates';
 export type { ListExams$Params as ListExams$Params } from './fn/nursing-platform-web-api/list-exams';

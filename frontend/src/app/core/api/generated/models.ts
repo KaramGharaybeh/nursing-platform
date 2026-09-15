@@ -64,6 +64,7 @@ export type { PaginatedResultOfAdminReportingTopicDto } from './models/paginated
 export type { PaginatedResultOfAdminStudyMaterialDto } from './models/paginated-result-of-admin-study-material-dto';
 export type { PaginatedResultOfPackageEntitlementListItemDto } from './models/paginated-result-of-package-entitlement-list-item-dto';
 export type { PaginatedResultOfPreparationPackageOfferListItemDto } from './models/paginated-result-of-preparation-package-offer-list-item-dto';
+export type { PaginatedResultOfUserListItemDto } from './models/paginated-result-of-user-list-item-dto';
 export type { PaymentCheckoutSessionDto } from './models/payment-checkout-session-dto';
 export type { PaymentCompletionDto } from './models/payment-completion-dto';
 export type { PaymentOrderDto } from './models/payment-order-dto';
@@ -98,12 +99,16 @@ export type { UpdateAdminPreparationPackageDefinitionRequest } from './models/up
 export type { UpdateAdminPreparationPackageOfferRequest } from './models/update-admin-preparation-package-offer-request';
 export type { UpdateAdminReportingTopicRequest } from './models/update-admin-reporting-topic-request';
 export type { UpdateAdminStudyMaterialVersionRequest } from './models/update-admin-study-material-version-request';
+export type { UpdateCurrentUserProfileRequest } from './models/update-current-user-profile-request';
+export type { UpdateCurrentUserProfileResponse } from './models/update-current-user-profile-response';
 export type { UpdateNurseCertificateCommand } from './models/update-nurse-certificate-command';
 export type { UpdateNurseEducationCommand } from './models/update-nurse-education-command';
 export type { UpdateNurseExperienceCommand } from './models/update-nurse-experience-command';
 export type { UpdateNurseLanguageRequest } from './models/update-nurse-language-request';
 export type { UpdateNurseLanguagesCommand } from './models/update-nurse-languages-command';
 export type { UpdateNurseSkillsCommand } from './models/update-nurse-skills-command';
+export type { UpdateUserRolesRequest } from './models/update-user-roles-request';
+export type { UpdateUserRolesResponse } from './models/update-user-roles-response';
 export type { UpsertAdminExamAnswerOptionRequest } from './models/upsert-admin-exam-answer-option-request';
 export type { UpsertAdminExamQuestionRequest } from './models/upsert-admin-exam-question-request';
 export type { UpsertAdminPracticeAnswerOptionRequest } from './models/upsert-admin-practice-answer-option-request';
@@ -112,5 +117,6 @@ export type { UpsertMyEmployerOrganizationRequest } from './models/upsert-my-emp
 export type { UpsertMyEmployerProfileRequest } from './models/upsert-my-employer-profile-request';
 export type { UpsertNurseProfileCommand } from './models/upsert-nurse-profile-command';
 export type { UserDetailDto } from './models/user-detail-dto';
+export type { UserListItemDto } from './models/user-list-item-dto';
 export type { ValidationProblemDetails } from './models/validation-problem-details';
 export type { VerifyEmailRequest } from './models/verify-email-request';

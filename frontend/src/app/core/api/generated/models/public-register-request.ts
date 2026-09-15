@@ -3,7 +3,6 @@
 
 export interface PublicRegisterRequest {
   email: string;
-  firstName: string;
-  lastName: string;
   password: string;
+  username: string;
 }

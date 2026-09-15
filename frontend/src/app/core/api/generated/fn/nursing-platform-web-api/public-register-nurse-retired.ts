@@ -7,16 +7,13 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { PublicRegisterRequest } from '../../models/public-register-request';
 
-export interface PublicRegisterEmployer$Params {
-      body: PublicRegisterRequest
+export interface PublicRegisterNurseRetired$Params {
 }
 
-export function publicRegisterEmployer(http: HttpClient, rootUrl: string, params: PublicRegisterEmployer$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-  const rb = new RequestBuilder(rootUrl, publicRegisterEmployer.PATH, 'post');
+export function publicRegisterNurseRetired(http: HttpClient, rootUrl: string, params?: PublicRegisterNurseRetired$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  const rb = new RequestBuilder(rootUrl, publicRegisterNurseRetired.PATH, 'post');
   if (params) {
-    rb.body(params.body, 'application/json');
   }
 
   return http.request(
@@ -29,4 +26,4 @@ export function publicRegisterEmployer(http: HttpClient, rootUrl: string, params
   );
 }
 
-publicRegisterEmployer.PATH = '/api/v1/auth/register/employer';
+publicRegisterNurseRetired.PATH = '/api/v1/auth/register/nurse';

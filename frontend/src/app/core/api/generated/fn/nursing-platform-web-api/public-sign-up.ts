@@ -9,12 +9,12 @@ import { RequestBuilder } from '../../request-builder';
 
 import { PublicRegisterRequest } from '../../models/public-register-request';
 
-export interface PublicRegisterNurse$Params {
+export interface PublicSignUp$Params {
       body: PublicRegisterRequest
 }
 
-export function publicRegisterNurse(http: HttpClient, rootUrl: string, params: PublicRegisterNurse$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-  const rb = new RequestBuilder(rootUrl, publicRegisterNurse.PATH, 'post');
+export function publicSignUp(http: HttpClient, rootUrl: string, params: PublicSignUp$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  const rb = new RequestBuilder(rootUrl, publicSignUp.PATH, 'post');
   if (params) {
     rb.body(params.body, 'application/json');
   }
@@ -29,4 +29,4 @@ export function publicRegisterNurse(http: HttpClient, rootUrl: string, params: P
   );
 }
 
-publicRegisterNurse.PATH = '/api/v1/auth/register/nurse';
+publicSignUp.PATH = '/api/v1/auth/sign-up';

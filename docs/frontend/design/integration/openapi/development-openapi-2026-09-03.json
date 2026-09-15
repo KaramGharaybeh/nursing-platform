@@ -3413,12 +3413,12 @@
         ]
       }
     },
-    "/api/v1/auth/register/nurse": {
+    "/api/v1/auth/sign-up": {
       "post": {
         "tags": [
           "NursingPlatform.WebApi"
         ],
-        "operationId": "PublicRegisterNurse",
+        "operationId": "PublicSignUp",
         "requestBody": {
           "content": {
             "application/json": {
@@ -3436,27 +3436,73 @@
         }
       }
     },
+    "/api/v1/auth/register/nurse": {
+      "post": {
+        "tags": [
+          "NursingPlatform.WebApi"
+        ],
+        "operationId": "PublicRegisterNurseRetired",
+        "responses": {
+          "410": {
+            "description": "Gone"
+          }
+        }
+      }
+    },
     "/api/v1/auth/register/employer": {
       "post": {
         "tags": [
           "NursingPlatform.WebApi"
         ],
-        "operationId": "PublicRegisterEmployer",
+        "operationId": "PublicRegisterEmployerRetired",
+        "responses": {
+          "410": {
+            "description": "Gone"
+          }
+        }
+      }
+    },
+    "/api/v1/me/profile": {
+      "put": {
+        "tags": [
+          "NursingPlatform.WebApi"
+        ],
+        "operationId": "UpdateCurrentUserProfile",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PublicRegisterRequest"
+                "$ref": "#/components/schemas/UpdateCurrentUserProfileRequest"
               }
             }
           },
           "required": true
         },
         "responses": {
-          "202": {
-            "description": "Accepted"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateCurrentUserProfileResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer authentication challenge."
+              }
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
       }
     },
     "/api/v1/auth/send-verification-email": {
@@ -3647,7 +3693,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultOfUserListItemDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -3684,7 +3737,68 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer authentication challenge."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/users/{userId}/role": {
+      "put": {
+        "tags": [
+          "NursingPlatform.WebApi"
+        ],
+        "operationId": "UpdateAdminUserRole",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRolesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateUserRolesResponse"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -9986,6 +10100,40 @@
           }
         }
       },
+      "PaginatedResultOfUserListItemDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserListItemDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "PaymentCheckoutSessionDto": {
         "required": [
           "id",
@@ -10610,22 +10758,18 @@
       "PublicRegisterRequest": {
         "required": [
           "email",
-          "password",
-          "firstName",
-          "lastName"
+          "username",
+          "password"
         ],
         "type": "object",
         "properties": {
           "email": {
             "type": "string"
           },
+          "username": {
+            "type": "string"
+          },
           "password": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
             "type": "string"
           }
         }
@@ -10647,6 +10791,7 @@
       "RegisterUserRequest": {
         "required": [
           "email",
+          "username",
           "password",
           "firstName",
           "lastName",
@@ -10655,6 +10800,9 @@
         "type": "object",
         "properties": {
           "email": {
+            "type": "string"
+          },
+          "username": {
             "type": "string"
           },
           "password": {
@@ -11077,6 +11225,44 @@
           }
         }
       },
+      "UpdateCurrentUserProfileRequest": {
+        "required": [
+          "firstName",
+          "lastName"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateCurrentUserProfileResponse": {
+        "required": [
+          "username",
+          "firstName",
+          "lastName",
+          "isProfileComplete"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "isProfileComplete": {
+            "type": "boolean"
+          }
+        }
+      },
       "UpdateNurseCertificateCommand": {
         "required": [
           "id",
@@ -11262,6 +11448,36 @@
         "type": "object",
         "properties": {
           "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdateUserRolesRequest": {
+        "required": [
+          "roleName"
+        ],
+        "type": "object",
+        "properties": {
+          "roleName": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateUserRolesResponse": {
+        "required": [
+          "userId",
+          "roles"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "roles": {
             "type": "array",
             "items": {
               "type": "string"
@@ -11509,8 +11725,10 @@
         "required": [
           "id",
           "email",
+          "username",
           "firstName",
           "lastName",
+          "isProfileComplete",
           "isActive",
           "emailVerified",
           "roles",
@@ -11526,11 +11744,17 @@
           "email": {
             "type": "string"
           },
+          "username": {
+            "type": "string"
+          },
           "firstName": {
             "type": "string"
           },
           "lastName": {
             "type": "string"
+          },
+          "isProfileComplete": {
+            "type": "boolean"
           },
           "isActive": {
             "type": "boolean"
@@ -11545,6 +11769,61 @@
             }
           },
           "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastLoginAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "UserListItemDto": {
+        "required": [
+          "id",
+          "email",
+          "username",
+          "firstName",
+          "lastName",
+          "isActive",
+          "emailVerified",
+          "roles",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "emailVerified": {
+            "type": "boolean"
+          },
+          "roles": {
             "type": "array",
             "items": {
               "type": "string"

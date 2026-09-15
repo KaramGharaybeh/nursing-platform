@@ -37,4 +37,34 @@ public class NurseCertificateCommandValidatorTests
 
         result.ShouldHaveValidationErrorFor(c => c.CredentialUrl);
     }
+
+    [Fact]
+    public void CreateCertificate_CredentialIdAtContractMaximum_IsValid()
+    {
+        var command = new CreateNurseCertificateCommand
+        {
+            Name = "Critical Care Certificate",
+            IssuingOrganization = "Nursing Board",
+            CredentialId = new string('C', 200)
+        };
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldNotHaveValidationErrorFor(c => c.CredentialId);
+    }
+
+    [Fact]
+    public void CreateCertificate_CredentialIdBeyondContractMaximum_IsInvalid()
+    {
+        var command = new CreateNurseCertificateCommand
+        {
+            Name = "Critical Care Certificate",
+            IssuingOrganization = "Nursing Board",
+            CredentialId = new string('C', 201)
+        };
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldHaveValidationErrorFor(c => c.CredentialId);
+    }
 }

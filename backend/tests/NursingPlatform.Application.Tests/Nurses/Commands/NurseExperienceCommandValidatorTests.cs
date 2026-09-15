@@ -8,6 +8,36 @@ public class NurseExperienceCommandValidatorTests
     private readonly CreateNurseExperienceCommandValidator _validator = new();
 
     [Fact]
+    public void Create_JobTitleAtContractMaximum_IsValid()
+    {
+        var command = new CreateNurseExperienceCommand
+        {
+            FacilityName = "General Hospital",
+            JobTitle = new string('N', 200),
+            StartDate = new DateOnly(2024, 1, 1)
+        };
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldNotHaveValidationErrorFor(c => c.JobTitle);
+    }
+
+    [Fact]
+    public void Create_JobTitleBeyondContractMaximum_IsInvalid()
+    {
+        var command = new CreateNurseExperienceCommand
+        {
+            FacilityName = "General Hospital",
+            JobTitle = new string('N', 201),
+            StartDate = new DateOnly(2024, 1, 1)
+        };
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldHaveValidationErrorFor(c => c.JobTitle);
+    }
+
+    [Fact]
     public void Create_EndDateBeforeStartDate_IsInvalid()
     {
         var command = new CreateNurseExperienceCommand

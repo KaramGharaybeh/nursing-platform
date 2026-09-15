@@ -32,12 +32,15 @@ using NursingPlatform.Application.Identity.Commands.Register;
 using NursingPlatform.Application.Identity.Commands.RotateRefreshToken;
 using NursingPlatform.Application.Identity.Commands.ResetPassword;
 using NursingPlatform.Application.Identity.Commands.SendVerificationEmail;
+using NursingPlatform.Application.Identity.Commands.UpdateCurrentUserProfile;
+using NursingPlatform.Application.Identity.Commands.UpdateUserRoles;
 using NursingPlatform.Application.Identity.Commands.VerifyEmail;
 using NursingPlatform.Application.Identity.Common;
 using NursingPlatform.Application.Identity.DTOs;
 using NursingPlatform.Application.Identity.Queries.GetCurrentUser;
 using NursingPlatform.Application.Identity.Queries.GetUser;
 using NursingPlatform.Application.Identity.Queries.ListUsers;
+using NursingPlatform.Application.Common.Models;
 using NursingPlatform.Application.Nurses.Commands.CreateNurseCertificate;
 using NursingPlatform.Application.Nurses.Commands.CreateNurseEducation;
 using NursingPlatform.Application.Nurses.Commands.CreateNurseExperience;
@@ -163,6 +166,7 @@ public static class ApplicationBuilderExtensions
             var command = new RegisterUserCommand
             {
                 Email = request.Email,
+                Username = request.Username,
                 Password = request.Password,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
@@ -176,39 +180,45 @@ public static class ApplicationBuilderExtensions
         .WithName("RegisterUser")
         .RequirePermission(Permissions.Users.Create);
 
-        api.MapPost("/auth/register/nurse", async (PublicRegisterRequest request, ISender sender) =>
+        api.MapPost("/auth/sign-up", async (PublicRegisterRequest request, ISender sender) =>
         {
             await sender.Send(new PublicRegisterCommand
             {
                 Email = request.Email,
+                Username = request.Username,
                 Password = request.Password,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
                 RoleName = PublicRegistrationRoleNames.Nurse
             });
 
             return Results.Accepted();
         })
-        .WithName("PublicRegisterNurse")
+        .WithName("PublicSignUp")
         .Produces(StatusCodes.Status202Accepted)
         .AllowAnonymous();
 
-        api.MapPost("/auth/register/employer", async (PublicRegisterRequest request, ISender sender) =>
+        api.MapPost("/auth/register/nurse", () => Results.StatusCode(StatusCodes.Status410Gone))
+        .WithName("PublicRegisterNurseRetired")
+        .Produces(StatusCodes.Status410Gone)
+        .AllowAnonymous();
+
+        api.MapPost("/auth/register/employer", () => Results.StatusCode(StatusCodes.Status410Gone))
+        .WithName("PublicRegisterEmployerRetired")
+        .Produces(StatusCodes.Status410Gone)
+        .AllowAnonymous();
+
+        api.MapPut("/me/profile", async (UpdateCurrentUserProfileRequest request, ISender sender) =>
         {
-            await sender.Send(new PublicRegisterCommand
+            var result = await sender.Send(new UpdateCurrentUserProfileCommand
             {
-                Email = request.Email,
-                Password = request.Password,
                 FirstName = request.FirstName,
-                LastName = request.LastName,
-                RoleName = PublicRegistrationRoleNames.Employer
+                LastName = request.LastName
             });
 
-            return Results.Accepted();
+            return Results.Ok(result);
         })
-        .WithName("PublicRegisterEmployer")
-        .Produces(StatusCodes.Status202Accepted)
-        .AllowAnonymous();
+        .WithName("UpdateCurrentUserProfile")
+        .Produces<UpdateCurrentUserProfileResponse>(StatusCodes.Status200OK)
+        .RequireAuthorization();
 
         api.MapPost("/auth/send-verification-email", async (ISender sender) =>
         {
@@ -281,6 +291,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListUsers")
+        .Produces<PaginatedResult<UserListItemDto>>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Users.View);
 
         api.MapGet("/users/{id:guid}", async (Guid id, ISender sender) =>
@@ -289,7 +300,25 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(user);
         })
         .WithName("GetUser")
+        .Produces<UserDetailDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Users.View);
+
+        api.MapPut("/admin/users/{userId:guid}/role", async (
+            Guid userId,
+            UpdateUserRolesRequest request,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new UpdateUserRolesCommand
+            {
+                UserId = userId,
+                RoleName = request.RoleName
+            });
+
+            return Results.Ok(result);
+        })
+        .WithName("UpdateAdminUserRole")
+        .Produces<UpdateUserRolesResponse>(StatusCodes.Status200OK)
+        .RequirePermission(Permissions.Users.Edit);
 
         api.MapGet("/recruitment/candidates", async (
             int? page,

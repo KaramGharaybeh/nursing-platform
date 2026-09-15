@@ -29,23 +29,32 @@ public class PublicRegisterCommandHandler : IRequestHandler<PublicRegisterComman
 
     public async Task<Unit> Handle(PublicRegisterCommand command, CancellationToken cancellationToken)
     {
-        if (await _context.Users.AnyAsync(u => u.Email == command.Email, cancellationToken))
+        var email = command.Email.Trim();
+        var username = command.Username.Trim();
+        var normalizedUsername = NormalizeUsername(username);
+
+        if (await _context.Users.AnyAsync(u => u.Email == email, cancellationToken))
+            return Unit.Value;
+
+        if (await _context.Users.AnyAsync(u => u.NormalizedUsername == normalizedUsername, cancellationToken))
             return Unit.Value;
 
         var role = await _context.Roles.SingleOrDefaultAsync(
-            r => r.Name == command.RoleName,
+            r => r.Name == PublicRegistrationRoleNames.Nurse,
             cancellationToken);
 
         if (role is null)
-            throw new InvalidOperationException($"Required public registration role '{command.RoleName}' was not found.");
+            throw new InvalidOperationException($"Required public registration role '{PublicRegistrationRoleNames.Nurse}' was not found.");
 
         var user = new User
         {
             Id = Guid.NewGuid(),
-            Email = command.Email,
+            Email = email,
+            Username = username,
+            NormalizedUsername = normalizedUsername,
             PasswordHash = _passwordHasher.Hash(command.Password),
-            FirstName = command.FirstName,
-            LastName = command.LastName,
+            FirstName = string.Empty,
+            LastName = string.Empty,
             IsActive = true,
             EmailVerified = false
         };
@@ -71,6 +80,10 @@ public class PublicRegisterCommandHandler : IRequestHandler<PublicRegisterComman
         {
             return Unit.Value;
         }
+        catch (DbUpdateException exception) when (_context.IsUniqueUsernameViolation(exception))
+        {
+            return Unit.Value;
+        }
 
         try
         {
@@ -85,6 +98,11 @@ public class PublicRegisterCommandHandler : IRequestHandler<PublicRegisterComman
         }
 
         return Unit.Value;
+    }
+
+    private static string NormalizeUsername(string username)
+    {
+        return username.Trim().ToUpperInvariant();
     }
 
     private static string GenerateToken()

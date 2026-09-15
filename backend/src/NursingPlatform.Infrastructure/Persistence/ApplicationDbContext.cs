@@ -169,6 +169,15 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         };
     }
 
+    public bool IsUniqueUsernameViolation(DbUpdateException exception)
+    {
+        return exception.GetBaseException() is PostgresException
+        {
+            SqlState: PostgresErrorCodes.UniqueViolation,
+            ConstraintName: "IX_Users_NormalizedUsername"
+        };
+    }
+
     public Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,

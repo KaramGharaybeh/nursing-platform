@@ -58,16 +58,28 @@ public static class ReferenceDataSeeder
 
     private static async Task SeedRolesAsync(ApplicationDbContext context)
     {
-        if (await context.Set<Role>().AnyAsync())
-            return;
-
-        context.Set<Role>().AddRange(
+        Role[] roles =
         [
             new() { Id = new Guid("F8091A2B-3C4D-45E6-F708-192A3B4C5D6E"), Name = "SuperAdmin", Description = "Full system access" },
             new() { Id = new Guid("091A2B3C-4D5E-46F7-0819-2A3B4C5D6E7F"), Name = "Admin", Description = "Administrative access" },
             new() { Id = new Guid("1A2B3C4D-5E6F-4708-192A-3B4C5D6E7F80"), Name = "Nurse", Description = "Nurse user" },
             new() { Id = new Guid("2B3C4D5E-6F70-4819-2A3B-4C5D6E7F8091"), Name = "Employer", Description = "Employer user" },
-        ]);
+            new() { Id = new Guid("3C4D5E6F-7081-492A-3B4C-5D6E7F8091A2"), Name = "Expert", Description = "Expert user" },
+        ];
+
+        var existingRoleNames = await context.Set<Role>()
+            .Select(role => role.Name)
+            .ToListAsync();
+        var existingRoleNameSet = existingRoleNames.ToHashSet(StringComparer.Ordinal);
+
+        var missingRoles = roles
+            .Where(role => !existingRoleNameSet.Contains(role.Name))
+            .ToList();
+
+        if (missingRoles.Count == 0)
+            return;
+
+        context.Set<Role>().AddRange(missingRoles);
 
         await context.SaveChangesAsync();
     }

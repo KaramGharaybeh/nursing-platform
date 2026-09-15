@@ -22,8 +22,10 @@ public class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDetailDto>
             {
                 Id = u.Id,
                 Email = u.Email,
+                Username = u.Username,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
+                IsProfileComplete = u.IsProfileComplete,
                 IsActive = u.IsActive,
                 EmailVerified = u.EmailVerified,
                 CreatedAt = u.CreatedAt,

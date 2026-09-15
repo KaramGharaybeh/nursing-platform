@@ -22,6 +22,12 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, G
         if (await _context.Users.AnyAsync(u => u.Email == command.Email, cancellationToken))
             throw new InvalidOperationException($"Email '{command.Email}' is already registered.");
 
+        var username = command.Username.Trim();
+        var normalizedUsername = username.ToUpperInvariant();
+
+        if (await _context.Users.AnyAsync(u => u.NormalizedUsername == normalizedUsername, cancellationToken))
+            throw new InvalidOperationException($"Username '{username}' is already registered.");
+
         var validRoleIds = await _context.Roles
             .Where(r => command.RoleIds.Contains(r.Id))
             .Select(r => r.Id)
@@ -35,6 +41,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, G
         {
             Id = Guid.NewGuid(),
             Email = command.Email,
+            Username = username,
+            NormalizedUsername = normalizedUsername,
             PasswordHash = _passwordHasher.Hash(command.Password),
             FirstName = command.FirstName,
             LastName = command.LastName,

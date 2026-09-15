@@ -8,6 +8,8 @@ public class ListUsersQueryValidator : AbstractValidator<ListUsersQuery>
     [
         "email",
         "-email",
+        "username",
+        "-username",
         "firstName",
         "-firstName",
         "lastName",

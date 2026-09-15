@@ -6,6 +6,8 @@ public class User : AuditableEntity
 {
     public Guid Id { get; set; }
     public string Email { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
+    public string NormalizedUsername { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
@@ -13,4 +15,8 @@ public class User : AuditableEntity
     public bool EmailVerified { get; set; }
     public DateTime? LastLoginAt { get; set; }
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
+    public bool IsProfileComplete =>
+        !string.IsNullOrWhiteSpace(FirstName) &&
+        !string.IsNullOrWhiteSpace(LastName);
 }

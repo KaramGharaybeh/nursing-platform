@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using NursingPlatform.Application.Authorization;
 using NursingPlatform.Application.Common.Models;
+using NursingPlatform.Application.Identity.Commands.UpdateUserRoles;
 using NursingPlatform.Application.Identity.DTOs;
 using NursingPlatform.Application.Identity.Queries.GetUser;
 using NursingPlatform.Application.Identity.Queries.ListUsers;
@@ -72,6 +73,7 @@ public class UsersEndpointTests
                 {
                     Id = Guid.NewGuid(),
                     Email = "user@test.com",
+                    Username = "john-doe",
                     FirstName = "John",
                     LastName = "Doe",
                     IsActive = true,
@@ -117,6 +119,7 @@ public class UsersEndpointTests
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         Assert.NotNull(body);
+        Assert.Equal("john-doe", body.Items[0].Username);
         Assert.Contains("Admin", body.Items[0].Roles);
         Assert.Contains("Nurse", body.Items[0].Roles);
     }
@@ -223,8 +226,10 @@ public class UsersEndpointTests
         {
             Id = targetId,
             Email = "user@test.com",
+            Username = "john-doe",
             FirstName = "John",
             LastName = "Doe",
+            IsProfileComplete = true,
             IsActive = true,
             EmailVerified = true,
             CreatedAt = new DateTime(2026, 7, 1, 10, 0, 0, DateTimeKind.Utc),
@@ -254,6 +259,8 @@ public class UsersEndpointTests
 
         Assert.NotNull(body);
         Assert.Equal(targetId, body.Id);
+        Assert.Equal("john-doe", body.Username);
+        Assert.True(body.IsProfileComplete);
         Assert.Equal("Admin", Assert.Single(body.Roles));
         Assert.Contains("Users.View", body.Permissions);
     }
@@ -280,6 +287,67 @@ public class UsersEndpointTests
         _senderMock.Verify(
             s => s.Send(
                 It.Is<GetUserQuery>(q => q.UserId == targetId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateAdminUserRole_WithoutToken_Returns401()
+    {
+        var response = await _client.PutAsJsonAsync($"/api/v1/admin/users/{Guid.NewGuid()}/role", new
+        {
+            roleName = "Employer"
+        });
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateAdminUserRole_WithoutUsersEditPermission_Returns403()
+    {
+        var token = CreateJwt(Guid.NewGuid());
+        _permissionServiceMock
+            .Setup(s => s.GetUserPermissionsAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HashSet<string> { Permissions.Users.View });
+
+        _client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        var response = await _client.PutAsJsonAsync($"/api/v1/admin/users/{Guid.NewGuid()}/role", new
+        {
+            roleName = "Employer"
+        });
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateAdminUserRole_WithUsersEditPermission_SendsCommand()
+    {
+        var actorId = Guid.NewGuid();
+        var targetId = Guid.NewGuid();
+        var token = CreateJwt(actorId);
+        _permissionServiceMock
+            .Setup(s => s.GetUserPermissionsAsync(actorId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HashSet<string> { Permissions.Users.Edit });
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<UpdateUserRolesCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new UpdateUserRolesResponse { UserId = targetId, Roles = ["Employer"] });
+
+        _client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        var response = await _client.PutAsJsonAsync($"/api/v1/admin/users/{targetId}/role", new
+        {
+            roleName = "Employer"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        _senderMock.Verify(
+            s => s.Send(
+                It.Is<UpdateUserRolesCommand>(command =>
+                    command.UserId == targetId &&
+                    command.RoleName == "Employer"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

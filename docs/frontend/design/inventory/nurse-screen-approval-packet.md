@@ -6,7 +6,7 @@ status: HUMAN_APPROVED
 created_at: 2026-09-16
 prepared_by: Nurse Profile Technical Readiness campaign (feat/2026-09-16-nurse-profile-overview)
 gate: GATE-FE-T052
-gate_status: VERIFIED (closed by human-approved decisions D1-D10, recorded 2026-09-16)
+gate_status: VERIFIED (closed by human-approved decisions D1-D10; extended by D11-D14, recorded 2026-09-16)
 authorization: Decisions D1-D10 and the additional content authority below were approved
   by the human technical lead on 2026-09-16. NUR-001/NUR-002 design is APPROVED.
   NUR-003..012 remain BLOCKED with screen-specific design choices explicitly deferred
@@ -33,7 +33,7 @@ Common state contract for every screen: loading / ready / error+retry (shared `n
 | Screen | Route | User goal | Backend contract | Behavior | States beyond common | Status | Approval |
 |---|---|---|---|---|---|---|---|
 | NUR-001/002 Overview | `/nurse/profile` | View professional profile summary + navigate to sections | `GET /me/nurse-profile` (+ section GETs) | READ-ONLY | first-time 404 empty state; per-section empty presentation; CV metadata (approved D1-D10) | NOT STARTED | APPROVED (design; implementation pending T-FE-056 authorization) |
-| NUR-003 Personal information | `/nurse/profile/personal-information` | Edit base professional profile | `GET /me/nurse-profile`, `PUT` (upsert create-or-update) | READ + EDIT (single form) | validation states; 409 invalid-country problem-details | NOT STARTED | BLOCKED (design deferred to GATE-FE-T057) |
+| NUR-003 Personal information | `/nurse/profile/personal-information` | Edit base professional profile | `GET /me/nurse-profile`, `PUT` (upsert create-or-update) | READ + EDIT (single form) | validation states; 409 invalid-country problem-details | NOT STARTED | APPROVED (design; implementation pending T-FE-057 within the first Nurse vertical slice) |
 | NUR-004/005 Experience | `/nurse/profile/experience` | Manage employment history | `GET/POST/PUT/DELETE /experiences` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start, End null iff IsCurrent); empty list | NOT STARTED | BLOCKED (design deferred to GATE-FE-T058) |
 | NUR-006/007 Education | `/nurse/profile/education` | Manage education | `GET/POST/PUT/DELETE /education` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start when both) | NOT STARTED | BLOCKED (design deferred to GATE-FE-T059) |
 | NUR-008/009 Certificates | `/nurse/profile/certificates` | Manage certificates | `GET/POST/PUT/DELETE /certificates` | LIST + CREATE + EDIT + DELETE | delete confirmation; URL validation (absolute http/https); expiry validation | NOT STARTED | BLOCKED (design deferred to GATE-FE-T060) |
@@ -84,6 +84,16 @@ The following decisions were approved by the human technical lead. They supersed
 ### 5.1 Additional content authority (approved)
 
 Use only currently supported base-profile information: headline, professionalSummary, licenseNumber, licenseCountry, currentCountry, yearsOfExperience, isAvailableForRecruitment. Do NOT invent: degree/professional suffixes beside the user's name, employment type, credential verification badges, recruiter/profile view counts, ratings, profile status, privacy levels, professional completion percentage, or unsupported recruitment states. Recruitment availability may be shown clearly as "Available for recruitment" or "Not available for recruitment" because this maps directly to the existing boolean contract.
+
+### 5.2 Additional human-approved decisions D11–D14 (recorded 2026-09-16, first Nurse vertical slice authorization)
+
+**D11 — Country lookup. APPROVED: Option A.** A bounded read-only Country lookup endpoint `GET /api/v1/countries` is authorized: authenticated access (`RequireAuthorization()`), active countries only, deterministic sort by Name, response fields only `id`, `name`, `code`; no pagination, no Country CRUD, no Admin UI, no new permission model, and no hardcoded frontend country list. The endpoint exists only to provide authoritative reference data to authenticated frontend forms such as Nurse Personal Information.
+
+**D12 — Recruitment availability control. APPROVED.** Use the existing shared checkbox control. Label: "Available for recruitment". Helper text explains accurately and concisely that enabling this allows the Nurse profile to appear in employer candidate search when the other backend eligibility conditions are satisfied. No switch component, visibility tiers, schedules, recruiter preferences, or privacy levels.
+
+**D13 — Save success behavior. APPROVED.** Successful save of Personal Information navigates directly to `/nurse/profile`. No separate success page, no invented success workflow.
+
+**D14 — Overview edit action. APPROVED.** Place "Edit personal information" inside the Professional Identity / base-profile area of the populated Nurse Profile Overview. It navigates to `/nurse/profile/personal-information`.
 
 ## 6. Later-slice design dependencies (recorded, NOT solved here)
 

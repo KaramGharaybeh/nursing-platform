@@ -780,7 +780,7 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `AUTH-012` | `T-FE-055` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-AUTH-LOGIN`,`C-ME` | required if implemented |
 | `NUR-001` | `T-FE-056` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-PROFILE` | required in owning gate evidence |
 | `NUR-002` | `T-FE-056` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-PROFILE` | required in owning gate evidence |
-| `NUR-003` | `T-FE-057` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-PROFILE` | required in owning gate evidence |
+| `NUR-003` | `T-FE-057` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-PROFILE` | required in owning gate evidence |
 | `NUR-004` | `T-FE-058` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-EXP` | required in owning gate evidence |
 | `NUR-005` | `T-FE-058` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-EXP` | required in owning gate evidence |
 | `NUR-006` | `T-FE-059` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-EDU` | required in owning gate evidence |
@@ -2185,6 +2185,8 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - visual_readiness_summary: The approved overview composes from existing approved visual foundations — card pattern, kicker/h1 identity, Material theme bridge, standard form controls, loading/error/retry pattern, responsive helpers with logical properties, RTL/LTR foundation, and accessibility rules. No Penpot artifact is required for this routine composition from approved foundations; per-screen visual evidence is still required in owning gate evidence (`GATE-FE-T056`).
 - boundary_summary: `T-FE-029`/`T-FE-031` route identity and `ROLE Nurse` UX policy remain authoritative and unchanged; backend `NurseRoleGuard` remains the authorization authority; `NURSE_ENTRY` redirect behavior is owned by this approved decision (D9) and implemented with the overview slice; no route was mounted by this packet.
 - first_screen_recommendation: `T-FE-056` (NUR-001/002 read-only overview) is the first Nurse implementation candidate once separately authorized; all its design blockers are resolved by D1–D10.
+
+- 2026-09-16 (first Nurse vertical slice authorization): Human technical lead approved decisions D11–D14 recorded verbatim in `nurse-screen-approval-packet.md` §5.2 — D11 read-only authenticated `GET /api/v1/countries` lookup (active-only, Name-sorted, `{id,name,code}`, no CRUD/admin/permission model/hardcoded frontend list); D12 recruitment availability as the existing shared checkbox "Available for recruitment" with factual search-inclusion helper text; D13 save success navigates directly to `/nurse/profile` with no success page; D14 "Edit personal information" action inside the Professional Identity area navigating to `/nurse/profile/personal-information`. These decisions resolve the `NUR-003` design blocker: `NUR-003` is APPROVED for implementation within the first Nurse vertical slice (`T-FE-056` before `T-FE-057` per DAG). `NUR-004`..`NUR-012` remain BLOCKED with their screen-specific design deferred to owning gates.
 
 ### `ST-FE-052` — Prepare Nurse screen approval packet
 

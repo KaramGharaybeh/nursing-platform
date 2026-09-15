@@ -778,8 +778,8 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `AUTH-010` | `T-FE-051` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-ME` | implementation, automated verification, render-ready Storybook evidence complete |
 | `AUTH-011` | `T-FE-053` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-ERROR` | implementation, automated verification, and render-ready Storybook evidence complete |
 | `AUTH-012` | `T-FE-055` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-AUTH-LOGIN`,`C-ME` | required if implemented |
-| `NUR-001` | `T-FE-056` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-PROFILE` | required in owning gate evidence |
-| `NUR-002` | `T-FE-056` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-PROFILE` | required in owning gate evidence |
+| `NUR-001` | `T-FE-056` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-PROFILE` | required in owning gate evidence |
+| `NUR-002` | `T-FE-056` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-PROFILE` | required in owning gate evidence |
 | `NUR-003` | `T-FE-057` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-PROFILE` | required in owning gate evidence |
 | `NUR-004` | `T-FE-058` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-EXP` | required in owning gate evidence |
 | `NUR-005` | `T-FE-058` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-EXP` | required in owning gate evidence |
@@ -2171,6 +2171,32 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `CONTRACT_CLARIFICATION`
 - evidence_summary: CV constraints evidence is recorded and canonical OpenAPI now matches backend source/tests for DELETE success status (`204 NoContent`).
 - closure_evidence: Gate is closed as `VERIFIED` after the authorized operation-only OpenAPI correction committed via `7f07b26`; downstream CV management remains separately subject to its own dependencies, screen approval, upload pattern gate, and visual evidence requirements.
+
+### `T-FE-052` — Nurse screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-16
+- scope_summary: Completed the Nurse screen-family approval packet only. No Angular screen components, nurse routes, navigation UI, Storybook stories, Penpot work, backend/OpenAPI mutation, dependency/package changes, screen implementation, staging-before-authorization, or runtime behavior change occurred.
+- packet_location: `docs/frontend/design/inventory/nurse-screen-approval-packet.md`
+- contract_summary: The packet records every NUR-001..013 screen with route identity, backend contract, read/create/edit/delete/upload behavior, required Nurse role authorization (backend `NurseRoleGuard` 401/403 remains authoritative), loading/ready/empty/error/retry/validation states, responsive/RTL/accessibility expectations, dependencies, and blockers. Nurse/recruitment response contracts are typed in canonical OpenAPI and the generated client after the 2026-09-16 readiness campaign; empty-profile semantics are backend-authoritative 404; `/me.isProfileComplete` remains generic onboarding completion only.
+- approved_screens: `NUR-001` and `NUR-002` Nurse Profile Overview are APPROVED for later separately authorized implementation under human-approved decisions D1–D10 plus the additional content authority (recorded verbatim in the packet, Section 5): full-width professional identity area + concise section-summary cards (no tabs/dashboard/giant form); Experience/Education/Certificates/Skills/Languages/CV summaries with the approved per-section depth (latest item + remaining count; ≤2 certificates without invented verification status; wrapped chip preview for skills; language name + exact proficiency values Beginner/Intermediate/Advanced/Fluent/Native; CV metadata only, no preview/download/reader); calm first-time 404 empty state ("No professional Nurse Profile has been created yet."), no dead CTA ("Add personal information" → `/nurse/profile/personal-information` only once NUR-003 is mounted), no dead section links, no completion percentage/score/strength/status, `/nurse` → `/nurse/profile` redirect with no separate Nurse dashboard, desktop full-width identity + two-column section grid / tablet 2×2 key-facts reflow / mobile single column with RTL-ready logical layouts; base-profile content limited to headline, professionalSummary, licenseNumber, licenseCountry, currentCountry, yearsOfExperience, isAvailableForRecruitment (displayed as "Available for recruitment" / "Not available for recruitment").
+- blocked_screens: `NUR-003`..`NUR-012` remain BLOCKED with `DESIGN` blockers: family architecture and per-screen contracts/states are recorded, and screen-specific design choices (country/language lookup UX, date control, skills editor, delete confirmation, CV upload UX) are explicitly deferred by the human authority to their owning implementation/design gates — permitted because `GATE-FE-T057`..`T-FE-T064` each require their own per-screen visual evidence. `NUR-012` CV contract constraints are already clarified (`GATE-FE-T063` VERIFIED). `NUR-013` remains BLOCKED (`CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN`) because no professional-completion backend contract exists; no percentage/score/persisted completion state/guard may be built.
+- visual_readiness_summary: The approved overview composes from existing approved visual foundations — card pattern, kicker/h1 identity, Material theme bridge, standard form controls, loading/error/retry pattern, responsive helpers with logical properties, RTL/LTR foundation, and accessibility rules. No Penpot artifact is required for this routine composition from approved foundations; per-screen visual evidence is still required in owning gate evidence (`GATE-FE-T056`).
+- boundary_summary: `T-FE-029`/`T-FE-031` route identity and `ROLE Nurse` UX policy remain authoritative and unchanged; backend `NurseRoleGuard` remains the authorization authority; `NURSE_ENTRY` redirect behavior is owned by this approved decision (D9) and implemented with the overview slice; no route was mounted by this packet.
+- first_screen_recommendation: `T-FE-056` (NUR-001/002 read-only overview) is the first Nurse implementation candidate once separately authorized; all its design blockers are resolved by D1–D10.
+
+### `ST-FE-052` — Prepare Nurse screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Subtask completed the explicit Nurse family decision packet. All `NUR-001..013` screens have explicit decisions in the Screen Ownership Matrix; the approved overview screens carry the human-approved D1–D10 design authority; blocked screens preserve explicit deferred design blockers without invented behavior; no screen implementation or visual-tooling/source mutation occurred.
+
+### `GATE-FE-T052`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence satisfies the Nurse approval packet requirement: every included Nurse screen has an explicit decision; the approved `NUR-001`/`NUR-002` screens have route/state identity, access semantics, functional/API contracts (typed after the 2026-09-16 readiness campaign), status/error/empty-state behavior, and human-approved visual composition authority (D1–D10 + content authority); blocked screens preserve explicit deferred design blockers without invented behavior; Storybook is not treated as authority; implementation remains unauthorized until a separate screen task (`T-FE-056`) is started.
 
 ### `T-FE-066` — Exam catalog/detail contract clarification
 

@@ -2,13 +2,17 @@
 
 ```yaml
 document_id: NPS-DES-INV-NURSE-SCREEN-APPROVAL-PACKET
-status: READY_FOR_HUMAN_DECISION
+status: HUMAN_APPROVED
 created_at: 2026-09-16
 prepared_by: Nurse Profile Technical Readiness campaign (feat/2026-09-16-nurse-profile-overview)
 gate: GATE-FE-T052
-authorization: This packet is preparation evidence only. It does not approve screens.
-  All approval_decision values below remain BLOCKED pending human decisions.
-  GATE-FE-T052 is NOT VERIFIED by this document.
+gate_status: VERIFIED (closed by human-approved decisions D1-D10, recorded 2026-09-16)
+authorization: Decisions D1-D10 and the additional content authority below were approved
+  by the human technical lead on 2026-09-16. NUR-001/NUR-002 design is APPROVED.
+  NUR-003..012 remain BLOCKED with screen-specific design choices explicitly deferred
+  to their owning implementation gates (permitted by the ledger gate structure).
+  NUR-013 remains BLOCKED (no backend contract). Approval does not itself start
+  implementation; T-FE-056 remains NOT STARTED until separately authorized.
 ```
 
 ## 1. Purpose
@@ -28,16 +32,16 @@ Common state contract for every screen: loading / ready / error+retry (shared `n
 
 | Screen | Route | User goal | Backend contract | Behavior | States beyond common | Status | Approval |
 |---|---|---|---|---|---|---|---|
-| NUR-001/002 Overview | `/nurse/profile` | View professional profile summary + navigate to sections | `GET /me/nurse-profile` (+ section GETs) | READ-ONLY | first-time 404 empty state; per-section empty presentation; CV metadata presence (D1–D7) | NOT STARTED | BLOCKED → READY_FOR_HUMAN_DECISION |
-| NUR-003 Personal information | `/nurse/profile/personal-information` | Edit base professional profile | `GET /me/nurse-profile`, `PUT` (upsert create-or-update) | READ + EDIT (single form) | validation states; 409 invalid-country problem-details | NOT STARTED | BLOCKED → READY_FOR_HUMAN_DECISION |
-| NUR-004/005 Experience | `/nurse/profile/experience` | Manage employment history | `GET/POST/PUT/DELETE /experiences` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start, End null iff IsCurrent); empty list | NOT STARTED | BLOCKED → READY_FOR_HUMAN_DECISION |
-| NUR-006/007 Education | `/nurse/profile/education` | Manage education | `GET/POST/PUT/DELETE /education` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start when both) | NOT STARTED | BLOCKED → READY_FOR_HUMAN_DECISION |
-| NUR-008/009 Certificates | `/nurse/profile/certificates` | Manage certificates | `GET/POST/PUT/DELETE /certificates` | LIST + CREATE + EDIT + DELETE | delete confirmation; URL validation (absolute http/https); expiry validation | NOT STARTED | BLOCKED → READY_FOR_HUMAN_DECISION |
-| NUR-010 Skills | `/nurse/profile/skills` | Manage free-text skill tags | `GET/PUT /skills` (full replace) | READ + EDIT (collection editor) | normalized duplicate rejection; ≤50 cap; empty collection | NOT STARTED | BLOCKED → READY_FOR_HUMAN_DECISION |
-| NUR-011 Languages | `/nurse/profile/languages` | Manage languages + proficiency | `GET/PUT /languages` (full replace) | READ + EDIT (collection editor) | ≤20 cap; distinct LanguageId; proficiency enum (Beginner/Intermediate/Advanced/Fluent/Native) | NOT STARTED | BLOCKED → READY_FOR_HUMAN_DECISION |
-| NUR-012 CV | `/nurse/profile/cv` | Upload/replace/delete CV document | `GET /cv` (metadata), `POST /cv` (multipart `file`), `DELETE /cv` (204) | READ + UPLOAD + DELETE | upload constraints (.pdf/.doc/.docx, ≤5MB); metadata-only display; 404 when none; delete confirmation | NOT STARTED | BLOCKED → READY_FOR_HUMAN_DECISION |
+| NUR-001/002 Overview | `/nurse/profile` | View professional profile summary + navigate to sections | `GET /me/nurse-profile` (+ section GETs) | READ-ONLY | first-time 404 empty state; per-section empty presentation; CV metadata (approved D1-D10) | NOT STARTED | APPROVED (design; implementation pending T-FE-056 authorization) |
+| NUR-003 Personal information | `/nurse/profile/personal-information` | Edit base professional profile | `GET /me/nurse-profile`, `PUT` (upsert create-or-update) | READ + EDIT (single form) | validation states; 409 invalid-country problem-details | NOT STARTED | BLOCKED (design deferred to GATE-FE-T057) |
+| NUR-004/005 Experience | `/nurse/profile/experience` | Manage employment history | `GET/POST/PUT/DELETE /experiences` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start, End null iff IsCurrent); empty list | NOT STARTED | BLOCKED (design deferred to GATE-FE-T058) |
+| NUR-006/007 Education | `/nurse/profile/education` | Manage education | `GET/POST/PUT/DELETE /education` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start when both) | NOT STARTED | BLOCKED (design deferred to GATE-FE-T059) |
+| NUR-008/009 Certificates | `/nurse/profile/certificates` | Manage certificates | `GET/POST/PUT/DELETE /certificates` | LIST + CREATE + EDIT + DELETE | delete confirmation; URL validation (absolute http/https); expiry validation | NOT STARTED | BLOCKED (design deferred to GATE-FE-T060) |
+| NUR-010 Skills | `/nurse/profile/skills` | Manage free-text skill tags | `GET/PUT /skills` (full replace) | READ + EDIT (collection editor) | normalized duplicate rejection; ≤50 cap; empty collection | NOT STARTED | BLOCKED (design deferred to GATE-FE-T062) |
+| NUR-011 Languages | `/nurse/profile/languages` | Manage languages + proficiency | `GET/PUT /languages` (full replace) | READ + EDIT (collection editor) | ≤20 cap; distinct LanguageId; proficiency enum (Beginner/Intermediate/Advanced/Fluent/Native) | NOT STARTED | BLOCKED (design deferred to GATE-FE-T062) |
+| NUR-012 CV | `/nurse/profile/cv` | Upload/replace/delete CV document | `GET /cv` (metadata), `POST /cv` (multipart `file`), `DELETE /cv` (204) | READ + UPLOAD + DELETE | upload constraints (.pdf/.doc/.docx, ≤5MB); metadata-only display; 404 when none; delete confirmation | NOT STARTED | BLOCKED (CV contract clarified by GATE-FE-T063; upload UX design deferred to GATE-FE-T064) |
 | NUR-013 Profile completion | — (NOT_ROUTABLE) | Professional profile completeness | NONE — no backend contract exists | n/a | n/a | BLOCKED (BACKEND + CONTRACT_CLARIFICATION + DESIGN) — must remain excluded until a backend contract is separately approved | BLOCKED (deferred) |
-| (related) Contact requests | `/nurse/contact-requests` | Review/approve/reject employer contact requests | `GET /contact-requests` (paginated), `POST /{id}/approve`, `POST /{id}/reject` | READ + ACT | pagination; status filter | NOT STARTED (separate slice after profile family) | BLOCKED → READY_FOR_HUMAN_DECISION |
+| (related) Contact requests | `/nurse/contact-requests` | Review/approve/reject employer contact requests | `GET /contact-requests` (paginated), `POST /{id}/approve`, `POST /{id}/reject` | READ + ACT | pagination; status filter | NOT STARTED (separate slice after profile family) | BLOCKED (design deferred to owning gate) |
 
 ## 4. Empty / first-time semantics (backend-authoritative, verified)
 
@@ -46,29 +50,40 @@ Common state contract for every screen: loading / ready / error+retry (shared `n
 - Frontend distinction: 404 on base GET = "no professional profile yet" (first-time empty state + create CTA → NUR-003); 200 with sparse/null fields = "exists but incomplete" (presentation only).
 - `PUT /me/nurse-profile` is upsert: the first save creates the professional profile. T-FE-056 must design for the 404 first-time state; the semantics must NOT be changed to 200/null.
 
-## 5. HUMAN DECISION REQUIRED — NUR-001/002 Overview (decision packet)
+## 5. HUMAN APPROVED DECISIONS — NUR-001/002 Overview (recorded 2026-09-16)
 
-Repository evidence fixed: read-only overview; Nurse-only; separate canonical section routes; 404 first-time state; data domain = base profile + 6 sections + CV metadata. Recommendations below are defaults, not requirements.
+The following decisions were approved by the human technical lead. They supersede the previous READY_FOR_HUMAN_DECISION placeholders and are binding design authority for T-FE-056.
 
-**D1. Overall layout/composition.** Evidence: no nurse visual authority exists; global foundations (cards, kicker, h1) apply. Options: A) stacked summary cards per section under a profile header (recommended default — matches card pattern of onboarding/admin screens, scales down to mobile naturally); B) two-column desktop grid; C) tabbed sections (conflicts with separate canonical section routes). TRADE-OFF: A is simplest + reuses existing card language; B denser but needs new layout decisions; C contradicts route authority. **HUMAN DECISION REQUIRED.**
+**D1 — Overview composition. APPROVED.** One full-width Professional Identity / Base Profile summary area at the top, followed by concise section-summary cards. No tabs, no dashboard layout, no single giant editable profile form. Desktop: full-width identity area, key professional facts beneath it, profile section cards in a balanced two-column layout. Mobile: deliberate single-column layout.
 
-**D2. Which sections appear.** Options: A) all six sections + CV (recommended default — mirrors backend data domain; nothing forces hiding); B) base-profile fields only + section links; C) subset chosen per product priority. **HUMAN DECISION REQUIRED.**
+**D2 — Sections shown on the overview. APPROVED.** The overview may summarize: Experience, Education, Certificates, Skills, Languages, CV. Base professional information remains the dominant top section.
 
-**D3. Summary depth per section.** Options: A) count-only ("3 experiences") + link (recommended default — cheapest, no new presentational patterns, no privacy risk); B) latest/top item preview per section (needs "primary item" definition per section — a product decision); C) richer multi-item preview (duplicates section pages, hurts overview scannability). **HUMAN DECISION REQUIRED.**
+**D3 — Summary depth. APPROVED.**
+- Experience: show the current/latest item; show a factual remaining-record count when additional records exist.
+- Education: show the most relevant/latest record; show remaining-record count when applicable.
+- Certificates: show at most two certificates; show remaining count when applicable; do NOT invent verification status.
+- Skills: show a concise wrapped tag/chip preview.
+- Languages: show language name + backend-supported proficiency value only. Valid proficiency values are exactly: Beginner, Intermediate, Advanced, Fluent, Native.
+- CV: metadata summary only.
+- Do not display unsupported fields such as employment type.
 
-**D4. CV metadata on overview.** Options: A) show CV status card (file name, size, uploaded date + link to CV page) (recommended default — metadata-only DTO makes this trivial and it is recruitment-relevant); B) omit CV from overview until NUR-012 ships (link only); C) omit entirely. **HUMAN DECISION REQUIRED.**
+**D4 — CV on overview. APPROVED.** Show CV metadata on the overview when a CV exists: file name, file size, uploaded date/time when available. Do NOT add Preview CV, Download CV, or a document reader — those capabilities do not exist in the current backend contract.
 
-**D5. First-time 404 empty-state presentation.** Options: A) dedicated empty-state composition with headline + explanation + CTA (recommended default); B) render section scaffold with all-empty sections; C) auto-redirect to personal-information form. TRADE-OFF: C changes navigation flow and presumes NUR-003 exists in the first slice (it does not). **HUMAN DECISION REQUIRED.**
+**D5 — First-time / 404 state. APPROVED.** `GET /me/nurse-profile` returning 404 represents "No professional Nurse Profile has been created yet." Render a calm first-time empty state. Do not treat this as a generic application error. Do not render all missing sections as warnings.
 
-**D6. Empty-state CTA text and destination.** Options: A) "Create your professional profile" → `/nurse/profile/personal-information` (recommended default, matches canonical route; requires NUR-003 to exist before or with overview, OR CTA hidden until it does); B) CTA → onboarding-style inline creation on the overview itself (invents new UX); C) no CTA, informational only. Sub-decision if D6-A: show CTA before NUR-003 is implemented? **HUMAN DECISION REQUIRED.**
+**D6 — First-time CTA. APPROVED.** Destination: `/nurse/profile/personal-information`. Preferred label: "Add personal information". T-FE-056 must NOT create a dead link: if NUR-003 / T-FE-057 is not yet implemented and mounted when T-FE-056 ships, render the first-time empty state without an actionable navigation button and add the CTA when NUR-003 becomes available. Do not invent `/nurse/profile/create`.
 
-**D7. Section navigation CTAs before section pages exist.** First slice = overview only; section routes mount later. Options: A) render section entries as non-navigating summaries in slice 1, add links as each section page ships (recommended default — avoids dead links/404s); B) link all sections immediately (dead routes in slice 1); C) ship overview only after all sections exist (delays first user value). **HUMAN DECISION REQUIRED.**
+**D7 — Section navigation actions. APPROVED.** Do not expose Manage/View links to section routes until those routes are actually implemented and mounted. As each Nurse section ships, its overview navigation action may become visible. No dead navigation affordances.
 
-**D8. Factual "sections completed" summary.** No percentage/score (NUR-013 has no backend contract — must not be invented). Options: A) no completion summary in first slice (recommended default); B) factual per-section filled/empty indication (count already covers this implicitly in D3-A); C) anything weighted/scored — NOT AVAILABLE without new backend contract. **HUMAN DECISION REQUIRED.**
+**D8 — Profile completion. APPROVED.** Do NOT display: completion percentage, completion progress ring, profile score, profile strength, "Active Career Profile" status, or professional completion state. NUR-013 remains BLOCKED/deferred. The overview may display factual section information only, such as "3 positions" or "No certificates added yet", without deriving an overall completion score.
 
-**D9. `/nurse` entry behavior.** Options: A) redirect `/nurse` → `/nurse/profile` when overview ships (recommended default — registry says NURSE_ENTRY is family entry, not a dashboard; redirect behavior is owned downstream per page-registry, so this decision must be explicit here); B) leave `/nurse` unmounted until a Nurse home exists; C) mount a stub page. **HUMAN DECISION REQUIRED.**
+**D9 — Nurse entry route. APPROVED.** `/nurse` redirects to `/nurse/profile`. The Nurse Profile Overview is the initial Nurse-area landing page. Do not create a separate Nurse dashboard.
 
-**D10. Desktop/tablet/mobile composition.** Default recommendation: single column stacked cards at mobile (390) and tablet (768); optional two-column arrangement desktop (1440) if D1-B chosen; canonical gutters 16/24/32; all layouts RTL-ready via logical properties. Specific visual composition beyond tokens requires either approval of this default or a Penpot/design artifact. **HUMAN DECISION REQUIRED.**
+**D10 — Responsive behavior. APPROVED.** Desktop: full-width professional identity area, four key facts where space permits, two-column profile-section summary grid. Tablet: identity remains full width, key facts reflow to 2x2 as necessary, section grid adapts based on available width. Mobile: single-column content flow, key facts stack naturally, chips/tags wrap, no horizontal scrolling, touch targets remain accessible. All layouts must remain RTL-ready using logical layout behavior.
+
+### 5.1 Additional content authority (approved)
+
+Use only currently supported base-profile information: headline, professionalSummary, licenseNumber, licenseCountry, currentCountry, yearsOfExperience, isAvailableForRecruitment. Do NOT invent: degree/professional suffixes beside the user's name, employment type, credential verification badges, recruiter/profile view counts, ratings, profile status, privacy levels, professional completion percentage, or unsupported recruitment states. Recruitment availability may be shown clearly as "Available for recruitment" or "Not available for recruitment" because this maps directly to the existing boolean contract.
 
 ## 6. Later-slice design dependencies (recorded, NOT solved here)
 
@@ -114,4 +129,7 @@ Ownership boundaries: routed container pages own data loading + state (pattern: 
 
 ## 10. Approval record
 
-No screen is approved by this packet. On human answers to D1–D10 (+ family-level D2 scope for later screens), the technical lead's decisions should be recorded in the frontend ledger (T-FE-052/GATE-FE-T052 rows and the NUR matrix) — only then does GATE-FE-T052 become VERIFIED and T-FE-056 become eligible.
+- 2026-09-16: Human technical lead approved decisions D1–D10 and the additional content authority (Section 5.1) for the Nurse Profile Overview (NUR-001/NUR-002). NUR-001/NUR-002 design is APPROVED; execution remains NOT STARTED pending separate T-FE-056 authorization.
+- NUR-003..NUR-012 remain BLOCKED: family architecture and contracts are recorded in this packet, and screen-specific design choices (country/language lookup UX, date control, skills editor, delete confirmation, CV upload UX) are explicitly deferred to their owning implementation/design gates — permitted by the ledger structure because GATE-FE-T057..T064 each require their own per-screen visual evidence.
+- NUR-013 remains BLOCKED (no backend completion contract exists).
+- GATE-FE-T052 is closed as VERIFIED on the strength of: every NUR screen having an explicit decision, the human-approved overview design authority, backend contract evidence (Section 9), and the recorded per-screen states/dependencies — consistent with the T-FE-040 family-gate precedent.

@@ -8,6 +8,7 @@ import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
 import { ContactRequestStatus } from '../../models/contact-request-status';
+import { PaginatedResultOfContactRequestDto } from '../../models/paginated-result-of-contact-request-dto';
 
 export interface ListMyRecruitmentContactRequests$Params {
   page?: (number | null);
@@ -15,7 +16,7 @@ export interface ListMyRecruitmentContactRequests$Params {
   status?: ContactRequestStatus;
 }
 
-export function listMyRecruitmentContactRequests(http: HttpClient, rootUrl: string, params?: ListMyRecruitmentContactRequests$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function listMyRecruitmentContactRequests(http: HttpClient, rootUrl: string, params?: ListMyRecruitmentContactRequests$Params, context?: HttpContext): Observable<StrictHttpResponse<PaginatedResultOfContactRequestDto>> {
   const rb = new RequestBuilder(rootUrl, listMyRecruitmentContactRequests.PATH, 'get');
   if (params) {
     rb.query('page', params.page, {});
@@ -24,11 +25,11 @@ export function listMyRecruitmentContactRequests(http: HttpClient, rootUrl: stri
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<PaginatedResultOfContactRequestDto>;
     })
   );
 }

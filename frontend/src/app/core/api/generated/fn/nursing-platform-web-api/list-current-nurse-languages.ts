@@ -7,21 +7,22 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { NurseLanguageDto } from '../../models/nurse-language-dto';
 
 export interface ListCurrentNurseLanguages$Params {
 }
 
-export function listCurrentNurseLanguages(http: HttpClient, rootUrl: string, params?: ListCurrentNurseLanguages$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function listCurrentNurseLanguages(http: HttpClient, rootUrl: string, params?: ListCurrentNurseLanguages$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<NurseLanguageDto>>> {
   const rb = new RequestBuilder(rootUrl, listCurrentNurseLanguages.PATH, 'get');
   if (params) {
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<Array<NurseLanguageDto>>;
     })
   );
 }

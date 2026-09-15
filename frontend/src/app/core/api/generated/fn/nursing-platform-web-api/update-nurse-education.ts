@@ -7,6 +7,7 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { NurseEducationDto } from '../../models/nurse-education-dto';
 import { UpdateNurseEducationCommand } from '../../models/update-nurse-education-command';
 
 export interface UpdateNurseEducation$Params {
@@ -14,7 +15,7 @@ export interface UpdateNurseEducation$Params {
       body: UpdateNurseEducationCommand
 }
 
-export function updateNurseEducation(http: HttpClient, rootUrl: string, params: UpdateNurseEducation$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function updateNurseEducation(http: HttpClient, rootUrl: string, params: UpdateNurseEducation$Params, context?: HttpContext): Observable<StrictHttpResponse<NurseEducationDto>> {
   const rb = new RequestBuilder(rootUrl, updateNurseEducation.PATH, 'put');
   if (params) {
     rb.path('id', params.id, {});
@@ -22,11 +23,11 @@ export function updateNurseEducation(http: HttpClient, rootUrl: string, params: 
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<NurseEducationDto>;
     })
   );
 }

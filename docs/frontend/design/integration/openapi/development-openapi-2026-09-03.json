@@ -3893,7 +3893,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultOfCandidateListItemDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -4358,8 +4365,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactRequestDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -4414,7 +4428,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultOfContactRequestDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -4451,7 +4472,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactRequestDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -4488,7 +4516,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactRequestDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6480,7 +6515,14 @@
         "operationId": "GetCurrentNurseProfile",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NurseProfileDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6514,7 +6556,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NurseProfileDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6540,7 +6589,17 @@
         "operationId": "ListCurrentNurseExperiences",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NurseExperienceDto"
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6574,7 +6633,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NurseExperienceDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6621,7 +6687,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NurseExperienceDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6655,8 +6728,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
           },
           "401": {
             "description": "Unauthorized",
@@ -6682,7 +6755,17 @@
         "operationId": "ListCurrentNurseEducation",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NurseEducationDto"
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6716,7 +6799,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NurseEducationDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6763,7 +6853,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NurseEducationDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6797,8 +6894,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
           },
           "401": {
             "description": "Unauthorized",
@@ -6824,7 +6921,17 @@
         "operationId": "ListCurrentNurseCertificates",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NurseCertificateDto"
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6858,7 +6965,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NurseCertificateDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6905,7 +7019,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NurseCertificateDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -6939,8 +7060,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
           },
           "401": {
             "description": "Unauthorized",
@@ -6966,7 +7087,17 @@
         "operationId": "ListCurrentNurseLanguages",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NurseLanguageDto"
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7000,7 +7131,17 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NurseLanguageDto"
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7026,7 +7167,17 @@
         "operationId": "ListCurrentNurseSkills",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NurseSkillDto"
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7060,7 +7211,17 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NurseSkillDto"
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7117,7 +7278,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultOfReceivedContactRequestDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7154,7 +7322,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceivedContactRequestDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7191,7 +7366,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceivedContactRequestDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7900,7 +8082,14 @@
         "operationId": "GetCurrentNurseCv",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NurseCvDocumentDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7943,7 +8132,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NurseCvDocumentDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -8476,6 +8672,101 @@
           }
         }
       },
+      "CandidateLanguageDto": {
+        "required": [
+          "name",
+          "code",
+          "proficiency"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "proficiency": {
+            "type": "string"
+          }
+        }
+      },
+      "CandidateListItemDto": {
+        "required": [
+          "nurseProfileId",
+          "yearsOfExperience",
+          "skills",
+          "languages",
+          "certificatesSummary",
+          "certificatesCount"
+        ],
+        "type": "object",
+        "properties": {
+          "nurseProfileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "headline": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "professionalSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "licenseCountryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentCountryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "yearsOfExperience": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CandidateLanguageDto"
+            }
+          },
+          "certificatesSummary": {
+            "type": "string"
+          },
+          "certificatesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "latestExperienceTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "educationSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "CodedProblemDetails": {
         "required": [
           "code",
@@ -8537,6 +8828,69 @@
           },
           "traceId": {
             "type": "string"
+          }
+        }
+      },
+      "ContactRequestDto": {
+        "required": [
+          "id",
+          "nurseProfileId",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nurseProfileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          },
+          "candidateHeadline": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "candidateLicenseCountryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "candidateCurrentCountryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "respondedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "cancelledAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         }
       },
@@ -9250,6 +9604,311 @@
             "type": "string"
           },
           "password": {
+            "type": "string"
+          }
+        }
+      },
+      "NurseCertificateDto": {
+        "required": [
+          "id",
+          "name",
+          "issuingOrganization"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "issuingOrganization": {
+            "type": "string"
+          },
+          "issueDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "expirationDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "credentialId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "credentialUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "NurseCvDocumentDto": {
+        "required": [
+          "id",
+          "fileName",
+          "contentType",
+          "fileSizeBytes",
+          "uploadedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "uploadedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "NurseEducationDto": {
+        "required": [
+          "id",
+          "institutionName",
+          "degree"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "institutionName": {
+            "type": "string"
+          },
+          "degree": {
+            "type": "string"
+          },
+          "fieldOfStudy": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "countryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "countryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "startDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "endDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "NurseExperienceDto": {
+        "required": [
+          "id",
+          "facilityName",
+          "jobTitle",
+          "startDate",
+          "isCurrent"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "facilityName": {
+            "type": "string"
+          },
+          "jobTitle": {
+            "type": "string"
+          },
+          "countryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "countryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "NurseLanguageDto": {
+        "required": [
+          "id",
+          "languageId",
+          "name",
+          "code",
+          "proficiency"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "languageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "proficiency": {
+            "type": "string"
+          }
+        }
+      },
+      "NurseProfileDto": {
+        "required": [
+          "id",
+          "userId",
+          "yearsOfExperience",
+          "isAvailableForRecruitment"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "headline": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "professionalSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "licenseNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "licenseCountryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "licenseCountryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentCountryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "currentCountryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "yearsOfExperience": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isAvailableForRecruitment": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NurseSkillDto": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
             "type": "string"
           }
         }
@@ -10032,6 +10691,74 @@
           }
         }
       },
+      "PaginatedResultOfCandidateListItemDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CandidateListItemDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PaginatedResultOfContactRequestDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactRequestDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "PaginatedResultOfPackageEntitlementListItemDto": {
         "required": [
           "items",
@@ -10080,6 +10807,40 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PreparationPackageOfferListItemDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PaginatedResultOfReceivedContactRequestDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivedContactRequestDto"
             }
           },
           "page": {
@@ -10785,6 +11546,62 @@
             "items": {
               "$ref": "#/components/schemas/ReportingProfileQuestionAssignmentRequest"
             }
+          }
+        }
+      },
+      "ReceivedContactRequestDto": {
+        "required": [
+          "id",
+          "organizationName",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "jobTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "department": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "respondedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "cancelledAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         }
       },

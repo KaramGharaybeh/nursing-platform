@@ -8,23 +8,24 @@ import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
 import { CreateNurseExperienceCommand } from '../../models/create-nurse-experience-command';
+import { NurseExperienceDto } from '../../models/nurse-experience-dto';
 
 export interface CreateNurseExperience$Params {
       body: CreateNurseExperienceCommand
 }
 
-export function createNurseExperience(http: HttpClient, rootUrl: string, params: CreateNurseExperience$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function createNurseExperience(http: HttpClient, rootUrl: string, params: CreateNurseExperience$Params, context?: HttpContext): Observable<StrictHttpResponse<NurseExperienceDto>> {
   const rb = new RequestBuilder(rootUrl, createNurseExperience.PATH, 'post');
   if (params) {
     rb.body(params.body, 'application/json');
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<NurseExperienceDto>;
     })
   );
 }

@@ -1786,6 +1786,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `CONTRACT_CLARIFICATION`
 - evidence_summary: Gate evidence covers validation/form focused tests, normalized Problem Details input handling, sanitization/no raw server trace-code-detail display, accessible persistent summary and field anchors, component separation with external template/style/spec, absence of timing/business/auth/routing/generated behavior, full frontend verification, lint/stylelint/quality/build, git diff checks, and scope review.
 
+### `T-FE-036` — Confirmation/feedback/live-region pattern
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-16
+- contract_summary: T-FE-036 owns only the minimum shared confirmation/feedback/live-region foundation. No global modal/dialog system exists and none was created: destructive confirmation UI stays feature-owned and inline (two-step request/confirm/cancel), while shared code provides the accessible announcement primitive plus the pure two-step state semantics. It must not invent toasts/notifications, generic CRUD abstractions, feature copy/layout, validation timing, auth/routing/screens, or backend/OpenAPI/generated behavior.
+- scope_summary: Implemented only `frontend/src/app/shared/ui/announcement/` (root-provided `Announcer` service with polite/assertive signal state, sequence-advanced repeat announcements, empty-message guard; visually hidden `np-live-region` component bound to the service with `role="status"`/`aria-live="polite"` or `role="alert"`/`aria-live="assertive"`, external `.html`/`.scss`, barrel export, colocated focused specs, honest interaction demo story) and `frontend/src/app/shared/ui/confirmation/` (framework-free `TwoStepConfirmation` state helper: first destructive click arms only, explicit `confirm()` authorizes exactly one execution, `cancel()` returns to idle, plus focused spec). The live region reuses the T-FE-010 `.u-visually-hidden` class and introduces no dependency, no dialog, no toast, and no visual noise. Feedback semantics (announce item-deleted/already-removed/save-completed sparingly; reuse Problem Details rendering; no per-interaction noise) are recorded on the service contract.
+- verification_summary: Focused TDD RED failed before `./announcement`/`./live-region` existed (`TS2307`), then failed on template `role` binding (`NG8002`) and on synchronous-read/microtask timing, all corrected minimally. Focused GREEN passed 3 files / 15 tests proving default polite/assertive announcement, empty-message guard, identical-repeat re-announcement via sequence, clear, initial hidden polite region, announced-text exposure, assertive role switch, no dialog dependency, and the full two-step contract (no execution without request, single authorized execution, cancel safety). Full verification passed 48 files / 399 tests, `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, production build, and Storybook build. `git diff --check` clean.
+
+### `ST-FE-036` — Implement confirmation/feedback/live-region pattern
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Subtask implemented the minimum shared announcement primitive plus the pure two-step confirmation state contract with deterministic repeat/empty/cancel semantics and accessible live-region rendering. It does not create a dialog system, toast/notification system, or generic CRUD framework.
+
+### `GATE-FE-T036`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence covers live-region announcement tests (polite/assertive/repeat/clear), accessible visually-hidden semantics with correct roles, confirmation-pattern contract tests (arm-only first click, single authorized confirm, cancel safety), no dialog dependency, component separation with external template/style/specs, absence of toast/generic-CRUD/feature-copy/routing/auth/generated/backend behavior, full frontend verification (48 files / 399 tests), lint/stylelint/dependency-guard/build/Storybook, git diff checks, and scope review.
+
 ### `T-FE-040` — Authentication screen approval packet
 
 - status: `VERIFIED`

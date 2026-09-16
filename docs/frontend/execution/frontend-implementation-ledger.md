@@ -778,9 +778,9 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `AUTH-010` | `T-FE-051` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-ME` | implementation, automated verification, render-ready Storybook evidence complete |
 | `AUTH-011` | `T-FE-053` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-ERROR` | implementation, automated verification, and render-ready Storybook evidence complete |
 | `AUTH-012` | `T-FE-055` | `GATE-FE-T040` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-AUTH-LOGIN`,`C-ME` | required if implemented |
-| `NUR-001` | `T-FE-056` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-PROFILE` | required in owning gate evidence |
-| `NUR-002` | `T-FE-056` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-PROFILE` | required in owning gate evidence |
-| `NUR-003` | `T-FE-057` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-PROFILE` | required in owning gate evidence |
+| `NUR-001` | `T-FE-056` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-PROFILE` | complete |
+| `NUR-002` | `T-FE-056` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-PROFILE` | complete |
+| `NUR-003` | `T-FE-057` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-PROFILE` | complete |
 | `NUR-004` | `T-FE-058` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-EXP` | required in owning gate evidence |
 | `NUR-005` | `T-FE-058` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-EXP` | required in owning gate evidence |
 | `NUR-006` | `T-FE-059` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-EDU` | required in owning gate evidence |
@@ -2199,6 +2199,44 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence satisfies the Nurse approval packet requirement: every included Nurse screen has an explicit decision; the approved `NUR-001`/`NUR-002` screens have route/state identity, access semantics, functional/API contracts (typed after the 2026-09-16 readiness campaign), status/error/empty-state behavior, and human-approved visual composition authority (D1–D10 + content authority); blocked screens preserve explicit deferred design blockers without invented behavior; Storybook is not treated as authority; implementation remains unauthorized until a separate screen task (`T-FE-056`) is started.
+
+### `T-FE-056` — NUR-001/002 read-only profile overview
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`,`CONTRACT_CLARIFICATION` (resolved)
+- evidence_date: 2026-09-16
+- scope_summary: Implemented the approved read-only Nurse Profile Overview at `/nurse/profile` plus the approved `/nurse` → `/nurse/profile` redirect (D9), using the three-guard pattern (`authenticatedRouteGuard`, `profileCompletionGuard`, `routePermissionGuard`) with `routeId: 'NURSE_PROFILE_OVERVIEW'`. Added `core/api/nurse-profile-api.ts` facade (8 typed generated read functions) and `features/nurse/profile/overview/` (ts/html/scss/spec/stories). No Experience/Education/Certificate/Skill/Language/CV management, no completion UI, no section navigation beyond Personal Information.
+- design_conformance: Human-approved D1–D10 + content authority: full-width professional identity area (headline, professionalSummary, licenseNumber, license/current country names, years of experience, availability label), four key facts, two-column desktop section grid with tablet 2×2 reflow and mobile single column using logical properties; approved per-section summary depth (latest experience + remaining count; latest education + remaining count; ≤2 certificate previews + remaining count with no invented verification status; wrapped skill chips; language name + exact backend proficiency; CV metadata only — file name, size, uploaded date, no preview/download/reader); calm first-time 404 state ("No professional Nurse Profile has been created yet."); no completion percentage/score/strength/status; no Manage/View links for unimplemented sections; Personal Information actions activated per D6/D14 once T-FE-057 shipped.
+- verification_summary: Focused overview spec passed 1 file / 9 tests (identity fields, approved availability labels, summary depth incl. 2-certificate cap and remaining counts, first-time 404 state, generic failure/retry, no unsupported navigation/completion UI, first-time CTA presence, `/nurse` redirect + three-guard route mounting). Full frontend suite passed 45 files / 384 tests. Lint, stylelint, dependency guard, production build, and Storybook build passed with Overview Populated/FirstTime stories. Playwright E2E verified the populated overview rendering all supported fields, the calm first-time state, responsive no-overflow at 1440/768/390, and non-Nurse access denial.
+
+### `ST-FE-056` — Build read-only NUR-001/002 profile overview
+
+- status: `VERIFIED`
+- evidence_summary: Overview component, facade, routes, spec, and stories delivered within the approved design; all focused/full verification passed.
+
+### `GATE-FE-T056`
+
+- status_result: `VERIFIED`
+- evidence_summary: Nurse overview tests + per-screen visual evidence satisfied: 9/9 focused tests, 45/384 full suite, lint/stylelint/deps/build/Storybook green, Populated + FirstTime Storybook stories, responsive desktop/tablet/mobile without horizontal overflow, RTL-ready logical layout, and E2E-rendered populated overview. Closed before T-FE-057 began, per DAG.
+
+### `T-FE-057` — NUR-003 personal information
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN` (resolved by D11–D14)
+- evidence_date: 2026-09-16
+- scope_summary: Implemented the single create-or-edit Personal Information page at `/nurse/profile/personal-information` with the three-guard pattern and `routeId: 'NURSE_PROFILE_PERSONAL_INFORMATION'`. Added `features/nurse/profile/personal-information/` (ts/html/scss/spec/stories) and `core/api/countries-api.ts` over the new `listCountries` generated function. Exactly the seven backend-supported fields in the approved groupings (Professional identity: headline + professional summary; License and location: license number + license country + current country; Experience: years of experience; Recruitment: available for recruitment). No additional fields, no unsaved-changes guard.
+- contract_conformance: `PUT /me/nurse-profile` upsert full-replace semantics honored — edit mode always GETs and prefills all seven controls first and submits the complete current form state; create mode initializes years=0 and availability=false; empty optional values are trimmed to null. Client validation mirrors backend (headline ≤160, professionalSummary ≤2000, licenseNumber ≤100, years 0–80 inclusive). Country selects populate exclusively from the authenticated backend Country lookup (D11) — no hardcoded list. Availability uses the shared checkbox control with factual helper text (D12). Save success navigates directly to `/nurse/profile` (D13). Problem Details 409 (invalid/inactive country) and 400 display through the existing validation/alert patterns.
+- verification_summary: Focused spec passed 1 file / 10 tests (exact field set + grouping, edit prefill, create defaults, upsert contract + navigation, null trimming, out-of-range rejection, backend problem-details handling, generic load failure/retry, backend-populated country options, route mounting). Full frontend suite passed 45 files / 384 tests. Lint, stylelint, dependency guard, production build, and Storybook build passed with Create + EditPrefilled stories. Playwright E2E verified create → populated overview → edit prefill → change → save → updated overview, with backend-loaded country options.
+
+### `ST-FE-057` — Build NUR-003 profile personal information upsert
+
+- status: `VERIFIED`
+- evidence_summary: Personal information component, facade usage, route, spec, and stories delivered within D11–D14 authority; all focused/full verification passed.
+
+### `GATE-FE-T057`
+
+- status_result: `VERIFIED`
+- evidence_summary: Personal info tests + per-screen visual evidence satisfied: 10/10 focused tests, 45/384 full suite, all quality gates green, Create + EditPrefilled Storybook stories, and E2E create/edit journey with full prefill and updated overview. GATE-FE-T056 was VERIFIED before T-FE-057 began, per DAG.
 
 ### `T-FE-066` — Exam catalog/detail contract clarification
 

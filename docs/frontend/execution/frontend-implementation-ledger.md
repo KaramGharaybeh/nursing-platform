@@ -787,8 +787,8 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `NUR-007` | `T-FE-059` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EDU` | complete |
 | `NUR-008` | `T-FE-060` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CERT` | complete |
 | `NUR-009` | `T-FE-060` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CERT` | complete |
-| `NUR-010` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-SKILLS-LANG` | required in owning gate evidence |
-| `NUR-011` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-SKILLS-LANG` | required in owning gate evidence |
+| `NUR-010` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-SKILLS-LANG` | complete |
+| `NUR-011` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-SKILLS-LANG` | complete |
 | `NUR-012` | `T-FE-064` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-NUR-CV` | required in owning gate evidence |
 | `NUR-013` | `T-FE-065` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-NUR-PROFILE` | required if implemented |
 | `EMP-001` | `T-FE-090` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-PROFILE` | required in owning gate evidence |
@@ -2330,6 +2330,30 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: Certificate CRUD tests + per-screen visual evidence satisfied: 24/24 focused tests, 54/478 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E CRUD journey. Prerequisites GATE-FE-T056, GATE-FE-T034, and GATE-FE-T036 were all VERIFIED before closeout, per DAG.
+
+### `T-FE-062` — NUR-010/011 skills/languages
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN` (resolved by HD-S1/S2/L1/L2), `CONTRACT_CLARIFICATION` (resolved: skill length cap + language catalog)
+- evidence_date: 2026-09-16
+- scope_summary: Implemented Nurse Skills + Languages together at `/nurse/profile/skills` (NUR-010) and `/nurse/profile/languages` (NUR-011), each with the three-guard pattern and its routeId. Backend legs: skill `MaxLength(100)` validator correction with boundary tests (no migration); authoritative `GET /api/v1/languages` (RequireAuthorization, active-only, Name-ordered, `{id,name,code}`) with focused tests; Development OpenAPI recapture (3.1.1, 113 paths, 149 ops, 136 schemas) + client regen + thin `LanguagesApi`. Frontend: feature-local chip/tag Skills editor (HD-S1) and row-based Languages editor (HD-L2, no default proficiency, exact 5 values), `updateSkills`/`updateLanguages` facade methods, and "Manage skills"/"Manage languages" Overview actions. No taxonomy/autocomplete/reorder UI, no generic frameworks, no recruiter changes.
+- contract_conformance: Both updates are full-replace PUTs (delete-all + re-add, fresh ids) — modeled as collection editors, never per-item CRUD. Skills client mirrors corrected backend (blank/dup/50-cap/100-cap with whitespace-collapse + case-insensitive compare). Languages client requires explicit language + proficiency per row, blocks duplicates, caps 20, saves empty validly, and maps 409-stale-language to catalog refresh + form message without dropping draft data. No hardcoded languages; proficiency labels equal values exactly.
+- verification_summary: Backend focused Skills validator 8/8 (incl. 100/101 boundary), Languages lookup 2/3 (handler/endpoint incl. OpenAPI metadata assertions); full Application 638/638, WebApi 419/419, Domain 143/143. Frontend focused 2 files / 28 tests (routes+policy, load/order, empty, add/Enter/remove, normalization, blank/exact/case-dup, 100/101, 50-cap, full-replace incl. empty save, response-replaces-truth, 400/404/409, lookup retry, live regions, Manage actions, no-taxonomy/no-unsupported-proficiency). Full frontend suite passed 56 files / 506 tests. Lint, stylelint, dependency guard, production build, and Storybook build passed with Skills (Populated/Empty/EditingValidation) + Languages (Populated/Empty/ValidationState) stories. Playwright E2E verified the bounded journey with a disposable nurse: skills empty → add (whitespace-normalized, Enter-to-add) → case-dup blocked → save → Overview chips → languages empty → backend catalog panel (7 languages) → incomplete-row blocked → English/Fluent + Arabic/Native → dup blocked → save → Overview `name · proficiency` → remove round-trips → Overview updates; admin denied both routes; no localStorage authority; overview anchors all shipped routes; no overflow at 1440/768/390 both pages.
+
+### `ST-FE-062A` — Build `NUR-010` skills management
+
+- status: `VERIFIED`
+- evidence_summary: Feature-local chip editor with normalization-mirroring validation, 50/100 caps, full-replace save incl. empty clear, cancel-to-saved, response-replaces-truth, Announcer feedback, and Overview Manage action.
+
+### `ST-FE-062B` — Build `NUR-011` languages management
+
+- status: `VERIFIED`
+- evidence_summary: Row editor over the authoritative catalog (no defaults, explicit proficiency, exact 5 values), duplicate/incomplete/20-cap validation, full-replace save incl. empty clear, 409-stale handling with catalog refresh, cancel-to-saved, Announcer feedback, and Overview Manage action.
+
+### `GATE-FE-T062`
+
+- status_result: `VERIFIED`
+- evidence_summary: Skills/languages tests + per-screen visual evidence satisfied: 28/28 focused tests, 56/506 full suite, backend suites green (Application 638, WebApi 419, Domain 143), all frontend quality gates green, 6 Storybook stories, responsive/RTL-safe evidence, and full E2E journey. Prerequisites GATE-FE-T056 and GATE-FE-T034 were VERIFIED before closeout, per DAG.
 
 ### `T-FE-066` — Exam catalog/detail contract clarification
 

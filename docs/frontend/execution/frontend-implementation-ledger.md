@@ -2501,6 +2501,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - evidence_summary: Account overview tests + per-screen visual evidence satisfied: 15/15 focused tests, 62/575 full suite, all quality gates green, 4 Storybook stories, responsive/RTL-safe evidence, and E2E journey incl. second-actor coverage. Prerequisites GATE-FE-T138, GATE-FE-T033, and GATE-FE-T092 were VERIFIED before closeout, per DAG. Contact Requests navigation stays deferred per HD-A5/HD-R4.
 
+### `T-FE-070` — Preparation-package screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-16
+- scope_summary: Documentation/design-authority packet only: created `docs/frontend/design/inventory/preparation-package-screen-approval-packet.md` covering offers, entitlements, practice, exam-start, report, and material-reader screens with human-approved decisions HD-PP1–HD-PP5. No Angular components, routes, navigation UI, backend/OpenAPI mutation, package changes, screen implementation, or push occurred.
+- contract_summary: Entitlement list/detail contracts verified from source (page/pageSize-only list, 1-based, AccessStartsAt-desc order, server totals, `NurseRoleGuard` ownership, 403-without-profile, 404 detail; display vs hidden DTO fields classified; Active/Expired/Revoked + server-computed right availability as verbatim truth). Offers catalog, practice, exam-start, and report contracts recorded with owning tasks; material reader confirmed still backend-gap. Commerce/purchase behavior explicitly excluded to T-FE-077/082/084.
+- verification_summary: Docs-only verification: packet exists with per-screen decisions traceable to source evidence (endpoint mappings, DTOs, validators, generated clients, route registry); no code changed; ledger rows updated (entitlement + offers screens APPROVED, practice/exam-start/report BLOCKED to owning gates, reader BLOCKED on gap).
+
+### `ST-FE-070` — Prepare Preparation Package screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Packet prepared and human-approved with HD-PP1–HD-PP5; per-screen decisions recorded; practice/exam/report explicitly left to owning gates; commerce explicitly excluded.
+
+### `GATE-FE-T070`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence satisfies the family-packet requirement: `preparation-package-screen-approval-packet.md` exists with explicit APPROVED decisions for offers browse metadata and entitlement list/detail, explicit BLOCKED for practice/exam-start/report with owning tasks identified, explicit BLOCKED for the material reader on the verified backend gap, and no invented commerce/filter/sort behavior. `T-FE-076` (and packet-wise `T-FE-075`) are thereby unblocked; both remain NOT STARTED pending separate authorization.
+
 ### `T-FE-065` — NUR-013 profile completion clarification (closed without implementation)
 
 - status: `VERIFIED`

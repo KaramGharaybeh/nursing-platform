@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
@@ -20,7 +19,7 @@ type ExperienceView = 'list' | 'create' | 'edit';
 
 @Component({
   selector: 'np-nurse-experience',
-  imports: [DatePipe, LoadingErrorRetry, MatButtonModule, NpLiveRegion, NurseExperienceForm],
+  imports: [LoadingErrorRetry, MatButtonModule, NpLiveRegion, NurseExperienceForm],
   templateUrl: './nurse-experience.html',
   styleUrl: './nurse-experience.scss',
 })
@@ -200,6 +199,23 @@ export class NurseExperience implements OnInit {
 
   protected isDeleting(id: string): boolean {
     return this.deletingId() === id;
+  }
+
+  /**
+   * Formats a backend calendar date (`YYYY-MM-DD`) without timezone shifting.
+   * Constructs a local-midnight date from the parts so the displayed calendar
+   * day is identical in every browser timezone.
+   */
+  protected formatDate(iso: string | null | undefined): string {
+    if (iso === null || iso === undefined) {
+      return '';
+    }
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
+    if (match === null) {
+      return iso;
+    }
+    const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(date);
   }
 
   protected deleteErrorFor(id: string): NormalizedProblemDetails | undefined {

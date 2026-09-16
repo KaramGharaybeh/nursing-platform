@@ -141,6 +141,8 @@ describe('NurseExperience', () => {
     expect(cards.length).toBe(2);
     expect(cards[0].textContent).toContain('Emergency Department Nurse');
     expect(cards[1].textContent).toContain('Staff Nurse');
+    expect(cards[0].textContent).toContain('Apr 1, 2019');
+    expect(cards[1].textContent).toContain('Mar 30, 2019');
     expect(content).toContain('City General Hospital');
     expect(content).toContain('Saudi Arabia');
     expect(content).toContain('Present');

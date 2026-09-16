@@ -46,9 +46,9 @@
                   <p class="np-nurse-experience-country">{{ experience.countryName }}</p>
                 }
                 <p class="np-nurse-experience-dates">
-                  {{ experience.startDate | date: 'mediumDate' : 'UTC' }} →
+                  {{ formatDate(experience.startDate) }} →
                   @if (experience.endDate) {
-                    {{ experience.endDate | date: 'mediumDate' : 'UTC' }}
+                    {{ formatDate(experience.endDate) }}
                   } @else {
                     Present
                   }

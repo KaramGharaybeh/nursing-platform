@@ -789,7 +789,7 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `NUR-009` | `T-FE-060` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CERT` | complete |
 | `NUR-010` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-SKILLS-LANG` | complete |
 | `NUR-011` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-SKILLS-LANG` | complete |
-| `NUR-012` | `T-FE-064` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-NUR-CV` | required in owning gate evidence |
+| `NUR-012` | `T-FE-064` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-CV` | required in owning gate evidence |
 | `NUR-013` | `T-FE-065` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-NUR-PROFILE` | required if implemented |
 | `EMP-001` | `T-FE-090` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-PROFILE` | required in owning gate evidence |
 | `EMP-002` | `T-FE-091` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-CANDIDATES` | required in owning gate evidence |

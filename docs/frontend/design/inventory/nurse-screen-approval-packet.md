@@ -39,7 +39,7 @@ Common state contract for every screen: loading / ready / error+retry (shared `n
 | NUR-008/009 Certificates | `/nurse/profile/certificates` | Manage certificates | `GET/POST/PUT/DELETE /certificates` | LIST + CREATE + EDIT + DELETE | delete confirmation; URL validation (absolute http/https); expiry validation | NOT STARTED | APPROVED (design; implementation pending T-FE-060 authorization) |
 | NUR-010 Skills | `/nurse/profile/skills` | Manage free-text skill tags | `GET/PUT /skills` (full replace) | READ + EDIT (collection editor) | normalized duplicate rejection; ≤50 cap; empty collection | NOT STARTED | APPROVED (design; implementation pending T-FE-062 authorization) |
 | NUR-011 Languages | `/nurse/profile/languages` | Manage languages + proficiency | `GET/PUT /languages` (full replace) | READ + EDIT (collection editor) | ≤20 cap; distinct LanguageId; proficiency enum (Beginner/Intermediate/Advanced/Fluent/Native) | NOT STARTED | APPROVED (design; implementation pending T-FE-062 authorization) |
-| NUR-012 CV | `/nurse/profile/cv` | Upload/replace/delete CV document | `GET /cv` (metadata), `POST /cv` (multipart `file`), `DELETE /cv` (204) | READ + UPLOAD + DELETE | upload constraints (.pdf/.doc/.docx, ≤5MB); metadata-only display; 404 when none; delete confirmation | NOT STARTED | BLOCKED (CV contract clarified by GATE-FE-T063; upload UX design deferred to GATE-FE-T064) |
+| NUR-012 CV | `/nurse/profile/cv` | Upload/replace/delete CV document | `GET /cv` (metadata), `POST /cv` (multipart `file`), `DELETE /cv` (204) | READ + UPLOAD + DELETE | upload constraints (.pdf/.doc/.docx, ≤5MB); metadata-only display; 404 when none; delete confirmation | NOT STARTED | APPROVED (design; implementation pending T-FE-064 authorization) |
 | NUR-013 Profile completion | — (NOT_ROUTABLE) | Professional profile completeness | NONE — no backend contract exists | n/a | n/a | BLOCKED (BACKEND + CONTRACT_CLARIFICATION + DESIGN) — must remain excluded until a backend contract is separately approved | BLOCKED (deferred) |
 | (related) Contact requests | `/nurse/contact-requests` | Review/approve/reject employer contact requests | `GET /contact-requests` (paginated), `POST /{id}/approve`, `POST /{id}/reject` | READ + ACT | pagination; status filter | NOT STARTED (separate slice after profile family) | BLOCKED (design deferred to owning gate) |
 
@@ -134,6 +134,14 @@ Backend-rule correction (binding): the actual rule is one-directional — `isCur
 **HD-L1 — Language lookup. APPROVED.** Implement authoritative `GET /api/v1/languages`: `RequireAuthorization()`, active-only, Name-ordered, no pagination, response `[{id, name, code}]`, typed 200 metadata; no CRUD/admin/permission model, no frontend hardcoding. Follow with focused backend tests, Development OpenAPI recapture, client regen, and a thin `LanguagesApi` facade.
 
 **HD-L2 — Languages editor. APPROVED.** Row-based editing (Language select + Proficiency select + Remove); "Add language" creates one incomplete row with **no** preselected language and **no** default proficiency — both required before Save (placeholders "Select language"/"Select proficiency"). Exact proficiency values only: Beginner, Intermediate, Advanced, Fluent, Native. Duplicate Language IDs invalid; max 20 rows; empty collection valid and clears all; no reorder UI.
+
+### 5.7 Additional human-approved decisions HD-V1–HD-V3 (recorded 2026-09-16, T-FE-064 CV authorization)
+
+**HD-V1 — Upload trigger. APPROVED.** Explicit upload only: choose file → review filename/size → explicit Upload CV / Replace CV action → multipart upload. No auto-upload after selection, for first upload and replacement alike.
+
+**HD-V2 — Success announcements. APPROVED.** First upload announces "CV uploaded."; replacement announces "CV replaced." via Announcer/live-region per shared patterns.
+
+**HD-V3 — Replace entry. APPROVED.** Replace CV enters the select-file state directly with no pre-picker confirmation; the explicit Replace CV submit action is the deliberate confirmation. Delete CV keeps the established TwoStepConfirmation pattern.
 
 ## 6. Later-slice design dependencies (recorded, NOT solved here)
 

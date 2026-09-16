@@ -1,0 +1,12 @@
+<article class="np-entitlement-right" data-testid="entitlement-right">
+  <h3>{{ right.rightType }}</h3>
+  <p class="np-entitlement-right-status">{{ right.status }}</p>
+  <p class="np-entitlement-right-availability">{{ availabilityLabel() }}</p>
+  @if (right.isDormant) {
+    <p class="np-entitlement-right-dormant">Dormant</p>
+  }
+  <p class="np-entitlement-right-dates">Access starts {{ right.accessStartsAt | date: 'medium' }}</p>
+  @if (right.accessEndsAt) {
+    <p class="np-entitlement-right-dates">Access ends {{ right.accessEndsAt | date: 'medium' }}</p>
+  }
+</article>

@@ -1,0 +1,85 @@
+.np-nurse-entitlement-detail {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+}
+
+.np-nurse-entitlement-detail-header {
+  margin-block-start: var(--np-space-16);
+}
+
+.np-nurse-entitlement-detail-kicker {
+  margin: 0 0 var(--np-space-4);
+  color: var(--np-color-brand-1);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.np-nurse-entitlement-detail h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.np-nurse-entitlement-detail h2 {
+  margin: var(--np-space-24) 0 0;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+.np-nurse-entitlement-detail-definition {
+  margin: var(--np-space-4) 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.np-nurse-entitlement-detail-exam {
+  margin: var(--np-space-4) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.np-nurse-entitlement-detail-facts {
+  display: grid;
+  gap: var(--np-space-8);
+  margin: var(--np-space-16) 0 0;
+
+  div {
+    display: grid;
+    gap: var(--np-space-4);
+  }
+
+  dt {
+    color: var(--np-color-text-muted, #52616b);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.np-nurse-entitlement-detail-summary {
+  margin: var(--np-space-16) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.np-nurse-entitlement-detail-rights {
+  display: grid;
+  gap: var(--np-space-16);
+  margin: var(--np-space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.np-nurse-entitlement-detail-no-rights {
+  margin: var(--np-space-16) 0 0;
+  color: var(--np-color-text-muted, #52616b);
+}

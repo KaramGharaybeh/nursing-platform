@@ -134,4 +134,16 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'NURSE_CONTACT_REQUESTS' },
   },
+  {
+    path: 'nurse/preparation-packages',
+    loadComponent: () => import('./features/nurse/preparation-packages/nurse-entitlements-list').then((m) => m.NurseEntitlementsList),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'PREPARATION_PACKAGES_ENTITLEMENTS' },
+  },
+  {
+    path: 'nurse/preparation-packages/:entitlementId',
+    loadComponent: () => import('./features/nurse/preparation-packages/nurse-entitlement-detail').then((m) => m.NurseEntitlementDetail),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'PREPARATION_PACKAGES_ENTITLEMENT_DETAIL' },
+  },
 ];

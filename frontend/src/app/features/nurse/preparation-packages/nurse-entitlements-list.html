@@ -1,0 +1,39 @@
+<section class="np-nurse-entitlements-list" aria-labelledby="nurse-entitlements-title">
+  <np-live-region />
+
+  <p class="np-nurse-entitlements-list-kicker">Nurse</p>
+  <h1 id="nurse-entitlements-title">Preparation packages</h1>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading your preparation packages"
+    fallbackErrorTitle="Your preparation packages could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (listState() === 'empty') {
+      <np-empty-state
+        kind="empty"
+        title="No preparation packages yet."
+        description="Your preparation package entitlements will appear here when available."
+      />
+    } @else {
+      <ul class="np-nurse-entitlements-list-items">
+        @for (entitlement of result()?.items ?? []; track entitlement.id) {
+          <li>
+            <np-nurse-entitlement-card [entitlement]="entitlement" />
+          </li>
+        }
+      </ul>
+      <np-pagination
+        [page]="page()"
+        [totalPages]="result()?.totalPages ?? 0"
+        [totalCount]="result()?.totalCount ?? 0"
+        itemLabel="packages"
+        ariaLabel="Preparation packages pagination"
+        (pageRequested)="loadPage($event)"
+      />
+    }
+  }
+</section>

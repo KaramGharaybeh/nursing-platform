@@ -1,0 +1,48 @@
+<section class="np-nurse-entitlement-detail" aria-labelledby="nurse-entitlement-detail-title">
+  <a [routerLink]="backPath" data-testid="entitlement-back-link">Back to preparation packages</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading your preparation package"
+    fallbackErrorTitle="Your preparation package could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (notFound()) {
+      <p role="status" data-testid="entitlement-missing-notice">
+        This preparation package is no longer available. It may have been removed, or the link is incorrect.
+      </p>
+    } @else if (entitlement(); as detail) {
+      <header class="np-nurse-entitlement-detail-header">
+        <p class="np-nurse-entitlement-detail-kicker">Nurse</p>
+        <h1 id="nurse-entitlement-detail-title">{{ detail.packageOfferTitle }}</h1>
+        <p class="np-nurse-entitlement-detail-definition">{{ detail.packageDefinitionTitle }}</p>
+        <p class="np-nurse-entitlement-detail-exam">{{ detail.includedExamTitle }}</p>
+      </header>
+
+      <dl class="np-nurse-entitlement-detail-facts">
+        <div><dt>Status</dt><dd>{{ detail.status }}</dd></div>
+        <div><dt>Access starts</dt><dd>{{ detail.accessStartsAt | date: 'medium' }}</dd></div>
+        <div><dt>Access ends</dt><dd>{{ detail.accessEndsAt | date: 'medium' }}</dd></div>
+      </dl>
+
+      @if (hasSummary()) {
+        <p class="np-nurse-entitlement-detail-summary">{{ detail.purchasedSnapshot.packageOfferSummary }}</p>
+      }
+
+      <h2>Benefit rights</h2>
+      @if (detail.benefitRights.length > 0) {
+        <ul class="np-nurse-entitlement-detail-rights">
+          @for (right of detail.benefitRights; track $index) {
+            <li>
+              <np-nurse-entitlement-right [right]="right" />
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="np-nurse-entitlement-detail-no-rights">No benefit rights are listed for this package.</p>
+      }
+    }
+  }
+</section>

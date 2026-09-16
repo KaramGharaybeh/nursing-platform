@@ -50,6 +50,7 @@ export type { ExamSessionQuestionDto } from './models/exam-session-question-dto'
 export type { ExamSessionStatus } from './models/exam-session-status';
 export type { ExamStatus } from './models/exam-status';
 export type { ForgotPasswordRequest } from './models/forgot-password-request';
+export type { LanguageListItemDto } from './models/language-list-item-dto';
 export type { LoginCommand } from './models/login-command';
 export type { NurseCertificateDto } from './models/nurse-certificate-dto';
 export type { NurseCvDocumentDto } from './models/nurse-cv-document-dto';
@@ -177,6 +178,8 @@ export type { ListRecruitmentCandidates$Params as ListRecruitmentCandidates$Para
 export { listRecruitmentCandidates as listRecruitmentCandidates } from './fn/nursing-platform-web-api/list-recruitment-candidates';
 export type { ListCountries$Params as ListCountries$Params } from './fn/nursing-platform-web-api/list-countries';
 export { listCountries as listCountries } from './fn/nursing-platform-web-api/list-countries';
+export type { ListLanguages$Params as ListLanguages$Params } from './fn/nursing-platform-web-api/list-languages';
+export { listLanguages as listLanguages } from './fn/nursing-platform-web-api/list-languages';
 export type { ListExams$Params as ListExams$Params } from './fn/nursing-platform-web-api/list-exams';
 export { listExams as listExams } from './fn/nursing-platform-web-api/list-exams';
 export type { GetExam$Params as GetExam$Params } from './fn/nursing-platform-web-api/get-exam';

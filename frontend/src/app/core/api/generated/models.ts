@@ -45,6 +45,7 @@ export type { ExamSessionQuestionDto } from './models/exam-session-question-dto'
 export type { ExamSessionStatus } from './models/exam-session-status';
 export type { ExamStatus } from './models/exam-status';
 export type { ForgotPasswordRequest } from './models/forgot-password-request';
+export type { LanguageListItemDto } from './models/language-list-item-dto';
 export type { LoginCommand } from './models/login-command';
 export type { NurseCertificateDto } from './models/nurse-certificate-dto';
 export type { NurseCvDocumentDto } from './models/nurse-cv-document-dto';

@@ -3954,6 +3954,42 @@
         ]
       }
     },
+    "/api/v1/languages": {
+      "get": {
+        "tags": [
+          "NursingPlatform.WebApi"
+        ],
+        "operationId": "ListLanguages",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LanguageListItemDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer authentication challenge."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/exams": {
       "get": {
         "tags": [
@@ -9646,6 +9682,26 @@
                 "type": "string"
               }
             }
+          }
+        }
+      },
+      "LanguageListItemDto": {
+        "required": [
+          "id",
+          "name",
+          "code"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
           }
         }
       },

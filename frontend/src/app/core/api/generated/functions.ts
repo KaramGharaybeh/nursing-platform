@@ -37,6 +37,8 @@ export type { ListRecruitmentCandidates$Params as ListRecruitmentCandidates$Para
 export { listRecruitmentCandidates as listRecruitmentCandidates } from './fn/nursing-platform-web-api/list-recruitment-candidates';
 export type { ListCountries$Params as ListCountries$Params } from './fn/nursing-platform-web-api/list-countries';
 export { listCountries as listCountries } from './fn/nursing-platform-web-api/list-countries';
+export type { ListLanguages$Params as ListLanguages$Params } from './fn/nursing-platform-web-api/list-languages';
+export { listLanguages as listLanguages } from './fn/nursing-platform-web-api/list-languages';
 export type { ListExams$Params as ListExams$Params } from './fn/nursing-platform-web-api/list-exams';
 export { listExams as listExams } from './fn/nursing-platform-web-api/list-exams';
 export type { GetExam$Params as GetExam$Params } from './fn/nursing-platform-web-api/get-exam';

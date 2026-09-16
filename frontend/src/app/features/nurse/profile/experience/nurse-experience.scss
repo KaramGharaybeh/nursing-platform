@@ -1,0 +1,148 @@
+.np-nurse-experience {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+}
+
+.np-nurse-experience-kicker {
+  margin: 0 0 var(--np-space-4);
+  color: var(--np-color-brand-1);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.np-nurse-experience h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-nurse-experience-notice {
+  margin: var(--np-space-16) 0 0;
+  padding: var(--np-space-12) var(--np-space-16);
+  background: var(--np-color-surface, #fff);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-8);
+}
+
+.np-nurse-experience-list-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-16);
+  margin-block-start: var(--np-space-16);
+}
+
+.np-nurse-experience-hint {
+  margin: 0;
+  color: var(--np-color-text-muted, #52616b);
+  line-height: 1.6;
+}
+
+.np-nurse-experience-empty {
+  margin-block-start: var(--np-space-24);
+  padding: var(--np-space-32);
+  background: var(--np-color-surface, #fff);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin: var(--np-space-12) 0 0;
+    color: var(--np-color-text-muted, #52616b);
+    line-height: 1.6;
+  }
+}
+
+.np-nurse-experience-list {
+  display: grid;
+  gap: var(--np-space-16);
+  margin: var(--np-space-24) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.np-nurse-experience-card {
+  padding: var(--np-space-24);
+  background: var(--np-color-surface, #fff);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+
+  h3 {
+    margin: 0;
+    font-size: 1.125rem;
+  }
+}
+
+.np-nurse-experience-facility {
+  margin: var(--np-space-4) 0 0;
+  font-weight: 600;
+}
+
+.np-nurse-experience-country,
+.np-nurse-experience-dates {
+  margin: var(--np-space-4) 0 0;
+  color: var(--np-color-text-muted, #52616b);
+}
+
+.np-nurse-experience-current {
+  display: inline-block;
+  margin: var(--np-space-8) 0 0;
+  padding: var(--np-space-4) var(--np-space-12);
+  background: color-mix(in srgb, var(--np-color-brand-1) 12%, transparent);
+  border-radius: var(--np-space-12);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.np-nurse-experience-description {
+  margin: var(--np-space-12) 0 0;
+  line-height: 1.6;
+}
+
+.np-nurse-experience-description-clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.np-nurse-experience-card-actions,
+.np-nurse-experience-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-8);
+  margin-block-start: var(--np-space-16);
+}
+
+.np-nurse-experience-delete {
+  color: var(--np-color-error, #b3261e);
+}
+
+.np-nurse-experience-confirm {
+  margin-block-start: var(--np-space-16);
+  padding: var(--np-space-16);
+  border: 1px solid color-mix(in srgb, var(--np-color-error, #b3261e) 32%, transparent);
+  border-radius: var(--np-space-8);
+}
+
+.np-nurse-experience-delete-error {
+  margin: var(--np-space-12) 0 0;
+  color: var(--np-color-error, #b3261e);
+}
+
+.np-nurse-experience-form-title {
+  margin: var(--np-space-24) 0 0;
+  font-size: 1.25rem;
+}

@@ -191,14 +191,15 @@ describe('NurseProfileOverview', () => {
     expect(text).not.toContain('No professional Nurse Profile has been created yet');
   });
 
-  it('exposes only the personal information action and no section navigation or completion UI', async () => {
+  it('exposes the personal information and experience actions and no other section navigation or completion UI', async () => {
     const { fixture } = await setup();
     const text = fixture.nativeElement.textContent as string;
     const anchors = Array.from(fixture.nativeElement.querySelectorAll('a') as NodeListOf<HTMLAnchorElement>);
 
-    expect(anchors.length).toBe(1);
+    expect(anchors.length).toBe(2);
     expect(anchors[0].textContent?.trim()).toBe('Edit personal information');
-    expect(text).not.toContain('Manage experience');
+    expect(anchors[1].textContent?.trim()).toBe('Manage experience');
+    expect(anchors[1].getAttribute('href')).toBe('/nurse/profile/experience');
     expect(text).not.toContain('Manage education');
     expect(text).not.toContain('Manage certificates');
     expect(text).not.toContain('Manage skills');

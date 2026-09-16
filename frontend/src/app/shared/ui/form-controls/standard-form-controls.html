@@ -141,4 +141,33 @@
       }
     </div>
   </fieldset>
+} @else if (controlKind === 'date') {
+  <mat-form-field class="np-standard-field" appearance="outline" subscriptSizing="fixed">
+    <mat-label>
+      {{ label }}
+      @if (requirementLabel !== undefined) {
+        <span class="np-standard-control-optional">{{ requirementLabel }}</span>
+      }
+    </mat-label>
+    <input
+      class="np-standard-field-native"
+      matInput
+      [id]="controlId"
+      type="date"
+      [value]="value"
+      [placeholder]="placeholder"
+      [required]="required"
+      [disabled]="disabled"
+      [attr.aria-describedby]="describedBy"
+      [attr.aria-invalid]="hasError ? 'true' : null"
+      (input)="updateTextValue($any($event.target).value)"
+      (change)="updateTextValue($any($event.target).value)"
+    />
+    @if (hasHelper) {
+      <mat-hint [id]="helperId" align="start">{{ helperText }}</mat-hint>
+    }
+    @if (hasError) {
+      <mat-hint [id]="errorId" align="end" class="np-standard-control-error">{{ errorText }}</mat-hint>
+    }
+  </mat-form-field>
 }

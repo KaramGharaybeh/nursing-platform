@@ -6,7 +6,7 @@ import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 
 export type NpTextInputType = 'text' | 'email' | 'password' | 'search' | 'number';
-type NpStandardControlKind = 'input' | 'textarea' | 'select' | 'checkbox' | 'radio';
+type NpStandardControlKind = 'input' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date';
 
 export interface NpSelectOption {
   readonly value: string;
@@ -137,4 +137,14 @@ export class NpCheckboxControl extends NpStandardControlBase {
 })
 export class NpRadioGroupControl extends NpStandardControlBase {
   protected readonly controlKind: NpStandardControlKind = 'radio';
+}
+
+@Component({
+  selector: 'np-date-control',
+  imports: STANDARD_FORM_CONTROL_IMPORTS,
+  templateUrl: './standard-form-controls.html',
+  styleUrl: './standard-form-controls.scss',
+})
+export class NpDateControl extends NpStandardControlBase {
+  protected readonly controlKind: NpStandardControlKind = 'date';
 }

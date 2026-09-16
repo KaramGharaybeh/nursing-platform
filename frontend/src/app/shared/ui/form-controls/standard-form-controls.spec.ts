@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   NpCheckboxControl,
+  NpDateControl,
   NpRadioGroupControl,
   NpSelectControl,
   NpTextareaControl,
@@ -31,7 +32,7 @@ function all<T extends Element>(fixture: ComponentFixture<unknown>, selector: st
 }
 
 @Component({
-  imports: [NpTextInputControl, NpTextareaControl, NpSelectControl, NpCheckboxControl, NpRadioGroupControl],
+  imports: [NpTextInputControl, NpTextareaControl, NpSelectControl, NpCheckboxControl, NpRadioGroupControl, NpDateControl],
   template: `
     <np-text-input-control
       label="Email address"
@@ -86,9 +87,28 @@ function all<T extends Element>(fixture: ComponentFixture<unknown>, selector: st
       [required]="true"
       [options]="shiftOptions"
     />
+
+    <np-date-control
+      label="Start date"
+      controlId="start-date-field"
+      value="2020-03-15"
+      helperText="First day in this role."
+      [required]="true"
+      (valueChange)="lastDateValue = $event"
+    />
+
+    <np-date-control
+      label="End date"
+      controlId="end-date-field"
+      value=""
+      helperText="Last day in this role."
+      errorText="End date must be on or after the start date."
+      [disabled]="true"
+    />
   `,
 })
 class FormControlsHost {
+  lastDateValue = '';
   readonly countryOptions: readonly NpSelectOption[] = [
     { value: 'ae', label: 'United Arab Emirates' },
     { value: 'sa', label: 'Saudi Arabia' },
@@ -218,7 +238,38 @@ describe('standard form controls', () => {
     expect(combined).not.toContain('formcontrol');
   });
 
+    it('renders native date inputs with the YYYY-MM-DD value contract', () => {
+    const start = query<HTMLInputElement>(fixture, '#start-date-field');
+
+    expect(start?.type).toBe('date');
+    expect(start?.value).toBe('2020-03-15');
+    expect(start?.required).toBe(true);
+    expect(start?.getAttribute('aria-describedby')).toContain('start-date-field-helper');
+    expect(fixture.nativeElement.textContent).toContain('First day in this role.');
+  });
+
+  it('surfaces date errors through the shared hint pattern and supports disabled state', () => {
+    const end = query<HTMLInputElement>(fixture, '#end-date-field');
+
+    expect(end?.type).toBe('date');
+    expect(end?.disabled).toBe(true);
+    expect(end?.getAttribute('aria-describedby')).toContain('end-date-field-error');
+    const error = query<HTMLElement>(fixture, '#end-date-field-error');
+    expect(error?.textContent).toContain('End date must be on or after the start date.');
+  });
+
+  it('emits YYYY-MM-DD strings when the native date input changes', () => {
+    const start = query<HTMLInputElement>(fixture, '#start-date-field');
+    expect(start).not.toBeNull();
+
+    start?.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect((fixture.componentInstance as FormControlsHost).lastDateValue).toBe('2020-03-15');
+  });
+
   it('keeps production components on external templates and styles only', () => {
+
     const source = readText(`${formControlsDir}/standard-form-controls.ts`);
     const template = readText(`${formControlsDir}/standard-form-controls.html`);
 

@@ -35,7 +35,7 @@ Common state contract for every screen: loading / ready / error+retry (shared `n
 | NUR-001/002 Overview | `/nurse/profile` | View professional profile summary + navigate to sections | `GET /me/nurse-profile` (+ section GETs) | READ-ONLY | first-time 404 empty state; per-section empty presentation; CV metadata (approved D1-D10) | NOT STARTED | APPROVED (design; implementation pending T-FE-056 authorization) |
 | NUR-003 Personal information | `/nurse/profile/personal-information` | Edit base professional profile | `GET /me/nurse-profile`, `PUT` (upsert create-or-update) | READ + EDIT (single form) | validation states; 409 invalid-country problem-details | NOT STARTED | APPROVED (design; implementation pending T-FE-057 within the first Nurse vertical slice) |
 | NUR-004/005 Experience | `/nurse/profile/experience` | Manage employment history | `GET/POST/PUT/DELETE /experiences` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start when provided, End null when IsCurrent — one-directional, End may be null when not current); empty list | NOT STARTED | APPROVED (design; implementation pending T-FE-058 authorization) |
-| NUR-006/007 Education | `/nurse/profile/education` | Manage education | `GET/POST/PUT/DELETE /education` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start when both) | NOT STARTED | BLOCKED (design deferred to GATE-FE-T059) |
+| NUR-006/007 Education | `/nurse/profile/education` | Manage education | `GET/POST/PUT/DELETE /education` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start when both) | NOT STARTED | APPROVED (design; implementation pending T-FE-059 authorization) |
 | NUR-008/009 Certificates | `/nurse/profile/certificates` | Manage certificates | `GET/POST/PUT/DELETE /certificates` | LIST + CREATE + EDIT + DELETE | delete confirmation; URL validation (absolute http/https); expiry validation | NOT STARTED | BLOCKED (design deferred to GATE-FE-T060) |
 | NUR-010 Skills | `/nurse/profile/skills` | Manage free-text skill tags | `GET/PUT /skills` (full replace) | READ + EDIT (collection editor) | normalized duplicate rejection; ≤50 cap; empty collection | NOT STARTED | BLOCKED (design deferred to GATE-FE-T062) |
 | NUR-011 Languages | `/nurse/profile/languages` | Manage languages + proficiency | `GET/PUT /languages` (full replace) | READ + EDIT (collection editor) | ≤20 cap; distinct LanguageId; proficiency enum (Beginner/Intermediate/Advanced/Fluent/Native) | NOT STARTED | BLOCKED (design deferred to GATE-FE-T062) |
@@ -110,6 +110,12 @@ Use only currently supported base-profile information: headline, professionalSum
 **HD-6 — Copy/content polish. APPROVED.** Do NOT add a recruiter-facing explanatory note to the Experience page; it is primarily for the Nurse managing their employment history. Use only factual field/helper content. For long descriptions: concise 2–3 line preview in list cards with an accessible Show more / Show less affordance when needed. Do not create a dedicated Experience detail page.
 
 Backend-rule correction (binding): the actual rule is one-directional — `isCurrent = true` → End Date must be null. When `isCurrent = false`, End Date may still be null. Any shorthand implying "End Date is null iff IsCurrent" is stale and must not be enforced.
+
+### 5.4 Additional human-approved decisions HD-E1–HD-E2 (recorded 2026-09-16, T-FE-059 Education authorization)
+
+**HD-E1 — Education date-line rendering. APPROVED.** Education dates are optional. Render: startDate + endDate → "{start} → {end}"; startDate only → "{start} → Present"; endDate only → "{end}"; neither date → omit the date line entirely. Do NOT render "Dates not provided" or any warning/status implying missing dates are invalid. Use the same TZ-safe calendar-date formatting pattern already verified in Nurse Experience.
+
+**HD-E2 — Overview education action. APPROVED.** After T-FE-059 ships, the Education summary card on `/nurse/profile` must expose "Manage education" → `/nurse/profile/education`. This is the same established CRUD-destination wording pattern as "Manage experience".
 
 ## 6. Later-slice design dependencies (recorded, NOT solved here)
 

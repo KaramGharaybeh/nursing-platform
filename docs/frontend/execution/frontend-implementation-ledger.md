@@ -817,8 +817,8 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `COM-006` | `T-FE-087` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`BACKEND` | `C-PAY-ORDERS`,`C-PAY-CHECKOUT` | required in owning gate evidence |
 | `COM-007` | `T-FE-088` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-PAY-ORDERS` | required in owning gate evidence |
 | `COM-008` | `T-FE-088` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-PAY-ORDERS` | required in owning gate evidence |
-| `ACC-001` | `T-FE-097` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-ME` | required in owning gate evidence |
-| `ACC-002` | `T-FE-097` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-ME` | required in owning gate evidence |
+| `ACC-001` | `T-FE-097` | `GATE-FE-T092` | `APPROVED` | `NOT STARTED` | — | `C-ME` | required in owning gate evidence |
+| `ACC-002` | `T-FE-097` | `GATE-FE-T092` | `APPROVED` | `NOT STARTED` | — | `C-ME` | required in owning gate evidence |
 | `ACC-003` | `T-FE-099` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
 | `ACC-004` | `T-FE-100` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
 | `ACC-005` | `T-FE-101` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
@@ -2548,8 +2548,28 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Material-reader classification evidence is recorded: learner route absence, admin authoring distinction, entitlement DTO limitations, negative route test, OpenAPI consistency, and no implementation performed.
 - closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; no material reader is implemented.
 
-### `T-FE-093` — Candidate detail contract clarification
+### `T-FE-092` — Account screen approval packet
 
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-16
+- scope_summary: Documentation/design-authority packet only: created `docs/frontend/design/inventory/account-screen-approval-packet.md` reviewing ACC-001..006 with human-approved decisions HD-A1–HD-A5. No Angular components, routes, navigation UI, backend/OpenAPI mutation, package changes, screen implementation, or push occurred.
+- contract_summary: `T-FE-092` owns the `ACC-001..006` packet review. ACC-001/002 are APPROVED (identity self-service at mounted `/account`; ACC-002 same-route edit via `PUT /api/v1/me/profile` first/last name only); ACC-003..006 stay BLOCKED on verified backend gaps (`T-FE-099..102` own those classifications). No username/email/password/sessions/notification/status behavior approved; no Contact Requests entry (HD-A5 condition unmet, HD-R4 deferral stands); `isProfileComplete` stays onboarding-only.
+- verification_summary: Docs-only verification: packet exists with per-screen decisions traceable to source evidence (`GET /api/v1/me` + `PUT /me/profile` contracts, generated clients, `CurrentUserStore`/`T-FE-138`, mounted AUTHENTICATED_ONLY `/account` shell, page-registry NOT_ROUTABLE ACC-002, gap classifications); no code changed; ledger ACC rows flipped to APPROVED except backend-gap ACC-003..006.
+
+### `ST-FE-092` — Prepare Account screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Packet prepared and human-approved with HD-A1–HD-A5; per-screen decisions recorded; ACC-003..006 explicitly left BLOCKED on backend gaps; Contact Requests entry explicitly deferred.
+
+### `GATE-FE-T092`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence satisfies the family-packet requirement: `account-screen-approval-packet.md` exists with explicit APPROVED decisions for ACC-001/002, explicit BLOCKED for ACC-003..006 with owning classification tasks identified, and no invented self-service/navigation/permission behavior. `T-FE-097` is thereby unblocked (its `GATE-FE-T138`/`GATE-FE-T033` dependencies were already VERIFIED); `T-FE-097` remains NOT STARTED pending separate authorization.
+
+### `T-FE-093` — Candidate detail contract clarification
 - status: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`,`BACKEND`
 - evidence_date: 2026-09-07

@@ -817,8 +817,8 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `COM-006` | `T-FE-087` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`BACKEND` | `C-PAY-ORDERS`,`C-PAY-CHECKOUT` | required in owning gate evidence |
 | `COM-007` | `T-FE-088` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-PAY-ORDERS` | required in owning gate evidence |
 | `COM-008` | `T-FE-088` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-PAY-ORDERS` | required in owning gate evidence |
-| `ACC-001` | `T-FE-097` | `GATE-FE-T092` | `APPROVED` | `NOT STARTED` | — | `C-ME` | required in owning gate evidence |
-| `ACC-002` | `T-FE-097` | `GATE-FE-T092` | `APPROVED` | `NOT STARTED` | — | `C-ME` | required in owning gate evidence |
+| `ACC-001` | `T-FE-097` | `GATE-FE-T092` | `APPROVED` | `VERIFIED` | — | `C-ME` | complete |
+| `ACC-002` | `T-FE-097` | `GATE-FE-T092` | `APPROVED` | `VERIFIED` | — | `C-ME` | complete |
 | `ACC-003` | `T-FE-099` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
 | `ACC-004` | `T-FE-100` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
 | `ACC-005` | `T-FE-101` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
@@ -2476,6 +2476,30 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: Nurse received-request tests + per-screen visual evidence satisfied: 17/17 focused tests, 61/563 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E journey over legitimate backend workflows. Prerequisites GATE-FE-T056 and GATE-FE-T038 were VERIFIED before closeout, per DAG. Discoverable navigation entry stays deferred to future account/navigation authority per HD-R4.
+
+### `T-FE-097` — ACC-001/002 account overview/details
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN` (resolved by HD-A1–HD-A5)
+- evidence_date: 2026-09-16
+- scope_summary: Implemented ACC-001 Account Overview + ACC-002 Personal Details inside canonical `/account` (existing route/guards/AUTHENTICATED_ONLY preserved; placeholder shell replaced, no child routes). Added `features/account/` container (`account.ts/html/scss`) + feature-local `personal-details-form.ts/html/scss` with specs + 4 stories. Overview shows first/last name, username, email, and factual Verified/Not verified only. Edit is same-route view/edit with first/last fields, exact `{firstName, lastName}` PUT via `ProfileApi`, and `CurrentUserStore.hydrate()` sync. No username/email/password editing, resend, sessions, roles display, completion UI, Contact Requests entry, or backend/OpenAPI changes.
+- contract_conformance: `PUT /api/v1/me/profile` exact body (trimmed, ≤100 each, required); backend 400s map through Problem Details; `isProfileComplete` untouched and undisplayed; recruitment/guard behavior untouched; onboarding flow untouched.
+- verification_summary: Focused specs passed 2 files / 15 tests (route preservation, identity facts without internals, unverified state without resend, same-route prefilled edit without unapproved editors, cancel with zero requests + restore, exact single-request body, duplicate-submit guard, store hydration, backend-failure locality, no contact link, live region). Full frontend suite passed 62 files / 575 tests. Lint, stylelint, dependency guard, production build, and Storybook build passed with Loaded/NotVerified/EditPersonalDetails/ValidationErrors stories. Playwright E2E verified with a disposable nurse (signup → MailPit verify → signin → onboarding → overview facts + boundaries → required-validation block → cancel restore → save → announcement → persistence → URL unchanged) plus Admin as second actor on the same actor-neutral page; no localStorage authority; no overflow at 1440/768/390.
+
+### `ST-FE-097A` — Build `ACC-001` Overview
+
+- status: `VERIFIED`
+- evidence_summary: Identity summary (name/username/email/verification fact) with loading state, Edit entry, and boundary assertions; placeholder shell fully replaced.
+
+### `ST-FE-097B` — Build `ACC-002` Personal Details
+
+- status: `VERIFIED`
+- evidence_summary: Same-route reusable form with prefill, required/≤100 validation, trimmed exact-body save, cancel-discard, backend-error mapping, and duplicate-submit guard.
+
+### `GATE-FE-T097`
+
+- status_result: `VERIFIED`
+- evidence_summary: Account overview tests + per-screen visual evidence satisfied: 15/15 focused tests, 62/575 full suite, all quality gates green, 4 Storybook stories, responsive/RTL-safe evidence, and E2E journey incl. second-actor coverage. Prerequisites GATE-FE-T138, GATE-FE-T033, and GATE-FE-T092 were VERIFIED before closeout, per DAG. Contact Requests navigation stays deferred per HD-A5/HD-R4.
 
 ### `T-FE-065` — NUR-013 profile completion clarification (closed without implementation)
 

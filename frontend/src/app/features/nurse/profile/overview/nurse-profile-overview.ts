@@ -32,6 +32,7 @@ export class NurseProfileOverview implements OnInit {
 
   protected readonly personalInformationPath = canonicalRoutePath('NURSE_PROFILE_PERSONAL_INFORMATION');
   protected readonly experiencePath = canonicalRoutePath('NURSE_PROFILE_EXPERIENCE');
+  protected readonly educationPath = canonicalRoutePath('NURSE_PROFILE_EDUCATION');
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly profile = signal<NurseProfileDto | undefined>(undefined);

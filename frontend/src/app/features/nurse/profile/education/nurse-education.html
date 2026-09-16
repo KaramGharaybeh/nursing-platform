@@ -1,0 +1,149 @@
+<section class="np-nurse-education" aria-labelledby="nurse-education-title">
+  <np-live-region />
+
+  <p class="np-nurse-education-kicker">Nurse profile</p>
+  <h1 id="nurse-education-title">Education</h1>
+
+  @if (notice() !== '') {
+    <p class="np-nurse-education-notice" role="status">{{ notice() }}</p>
+  }
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading your education"
+    fallbackErrorTitle="Your education could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (view() === 'list') {
+      <div class="np-nurse-education-list-header">
+        <p class="np-nurse-education-hint">Your education history as a nurse.</p>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          data-testid="add-education"
+          (click)="startCreate()"
+        >
+          Add education
+        </button>
+      </div>
+
+      @if (records().length === 0) {
+        <div class="np-nurse-education-empty">
+          <h2>Education</h2>
+          <p>No education added yet. Add your education history to keep your professional profile up to date.</p>
+        </div>
+      } @else {
+        <ul class="np-nurse-education-list">
+          @for (record of records(); track record.id) {
+            <li>
+              <article class="np-nurse-education-card" data-testid="education-card">
+                <h3>{{ record.degree }}</h3>
+                @if (record.fieldOfStudy) {
+                  <p class="np-nurse-education-field">{{ record.fieldOfStudy }}</p>
+                }
+                <p class="np-nurse-education-institution">{{ record.institutionName }}</p>
+                @if (record.countryName) {
+                  <p class="np-nurse-education-country">{{ record.countryName }}</p>
+                }
+                @if (dateLine(record) !== '') {
+                  <p class="np-nurse-education-dates" data-testid="education-dates">{{ dateLine(record) }}</p>
+                }
+                @if (record.description) {
+                  <p
+                    class="np-nurse-education-description"
+                    [class.np-nurse-education-description-clamped]="
+                      needsDescriptionToggle(record.description) && !isDescriptionExpanded(record.id)
+                    "
+                  >
+                    {{ record.description }}
+                  </p>
+                  @if (needsDescriptionToggle(record.description)) {
+                    <button
+                      mat-button
+                      type="button"
+                      data-testid="education-toggle-description"
+                      (click)="toggleDescription(record.id)"
+                    >
+                      {{ isDescriptionExpanded(record.id) ? 'Show less' : 'Show more' }}
+                    </button>
+                  }
+                }
+
+                @if (isConfirmingDelete(record.id)) {
+                  <div class="np-nurse-education-confirm">
+                    <p role="status">
+                      Delete "{{ record.degree }} at {{ record.institutionName }}"? This cannot be
+                      undone.
+                    </p>
+                    <div class="np-nurse-education-confirm-actions">
+                      <button
+                        mat-flat-button
+                        color="warn"
+                        type="button"
+                        data-testid="education-confirm-delete"
+                        [disabled]="isDeleting(record.id)"
+                        (click)="confirmDelete()"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        mat-button
+                        type="button"
+                        data-testid="education-keep"
+                        [disabled]="isDeleting(record.id)"
+                        (click)="cancelDelete()"
+                      >
+                        Keep
+                      </button>
+                    </div>
+                    @if (deleteErrorFor(record.id); as error) {
+                      <p class="np-nurse-education-delete-error" role="alert">
+                        This education record could not be deleted. {{ error.detail || 'Try again.' }}
+                      </p>
+                    }
+                  </div>
+                } @else {
+                  <div class="np-nurse-education-card-actions">
+                    <button
+                      mat-button
+                      type="button"
+                      data-testid="education-edit"
+                      [disabled]="isDeleting(record.id)"
+                      (click)="startEdit(record)"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      mat-button
+                      type="button"
+                      class="np-nurse-education-delete"
+                      data-testid="education-delete"
+                      [disabled]="isDeleting(record.id)"
+                      (click)="requestDelete(record)"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                }
+              </article>
+            </li>
+          }
+        </ul>
+      }
+    } @else {
+      <h2 class="np-nurse-education-form-title">{{ formTitle }}</h2>
+      <np-nurse-education-form
+        [mode]="view() === 'edit' ? 'edit' : 'create'"
+        [initial]="formInitial"
+        [countries]="countries()"
+        [isSubmitting]="isSubmitting()"
+        [backendError]="formError()"
+        (save)="view() === 'edit' ? submitEdit($event) : submitCreate($event)"
+        (cancelled)="cancelForm()"
+      />
+    }
+  }
+</section>

@@ -98,4 +98,10 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'NURSE_PROFILE_EXPERIENCE' },
   },
+  {
+    path: 'nurse/profile/education',
+    loadComponent: () => import('./features/nurse/profile/education/nurse-education').then((m) => m.NurseEducation),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'NURSE_PROFILE_EDUCATION' },
+  },
 ];

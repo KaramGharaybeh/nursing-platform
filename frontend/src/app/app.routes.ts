@@ -110,4 +110,16 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'NURSE_PROFILE_CERTIFICATES' },
   },
+  {
+    path: 'nurse/profile/skills',
+    loadComponent: () => import('./features/nurse/profile/skills/nurse-skills').then((m) => m.NurseSkills),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'NURSE_PROFILE_SKILLS' },
+  },
+  {
+    path: 'nurse/profile/languages',
+    loadComponent: () => import('./features/nurse/profile/languages/nurse-languages').then((m) => m.NurseLanguages),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'NURSE_PROFILE_LANGUAGES' },
+  },
 ];

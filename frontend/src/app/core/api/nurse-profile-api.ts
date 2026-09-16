@@ -19,6 +19,8 @@ import { listCurrentNurseSkills } from './generated/fn/nursing-platform-web-api/
 import { updateNurseCertificate } from './generated/fn/nursing-platform-web-api/update-nurse-certificate';
 import { updateNurseEducation } from './generated/fn/nursing-platform-web-api/update-nurse-education';
 import { updateNurseExperience } from './generated/fn/nursing-platform-web-api/update-nurse-experience';
+import { updateNurseLanguages } from './generated/fn/nursing-platform-web-api/update-nurse-languages';
+import { updateNurseSkills } from './generated/fn/nursing-platform-web-api/update-nurse-skills';
 import { upsertCurrentNurseProfile } from './generated/fn/nursing-platform-web-api/upsert-current-nurse-profile';
 import type { CreateNurseCertificateCommand } from './generated/models/create-nurse-certificate-command';
 import type { CreateNurseEducationCommand } from './generated/models/create-nurse-education-command';
@@ -33,6 +35,8 @@ import type { NurseSkillDto } from './generated/models/nurse-skill-dto';
 import type { UpdateNurseCertificateCommand } from './generated/models/update-nurse-certificate-command';
 import type { UpdateNurseEducationCommand } from './generated/models/update-nurse-education-command';
 import type { UpdateNurseExperienceCommand } from './generated/models/update-nurse-experience-command';
+import type { UpdateNurseLanguagesCommand } from './generated/models/update-nurse-languages-command';
+import type { UpdateNurseSkillsCommand } from './generated/models/update-nurse-skills-command';
 import type { UpsertNurseProfileCommand } from './generated/models/upsert-nurse-profile-command';
 
 @Injectable({ providedIn: 'root' })
@@ -104,6 +108,18 @@ export class NurseProfileApi {
 
   deleteCertificate(id: string): Observable<void> {
     return deleteNurseCertificate(this.http, this.config.rootUrl, { id }).pipe(map(() => undefined));
+  }
+
+  updateSkills(request: UpdateNurseSkillsCommand): Observable<NurseSkillDto[]> {
+    return updateNurseSkills(this.http, this.config.rootUrl, { body: request }).pipe(
+      map((response) => response.body),
+    );
+  }
+
+  updateLanguages(request: UpdateNurseLanguagesCommand): Observable<NurseLanguageDto[]> {
+    return updateNurseLanguages(this.http, this.config.rootUrl, { body: request }).pipe(
+      map((response) => response.body),
+    );
   }
 
   listEducation(): Observable<NurseEducationDto[]> {

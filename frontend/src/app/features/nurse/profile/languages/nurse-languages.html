@@ -1,0 +1,94 @@
+<section class="np-nurse-languages" aria-labelledby="nurse-languages-title">
+  <np-live-region />
+
+  <p class="np-nurse-languages-kicker">Nurse profile</p>
+  <h1 id="nurse-languages-title">Languages</h1>
+
+  @if (notice() !== '') {
+    <p class="np-nurse-languages-notice" role="status">{{ notice() }}</p>
+  }
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading your languages"
+    fallbackErrorTitle="Your languages could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (backendFailureMessage !== '') {
+      <p class="np-nurse-languages-error" role="alert">{{ backendFailureMessage }}</p>
+    } @else {
+      <np-form-validation-summary
+        [summaryTitle]="validationSummary.title"
+        [items]="validationSummary.items"
+        [formErrors]="validationSummary.formErrors"
+      />
+    }
+
+    @if (rows().length === 0) {
+      <p class="np-nurse-languages-empty">No languages added yet. Add the languages you work in below.</p>
+    } @else {
+      <ul class="np-nurse-languages-list">
+        @for (row of rows(); track $index) {
+          <li class="np-nurse-languages-row" data-testid="language-row">
+            <np-select-control
+              [controlId]="'nurse-languages-language-' + $index"
+              [label]="rowLanguageLabel($index)"
+              [required]="true"
+              [disabled]="isSaving()"
+              [value]="row.languageId"
+              [options]="languageOptions"
+              [placeholder]="'Select language'"
+              [errorText]="rowError($index)"
+              (valueChange)="updateRowLanguage($index, $event)"
+            />
+            <np-select-control
+              [controlId]="'nurse-languages-proficiency-' + $index"
+              [label]="rowProficiencyLabel($index)"
+              [required]="true"
+              [disabled]="isSaving()"
+              [value]="row.proficiency"
+              [options]="proficiencyOptions"
+              [placeholder]="'Select proficiency'"
+              (valueChange)="updateRowProficiency($index, $event)"
+            />
+            <button mat-button type="button" [disabled]="isSaving()" (click)="removeRow($index)">
+              Remove
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    <div class="np-nurse-languages-add">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        data-testid="add-language"
+        [disabled]="isSaving() || rows().length >= maxLanguages"
+        (click)="addRow()"
+      >
+        Add language
+      </button>
+    </div>
+    @if (rows().length >= maxLanguages) {
+      <p class="np-nurse-languages-cap">A maximum of 20 languages can be saved. Remove one to add another.</p>
+    }
+
+    <div class="np-nurse-languages-actions">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        data-testid="save-languages"
+        [disabled]="isSaving()"
+        (click)="save()"
+      >
+        Save
+      </button>
+      <button mat-button type="button" [disabled]="isSaving()" (click)="cancel()">Cancel</button>
+    </div>
+  }
+</section>

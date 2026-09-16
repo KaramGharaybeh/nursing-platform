@@ -781,8 +781,8 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `NUR-001` | `T-FE-056` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-PROFILE` | complete |
 | `NUR-002` | `T-FE-056` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-PROFILE` | complete |
 | `NUR-003` | `T-FE-057` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-PROFILE` | complete |
-| `NUR-004` | `T-FE-058` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-EXP` | required in owning gate evidence |
-| `NUR-005` | `T-FE-058` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-EXP` | required in owning gate evidence |
+| `NUR-004` | `T-FE-058` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EXP` | complete |
+| `NUR-005` | `T-FE-058` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EXP` | complete |
 | `NUR-006` | `T-FE-059` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-EDU` | required in owning gate evidence |
 | `NUR-007` | `T-FE-059` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-EDU` | required in owning gate evidence |
 | `NUR-008` | `T-FE-060` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-CERT` | required in owning gate evidence |
@@ -2258,6 +2258,30 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: Personal info tests + per-screen visual evidence satisfied: 10/10 focused tests, 45/384 full suite, all quality gates green, Create + EditPrefilled Storybook stories, and E2E create/edit journey with full prefill and updated overview. GATE-FE-T056 was VERIFIED before T-FE-057 began, per DAG.
+
+### `T-FE-058` — NUR-004/005 experience CRUD
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN` (resolved by HD-1–HD-6)
+- evidence_date: 2026-09-16
+- scope_summary: Implemented Nurse Experience management at `/nurse/profile/experience` with the three-guard pattern and `routeId: 'NURSE_PROFILE_EXPERIENCE'`. Added `features/nurse/profile/experience/` (routed container + reusable create/edit form + specs + 5 stories), extended `core/api/nurse-profile-api.ts` with `create/update/deleteExperience` over the already-generated functions, added shared `NpDateControl` (native date input, `YYYY-MM-DD` contract), and added the single approved "Manage experience" Overview action (HD-5). NUR-004 = list/management state, NUR-005 = add/edit form state, same-page view switching on one route (HD-2). No Education/Certificates/Skills/Languages/CV work, no backend/OpenAPI/generated changes, no generic CRUD framework.
+- contract_conformance: Exactly the seven backend-supported fields, no invented fields. Client validation mirrors backend (facility/job required + ≤200, start required, description ≤2000, end ≥ start when provided, end null when current). End Date stays optional when not current (HD-3 corrected the one-directional rule); no one-current uniqueness invented. Countries populate exclusively from `CountriesApi` (D11 reuse). Update is full-replace PUT with the route id authoritative; delete is 204 with ownership-scoped 404 handled as already-removed. Edit prefills from the loaded list (no GET-single exists and none was invented).
+- verification_summary: Focused specs passed 2 files / 27 tests (backend order, empty state, exact create/update bodies + id routing, two-step delete with first-click/Keep safety, 404 update/delete handling, validation + isCurrent/endDate contract, country options, retry, live region, route mounting). Shared date control passed within its family spec. Full frontend suite passed 50 files / 429 tests. Lint, stylelint, dependency guard, production build, and Storybook build passed with Populated/Empty/AddExperience/EditExperience/DeleteConfirmation stories. Playwright E2E verified the complete journey with a disposable nurse: empty → create (backend country, Current disables End) → list card with TZ-safe dates → Overview summary → edit full prefill → uncheck + end date → updated card → delete 0/0/1 request proof → empty → Overview empty; non-Nurse denied; no localStorage authority; no overflow at 1440/768/390 (list + form) after a `box-sizing` correction following the approved app-shell precedent.
+
+### `ST-FE-058A` — Build `NUR-004` experience list
+
+- status: `VERIFIED`
+- evidence_summary: Routed container renders backend-ordered cards (title, facility, country, TZ-safe date range/Present, Current badge, clamped description with Show more/less), calm empty state, loading/error/retry, inline two-step delete with T-FE-036 live-region announcements, and the Overview Manage action.
+
+### `ST-FE-058B` — Build `NUR-005` add/edit experience form
+
+- status: `VERIFIED`
+- evidence_summary: Single reusable form for create/edit with approved Role/Place-and-time/Details groupings, `NpDateControl` dates, backend country select, current-role disable/clear/restore, client validation mirroring the backend contract, save/cancel semantics, and full prefill in edit mode.
+
+### `GATE-FE-T058`
+
+- status_result: `VERIFIED`
+- evidence_summary: Experience CRUD tests + per-screen visual evidence satisfied: 27/27 focused tests, 50/429 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E CRUD journey. Prerequisites GATE-FE-T056, GATE-FE-T034, and GATE-FE-T036 were all VERIFIED before closeout, per DAG.
 
 ### `T-FE-066` — Exam catalog/detail contract clarification
 

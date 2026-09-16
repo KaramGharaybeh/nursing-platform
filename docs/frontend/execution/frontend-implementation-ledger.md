@@ -1828,6 +1828,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence covers empty/no-results focused tests (semantics, action emission, no filter mutation, no illustration, landmark structure, no live-region), restricted evidence via the shipped VERIFIED access-denied screen and its story (generic privacy-safe copy, no role/permission exposure), per-screen visual evidence via the three empty-state stories, component separation with external template/style/spec/stories, absence of pagination/filter/query/product/backend behavior, full frontend verification (59 files / 534 tests), lint/stylelint/dependency-guard/build/Storybook, git diff checks, and scope review. `T-FE-038` may now consume SYS-006/SYS-007; `T-FE-038` itself is not verified by this gate.
 
+### `T-FE-038` — List/filter/pagination pattern
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-16
+- scope_summary: Implemented only the reusable `NpPagination` presentational primitive plus the pure `resolveListState` helper under `frontend/src/app/shared/ui/pagination/` (ts/html/scss/spec/stories + barrel) under human-approved HD-G1–HD-G4. Previous/Next/status nav in a landmark, 1-based `pageRequested` events, boundary disablement, hidden when `totalPages <= 1`, consumer-owned filters/pageSize/URL/sorting. No filter/search/sort controls, query serialization, API calls, facades, debounce, numbered pages, MatPaginator, URL coupling, product screens, backend/OpenAPI/generated changes, or push occurred.
+- contract_summary: Presentation-only component over the existing `PaginatedView` server model (never recomputes totalPages). Filter/search change and Clear/Reset request page 1; retry preserves page; loading uses full swap via `np-loading-error-retry`; empty/no-results compose `np-empty-state` via the `resolveListState` truth table (items→results; no items + no query→empty; no items + query→no-results). Producing admin-users screen intentionally not refactored; it stands as the behavioral precedent and `T-FE-096` becomes the first new consumer.
+- verification_summary: Focused TDD RED failed before `./pagination` existed (`TS2307`); GREEN passed 1 file / 12 tests proving hidden-when-single, boundary disablement both ends, exact 1-based emissions, no out-of-range emissions, status text contents, nav landmark/label with native button semantics, no API/router/filter dependencies, and the four-row list-state truth table. Full verification passed 60 files / 546 tests, `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, production build, and Storybook build with FirstPage/MiddlePage/LastPage/SinglePage/NarrowWrap stories. `git diff --check` clean.
+
+### `ST-FE-038` — Implement server list/filter/pagination helper
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Subtask delivered the narrow shared nav primitive plus the pure list-state selector with specs/stories. It does not create filter controls, query services, API pagination, sorting, URL sync, or product integrations.
+
+### `GATE-FE-T038`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence covers pagination focused tests (visibility, boundaries, exact 1-based events, no out-of-range emissions, status text, landmark/label semantics, dependency absence, list-state truth table), per-screen visual evidence via the five pagination stories, component separation with external template/style/spec/stories, absence of filter/query/API/router/sorting/product/backend behavior, full frontend verification (60 files / 546 tests), lint/stylelint/dependency-guard/build/Storybook, git diff checks, and scope review. `T-FE-096` is thereby prerequisite-eligible for its own design/readiness round; `T-FE-096` itself is not verified by this gate.
+
 ### `T-FE-036` — Confirmation/feedback/live-region pattern
 
 - status: `VERIFIED`

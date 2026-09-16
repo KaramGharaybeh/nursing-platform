@@ -34,7 +34,7 @@ Common state contract for every screen: loading / ready / error+retry (shared `n
 |---|---|---|---|---|---|---|---|
 | NUR-001/002 Overview | `/nurse/profile` | View professional profile summary + navigate to sections | `GET /me/nurse-profile` (+ section GETs) | READ-ONLY | first-time 404 empty state; per-section empty presentation; CV metadata (approved D1-D10) | NOT STARTED | APPROVED (design; implementation pending T-FE-056 authorization) |
 | NUR-003 Personal information | `/nurse/profile/personal-information` | Edit base professional profile | `GET /me/nurse-profile`, `PUT` (upsert create-or-update) | READ + EDIT (single form) | validation states; 409 invalid-country problem-details | NOT STARTED | APPROVED (design; implementation pending T-FE-057 within the first Nurse vertical slice) |
-| NUR-004/005 Experience | `/nurse/profile/experience` | Manage employment history | `GET/POST/PUT/DELETE /experiences` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start, End null iff IsCurrent); empty list | NOT STARTED | BLOCKED (design deferred to GATE-FE-T058) |
+| NUR-004/005 Experience | `/nurse/profile/experience` | Manage employment history | `GET/POST/PUT/DELETE /experiences` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start when provided, End null when IsCurrent — one-directional, End may be null when not current); empty list | NOT STARTED | APPROVED (design; implementation pending T-FE-058 authorization) |
 | NUR-006/007 Education | `/nurse/profile/education` | Manage education | `GET/POST/PUT/DELETE /education` | LIST + CREATE + EDIT + DELETE | delete confirmation; date validation (End≥Start when both) | NOT STARTED | BLOCKED (design deferred to GATE-FE-T059) |
 | NUR-008/009 Certificates | `/nurse/profile/certificates` | Manage certificates | `GET/POST/PUT/DELETE /certificates` | LIST + CREATE + EDIT + DELETE | delete confirmation; URL validation (absolute http/https); expiry validation | NOT STARTED | BLOCKED (design deferred to GATE-FE-T060) |
 | NUR-010 Skills | `/nurse/profile/skills` | Manage free-text skill tags | `GET/PUT /skills` (full replace) | READ + EDIT (collection editor) | normalized duplicate rejection; ≤50 cap; empty collection | NOT STARTED | BLOCKED (design deferred to GATE-FE-T062) |
@@ -94,6 +94,22 @@ Use only currently supported base-profile information: headline, professionalSum
 **D13 — Save success behavior. APPROVED.** Successful save of Personal Information navigates directly to `/nurse/profile`. No separate success page, no invented success workflow.
 
 **D14 — Overview edit action. APPROVED.** Place "Edit personal information" inside the Professional Identity / base-profile area of the populated Nurse Profile Overview. It navigates to `/nurse/profile/personal-information`.
+
+### 5.3 Additional human-approved decisions HD-1–HD-6 (recorded 2026-09-16, T-FE-058 Experience authorization)
+
+**HD-1 — Date control. APPROVED.** Use a native `<input type="date">` wrapped in the existing shared form-control architecture as `NpDateControl`, following the same label/helper/error/describedBy conventions as the existing shared controls, with a string `YYYY-MM-DD` value contract. No Material Datepicker, no custom date parsing/masking, no new dependency. Mobile accessible, keyboard accessible, RTL-safe.
+
+**HD-2 — List/form interaction. APPROVED.** One canonical route `/nurse/profile/experience`: NUR-004 = list/management state, NUR-005 = add/edit form state, with same-page view switching between list, create, and edit. Do NOT create `/experience/new` or `/experience/:id/edit`. Do NOT introduce modal/dialog/drawer architecture.
+
+**HD-3 — Current role / End Date. APPROVED.** When `isCurrent = true`: disable End Date and clear End Date before submit (the previous UI value may be retained in memory so it can be restored if the user unchecks Current before saving). When `isCurrent = false`: End Date remains OPTIONAL because the backend contract allows null — do NOT invent a frontend requirement that End Date must exist; if End Date is provided, validate `endDate >= startDate`. Helper text for the current-role checkbox: "Mark this if this role is ongoing." Do NOT state "Only one position should be current" — the backend permits multiple current experiences, so the frontend must not invent a uniqueness rule.
+
+**HD-4 — Delete confirmation. APPROVED.** Inline two-step confirmation inside the Experience card. First Delete action shows an inline confirmation such as: Delete "{JobTitle} at {FacilityName}"? This cannot be undone. Actions: Delete, Keep. Requirements: a second explicit action is required before the API call; no dialog, no drawer, no new confirmation service; accessible normal document flow, keyboard/screen-reader friendly, mobile-safe.
+
+**HD-5 — Overview action. APPROVED.** After T-FE-058 ships, the Experience summary card on `/nurse/profile` gets exactly one navigation action: "Manage experience" → `/nurse/profile/experience`. Destructive Delete actions inside Experience use quiet danger-text styling; this is not approved as a global destructive-action standard outside this feature.
+
+**HD-6 — Copy/content polish. APPROVED.** Do NOT add a recruiter-facing explanatory note to the Experience page; it is primarily for the Nurse managing their employment history. Use only factual field/helper content. For long descriptions: concise 2–3 line preview in list cards with an accessible Show more / Show less affordance when needed. Do not create a dedicated Experience detail page.
+
+Backend-rule correction (binding): the actual rule is one-directional — `isCurrent = true` → End Date must be null. When `isCurrent = false`, End Date may still be null. Any shorthand implying "End Date is null iff IsCurrent" is stale and must not be enforced.
 
 ## 6. Later-slice design dependencies (recorded, NOT solved here)
 

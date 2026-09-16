@@ -40,7 +40,7 @@ Common state contract for every screen: loading / ready / error+retry (shared `n
 | NUR-010 Skills | `/nurse/profile/skills` | Manage free-text skill tags | `GET/PUT /skills` (full replace) | READ + EDIT (collection editor) | normalized duplicate rejection; ≤50 cap; empty collection | NOT STARTED | APPROVED (design; implementation pending T-FE-062 authorization) |
 | NUR-011 Languages | `/nurse/profile/languages` | Manage languages + proficiency | `GET/PUT /languages` (full replace) | READ + EDIT (collection editor) | ≤20 cap; distinct LanguageId; proficiency enum (Beginner/Intermediate/Advanced/Fluent/Native) | NOT STARTED | APPROVED (design; implementation pending T-FE-062 authorization) |
 | NUR-012 CV | `/nurse/profile/cv` | Upload/replace/delete CV document | `GET /cv` (metadata), `POST /cv` (multipart `file`), `DELETE /cv` (204) | READ + UPLOAD + DELETE | upload constraints (.pdf/.doc/.docx, ≤5MB); metadata-only display; 404 when none; delete confirmation | NOT STARTED | APPROVED (design; implementation pending T-FE-064 authorization) |
-| NUR-013 Profile completion | — (NOT_ROUTABLE) | Professional profile completeness | NONE — no backend contract exists | n/a | n/a | BLOCKED (BACKEND + CONTRACT_CLARIFICATION + DESIGN) — must remain excluded until a backend contract is separately approved | BLOCKED (deferred) |
+| NUR-013 Profile completion | — (NOT_ROUTABLE) | Professional profile completeness | NONE — no backend contract exists | n/a | n/a | DEFERRED (HD-P1 Option B — intentionally not implemented; reopen needs fresh product authority) |
 | (related) Contact requests | `/nurse/contact-requests` | Review/approve/reject employer contact requests | `GET /contact-requests` (paginated), `POST /{id}/approve`, `POST /{id}/reject` | READ + ACT | pagination; status filter | NOT STARTED (separate slice after profile family) | BLOCKED (design deferred to owning gate) |
 
 ## 4. Empty / first-time semantics (backend-authoritative, verified)
@@ -75,7 +75,7 @@ The following decisions were approved by the human technical lead. They supersed
 
 **D7 — Section navigation actions. APPROVED.** Do not expose Manage/View links to section routes until those routes are actually implemented and mounted. As each Nurse section ships, its overview navigation action may become visible. No dead navigation affordances.
 
-**D8 — Profile completion. APPROVED.** Do NOT display: completion percentage, completion progress ring, profile score, profile strength, "Active Career Profile" status, or professional completion state. NUR-013 remains BLOCKED/deferred. The overview may display factual section information only, such as "3 positions" or "No certificates added yet", without deriving an overall completion score.
+**D8 — Profile completion. APPROVED.** Do NOT display: completion percentage, completion progress ring, profile score, profile strength, "Active Career Profile" status, or professional completion state. NUR-013 is DEFERRED under HD-P1 Option B (intentionally not implemented; §5.8). The overview may display factual section information only, such as "3 positions" or "No certificates added yet", without deriving an overall completion score.
 
 **D9 — Nurse entry route. APPROVED.** `/nurse` redirects to `/nurse/profile`. The Nurse Profile Overview is the initial Nurse-area landing page. Do not create a separate Nurse dashboard.
 
@@ -143,6 +143,10 @@ Backend-rule correction (binding): the actual rule is one-directional — `isCur
 
 **HD-V3 — Replace entry. APPROVED.** Replace CV enters the select-file state directly with no pre-picker confirmation; the explicit Replace CV submit action is the deliberate confirmation. Delete CV keeps the established TwoStepConfirmation pattern.
 
+### 5.8 Human product decision HD-P1 (recorded 2026-09-16, NUR-013 closure)
+
+**HD-P1 — Professional-profile completion. APPROVED: OPTION B (will not build under current scope).** NUR-013 is intentionally NOT IMPLEMENTED: the shipped Overview and per-section empty states already give truthful guidance; there is no defined formula, required set, eligibility behavior, publication gate, recruiter concept, percentage, checklist contract, or canonical route — and none is approved. No completion feature is invented merely because the profile has multiple sections. Consequences recorded as binding: `/me.isProfileComplete` stays generic onboarding state (first + last name) with no nurse-section coupling; recruitment eligibility stays availability + active + verified with no richness gating; no percentage/score/status UI (D8 stands); HD-P2–P6 remain UNDEFINED. Guardrails for any future reopening: completion stays separate from `/me.isProfileComplete`; no frontend-only calculation; no percentage without explicit denominator/weights/rules; no recruitment gating or employer-visible scoring without separate product + privacy approval; no section declared required merely because its screen exists; CV stays optional. Reopening NUR-013 (and re-arming T-FE-065/GATE-FE-T065) requires fresh explicit product authority.
+
 ## 6. Later-slice design dependencies (recorded, NOT solved here)
 
 - Date input choice for experience/education/certificates: no date control exists in shared form-controls (`NpTextInputControl` types: text/email/password/search/number only). Options: native `<input type="date">` wrapper vs Material datepicker (not used anywhere yet). LATER DECISION (T-FE-058+).
@@ -151,7 +155,7 @@ Backend-rule correction (binding): the actual rule is one-directional — `isCur
 - CV upload UX: first multipart in frontend; `uploadNurseCv({body:{file: Blob}})`; progress UI, error display, file picker. LATER DECISION (T-FE-064).
 - Country lookup strategy: NO `/countries` endpoint exists (verified — 0 OpenAPI paths; seed data only). NUR-003/NUR-004/NUR-006 country pickers need either an approved new lookup API (backend work, separate authorization) or a deferral decision. Does NOT block read-only overview (DTOs carry `*CountryName` display strings).
 - Language lookup strategy: same gap for NUR-011 (`LanguageId` Guid + proficiency; no `/languages` catalog endpoint). LATER DECISION.
-- NUR-013 completion model: no backend contract; remains BLOCKED. No completion percentage/score/guard may be built.
+- NUR-013 completion model: no backend contract; DEFERRED under HD-P1 Option B (§5.8) — intentionally not implemented. No completion percentage/score/guard may be built.
 
 ## 7. Frontend architecture (validated against route authority; no production files created)
 
@@ -190,4 +194,5 @@ Ownership boundaries: routed container pages own data loading + state (pattern: 
 - 2026-09-16: Human technical lead approved decisions D1–D10 and the additional content authority (Section 5.1) for the Nurse Profile Overview (NUR-001/NUR-002). NUR-001/NUR-002 design is APPROVED; execution remains NOT STARTED pending separate T-FE-056 authorization.
 - NUR-003..NUR-012 remain BLOCKED: family architecture and contracts are recorded in this packet, and screen-specific design choices (country/language lookup UX, date control, skills editor, delete confirmation, CV upload UX) are explicitly deferred to their owning implementation/design gates — permitted by the ledger structure because GATE-FE-T057..T064 each require their own per-screen visual evidence.
 - NUR-013 remains BLOCKED (no backend completion contract exists).
+- 2026-09-16 (HD-P1): Human product decision closed NUR-013 as DEFERRED Option B — intentionally not implemented under current scope (§5.8); T-FE-065/ST-FE-065 VERIFIED as clarification, GATE-FE-T065 remains NOT STARTED with no execution required. This supersedes the BLOCKED lines above for NUR-013 only; all other history is preserved.
 - GATE-FE-T052 is closed as VERIFIED on the strength of: every NUR screen having an explicit decision, the human-approved overview design authority, backend contract evidence (Section 9), and the recorded per-screen states/dependencies — consistent with the T-FE-040 family-gate precedent.

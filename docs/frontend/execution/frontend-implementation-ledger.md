@@ -790,7 +790,7 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `NUR-010` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-SKILLS-LANG` | complete |
 | `NUR-011` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-SKILLS-LANG` | complete |
 | `NUR-012` | `T-FE-064` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CV` | complete |
-| `NUR-013` | `T-FE-065` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-NUR-PROFILE` | required if implemented |
+| `NUR-013` | `T-FE-065` | `GATE-FE-T052` | `DEFERRED` | `NOT STARTED` | — | `C-NUR-PROFILE` | intentionally not implemented under HD-P1 Option B; reopen needs fresh product authority |
 | `EMP-001` | `T-FE-090` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-PROFILE` | required in owning gate evidence |
 | `EMP-002` | `T-FE-091` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-CANDIDATES` | required in owning gate evidence |
 | `EMP-003` | `T-FE-091` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-CANDIDATES` | required in owning gate evidence |
@@ -2223,7 +2223,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - packet_location: `docs/frontend/design/inventory/nurse-screen-approval-packet.md`
 - contract_summary: The packet records every NUR-001..013 screen with route identity, backend contract, read/create/edit/delete/upload behavior, required Nurse role authorization (backend `NurseRoleGuard` 401/403 remains authoritative), loading/ready/empty/error/retry/validation states, responsive/RTL/accessibility expectations, dependencies, and blockers. Nurse/recruitment response contracts are typed in canonical OpenAPI and the generated client after the 2026-09-16 readiness campaign; empty-profile semantics are backend-authoritative 404; `/me.isProfileComplete` remains generic onboarding completion only.
 - approved_screens: `NUR-001` and `NUR-002` Nurse Profile Overview are APPROVED for later separately authorized implementation under human-approved decisions D1–D10 plus the additional content authority (recorded verbatim in the packet, Section 5): full-width professional identity area + concise section-summary cards (no tabs/dashboard/giant form); Experience/Education/Certificates/Skills/Languages/CV summaries with the approved per-section depth (latest item + remaining count; ≤2 certificates without invented verification status; wrapped chip preview for skills; language name + exact proficiency values Beginner/Intermediate/Advanced/Fluent/Native; CV metadata only, no preview/download/reader); calm first-time 404 empty state ("No professional Nurse Profile has been created yet."), no dead CTA ("Add personal information" → `/nurse/profile/personal-information` only once NUR-003 is mounted), no dead section links, no completion percentage/score/strength/status, `/nurse` → `/nurse/profile` redirect with no separate Nurse dashboard, desktop full-width identity + two-column section grid / tablet 2×2 key-facts reflow / mobile single column with RTL-ready logical layouts; base-profile content limited to headline, professionalSummary, licenseNumber, licenseCountry, currentCountry, yearsOfExperience, isAvailableForRecruitment (displayed as "Available for recruitment" / "Not available for recruitment").
-- blocked_screens: `NUR-003`..`NUR-012` remain BLOCKED with `DESIGN` blockers: family architecture and per-screen contracts/states are recorded, and screen-specific design choices (country/language lookup UX, date control, skills editor, delete confirmation, CV upload UX) are explicitly deferred by the human authority to their owning implementation/design gates — permitted because `GATE-FE-T057`..`T-FE-T064` each require their own per-screen visual evidence. `NUR-012` CV contract constraints are already clarified (`GATE-FE-T063` VERIFIED). `NUR-013` remains BLOCKED (`CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN`) because no professional-completion backend contract exists; no percentage/score/persisted completion state/guard may be built.
+- blocked_screens: `NUR-003`..`NUR-012` remain BLOCKED with `DESIGN` blockers: family architecture and per-screen contracts/states are recorded, and screen-specific design choices (country/language lookup UX, date control, skills editor, delete confirmation, CV upload UX) are explicitly deferred by the human authority to their owning implementation/design gates — permitted because `GATE-FE-T057`..`T-FE-T064` each require their own per-screen visual evidence. `NUR-012` CV contract constraints are already clarified (`GATE-FE-T063` VERIFIED). `NUR-013` is DEFERRED under HD-P1 Option B (intentionally not implemented; no percentage/score/persisted completion state/guard may be built; reopen needs fresh product authority).
 - visual_readiness_summary: The approved overview composes from existing approved visual foundations — card pattern, kicker/h1 identity, Material theme bridge, standard form controls, loading/error/retry pattern, responsive helpers with logical properties, RTL/LTR foundation, and accessibility rules. No Penpot artifact is required for this routine composition from approved foundations; per-screen visual evidence is still required in owning gate evidence (`GATE-FE-T056`).
 - boundary_summary: `T-FE-029`/`T-FE-031` route identity and `ROLE Nurse` UX policy remain authoritative and unchanged; backend `NurseRoleGuard` remains the authorization authority; `NURSE_ENTRY` redirect behavior is owned by this approved decision (D9) and implemented with the overview slice; no route was mounted by this packet.
 - first_screen_recommendation: `T-FE-056` (NUR-001/002 read-only overview) is the first Nurse implementation candidate once separately authorized; all its design blockers are resolved by D1–D10.
@@ -2394,6 +2394,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: CV upload tests + per-screen visual evidence satisfied: 19/19 CV focused tests (+ 2/2 T-FE-037 multipart proving tests), 58/527 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E journey. Prerequisites GATE-FE-T056, GATE-FE-T037, GATE-FE-T052, and GATE-FE-T063 were VERIFIED before closeout, per DAG.
+
+### `T-FE-065` — NUR-013 profile completion clarification (closed without implementation)
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-16
+- scope_summary: Documentation/governance closure only under human-approved HD-P1 Option B. No frontend UI, backend behavior, endpoint, migration, OpenAPI, route, calculation, percentage, checklist, or status was implemented, and none was changed (`/me.isProfileComplete` semantics, recruitment eligibility, and all NUR-001..012 behavior preserved exactly).
+- classification_summary: NUR-013 will NOT be implemented under current product scope. The shipped Overview/empty states already give truthful per-section guidance; no professional-completion formula, required section set, eligibility behavior, publication gate, recruiter completeness concept, percentage, checklist contract, or canonical route exists or is approved. Inventing a completion feature was explicitly rejected: `VERIFIED` here means the clarification is verified (T-FE-080 precedent), not that implementation exists.
+- evidence_summary: Source audit verified `IsProfileComplete` = non-blank first + last name only (generic onboarding gate; zero nurse-section inputs; zero employer exposure); recruitment eligibility = availability + active + verified with no richness input; zero completion/score/percentage logic anywhere in backend/frontend/docs; all seven Nurse sections optional by validator/endpoint/eligibility/design authority. HD-P2–P6 remain UNDEFINED. Reopening requires fresh explicit product authority.
+
+### `ST-FE-065` — Clarify NUR-013 completion (no contract-backed build available)
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Clarification delivered: no backend completion contract exists, so no build was authorized or performed. NUR-013 approval_decision moved `BLOCKED` → `DEFERRED` with HD-P1 rationale and reopen conditions.
+
+### `GATE-FE-T065`
+
+- status_result: `NOT STARTED`
+- blocker_types: `BACKEND`,`CONTRACT_CLARIFICATION`
+- evidence_summary: No gate execution required or performed under current scope. The gate's required evidence ("completion formula evidence/tests") cannot exist because HD-P1 Option B establishes there is no approved formula to evidence; executing the gate would require inventing product rules. This NOT STARTED state is the truthful terminal record for the deferred scope (no invented CANCELLED/WILL_NOT_BUILD vocabulary exists in governance), cross-referenced to VERIFIED clarification task T-FE-065 above. Reopening NUR-013 re-arms this gate under fresh product authority.
 
 ### `T-FE-066` — Exam catalog/detail contract clarification
 

@@ -787,8 +787,8 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `NUR-007` | `T-FE-059` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EDU` | complete |
 | `NUR-008` | `T-FE-060` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CERT` | complete |
 | `NUR-009` | `T-FE-060` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CERT` | complete |
-| `NUR-010` | `T-FE-062` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-SKILLS-LANG` | required in owning gate evidence |
-| `NUR-011` | `T-FE-062` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-SKILLS-LANG` | required in owning gate evidence |
+| `NUR-010` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-SKILLS-LANG` | required in owning gate evidence |
+| `NUR-011` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-SKILLS-LANG` | required in owning gate evidence |
 | `NUR-012` | `T-FE-064` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-NUR-CV` | required in owning gate evidence |
 | `NUR-013` | `T-FE-065` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-NUR-PROFILE` | required if implemented |
 | `EMP-001` | `T-FE-090` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-PROFILE` | required in owning gate evidence |

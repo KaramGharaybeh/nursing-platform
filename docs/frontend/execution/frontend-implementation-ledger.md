@@ -785,8 +785,8 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `NUR-005` | `T-FE-058` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EXP` | complete |
 | `NUR-006` | `T-FE-059` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EDU` | complete |
 | `NUR-007` | `T-FE-059` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EDU` | complete |
-| `NUR-008` | `T-FE-060` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-CERT` | required in owning gate evidence |
-| `NUR-009` | `T-FE-060` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-CERT` | required in owning gate evidence |
+| `NUR-008` | `T-FE-060` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CERT` | complete |
+| `NUR-009` | `T-FE-060` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CERT` | complete |
 | `NUR-010` | `T-FE-062` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-SKILLS-LANG` | required in owning gate evidence |
 | `NUR-011` | `T-FE-062` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-SKILLS-LANG` | required in owning gate evidence |
 | `NUR-012` | `T-FE-064` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-NUR-CV` | required in owning gate evidence |
@@ -2306,6 +2306,30 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: Education CRUD tests + per-screen visual evidence satisfied: 25/25 focused tests, 52/454 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E CRUD journey. Prerequisites GATE-FE-T056, GATE-FE-T034, and GATE-FE-T036 were all VERIFIED before closeout, per DAG.
+
+### `T-FE-060` — NUR-008/009 certificate CRUD
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN` (resolved by HD-C1–HD-C3)
+- evidence_date: 2026-09-16
+- scope_summary: Implemented Nurse Certificates management at `/nurse/profile/certificates` with the three-guard pattern and `routeId: 'NURSE_PROFILE_CERTIFICATES'`. Added `features/nurse/profile/certificates/` (routed container + reusable create/edit form + specs + 5 stories), extended `core/api/nurse-profile-api.ts` with `create/update/deleteCertificate` over the already-generated functions, reused `NpDateControl`, `Announcer`/`np-live-region`, and `TwoStepConfirmation`, and added the single approved "Manage certificates" Overview action (HD-E2 pattern). NUR-008 = list/management state, NUR-009 = add/edit form state, same-page view switching on one route. No Skills/Languages/CV work, no backend/OpenAPI/generated changes, no credential verification, no generic CRUD abstraction.
+- contract_conformance: Exactly the six backend-supported fields, no invented fields (no description/country/status/upload/CE/renewal). Client validation mirrors backend (name/issuer required + ≤200, credentialId ≤200, credentialUrl ≤500 + absolute http/https, both dates optional, expiration ≥ issue only when both present). Expiration stays plain-optional with HD-C1 helper text (no "does not expire", no derived status). Credential URL renders as "Open credential link" (`target=_blank rel="noopener noreferrer"`, HD-C2); credential ID shown as secondary metadata when present (HD-C3). Update is full-replace PUT with the route id authoritative; delete is 204 with ownership-scoped 404 handled as already-removed. Edit prefills from the loaded list (no GET-single exists and none was invented).
+- verification_summary: Focused specs passed 2 files / 24 tests (backend order, credential ID/link/date rendering with safe link attributes, empty state, exact create/update bodies + id routing, two-step delete with first-click/Keep safety, 404 update/delete handling, required/max validation, dates-optional + expiry≥issue-when-both, URL http/https accept + relative/scheme rejection + whitespace→null, no Verified/Active/Expired/Valid UI, unsupported fields absent, route mounting). Full frontend suite passed 54 files / 478 tests. Lint, stylelint, dependency guard, production build, and Storybook build passed with Populated/Empty/AddCertificate/EditCertificate/DeleteConfirmation stories (populated covers dated + expiration-less + dateless + credential ID/URL variants). Playwright E2E verified the complete journey with a disposable nurse: empty → create (credential ID/URL, TZ-safe dates) → list card + safe link attrs → Overview preview → edit six-field prefill → cleared expiration with no derived status → malformed URL blocked → delete 0/0/1 request proof → empty → Overview empty; non-Nurse denied; no localStorage authority; overview anchors all shipped routes; no overflow at 1440/768/390 (empty/list/form, incl. long URL/ID).
+
+### `ST-FE-060A` — Build `NUR-008` certificate list
+
+- status: `VERIFIED`
+- evidence_summary: Routed container renders backend-ordered cards (name title, issuer, credential ID when present, safe "Open credential link" when present, status-free date line), calm empty state, loading/error/retry, inline two-step delete with live-region announcements, and the Overview Manage action.
+
+### `ST-FE-060B` — Build `NUR-009` add/edit certificate form
+
+- status: `VERIFIED`
+- evidence_summary: Single reusable form for create/edit with approved Certificate/Dates/Credential-link groupings, optional `NpDateControl` dates, URL field with absolute-http/https client validation, client rules mirroring the backend contract, save/cancel semantics, and full prefill in edit mode.
+
+### `GATE-FE-T060`
+
+- status_result: `VERIFIED`
+- evidence_summary: Certificate CRUD tests + per-screen visual evidence satisfied: 24/24 focused tests, 54/478 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E CRUD journey. Prerequisites GATE-FE-T056, GATE-FE-T034, and GATE-FE-T036 were all VERIFIED before closeout, per DAG.
 
 ### `T-FE-066` — Exam catalog/detail contract clarification
 

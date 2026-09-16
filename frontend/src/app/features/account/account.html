@@ -1,6 +1,55 @@
 <section class="np-account" aria-labelledby="account-title">
-  <article class="np-account-card">
-    <p class="np-account-product">Nursing Platform</p>
-    <h1 id="account-title">Account overview</h1>
-  </article>
+  <np-live-region />
+
+  <p class="np-account-kicker">Account</p>
+  <h1 id="account-title">Account overview</h1>
+
+  <np-loading-error-retry
+    [state]="state"
+    loadingLabel="Loading your account"
+    fallbackErrorTitle="Your account could not be loaded"
+  />
+
+  @if (user; as accountUser) {
+    @if (!isEditing()) {
+      <dl class="np-account-facts">
+        <div class="np-account-fact">
+          <dt>Name</dt>
+          <dd>{{ displayName }}</dd>
+        </div>
+        <div class="np-account-fact">
+          <dt>Username</dt>
+          <dd>{{ accountUser.username }}</dd>
+        </div>
+        <div class="np-account-fact">
+          <dt>Email</dt>
+          <dd>{{ accountUser.email }}</dd>
+        </div>
+        <div class="np-account-fact">
+          <dt>Email verification</dt>
+          <dd>{{ verificationLabel }}</dd>
+        </div>
+      </dl>
+      <div class="np-account-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          data-testid="edit-personal-details"
+          (click)="startEdit()"
+        >
+          Edit personal details
+        </button>
+      </div>
+    } @else {
+      <h2 class="np-account-form-title">Edit personal details</h2>
+      <np-personal-details-form
+        [initial]="formInitial"
+        [isSubmitting]="isSubmitting()"
+        [backendError]="saveError()"
+        (save)="submitEdit($event)"
+        (cancelled)="cancelEdit()"
+      />
+    }
+  }
 </section>

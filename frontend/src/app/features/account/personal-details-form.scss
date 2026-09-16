@@ -1,0 +1,20 @@
+.np-personal-details-form {
+  display: grid;
+  gap: var(--np-space-16);
+  margin-block-start: var(--np-space-16);
+}
+
+.np-personal-details-form-error {
+  margin: 0;
+  padding: var(--np-space-12) var(--np-space-16);
+  background: color-mix(in srgb, var(--np-color-error, #b3261e) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--np-color-error, #b3261e) 32%, transparent);
+  border-radius: var(--np-space-8);
+  color: var(--np-color-error, #b3261e);
+}
+
+.np-personal-details-form-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-16);
+}

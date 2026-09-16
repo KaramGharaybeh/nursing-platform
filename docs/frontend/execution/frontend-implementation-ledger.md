@@ -783,8 +783,8 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `NUR-003` | `T-FE-057` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-PROFILE` | complete |
 | `NUR-004` | `T-FE-058` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EXP` | complete |
 | `NUR-005` | `T-FE-058` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EXP` | complete |
-| `NUR-006` | `T-FE-059` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-EDU` | required in owning gate evidence |
-| `NUR-007` | `T-FE-059` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-EDU` | required in owning gate evidence |
+| `NUR-006` | `T-FE-059` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EDU` | complete |
+| `NUR-007` | `T-FE-059` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-EDU` | complete |
 | `NUR-008` | `T-FE-060` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-CERT` | required in owning gate evidence |
 | `NUR-009` | `T-FE-060` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-CERT` | required in owning gate evidence |
 | `NUR-010` | `T-FE-062` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-NUR-SKILLS-LANG` | required in owning gate evidence |
@@ -2282,6 +2282,30 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: Experience CRUD tests + per-screen visual evidence satisfied: 27/27 focused tests, 50/429 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E CRUD journey. Prerequisites GATE-FE-T056, GATE-FE-T034, and GATE-FE-T036 were all VERIFIED before closeout, per DAG.
+
+### `T-FE-059` — NUR-006/007 education CRUD
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN` (resolved by HD-E1–HD-E2)
+- evidence_date: 2026-09-16
+- scope_summary: Implemented Nurse Education management at `/nurse/profile/education` with the three-guard pattern and `routeId: 'NURSE_PROFILE_EDUCATION'`. Added `features/nurse/profile/education/` (routed container + reusable create/edit form + specs + 5 stories), extended `core/api/nurse-profile-api.ts` with `create/update/deleteEducation` over the already-generated functions, reused `NpDateControl`, `CountriesApi`, `Announcer`/`np-live-region`, and `TwoStepConfirmation`, and added the single approved "Manage education" Overview action (HD-E2). NUR-006 = list/management state, NUR-007 = add/edit form state, same-page view switching on one route. No Certificates/Skills/Languages/CV work, no backend/OpenAPI/generated changes, no generic CRUD abstraction.
+- contract_conformance: Exactly the seven backend-supported fields, no invented fields (no GPA/honors/accreditation/transcript/status/level). Client validation mirrors backend (institution/degree required + ≤200, fieldOfStudy ≤200, description ≤2000, both dates optional, end ≥ start only when both present). No isCurrent/isOngoing invented. Countries populate exclusively from `CountriesApi` — no hardcoded list. Update is full-replace PUT with the route id authoritative; delete is 204 with ownership-scoped 404 handled as already-removed. Edit prefills from the loaded list (no GET-single exists and none was invented).
+- verification_summary: Focused specs passed 2 files / 25 tests (backend order incl. null-EndDate-first fixture, HD-E1 date lines incl. omitted dateless line, empty state, exact create/update bodies + id routing, two-step delete with first-click/Keep safety, 404 update/delete handling, required/max validation, dates-optional + end≥start-when-both, country options, retry, live region, route mounting). Full frontend suite passed 52 files / 454 tests. Lint, stylelint, dependency guard, production build, and Storybook build passed with Populated/Empty/AddEducation/EditEducation/DeleteConfirmation stories (populated covers ongoing + dated + dateless records). Playwright E2E verified the complete journey with a disposable nurse: empty → create (backend country, TZ-safe dates) → list card → Overview summary → edit full prefill (7 fields) → dateless update with omitted date line → delete 0/0/1 request proof → empty → Overview empty; non-Nurse denied; no localStorage authority; overview anchors all shipped routes; no overflow at 1440/768/390 (empty/list/form).
+
+### `ST-FE-059A` — Build `NUR-006` education list
+
+- status: `VERIFIED`
+- evidence_summary: Routed container renders backend-ordered cards (degree title, field of study, institution, country, HD-E1 date line, clamped description with Show more/less), calm empty state, loading/error/retry, inline two-step delete with live-region announcements, and the Overview Manage action.
+
+### `ST-FE-059B` — Build `NUR-007` add/edit education form
+
+- status: `VERIFIED`
+- evidence_summary: Single reusable form for create/edit with approved Program/Place-and-time/Details groupings, optional `NpDateControl` dates, backend country select, client validation mirroring the backend contract, save/cancel semantics, and full prefill in edit mode.
+
+### `GATE-FE-T059`
+
+- status_result: `VERIFIED`
+- evidence_summary: Education CRUD tests + per-screen visual evidence satisfied: 25/25 focused tests, 52/454 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E CRUD journey. Prerequisites GATE-FE-T056, GATE-FE-T034, and GATE-FE-T036 were all VERIFIED before closeout, per DAG.
 
 ### `T-FE-066` — Exam catalog/detail contract clarification
 

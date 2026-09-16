@@ -833,13 +833,13 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `ADM-008` | `T-FE-111` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-ADM-PAY-PRODUCTS` | required in owning gate evidence |
 | `ADM-009` | `T-FE-112` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
 | `ADM-010` | `T-FE-112` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
-| `SYS-001` | `T-FE-028` | `GATE-FE-T113` | `BLOCKED` | `NOT STARTED` | `DESIGN` | none | required in owning gate evidence |
-| `SYS-002` | `T-FE-031` | `GATE-FE-T113` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-ERROR` | required in owning gate evidence |
-| `SYS-003` | `T-FE-031` | `GATE-FE-T113` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-ERROR` | required in owning gate evidence |
+| `SYS-001` | `T-FE-028` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | none | NOT_ROUTABLE; compose verified T-FE-033 pattern; implementation stays with T-FE-028 |
+| `SYS-002` | `T-FE-031` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | `C-ERROR` | presentation contract ratified; wildcard wiring later, URL preserved |
+| `SYS-003` | `T-FE-031` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | `C-ERROR` | compose verified T-FE-033 error presentation; no V1 destination |
 | `SYS-004` | `T-FE-116` | `GATE-FE-T113` | `BLOCKED` | `NOT STARTED` | `RUNTIME_DEPLOYMENT` | runtime/deployment contract | required if implemented |
 | `SYS-005` | `T-FE-117` | `GATE-FE-T113` | `BLOCKED` | `NOT STARTED` | `RUNTIME_DEPLOYMENT` | runtime/deployment contract | required if implemented |
-| `SYS-006` | `T-FE-035` | `GATE-FE-T113` | `BLOCKED` | `NOT STARTED` | `DESIGN` | paginated/empty states | required in owning gate evidence |
-| `SYS-007` | `T-FE-035` | `GATE-FE-T113` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-ERROR`/403 | required in owning gate evidence |
+| `SYS-006` | `T-FE-035` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | paginated/empty states | HD-SYS1 semantics; implement in T-FE-035 |
+| `SYS-007` | `T-FE-035` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | `C-ERROR`/403 | HD-SYS1 semantics; implement in T-FE-035 |
 
 ## 15. Approved Vertical Slices
 
@@ -1722,6 +1722,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence satisfies the authorized logic-only nav visibility requirement. Focused tests prove ready-state `AUTHENTICATED_ONLY`, `ROLE`, and `ROLE_AND_PERMISSION` eligibility, missing-role and missing-permission ineligibility, inherited multi-role union semantics, no Admin permission bypass, caller-supplied candidate filtering, order preservation, duplicate preservation for eligible duplicates, no injected route IDs, explicit unresolved results for `idle`, `loading`, `anonymous`, and `unavailable`, explicit unsupported results for PUBLIC/ENTRY/unknown route IDs, T-FE-031 evaluator/policy reuse, no path-prefix inference, no access-denied/sign-in routing, no UI behavior, and `app.routes.ts` unchanged/empty. Full frontend verification and independent MiMo review passed.
+
+### `T-FE-113` — Shared System screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-16
+- scope_summary: Documentation/design-authority packet only: created `docs/frontend/design/inventory/system-screen-approval-packet.md` reviewing SYS-001..007 plus the permission-restricted presentation, with human-approved decisions HD-SYS1–HD-SYS4. No Angular components, routes, navigation UI, backend/OpenAPI mutation, package changes, screen implementation, or push occurred.
+- contract_summary: `T-FE-113` owns the `SYS-001..007` packet review. The gate closes when every included screen has an explicit decision (T-FE-040/T-FE-052 family-gate precedent). SYS-001/002/003/006/007 and the restricted pattern are APPROVED (ratifying verified foundations where they exist); SYS-004/005 stay DEFERRED to `T-FE-116`/`T-FE-117` runtime authority. Screen implementation remains governed by each screen's own task dependencies and gate evidence.
+- verification_summary: Docs-only verification: packet exists with per-screen decisions traceable to shipped evidence (verified `T-FE-033` loading/error/retry, shipped VERIFIED access-denied screen, seven shipped Nurse empty states + CV/Skills/Languages, admin-users empty/no-results split, contextual stale-notice precedent across CRUD slices); no code changed (`git diff --check` clean for non-docs scope); ledger SYS rows flipped to APPROVED except runtime-deferred SYS-004/005.
+
+### `ST-FE-113` — Prepare Shared System screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Packet prepared and human-approved with HD-SYS1–HD-SYS4; per-screen decisions recorded; SYS-004/005 explicitly left DEFERRED; pagination mechanics explicitly left to `T-FE-038`.
+
+### `GATE-FE-T113`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence satisfies the family-packet requirement: `system-screen-approval-packet.md` exists with explicit APPROVED decisions for SYS-001/002/003/006/007 and the restricted pattern, explicit DEFERRED for SYS-004/005 with owning tasks identified, and no invented pagination/validation/guard/shell behavior. `T-FE-035` is thereby unblocked on the design axis (its `GATE-FE-T031` dependency was already VERIFIED); owning implementation tasks (`T-FE-028`, `T-FE-035`) remain NOT STARTED pending separate authorization.
 
 ### `T-FE-138` — Authenticated current-user hydration
 

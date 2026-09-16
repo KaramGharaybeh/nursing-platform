@@ -2458,6 +2458,25 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - evidence_summary: CV upload tests + per-screen visual evidence satisfied: 19/19 CV focused tests (+ 2/2 T-FE-037 multipart proving tests), 58/527 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E journey. Prerequisites GATE-FE-T056, GATE-FE-T037, GATE-FE-T052, and GATE-FE-T063 were VERIFIED before closeout, per DAG.
 
+### `T-FE-096` — Nurse received contact requests
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN` (resolved by HD-R1–HD-R4)
+- evidence_date: 2026-09-16
+- scope_summary: Implemented nurse-side contact-request triage at `/nurse/contact-requests` with the three-guard pattern and `routeId: 'NURSE_CONTACT_REQUESTS'`. Added `core/api/contact-requests-api.ts` (recruitment-domain facade: `listReceived`/`approve`/`reject` over generated ops) and `features/nurse/contact-requests/` (routed container + feature-local request card + specs + 5 stories). Status filter (All/Pending/Approved/Rejected/Cancelled via native select, All omits the param), fixed pageSize 20, `NpPagination` + `NpEmptyState` composition, immediate Approve, TwoStepConfirmation Reject, card-local mutation errors, Announcer feedback, and the §16 underflow correction (empty page + totalCount > 0 → last server page). Canonical deep-link route only per HD-R4 — no Overview/account/shell entry added. No employer-creation UI, candidate search, backend/OpenAPI changes, or generic frameworks.
+- contract_conformance: Exactly GET (page/pageSize/status, 1-based) + POST approve/reject by id; no GET-single/delete/reply/reason/unlock invented. DTO boundary honored (organization + job/department snapshots + status + created/responded dates only; no message/contact/id exposure — none exists to expose). Transitions are Pending-only single-shot (409 stale, 404 missing); decided rows lose actions; re-fetch is server truth.
+- verification_summary: Focused specs passed 1 file / 17 tests (route+policy, default query, order preserved, filter→page-1, Clear→All+page-1, retry preserves, pagination wiring + underflow-to-last-page, empty vs no-results, card hierarchy without message/contact UI, plain statuses, immediate approve, reject 0/0/1 + Keep safety, 404/409 handling, card-local 500s, live region). Full frontend suite passed 61 files / 563 tests. Lint, stylelint, dependency guard, production build, and Storybook build passed with Pending/MixedStatuses/Empty/FilteredNoResults/RejectConfirmation stories. Playwright E2E verified the bounded journey with legitimate employer-created requests (two disposable employers via real signup/verify/promote/profile/org/candidate-search/create flow): pending cards with org facts and no message/contact UI → Approved-filter no-results + Clear → approve with announcement + decided card → reject 0/0/1 proof → decided states persist across reload; admin denied; no localStorage authority; no overview contact link (HD-R4); no overflow at 1440/768/390.
+
+### `ST-FE-096` — Build nurse received contact requests
+
+- status: `VERIFIED`
+- evidence_summary: Container (filter/list/pagination/notices/underflow correction) + feature-local card (pending vs decided rendering, per-card mutation state, inline reject confirmation) + facade + route + specs + stories delivered within HD-R1–HD-R4 authority; all focused/full verification passed.
+
+### `GATE-FE-T096`
+
+- status_result: `VERIFIED`
+- evidence_summary: Nurse received-request tests + per-screen visual evidence satisfied: 17/17 focused tests, 61/563 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E journey over legitimate backend workflows. Prerequisites GATE-FE-T056 and GATE-FE-T038 were VERIFIED before closeout, per DAG. Discoverable navigation entry stays deferred to future account/navigation authority per HD-R4.
+
 ### `T-FE-065` — NUR-013 profile completion clarification (closed without implementation)
 
 - status: `VERIFIED`

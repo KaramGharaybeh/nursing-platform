@@ -789,7 +789,7 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `NUR-009` | `T-FE-060` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CERT` | complete |
 | `NUR-010` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-SKILLS-LANG` | complete |
 | `NUR-011` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-SKILLS-LANG` | complete |
-| `NUR-012` | `T-FE-064` | `GATE-FE-T052` | `APPROVED` | `NOT STARTED` | — | `C-NUR-CV` | required in owning gate evidence |
+| `NUR-012` | `T-FE-064` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CV` | complete |
 | `NUR-013` | `T-FE-065` | `GATE-FE-T052` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND`,`DESIGN` | `C-NUR-PROFILE` | required if implemented |
 | `EMP-001` | `T-FE-090` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-PROFILE` | required in owning gate evidence |
 | `EMP-002` | `T-FE-091` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-CANDIDATES` | required in owning gate evidence |
@@ -2375,6 +2375,25 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: Skills/languages tests + per-screen visual evidence satisfied: 28/28 focused tests, 56/506 full suite, backend suites green (Application 638, WebApi 419, Domain 143), all frontend quality gates green, 6 Storybook stories, responsive/RTL-safe evidence, and full E2E journey. Prerequisites GATE-FE-T056 and GATE-FE-T034 were VERIFIED before closeout, per DAG.
+
+### `T-FE-064` — NUR-012 CV management
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN` (resolved by HD-V1–HD-V3)
+- evidence_date: 2026-09-16
+- scope_summary: Implemented Nurse CV management at `/nurse/profile/cv` with the three-guard pattern and `routeId: 'NURSE_PROFILE_CV'`, after closing the GATE-FE-T037 prerequisite via the authorized Option-A vehicle (multipart pattern proven on the CV upload path, no generic helper extracted). Added `features/nurse/profile/cv/` (routed container + spec + 5 stories), extended `NurseProfileApi` with `uploadCv(file: File)` (T-FE-037 evidence) and `deleteCv()`, and added the single approved "Manage CV" Overview action. Feature-local native file input (`accept=".pdf,.doc,.docx"`, no multiple, no drag/drop). No preview/download/open, no blob URLs, no storage-key surface, no backend/OpenAPI/generated changes.
+- contract_conformance: Exactly GET/POST/DELETE `/cv`; multipart field `file` with the real File object (filename preserved); client mirrors backend validation (pdf/doc/docx extension + MIME, case-insensitive, >0 bytes, ≤5 MiB) with backend authoritative; GET 404 renders intentional no-CV state; upload success uses returned DTO; replacement is same-POST automatic swap with distinct "CV replaced." announcement and no DELETE-first; failed replacement preserves current metadata; delete is 204 with ownership-scoped 404 handled as already-removed.
+- verification_summary: Focused specs passed 1 file / 19 tests (route+policy, 404-no-CV, metadata without contentType/id/storage internals, no preview/download/open UI incl. no blob:/iframe, explicit-upload-required with real File pass-through, first/replace announcements, failed-replace preservation, zero-byte/oversize/extension/MIME rejection incl. casing, delete 0/0/1 + Keep safety + 404, load retry, live region) plus the T-FE-037 multipart spec 1 file / 2 tests. Full frontend suite passed 58 files / 527 tests. Lint, stylelint, dependency guard, production build, and Storybook build passed with NoCv/ExistingCv/UploadReady/ValidationError/DeleteConfirmation stories. Playwright E2E verified the complete journey with a disposable nurse: empty → select PDF (0 POST) → Upload CV (1 POST) → metadata + Overview metadata → Replace with DOCX (0 then 1 POST) → updated metadata → txt + 6 MB blocked with 0 POST → delete 0/0/1 proof → no-CV → Overview no-CV; no preview/download UI anywhere; admin denied; no localStorage authority; overview anchors all shipped routes; no overflow at 1440/768/390 (empty/populated).
+
+### `ST-FE-064` — Build `NUR-012` CV management
+
+- status: `VERIFIED`
+- evidence_summary: Single-page CV manager with no-CV/existing-CV states, feature-local picker (select → review name/size → explicit Upload/Replace → Clear), client validation mirroring the backend contract, inline two-step delete with live-region announcements, and the Overview Manage action.
+
+### `GATE-FE-T064`
+
+- status_result: `VERIFIED`
+- evidence_summary: CV upload tests + per-screen visual evidence satisfied: 19/19 CV focused tests (+ 2/2 T-FE-037 multipart proving tests), 58/527 full suite, all quality gates green, 5 Storybook stories, responsive/RTL-safe evidence, and full E2E journey. Prerequisites GATE-FE-T056, GATE-FE-T037, GATE-FE-T052, and GATE-FE-T063 were VERIFIED before closeout, per DAG.
 
 ### `T-FE-066` — Exam catalog/detail contract clarification
 

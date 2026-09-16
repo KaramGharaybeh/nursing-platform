@@ -41,7 +41,7 @@ Common state contract for every screen: loading / ready / error+retry (shared `n
 | NUR-011 Languages | `/nurse/profile/languages` | Manage languages + proficiency | `GET/PUT /languages` (full replace) | READ + EDIT (collection editor) | ≤20 cap; distinct LanguageId; proficiency enum (Beginner/Intermediate/Advanced/Fluent/Native) | NOT STARTED | APPROVED (design; implementation pending T-FE-062 authorization) |
 | NUR-012 CV | `/nurse/profile/cv` | Upload/replace/delete CV document | `GET /cv` (metadata), `POST /cv` (multipart `file`), `DELETE /cv` (204) | READ + UPLOAD + DELETE | upload constraints (.pdf/.doc/.docx, ≤5MB); metadata-only display; 404 when none; delete confirmation | NOT STARTED | APPROVED (design; implementation pending T-FE-064 authorization) |
 | NUR-013 Profile completion | — (NOT_ROUTABLE) | Professional profile completeness | NONE — no backend contract exists | n/a | n/a | DEFERRED (HD-P1 Option B — intentionally not implemented; reopen needs fresh product authority) |
-| (related) Contact requests | `/nurse/contact-requests` | Review/approve/reject employer contact requests | `GET /contact-requests` (paginated), `POST /{id}/approve`, `POST /{id}/reject` | READ + ACT | pagination; status filter | NOT STARTED (separate slice after profile family) | BLOCKED (design deferred to owning gate) |
+| (related) Contact requests | `/nurse/contact-requests` | Review/approve/reject employer contact requests | `GET /contact-requests` (paginated), `POST /{id}/approve`, `POST /{id}/reject` | READ + ACT | pagination; status filter | NOT STARTED (separate slice after profile family) | APPROVED (design; implementation pending T-FE-096 authorization) |
 
 ## 4. Empty / first-time semantics (backend-authoritative, verified)
 
@@ -142,6 +142,16 @@ Backend-rule correction (binding): the actual rule is one-directional — `isCur
 **HD-V2 — Success announcements. APPROVED.** First upload announces "CV uploaded."; replacement announces "CV replaced." via Announcer/live-region per shared patterns.
 
 **HD-V3 — Replace entry. APPROVED.** Replace CV enters the select-file state directly with no pre-picker confirmation; the explicit Replace CV submit action is the deliberate confirmation. Delete CV keeps the established TwoStepConfirmation pattern.
+
+### 5.9 Additional human-approved decisions HD-R1–HD-R4 (recorded 2026-09-16, T-FE-096 contact requests authorization)
+
+**HD-R1 — Status filter. APPROVED.** One status select with options All, Pending, Approved, Rejected, Cancelled; All omits the status query parameter and uses exact backend/generated enum values otherwise. No tabs/chips/multi-select/URL sync. Status change → page 1 + reload; Clear → All + page 1 + reload; retry preserves page + filter.
+
+**HD-R2 — Approve/reject interaction. APPROVED.** Approve is immediate (one click → one POST) from Pending; Reject uses the verified inline TwoStepConfirmation ("Reject this contact request? This cannot be undone." / Reject / Keep; 0/0/1 request proof). No modals. After either decision: re-fetch server truth, remove action controls from decided rows, show returned status, announce success. Both transitions are irreversible, but only Reject receives confirmation in V1.
+
+**HD-R3 — Status presentation. APPROVED.** Plain-text status labels (Pending/Approved/Rejected/Cancelled). No semantic red/green colors, success/error icons, priority, urgency, or verified/valid semantics.
+
+**HD-R4 — Navigation entry. APPROVED.** T-FE-096 ships the canonical deep-link route `/nurse/contact-requests` only. No entry is added to Nurse Profile Overview, /account, shell nav, or dashboard in this campaign. Discoverable navigation entry is DEFERRED to future account/navigation product authority; this does not block T-FE-096 verification (E2E navigates directly after authenticated setup).
 
 ### 5.8 Human product decision HD-P1 (recorded 2026-09-16, NUR-013 closure)
 

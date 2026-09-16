@@ -128,4 +128,10 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'NURSE_PROFILE_CV' },
   },
+  {
+    path: 'nurse/contact-requests',
+    loadComponent: () => import('./features/nurse/contact-requests/nurse-contact-requests').then((m) => m.NurseContactRequests),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'NURSE_CONTACT_REQUESTS' },
+  },
 ];

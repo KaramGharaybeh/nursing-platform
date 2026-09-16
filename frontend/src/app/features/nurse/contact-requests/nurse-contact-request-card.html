@@ -1,0 +1,66 @@
+<article class="np-contact-request-card" data-testid="contact-request-card">
+  <h3>{{ request.organizationName }}</h3>
+  @if (contextLine !== '') {
+    <p class="np-contact-request-context">{{ contextLine }}</p>
+  }
+  <p class="np-contact-request-status">{{ request.status }}</p>
+  <p class="np-contact-request-dates">Received {{ request.createdAt | date: 'medium' }}</p>
+  @if (!isPending && request.respondedAt) {
+    <p class="np-contact-request-dates">Responded {{ request.respondedAt | date: 'medium' }}</p>
+  }
+
+  @if (isPending) {
+    @if (isConfirmingReject) {
+      <div class="np-contact-request-confirm">
+        <p role="status">Reject this contact request? This cannot be undone.</p>
+        <div class="np-contact-request-confirm-actions">
+          <button
+            mat-flat-button
+            color="warn"
+            type="button"
+            data-testid="request-confirm-reject"
+            [disabled]="isMutating"
+            (click)="confirmReject()"
+          >
+            Reject
+          </button>
+          <button
+            mat-button
+            type="button"
+            data-testid="request-keep"
+            [disabled]="isMutating"
+            (click)="cancelReject()"
+          >
+            Keep
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div class="np-contact-request-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          data-testid="request-approve"
+          [disabled]="isMutating"
+          (click)="approve()"
+        >
+          Approve
+        </button>
+        <button
+          mat-button
+          type="button"
+          class="np-contact-request-reject"
+          data-testid="request-reject"
+          [disabled]="isMutating"
+          (click)="requestReject()"
+        >
+          Reject
+        </button>
+      </div>
+    }
+  }
+  @if (mutationError !== '') {
+    <p class="np-contact-request-error" role="alert">{{ mutationError }}</p>
+  }
+</article>

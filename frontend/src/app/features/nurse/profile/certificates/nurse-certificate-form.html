@@ -1,0 +1,100 @@
+<form class="np-nurse-certificate-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  @if (backendFailureMessage !== '') {
+    <p class="np-nurse-certificate-form-error" role="alert">{{ backendFailureMessage }}</p>
+  } @else {
+    <np-form-validation-summary
+      [summaryTitle]="validationSummary.title"
+      [items]="validationSummary.items"
+      [formErrors]="validationSummary.formErrors"
+    />
+  }
+
+  <fieldset class="np-nurse-certificate-form-group">
+    <legend>Certificate</legend>
+
+    <np-text-input-control
+      [controlId]="controlIds.Name"
+      label="Certificate name"
+      type="text"
+      [required]="true"
+      [disabled]="isSubmitting"
+      [value]="nameValue"
+      [errorText]="nameError"
+      helperText="The name of the certificate or qualification."
+      (valueChange)="updateName($event)"
+    />
+
+    <np-text-input-control
+      [controlId]="controlIds.IssuingOrganization"
+      label="Issuing organization"
+      type="text"
+      [required]="true"
+      [disabled]="isSubmitting"
+      [value]="issuingOrganizationValue"
+      [errorText]="issuingOrganizationError"
+      helperText="The board, association, or organization that issued the certificate."
+      (valueChange)="updateIssuingOrganization($event)"
+    />
+
+    <np-text-input-control
+      [controlId]="controlIds.CredentialId"
+      label="Credential ID"
+      type="text"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="credentialIdValue"
+      [errorText]="credentialIdError"
+      helperText="Optional. The identifier shown on the certificate."
+      (valueChange)="updateCredentialId($event)"
+    />
+  </fieldset>
+
+  <fieldset class="np-nurse-certificate-form-group">
+    <legend>Dates</legend>
+
+    <np-date-control
+      [controlId]="controlIds.IssueDate"
+      label="Issue date"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="issueDateValue"
+      [errorText]="issueDateError"
+      helperText="Optional. The date the certificate was issued."
+      (valueChange)="updateIssueDate($event)"
+    />
+
+    <np-date-control
+      [controlId]="controlIds.ExpirationDate"
+      label="Expiration date"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="expirationDateValue"
+      [errorText]="expirationDateError"
+      helperText="Optional. Add the expiration date if known."
+      (valueChange)="updateExpirationDate($event)"
+    />
+  </fieldset>
+
+  <fieldset class="np-nurse-certificate-form-group">
+    <legend>Credential link</legend>
+
+    <np-text-input-control
+      [controlId]="controlIds.CredentialUrl"
+      label="Credential URL"
+      type="text"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="credentialUrlValue"
+      [errorText]="credentialUrlError"
+      helperText="Optional. Add an http(s) link related to this credential."
+      (valueChange)="updateCredentialUrl($event)"
+    />
+  </fieldset>
+
+  <div class="np-nurse-certificate-form-actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
+      {{ submitLabel }}
+    </button>
+    <button mat-button type="button" [disabled]="isSubmitting" (click)="cancel()">Cancel</button>
+  </div>
+</form>

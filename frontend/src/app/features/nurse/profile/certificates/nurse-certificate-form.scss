@@ -1,0 +1,38 @@
+.np-nurse-certificate-form {
+  display: grid;
+  gap: var(--np-space-24);
+  margin-block-start: var(--np-space-24);
+}
+
+.np-nurse-certificate-form-error {
+  margin: 0;
+  padding: var(--np-space-12) var(--np-space-16);
+  background: color-mix(in srgb, var(--np-color-error, #b3261e) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--np-color-error, #b3261e) 32%, transparent);
+  border-radius: var(--np-space-8);
+  color: var(--np-color-error, #b3261e);
+}
+
+.np-nurse-certificate-form-group {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: grid;
+  gap: var(--np-space-16);
+
+  legend {
+    padding: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--np-color-brand-2);
+    margin-block-end: var(--np-space-8);
+  }
+}
+
+.np-nurse-certificate-form-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-16);
+}

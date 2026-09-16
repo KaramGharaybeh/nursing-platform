@@ -3,8 +3,10 @@ import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiConfiguration } from './generated/api-configuration';
+import { createNurseCertificate } from './generated/fn/nursing-platform-web-api/create-nurse-certificate';
 import { createNurseEducation } from './generated/fn/nursing-platform-web-api/create-nurse-education';
 import { createNurseExperience } from './generated/fn/nursing-platform-web-api/create-nurse-experience';
+import { deleteNurseCertificate } from './generated/fn/nursing-platform-web-api/delete-nurse-certificate';
 import { deleteNurseEducation } from './generated/fn/nursing-platform-web-api/delete-nurse-education';
 import { deleteNurseExperience } from './generated/fn/nursing-platform-web-api/delete-nurse-experience';
 import { getCurrentNurseCv } from './generated/fn/nursing-platform-web-api/get-current-nurse-cv';
@@ -14,9 +16,11 @@ import { listCurrentNurseEducation } from './generated/fn/nursing-platform-web-a
 import { listCurrentNurseExperiences } from './generated/fn/nursing-platform-web-api/list-current-nurse-experiences';
 import { listCurrentNurseLanguages } from './generated/fn/nursing-platform-web-api/list-current-nurse-languages';
 import { listCurrentNurseSkills } from './generated/fn/nursing-platform-web-api/list-current-nurse-skills';
+import { updateNurseCertificate } from './generated/fn/nursing-platform-web-api/update-nurse-certificate';
 import { updateNurseEducation } from './generated/fn/nursing-platform-web-api/update-nurse-education';
 import { updateNurseExperience } from './generated/fn/nursing-platform-web-api/update-nurse-experience';
 import { upsertCurrentNurseProfile } from './generated/fn/nursing-platform-web-api/upsert-current-nurse-profile';
+import type { CreateNurseCertificateCommand } from './generated/models/create-nurse-certificate-command';
 import type { CreateNurseEducationCommand } from './generated/models/create-nurse-education-command';
 import type { CreateNurseExperienceCommand } from './generated/models/create-nurse-experience-command';
 import type { NurseCertificateDto } from './generated/models/nurse-certificate-dto';
@@ -26,6 +30,7 @@ import type { NurseExperienceDto } from './generated/models/nurse-experience-dto
 import type { NurseLanguageDto } from './generated/models/nurse-language-dto';
 import type { NurseProfileDto } from './generated/models/nurse-profile-dto';
 import type { NurseSkillDto } from './generated/models/nurse-skill-dto';
+import type { UpdateNurseCertificateCommand } from './generated/models/update-nurse-certificate-command';
 import type { UpdateNurseEducationCommand } from './generated/models/update-nurse-education-command';
 import type { UpdateNurseExperienceCommand } from './generated/models/update-nurse-experience-command';
 import type { UpsertNurseProfileCommand } from './generated/models/upsert-nurse-profile-command';
@@ -83,6 +88,22 @@ export class NurseProfileApi {
 
   deleteEducation(id: string): Observable<void> {
     return deleteNurseEducation(this.http, this.config.rootUrl, { id }).pipe(map(() => undefined));
+  }
+
+  createCertificate(request: CreateNurseCertificateCommand): Observable<NurseCertificateDto> {
+    return createNurseCertificate(this.http, this.config.rootUrl, { body: request }).pipe(
+      map((response) => response.body),
+    );
+  }
+
+  updateCertificate(id: string, request: Omit<UpdateNurseCertificateCommand, 'id'>): Observable<NurseCertificateDto> {
+    return updateNurseCertificate(this.http, this.config.rootUrl, { id, body: { ...request, id } }).pipe(
+      map((response) => response.body),
+    );
+  }
+
+  deleteCertificate(id: string): Observable<void> {
+    return deleteNurseCertificate(this.http, this.config.rootUrl, { id }).pipe(map(() => undefined));
   }
 
   listEducation(): Observable<NurseEducationDto[]> {

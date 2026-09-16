@@ -191,12 +191,12 @@ describe('NurseProfileOverview', () => {
     expect(text).not.toContain('No professional Nurse Profile has been created yet');
   });
 
-  it('exposes all six section actions and no completion UI', async () => {
+  it('exposes all seven section actions and no completion UI', async () => {
     const { fixture } = await setup();
     const text = fixture.nativeElement.textContent as string;
     const anchors = Array.from(fixture.nativeElement.querySelectorAll('a') as NodeListOf<HTMLAnchorElement>);
 
-    expect(anchors.length).toBe(6);
+    expect(anchors.length).toBe(7);
     expect(anchors[0].textContent?.trim()).toBe('Edit personal information');
     expect(anchors[1].textContent?.trim()).toBe('Manage experience');
     expect(anchors[2].textContent?.trim()).toBe('Manage education');
@@ -205,8 +205,9 @@ describe('NurseProfileOverview', () => {
     expect(anchors[4].getAttribute('href')).toBe('/nurse/profile/skills');
     expect(anchors[5].textContent?.trim()).toBe('Manage languages');
     expect(anchors[5].getAttribute('href')).toBe('/nurse/profile/languages');
+    expect(anchors[6].textContent?.trim()).toBe('Manage CV');
+    expect(anchors[6].getAttribute('href')).toBe('/nurse/profile/cv');
     expect(text).not.toContain('%');
-    expect(text).not.toContain('Manage CV');
     expect(text).not.toContain('%');
     expect(text).not.toContain('completion');
     expect(text).not.toContain('profile strength');

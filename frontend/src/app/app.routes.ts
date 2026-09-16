@@ -122,4 +122,10 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'NURSE_PROFILE_LANGUAGES' },
   },
+  {
+    path: 'nurse/profile/cv',
+    loadComponent: () => import('./features/nurse/profile/cv/nurse-cv').then((m) => m.NurseCv),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'NURSE_PROFILE_CV' },
+  },
 ];

@@ -1,0 +1,136 @@
+<section class="np-nurse-cv" aria-labelledby="nurse-cv-title">
+  <np-live-region />
+
+  <p class="np-nurse-cv-kicker">Nurse profile</p>
+  <h1 id="nurse-cv-title">CV</h1>
+
+  @if (notice() !== '') {
+    <p class="np-nurse-cv-notice" role="status">{{ notice() }}</p>
+  }
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading your CV"
+    fallbackErrorTitle="Your CV could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (!hasDocument) {
+      <div class="np-nurse-cv-empty">
+        <h2>CV</h2>
+        <p>No CV uploaded yet. Add your CV to keep your professional profile up to date.</p>
+      </div>
+    } @else if (document(); as cvDocument) {
+      <article class="np-nurse-cv-card" aria-labelledby="nurse-cv-document-title">
+        <h2 id="nurse-cv-document-title">{{ cvDocument.fileName }}</h2>
+        <p class="np-nurse-cv-meta">
+          {{ formatFileSize(cvDocument.fileSizeBytes) }} · uploaded {{ cvDocument.uploadedAt | date: 'medium' }}
+        </p>
+        @if (!picking()) {
+          <div class="np-nurse-cv-card-actions">
+            <button mat-flat-button color="primary" type="button" data-testid="replace-cv" (click)="startPicking()">
+              Replace CV
+            </button>
+            @if (!isConfirmingDelete()) {
+              <button
+                mat-button
+                type="button"
+                class="np-nurse-cv-delete"
+                data-testid="delete-cv"
+                [disabled]="isDeleting()"
+                (click)="requestDelete()"
+              >
+                Delete CV
+              </button>
+            }
+          </div>
+          @if (isConfirmingDelete()) {
+            <div class="np-nurse-cv-confirm">
+              <p role="status">Delete your CV? This cannot be undone.</p>
+              <div class="np-nurse-cv-confirm-actions">
+                <button
+                  mat-flat-button
+                  color="warn"
+                  type="button"
+                  data-testid="confirm-delete-cv"
+                  [disabled]="isDeleting()"
+                  (click)="confirmDelete()"
+                >
+                  Delete
+                </button>
+                <button
+                  mat-button
+                  type="button"
+                  data-testid="keep-cv"
+                  [disabled]="isDeleting()"
+                  (click)="cancelDelete()"
+                >
+                  Keep
+                </button>
+              </div>
+              @if (deleteError(); as error) {
+                <p class="np-nurse-cv-error" role="alert">
+                  Your CV could not be deleted. {{ error.detail || 'Try again.' }}
+                </p>
+              }
+            </div>
+          }
+        }
+      </article>
+    }
+
+    @if (!hasDocument && !picking()) {
+      <div class="np-nurse-cv-actions">
+        <button mat-flat-button color="primary" type="button" data-testid="upload-cv" (click)="startPicking()">
+          Upload CV
+        </button>
+      </div>
+    }
+
+    @if (picking()) {
+      <div class="np-nurse-cv-picker">
+        <h2>{{ hasDocument ? 'Replace your CV' : 'Upload your CV' }}</h2>
+        <label class="np-nurse-cv-file-label" for="nurse-cv-file">Choose a PDF, DOC, or DOCX file</label>
+        <input
+          #fileInput
+          id="nurse-cv-file"
+          data-testid="cv-file-input"
+          type="file"
+          accept=".pdf,.doc,.docx"
+          [disabled]="isUploading()"
+          (change)="onFileSelected($event)"
+        />
+        @if (selectionError() !== '') {
+          <p class="np-nurse-cv-error" role="alert">{{ selectionError() }}</p>
+        }
+        @if (selectedFile(); as file) {
+          <p class="np-nurse-cv-selection" data-testid="cv-selection">
+            {{ file.name }} · {{ selectedFileSizeLabel }}
+          </p>
+        }
+        @if (uploadError(); as error) {
+          <p class="np-nurse-cv-error" role="alert">
+            Your CV could not be uploaded. {{ error.detail || 'Try again.' }}
+          </p>
+        }
+        <div class="np-nurse-cv-picker-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            data-testid="confirm-upload-cv"
+            [disabled]="isUploading() || selectedFile() === undefined"
+            (click)="upload()"
+          >
+            {{ uploadLabel }}
+          </button>
+          <button mat-button type="button" [disabled]="isUploading()" (click)="cancelPicking()">Cancel</button>
+          @if (selectedFile() !== undefined) {
+            <button mat-button type="button" [disabled]="isUploading()" (click)="clearSelection()">Clear</button>
+          }
+        </div>
+      </div>
+    }
+  }
+</section>

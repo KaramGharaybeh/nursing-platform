@@ -10,6 +10,7 @@ import { deleteNurseCertificate } from './generated/fn/nursing-platform-web-api/
 import { deleteNurseEducation } from './generated/fn/nursing-platform-web-api/delete-nurse-education';
 import { deleteNurseExperience } from './generated/fn/nursing-platform-web-api/delete-nurse-experience';
 import { getCurrentNurseCv } from './generated/fn/nursing-platform-web-api/get-current-nurse-cv';
+import { deleteNurseCv } from './generated/fn/nursing-platform-web-api/delete-nurse-cv';
 import { uploadNurseCv } from './generated/fn/nursing-platform-web-api/upload-nurse-cv';
 import { getCurrentNurseProfile } from './generated/fn/nursing-platform-web-api/get-current-nurse-profile';
 import { listCurrentNurseCertificates } from './generated/fn/nursing-platform-web-api/list-current-nurse-certificates';
@@ -162,5 +163,9 @@ export class NurseProfileApi {
     return uploadNurseCv(this.http, this.config.rootUrl, { body: { file } }).pipe(
       map((response) => response.body),
     );
+  }
+
+  deleteCv(): Observable<void> {
+    return deleteNurseCv(this.http, this.config.rootUrl).pipe(map(() => undefined));
   }
 }

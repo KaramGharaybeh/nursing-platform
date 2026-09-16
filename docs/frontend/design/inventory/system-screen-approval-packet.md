@@ -124,7 +124,27 @@ properties only, no horizontal overflow, correct heading order, keyboard-reachab
 actions, `role="status"`/`role="alert"` semantics where the composed patterns
 already provide them, and no color-only distinction. No new foundation is created.
 
-## 9. Approval record
+## 9. HUMAN APPROVED DECISIONS — Shared pagination pattern (recorded 2026-09-16)
+
+**HD-G1 — Pagination UI. APPROVED.** Use the established Previous / Page X of Y ·
+N total / Next pattern inside `<nav>` with an accessible pagination label and native
+buttons. Backend/page contract remains 1-based. No numbered-page buttons, ellipsis,
+MatPaginator, jump-to-page, or infinite scroll.
+
+**HD-G2 — Reload composition. APPROVED.** Page change, filter/search submission, and
+filter reset use the existing full loading-state swap (`T-FE-033` / Admin Users
+precedent); stale content is not retained behind an overlay. When `totalPages <= 1`,
+pagination navigation does not render (including zero-result and single-page sets).
+
+**HD-G3 — Page size. APPROVED.** Page-size value is consumer-owned; `T-FE-038`
+provides no shared selector and invents no 10/25/50 options. Each product contract
+chooses its own fixed/default pageSize within its backend cap.
+
+**HD-G4 — URL query state. APPROVED.** `T-FE-038` does not synchronize page, filters,
+search, or pageSize to URL query parameters and introduces no router coupling.
+URL synchronization is consumer-specific future scope only if explicitly authorized.
+
+## 10. Approval record
 
 - 2026-09-16: Human technical lead approved HD-SYS1–HD-SYS4 for the Shared System
   screen family. SYS-001/002/003/006/007 and the restricted pattern are APPROVED;

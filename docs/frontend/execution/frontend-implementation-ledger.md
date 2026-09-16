@@ -838,8 +838,8 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `SYS-003` | `T-FE-031` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | `C-ERROR` | compose verified T-FE-033 error presentation; no V1 destination |
 | `SYS-004` | `T-FE-116` | `GATE-FE-T113` | `BLOCKED` | `NOT STARTED` | `RUNTIME_DEPLOYMENT` | runtime/deployment contract | required if implemented |
 | `SYS-005` | `T-FE-117` | `GATE-FE-T113` | `BLOCKED` | `NOT STARTED` | `RUNTIME_DEPLOYMENT` | runtime/deployment contract | required if implemented |
-| `SYS-006` | `T-FE-035` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | paginated/empty states | HD-SYS1 semantics; implement in T-FE-035 |
-| `SYS-007` | `T-FE-035` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | `C-ERROR`/403 | HD-SYS1 semantics; implement in T-FE-035 |
+| `SYS-006` | `T-FE-035` | `GATE-FE-T113` | `APPROVED` | `VERIFIED` | — | paginated/empty states | shared NpEmptyState primitive shipped; consumed by T-FE-038 next |
+| `SYS-007` | `T-FE-035` | `GATE-FE-T113` | `APPROVED` | `VERIFIED` | — | `C-ERROR`/403 | shared NpEmptyState primitive shipped; consumed by T-FE-038 next |
 
 ## 15. Approved Vertical Slices
 
@@ -1806,6 +1806,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: `CONTRACT_CLARIFICATION`
 - evidence_summary: Gate evidence covers validation/form focused tests, normalized Problem Details input handling, sanitization/no raw server trace-code-detail display, accessible persistent summary and field anchors, component separation with external template/style/spec, absence of timing/business/auth/routing/generated behavior, full frontend verification, lint/stylelint/quality/build, git diff checks, and scope review.
+
+### `T-FE-035` — Empty/no-results/restricted pattern
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-16
+- scope_summary: Implemented only the reusable `NpEmptyState` presentational primitive under `frontend/src/app/shared/ui/empty-state/` (ts/html/scss/spec/stories + barrel) for SYS-006/SYS-007 under human-approved HD-SYS1/HD-SYS2. Restricted presentation was not rebuilt: the shipped VERIFIED access-denied screen stands as the restricted implementation (HD-SYS3), referenced as evidence. No pagination/filter/search mechanics, result counting, query ownership, product screens, backend/OpenAPI/generated changes, or push occurred.
+- contract_summary: `kind: 'empty' | 'no-results'` with explicit `title`, optional `description`, optional `actionLabel` + `actionRequested` output. Empty never implies filtering; no-results never claims a global empty and never offers a create CTA unless the consumer supplies that label; the component never mutates query/filter state, never announces static content, requires no illustration. Consumer owns navigation and filter state.
+- verification_summary: Focused TDD RED failed before `./empty-state` existed (`TS2307`); GREEN passed 1 file / 7 tests proving empty semantics without filter implication, action-optional rendering with exactly-once emission and real button semantics, distinct no-results mode without global-empty claims, no illustration/icon, landmark/heading structure, and no live-region announcement. Full verification passed 59 files / 534 tests, `npm run lint`, `npm run lint:styles`, `npm run check:dependencies`, production build, and Storybook build with Empty/EmptyWithAction/NoResults stories (restricted covered by the existing access-denied story). No shipped product screen was refactored to adopt the primitive. `git diff --check` clean.
+
+### `ST-FE-035` — Implement empty/no-results/restricted states
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Subtask delivered the narrow shared primitive plus spec/stories; restricted half satisfied by reference to the shipped access-denied implementation. It does not create pagination, filtering, error/loading/offline/maintenance/not-found variants, or product integrations.
+
+### `GATE-FE-T035`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence covers empty/no-results focused tests (semantics, action emission, no filter mutation, no illustration, landmark structure, no live-region), restricted evidence via the shipped VERIFIED access-denied screen and its story (generic privacy-safe copy, no role/permission exposure), per-screen visual evidence via the three empty-state stories, component separation with external template/style/spec/stories, absence of pagination/filter/query/product/backend behavior, full frontend verification (59 files / 534 tests), lint/stylelint/dependency-guard/build/Storybook, git diff checks, and scope review. `T-FE-038` may now consume SYS-006/SYS-007; `T-FE-038` itself is not verified by this gate.
 
 ### `T-FE-036` — Confirmation/feedback/live-region pattern
 

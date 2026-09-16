@@ -1,0 +1,15 @@
+<section
+  class="np-empty-state"
+  [class.np-empty-state-no-results]="kind === 'no-results'"
+  [attr.aria-labelledby]="titleId"
+>
+  <h2 class="np-empty-state-title" [id]="titleId">{{ title }}</h2>
+  @if (hasDescription) {
+    <p class="np-empty-state-description">{{ description }}</p>
+  }
+  @if (hasAction) {
+    <button mat-flat-button color="primary" type="button" (click)="requestAction()">
+      {{ actionLabel }}
+    </button>
+  }
+</section>

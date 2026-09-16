@@ -70,6 +70,19 @@
   color: var(--np-color-text-muted, #52616b);
 }
 
+.np-nurse-overview-identity-actions {
+  margin-block-start: var(--np-space-16);
+
+  a {
+    color: var(--np-color-brand-1);
+    font-weight: 600;
+  }
+}
+
+.np-nurse-overview-first-time-card button {
+  margin-block-start: var(--np-space-20);
+}
+
 .np-nurse-overview-facts {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

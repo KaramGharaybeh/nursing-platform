@@ -16,6 +16,9 @@
           information that represents you as a nurse, such as your headline, license, experience,
           and recruitment availability.
         </p>
+        <button mat-flat-button color="primary" type="button" [routerLink]="personalInformationPath">
+          Add personal information
+        </button>
       </div>
     </div>
   }
@@ -33,6 +36,9 @@
       <p class="np-nurse-overview-license">
         License number: {{ profileData.licenseNumber || 'Not provided' }}
       </p>
+      <div class="np-nurse-overview-identity-actions">
+        <a routerLink="{{ personalInformationPath }}">Edit personal information</a>
+      </div>
     </header>
 
     <dl class="np-nurse-overview-facts">

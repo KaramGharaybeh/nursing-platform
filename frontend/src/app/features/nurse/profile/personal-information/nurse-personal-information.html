@@ -1,0 +1,130 @@
+<section class="np-nurse-personal-information" aria-labelledby="nurse-personal-information-title">
+  <div class="np-nurse-personal-information-card">
+    <p class="np-nurse-personal-information-kicker">Nurse profile</p>
+    <h1 id="nurse-personal-information-title">{{ title }}</h1>
+    <p class="np-nurse-personal-information-instruction">
+      This information represents you as a nurse. Your headline, professional summary, countries,
+      years of experience, and recruitment availability are used in employer candidate search.
+      Your license number is only visible to you.
+    </p>
+
+    <np-loading-error-retry
+      [state]="state()"
+      loadingLabel="Loading your personal information"
+      fallbackErrorTitle="Your personal information could not be loaded"
+      (retryRequested)="retry()"
+    />
+
+    @if (state().kind === 'ready') {
+      @if (backendFailureMessage !== '') {
+        <p class="np-nurse-personal-information-error" role="alert">{{ backendFailureMessage }}</p>
+      } @else {
+        <np-form-validation-summary
+          [summaryTitle]="validationSummary.title"
+          [items]="validationSummary.items"
+          [formErrors]="validationSummary.formErrors"
+        />
+      }
+
+      <form class="np-nurse-personal-information-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <fieldset class="np-nurse-personal-information-group">
+          <legend>Professional identity</legend>
+
+          <np-text-input-control
+            controlId="nurse-personal-information-headline"
+            label="Headline"
+            type="text"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [value]="headlineValue"
+            [errorText]="headlineError"
+            helperText="A short professional title describing your role."
+            (valueChange)="updateHeadline($event)"
+          />
+
+          <np-textarea-control
+            controlId="nurse-personal-information-professional-summary"
+            label="Professional summary"
+            [rows]="5"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [value]="professionalSummaryValue"
+            [errorText]="professionalSummaryError"
+            helperText="A brief overview of your professional background."
+            (valueChange)="updateProfessionalSummary($event)"
+          />
+        </fieldset>
+
+        <fieldset class="np-nurse-personal-information-group">
+          <legend>License and location</legend>
+
+          <np-text-input-control
+            controlId="nurse-personal-information-license-number"
+            label="License number"
+            type="text"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [value]="licenseNumberValue"
+            [errorText]="licenseNumberError"
+            helperText="Only you can see your license number."
+            (valueChange)="updateLicenseNumber($event)"
+          />
+
+          <np-select-control
+            controlId="nurse-personal-information-license-country"
+            label="License country"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [value]="licenseCountryValue"
+            [options]="countryOptions"
+            (valueChange)="updateLicenseCountry($event)"
+          />
+
+          <np-select-control
+            controlId="nurse-personal-information-current-country"
+            label="Current country"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [value]="currentCountryValue"
+            [options]="countryOptions"
+            (valueChange)="updateCurrentCountry($event)"
+          />
+        </fieldset>
+
+        <fieldset class="np-nurse-personal-information-group">
+          <legend>Experience</legend>
+
+          <np-text-input-control
+            controlId="nurse-personal-information-years-of-experience"
+            label="Years of experience"
+            type="number"
+            [required]="true"
+            [disabled]="isSubmitting()"
+            [value]="yearsOfExperienceValue"
+            [errorText]="yearsOfExperienceError"
+            (valueChange)="updateYearsOfExperience($event)"
+          />
+        </fieldset>
+
+        <fieldset class="np-nurse-personal-information-group">
+          <legend>Recruitment</legend>
+
+          <np-checkbox-control
+            controlId="nurse-personal-information-availability"
+            label="Available for recruitment"
+            [checked]="availabilityValue"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            helperText="When enabled, your profile can appear in employer candidate search when the other eligibility conditions are satisfied."
+            (checkedChange)="updateAvailability($event)"
+          />
+        </fieldset>
+
+        <div class="np-nurse-personal-information-actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting()">Save</button>
+          <a [routerLink]="overviewPath">Cancel</a>
+        </div>
+      </form>
+    }
+  </div>
+</section>

@@ -191,17 +191,35 @@ describe('NurseProfileOverview', () => {
     expect(text).not.toContain('No professional Nurse Profile has been created yet');
   });
 
-  it('exposes no section navigation links and no completion score/status', async () => {
+  it('exposes only the personal information action and no section navigation or completion UI', async () => {
     const { fixture } = await setup();
     const text = fixture.nativeElement.textContent as string;
-    const anchors = fixture.nativeElement.querySelectorAll('a') as NodeListOf<HTMLAnchorElement>;
+    const anchors = Array.from(fixture.nativeElement.querySelectorAll('a') as NodeListOf<HTMLAnchorElement>);
 
-    expect(anchors.length).toBe(0);
+    expect(anchors.length).toBe(1);
+    expect(anchors[0].textContent?.trim()).toBe('Edit personal information');
+    expect(text).not.toContain('Manage experience');
+    expect(text).not.toContain('Manage education');
+    expect(text).not.toContain('Manage certificates');
+    expect(text).not.toContain('Manage skills');
+    expect(text).not.toContain('Manage languages');
+    expect(text).not.toContain('Manage CV');
     expect(text).not.toContain('%');
     expect(text).not.toContain('completion');
     expect(text).not.toContain('profile strength');
     expect(text).not.toContain('Active Career Profile');
     expect(text).not.toContain('verified');
+  });
+
+  it('exposes the approved first-time CTA to personal information in the empty state', async () => {
+    const api = new NurseProfileApiStub();
+    api.nextProfileError = { status: 404, error: { title: 'Not Found', status: 404 } };
+    const { fixture } = await setup(api);
+    const text = fixture.nativeElement.textContent as string;
+
+    expect(text).toContain('Add personal information');
+    const anchors = fixture.nativeElement.querySelectorAll('a') as NodeListOf<HTMLAnchorElement>;
+    expect(anchors.length).toBe(0);
   });
 });
 

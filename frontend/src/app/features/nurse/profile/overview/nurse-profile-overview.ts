@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { CurrentUserStore } from '../../../../core/auth/current-user-store';
@@ -10,8 +11,10 @@ import type { NurseExperienceDto } from '../../../../core/api/generated/models/n
 import type { NurseLanguageDto } from '../../../../core/api/generated/models/nurse-language-dto';
 import type { NurseProfileDto } from '../../../../core/api/generated/models/nurse-profile-dto';
 import type { NurseSkillDto } from '../../../../core/api/generated/models/nurse-skill-dto';
+import { canonicalRoutePath } from '../../../../core/routing/canonical-routes';
 import { normalizeProblemDetails } from '../../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../../core/api/problem-details';
+import { RouterLink } from '@angular/router';
 import { LoadingErrorRetry } from '../../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../../shared/ui/loading-error-retry';
 
@@ -19,13 +22,15 @@ const MAX_CERTIFICATE_PREVIEWS = 2;
 
 @Component({
   selector: 'np-nurse-profile-overview',
-  imports: [DatePipe, LoadingErrorRetry],
+  imports: [DatePipe, LoadingErrorRetry, MatButtonModule, RouterLink],
   templateUrl: './nurse-profile-overview.html',
   styleUrl: './nurse-profile-overview.scss',
 })
 export class NurseProfileOverview implements OnInit {
   private readonly api = inject(NurseProfileApi);
   private readonly currentUserStore = inject(CurrentUserStore);
+
+  protected readonly personalInformationPath = canonicalRoutePath('NURSE_PROFILE_PERSONAL_INFORMATION');
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly profile = signal<NurseProfileDto | undefined>(undefined);

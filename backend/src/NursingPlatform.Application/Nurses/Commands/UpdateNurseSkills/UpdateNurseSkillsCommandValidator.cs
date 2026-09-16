@@ -15,6 +15,8 @@ public class UpdateNurseSkillsCommandValidator : AbstractValidator<UpdateNurseSk
             .WithMessage("Duplicate skill names are not allowed.");
 
         RuleForEach(x => x.Skills)
+            .MaximumLength(100)
+            .WithMessage("Skill name must be at most 100 characters.")
             .Must(skill => !string.IsNullOrWhiteSpace(skill))
             .WithMessage("Skill name is required.");
     }

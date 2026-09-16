@@ -1807,6 +1807,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence covers live-region announcement tests (polite/assertive/repeat/clear), accessible visually-hidden semantics with correct roles, confirmation-pattern contract tests (arm-only first click, single authorized confirm, cancel safety), no dialog dependency, component separation with external template/style/specs, absence of toast/generic-CRUD/feature-copy/routing/auth/generated/backend behavior, full frontend verification (48 files / 399 tests), lint/stylelint/dependency-guard/build/Storybook, git diff checks, and scope review.
 
+### `T-FE-037` — File upload pattern
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-16
+- contract_summary: T-FE-037 owns only the minimum approved frontend multipart-upload pattern. Human authority (Option A, 2026-09-16) resolved the "multipart helper" requirement without a standalone generic shared abstraction: with one real consumer (Nurse CV upload) and multipart encoding already owned by the generated client, the approved pattern is real browser File → feature/core facade → generated `uploadNurseCv({ body: { file } })` → generated RequestBuilder multipart encoding, with File.name preserved in the part disposition. It must not invent a generic MultipartHelper/FormData/FileUploadService, progress-percentage abstraction, storage framework, or shared uploader component.
+- scope_summary: Implemented only `NurseProfileApi.uploadCv(file: File)` over the generated multipart operation plus focused proving spec `frontend/src/app/core/api/nurse-profile-api.spec.ts`. No hand-built FormData, no helper/service extraction, no generated/backend/OpenAPI mutation, no CV screen work.
+- verification_summary: Focused TDD RED failed before `uploadCv` existed (`TS2339`); GREEN passed 2/2 proving POST `/api/v1/me/nurse-profile/cv` with a FormData body whose `file` part is the identical File object with its name preserved, typed `NurseCvDocumentDto` result mapping, and source-boundary absence of hand-built FormData/helper/service artifacts. Full frontend verification passed alongside the multipart evidence (see gate).
+
+### `ST-FE-037` — Implement multipart file upload helper
+
+- status: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Subtask satisfied the helper requirement as the approved facade-level pattern (not a standalone abstraction): `uploadCv` delegates multipart construction entirely to the generated client. No generic helper was extracted per the repository abstraction rule (one real consumer) and explicit human authority.
+
+### `GATE-FE-T037`
+
+- status_result: `VERIFIED`
+- blocker_types: `CONTRACT_CLARIFICATION`
+- evidence_summary: Gate evidence covers multipart focused tests (real File pass-through with preserved filename, generated-operation body shape, typed result, no hand-built multipart artifacts), absence of generic helper/service/storage-framework extraction, no generated/backend/OpenAPI changes, full frontend verification, lint, git diff checks, and scope review.
+
 ### `T-FE-040` — Authentication screen approval packet
 
 - status: `VERIFIED`

@@ -10,6 +10,7 @@ import { deleteNurseCertificate } from './generated/fn/nursing-platform-web-api/
 import { deleteNurseEducation } from './generated/fn/nursing-platform-web-api/delete-nurse-education';
 import { deleteNurseExperience } from './generated/fn/nursing-platform-web-api/delete-nurse-experience';
 import { getCurrentNurseCv } from './generated/fn/nursing-platform-web-api/get-current-nurse-cv';
+import { uploadNurseCv } from './generated/fn/nursing-platform-web-api/upload-nurse-cv';
 import { getCurrentNurseProfile } from './generated/fn/nursing-platform-web-api/get-current-nurse-profile';
 import { listCurrentNurseCertificates } from './generated/fn/nursing-platform-web-api/list-current-nurse-certificates';
 import { listCurrentNurseEducation } from './generated/fn/nursing-platform-web-api/list-current-nurse-education';
@@ -148,6 +149,17 @@ export class NurseProfileApi {
 
   getCv(): Observable<NurseCvDocumentDto> {
     return getCurrentNurseCv(this.http, this.config.rootUrl).pipe(
+      map((response) => response.body),
+    );
+  }
+
+  /**
+   * T-FE-037 approved multipart-upload pattern: the real browser File flows
+   * straight into the generated multipart operation, which owns FormData
+   * construction and preserves File.name in the part disposition.
+   */
+  uploadCv(file: File): Observable<NurseCvDocumentDto> {
+    return uploadNurseCv(this.http, this.config.rootUrl, { body: { file } }).pipe(
       map((response) => response.body),
     );
   }

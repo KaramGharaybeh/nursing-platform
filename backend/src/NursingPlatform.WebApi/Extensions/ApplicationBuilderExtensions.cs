@@ -81,6 +81,8 @@ using NursingPlatform.Application.Recruitment.DTOs;
 using NursingPlatform.Application.Recruitment.Queries.GetMyContactRequest;
 using NursingPlatform.Application.ReferenceData.Countries.DTOs;
 using NursingPlatform.Application.ReferenceData.Countries.Queries.ListCountries;
+using NursingPlatform.Application.ReferenceData.Languages.DTOs;
+using NursingPlatform.Application.ReferenceData.Languages.Queries.ListLanguages;
 using NursingPlatform.Application.Recruitment.Queries.ListCandidates;
 using NursingPlatform.Application.Recruitment.Queries.ListMyContactRequests;
 using NursingPlatform.Application.Recruitment.Queries.ListReceivedContactRequests;
@@ -357,6 +359,15 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("ListCountries")
         .Produces<IReadOnlyList<CountryListItemDto>>(StatusCodes.Status200OK)
+        .RequireAuthorization();
+
+        api.MapGet("/languages", async (ISender sender) =>
+        {
+            var result = await sender.Send(new ListLanguagesQuery());
+            return Results.Ok(result);
+        })
+        .WithName("ListLanguages")
+        .Produces<IReadOnlyList<LanguageListItemDto>>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/exams", async (

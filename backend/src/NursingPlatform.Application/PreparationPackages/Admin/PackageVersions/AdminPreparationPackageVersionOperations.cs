@@ -124,7 +124,9 @@ public class GetAdminPreparationPackageVersionValidationQueryHandler : IRequestH
     public GetAdminPreparationPackageVersionValidationQueryHandler(IApplicationDbContext context) => _context = context;
     public async Task<PackagePublicationValidationDto> Handle(GetAdminPreparationPackageVersionValidationQuery request, CancellationToken cancellationToken)
     {
-        var version = await _context.PreparationPackageVersions.FirstOrDefaultAsync(v => v.Id == request.VersionId && v.PreparationPackageDefinitionId == request.PreparationPackageDefinitionId, cancellationToken)
+        var version = await _context.PreparationPackageVersions
+            .Include(v => v.Materials)
+            .FirstOrDefaultAsync(v => v.Id == request.VersionId && v.PreparationPackageDefinitionId == request.PreparationPackageDefinitionId, cancellationToken)
             ?? throw new KeyNotFoundException("Preparation package version was not found.");
         return await new PreparationPackagePublicationValidator(_context).ValidatePackageVersionAsync(version, cancellationToken);
     }
@@ -136,8 +138,14 @@ public class PublishAdminPreparationPackageVersionCommandHandler : IRequestHandl
     public PublishAdminPreparationPackageVersionCommandHandler(IApplicationDbContext context) => _context = context;
     public async Task<AdminPreparationPackageVersionDto> Handle(PublishAdminPreparationPackageVersionCommand request, CancellationToken cancellationToken)
     {
-        var version = await _context.PreparationPackageVersions.FirstOrDefaultAsync(v => v.Id == request.VersionId && v.PreparationPackageDefinitionId == request.PreparationPackageDefinitionId, cancellationToken)
+        var version = await _context.PreparationPackageVersions
+            .Include(v => v.Materials)
+            .FirstOrDefaultAsync(v => v.Id == request.VersionId && v.PreparationPackageDefinitionId == request.PreparationPackageDefinitionId, cancellationToken)
             ?? throw new KeyNotFoundException("Preparation package version was not found.");
+        // Publishing is the explicit content-isolation confirmation act; no other
+        // supported workflow confirms it, and the validator reports it as an issue
+        // until confirmed.
+        version.ConfirmContentIsolation();
         var validation = await new PreparationPackagePublicationValidator(_context).ValidatePackageVersionAsync(version, cancellationToken);
         if (!validation.IsValid)
         {

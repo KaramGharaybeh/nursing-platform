@@ -224,7 +224,9 @@ public class PublishAdminStudyMaterialVersionCommandHandler : IRequestHandler<Pu
     public PublishAdminStudyMaterialVersionCommandHandler(IApplicationDbContext context) => _context = context;
     public async Task<AdminStudyMaterialVersionDto> Handle(PublishAdminStudyMaterialVersionCommand request, CancellationToken cancellationToken)
     {
-        var version = await _context.StudyMaterialVersions.FirstOrDefaultAsync(v => v.Id == request.VersionId && v.StudyMaterialId == request.StudyMaterialId, cancellationToken)
+        var version = await _context.StudyMaterialVersions
+            .Include(v => v.Topics)
+            .FirstOrDefaultAsync(v => v.Id == request.VersionId && v.StudyMaterialId == request.StudyMaterialId, cancellationToken)
             ?? throw new KeyNotFoundException("Study material version was not found.");
         if (!version.Topics.Any()) throw new InvalidOperationException("A material version must map to at least one reporting topic.");
         var topicIds = version.Topics.Select(t => t.ReportingTopicId).ToList();

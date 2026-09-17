@@ -261,7 +261,10 @@ public class PublishAdminPracticeCollectionVersionCommandHandler : IRequestHandl
     public PublishAdminPracticeCollectionVersionCommandHandler(IApplicationDbContext context) => _context = context;
     public async Task<AdminPracticeCollectionVersionDto> Handle(PublishAdminPracticeCollectionVersionCommand request, CancellationToken cancellationToken)
     {
-        var version = await _context.PracticeCollectionVersions.FirstOrDefaultAsync(v => v.Id == request.VersionId && v.PracticeCollectionId == request.PracticeCollectionId, cancellationToken)
+        var version = await _context.PracticeCollectionVersions
+            .Include(v => v.Items)
+            .ThenInclude(i => i.AnswerOptions)
+            .FirstOrDefaultAsync(v => v.Id == request.VersionId && v.PracticeCollectionId == request.PracticeCollectionId, cancellationToken)
             ?? throw new KeyNotFoundException("Practice collection version was not found.");
         foreach (var topicId in version.Items.Select(i => i.ReportingTopicId).Distinct())
         {

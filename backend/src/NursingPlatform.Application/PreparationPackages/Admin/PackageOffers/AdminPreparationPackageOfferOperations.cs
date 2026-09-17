@@ -172,7 +172,9 @@ public class ActivateAdminPreparationPackageOfferCommandHandler : IRequestHandle
     {
         var offer = await _context.PreparationPackageOffers.FirstOrDefaultAsync(o => o.Id == request.Id, cancellationToken)
             ?? throw new KeyNotFoundException("Preparation package offer was not found.");
-        var version = await _context.PreparationPackageVersions.FirstOrDefaultAsync(v => v.Id == offer.PreparationPackageVersionId, cancellationToken)
+        var version = await _context.PreparationPackageVersions
+            .Include(v => v.Materials)
+            .FirstOrDefaultAsync(v => v.Id == offer.PreparationPackageVersionId, cancellationToken)
             ?? throw new KeyNotFoundException("Preparation package version was not found.");
         if (version.Status != PreparationPackageVersionStatus.Published)
         {

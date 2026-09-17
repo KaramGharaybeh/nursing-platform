@@ -41,7 +41,9 @@ internal sealed class PreparationPackagePublicationValidator
             Add(issues, "ExamContextMismatch", "Referenced exam version must match the package country and exam category context.");
         }
 
-        var profile = await _context.ReportingProfilePublications.FirstOrDefaultAsync(p => p.Id == version.ReportingProfilePublicationId, cancellationToken);
+        var profile = await _context.ReportingProfilePublications
+            .Include(p => p.Assignments)
+            .FirstOrDefaultAsync(p => p.Id == version.ReportingProfilePublicationId, cancellationToken);
         var allowedTopicIds = profile?.Assignments.Select(assignment => assignment.ReportingTopicId).ToHashSet() ?? [];
         if (profile is null || profile.Status != PublicationStatus.Published)
         {
@@ -60,7 +62,10 @@ internal sealed class PreparationPackagePublicationValidator
             }
         }
 
-        var practiceVersion = await _context.PracticeCollectionVersions.FirstOrDefaultAsync(v => v.Id == version.PracticeCollectionVersionId, cancellationToken);
+        var practiceVersion = await _context.PracticeCollectionVersions
+            .Include(v => v.Items)
+            .ThenInclude(i => i.AnswerOptions)
+            .FirstOrDefaultAsync(v => v.Id == version.PracticeCollectionVersionId, cancellationToken);
         if (practiceVersion is null || practiceVersion.Status != PublicationStatus.Published)
         {
             Add(issues, "PracticeCollectionNotPublished", "Referenced practice collection version must be published.");
@@ -103,7 +108,9 @@ internal sealed class PreparationPackagePublicationValidator
 
         foreach (var material in materials)
         {
-            var materialVersion = await _context.StudyMaterialVersions.FirstOrDefaultAsync(v => v.Id == material.StudyMaterialVersionId, cancellationToken);
+            var materialVersion = await _context.StudyMaterialVersions
+                .Include(v => v.Topics)
+                .FirstOrDefaultAsync(v => v.Id == material.StudyMaterialVersionId, cancellationToken);
             if (materialVersion is null || materialVersion.Status != PublicationStatus.Published)
             {
                 Add(issues, "MaterialVersionNotPublished", "Every referenced material version must be published.");

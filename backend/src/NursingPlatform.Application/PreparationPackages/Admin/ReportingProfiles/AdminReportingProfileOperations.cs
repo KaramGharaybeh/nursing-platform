@@ -128,6 +128,14 @@ public class PublishAdminReportingProfileCommandHandler : IRequestHandler<Publis
             profile.AssignQuestion(assignment.ExamQuestionId, assignment.ReportingTopicId);
         }
 
+        // New assignments carry client-generated keys, so the change tracker would
+        // otherwise classify the navigation-discovered instances as Modified and emit
+        // UPDATE instead of INSERT. Assert Added explicitly.
+        foreach (var assignment in profile.Assignments)
+        {
+            _context.ReportingProfileQuestionAssignments.Add(assignment);
+        }
+
         profile.Publish(DateTime.UtcNow);
         await _context.SaveChangesAsync(cancellationToken);
         var topics = await _context.ReportingTopics.Where(t => request.Request.Assignments.Select(a => a.ReportingTopicId).Contains(t.Id)).ToDictionaryAsync(t => t.Id, cancellationToken);

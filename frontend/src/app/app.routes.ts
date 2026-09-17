@@ -146,4 +146,14 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'PREPARATION_PACKAGES_ENTITLEMENT_DETAIL' },
   },
+  {
+    path: 'preparation-packages',
+    loadComponent: () => import('./features/preparation-packages/offers-list').then((m) => m.OffersList),
+    data: { routeId: 'PREPARATION_PACKAGES_OFFERS' },
+  },
+  {
+    path: 'preparation-packages/:offerSlug',
+    loadComponent: () => import('./features/preparation-packages/offer-detail').then((m) => m.OfferDetail),
+    data: { routeId: 'PREPARATION_PACKAGES_OFFER_DETAIL' },
+  },
 ];

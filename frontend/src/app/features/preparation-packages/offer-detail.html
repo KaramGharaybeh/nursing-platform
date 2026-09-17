@@ -1,0 +1,50 @@
+<section class="np-offer-detail" aria-labelledby="offer-detail-title">
+  <a [routerLink]="backPath" data-testid="offer-back-link">Back to preparation packages</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading preparation package"
+    fallbackErrorTitle="Preparation package could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (notFound()) {
+      <p role="status" data-testid="offer-missing-notice">
+        This preparation package is no longer available. It may have been removed, or the link is incorrect.
+      </p>
+    } @else if (offer(); as detail) {
+      <header class="np-offer-detail-header">
+        <h1 id="offer-detail-title">{{ detail.title }}</h1>
+        @if (hasSummary()) {
+          <p class="np-offer-detail-summary">{{ detail.summary }}</p>
+        }
+      </header>
+
+      <dl class="np-offer-detail-facts">
+        <div><dt>Country</dt><dd>{{ detail.countryName }}</dd></div>
+        <div><dt>Exam category</dt><dd>{{ detail.examCategoryName }}</dd></div>
+        <div><dt>Included exam</dt><dd>{{ detail.examTitle }}</dd></div>
+        <div><dt>Study materials</dt><dd>{{ detail.materialCount }}</dd></div>
+        <div><dt>Practice items</dt><dd>{{ detail.practiceItemCount }}</dd></div>
+        <div><dt>Access duration</dt><dd>{{ detail.accessDurationDays }} days</dd></div>
+      </dl>
+
+      <h2>Package contents</h2>
+      @if (detail.components.length > 0) {
+        <ul class="np-offer-detail-components">
+          @for (component of detail.components; track $index) {
+            <li>
+              <p class="np-offer-detail-component-name">{{ component.name }} ({{ component.count }})</p>
+              @if ((component.summary?.trim() ?? '') !== '') {
+                <p class="np-offer-detail-component-summary">{{ component.summary }}</p>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="np-offer-detail-no-components">No package contents are listed for this offer.</p>
+      }
+    }
+  }
+</section>

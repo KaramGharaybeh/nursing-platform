@@ -81,7 +81,9 @@ public class ListPreparationPackageOffersQueryHandler : IRequestHandler<ListPrep
         var items = new List<PreparationPackageOfferListItemDto>();
         foreach (var offer in offers)
         {
-            var packageVersion = await context.PreparationPackageVersions.FirstOrDefaultAsync(v => v.Id == offer.PreparationPackageVersionId, cancellationToken);
+            var packageVersion = await context.PreparationPackageVersions
+                .Include(v => v.Materials)
+                .FirstOrDefaultAsync(v => v.Id == offer.PreparationPackageVersionId, cancellationToken);
             if (packageVersion is null || packageVersion.Status != PreparationPackageVersionStatus.Published)
             {
                 continue;

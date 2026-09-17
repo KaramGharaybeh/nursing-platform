@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using NursingPlatform.Application.PreparationPackages.Admin.PackageOffers;
 using NursingPlatform.Application.PreparationPackages.Admin.PackageVersions;
 using NursingPlatform.Application.PreparationPackages.Admin.PracticeCollections;
 using NursingPlatform.Application.PreparationPackages.Admin.ReportingProfiles;
 using NursingPlatform.Application.PreparationPackages.Admin.StudyMaterials;
+using NursingPlatform.Application.PreparationPackages.Catalog;
 using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.PreparationPackages;
 using NursingPlatform.Domain.ReferenceData;
@@ -89,6 +91,74 @@ public sealed class PreparationPackagePublishChainPostgreSqlTests : IAsyncLifeti
         var stored = await verify.PreparationPackageVersions.AsNoTracking().SingleAsync(v => v.Id == graph.PackageVersionId);
         Assert.Equal(PreparationPackageVersionStatus.Published, stored.Status);
         Assert.True(stored.ContentIsolationConfirmed);
+    }
+
+    [Fact]
+    public async Task ListCatalogOffers_WithActiveOfferOnPublishedVersion_IncludesOfferAgainstFreshContext()
+    {
+        var slug = $"offer-{Guid.NewGuid():N}";
+        await SeedActiveCatalogOfferAsync(slug);
+
+        await using var catalog = CreateContext();
+        var handler = new ListPreparationPackageOffersQueryHandler(catalog);
+        var result = await handler.Handle(new ListPreparationPackageOffersQuery { Page = 1, PageSize = 20 }, CancellationToken.None);
+
+        var item = Assert.Single(result.Items);
+        Assert.Equal(slug, item.Slug);
+        Assert.Equal(1, item.MaterialCount);
+    }
+
+    [Fact]
+    public async Task GetCatalogOffer_WithActiveOfferOnPublishedVersion_ReturnsOfferAgainstFreshContext()
+    {
+        var slug = $"offer-{Guid.NewGuid():N}";
+        await SeedActiveCatalogOfferAsync(slug);
+
+        await using var catalog = CreateContext();
+        var handler = new GetPreparationPackageOfferQueryHandler(catalog);
+        var detail = await handler.Handle(new GetPreparationPackageOfferQuery { Slug = slug }, CancellationToken.None);
+
+        Assert.Equal(slug, detail.Slug);
+        Assert.Equal(1, detail.MaterialCount);
+    }
+
+    private async Task SeedActiveCatalogOfferAsync(string slug)
+    {
+        var graph = await SeedPackageVersionDraftAsync();
+
+        await using (var context = CreateContext())
+        {
+            var publishHandler = new PublishAdminPreparationPackageVersionCommandHandler(context);
+            var published = await publishHandler.Handle(new PublishAdminPreparationPackageVersionCommand
+            {
+                PreparationPackageDefinitionId = graph.DefinitionId,
+                VersionId = graph.PackageVersionId
+            }, CancellationToken.None);
+            Assert.Equal(PreparationPackageVersionStatus.Published.ToString(), published.Status);
+        }
+
+        await using (var context = CreateContext())
+        {
+            var createHandler = new CreateAdminPreparationPackageOfferCommandHandler(context);
+            var created = await createHandler.Handle(new CreateAdminPreparationPackageOfferCommand
+            {
+                Request = new CreateAdminPreparationPackageOfferRequest
+                {
+                    PreparationPackageDefinitionId = graph.DefinitionId,
+                    PreparationPackageVersionId = graph.PackageVersionId,
+                    Title = $"Catalog offer {Guid.NewGuid():N}",
+                    Slug = slug,
+                    Summary = "Catalog offer summary",
+                    PriceAmountMinor = 1000,
+                    Currency = "USD",
+                    AccessDurationDays = 30
+                }
+            }, CancellationToken.None);
+
+            var activateHandler = new ActivateAdminPreparationPackageOfferCommandHandler(context);
+            var activated = await activateHandler.Handle(new ActivateAdminPreparationPackageOfferCommand { Id = created.Id }, CancellationToken.None);
+            Assert.Equal(PreparationPackageOfferStatus.Active.ToString(), activated.Status);
+        }
     }
 
     private async Task<(Guid MaterialId, Guid VersionId, Guid TopicId)> SeedMaterialDraftAsync()

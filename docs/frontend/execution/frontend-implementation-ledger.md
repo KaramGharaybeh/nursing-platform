@@ -2522,6 +2522,28 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence satisfies the family-packet requirement: `preparation-package-screen-approval-packet.md` exists with explicit APPROVED decisions for offers browse metadata and entitlement list/detail, explicit BLOCKED for practice/exam-start/report with owning tasks identified, explicit BLOCKED for the material reader on the verified backend gap, and no invented commerce/filter/sort behavior. `T-FE-076` (and packet-wise `T-FE-075`) are thereby unblocked; both remain NOT STARTED pending separate authorization.
 
+### `T-FE-061` — Exams screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-18
+- scope_summary: Documentation/design-authority packet only: created `docs/frontend/design/inventory/exams-screen-approval-packet.md` covering EXM-001..006 plus the bounded EXM-007 transient minimum, with human-approved decisions E61-1–E61-13. No Angular components, routes, navigation UI, backend/OpenAPI mutation, package changes, screen implementation, or push occurred.
+- contract_summary: Catalog/detail contracts verified from source (page/pageSize/countryId/categoryId-only list, 1-based, fixed country/category/title/id order, startable-only via `CanStart`, detail adds nullable `Instructions`; `RequireAuthorization()`-only auth; no question/answer/key exposure). Session contracts verified (shared `ExamSessionDto` without correctness pre-completion; explicit list-PUT saves; non-idempotent submit; lazy wall-clock expiry finalization; review correctness post-completion only; PackageAttempt shares the same DTO/UI). Purchase-required stays inline deferred state (no route, no commerce); submit confirmation stays transient (no route); full result/review/analytics stay T-FE-071/072/074.
+- verification_summary: Docs-only verification: packet exists with per-screen decisions traceable to source evidence (page registry route IDs/paths, route-permission matrix classifications, T-FE-066 clarification, canonical route builders, backend DTOs/handlers/tests, canonical OpenAPI, generated client); validation caught and corrected three route-classification terms to exact `AUTHENTICATED_ONLY` plus two approval-scope shorthands; no code changed; `git diff --check` clean.
+- downstream_effect: `GATE-FE-T061` thereby VERIFIED; `T-FE-067` becomes implementation-eligible (all technical legs already met); `T-FE-068` still waits for `GATE-FE-T067`; `T-FE-069` still waits for `GATE-FE-T068` (timer primitive built there); `T-FE-079` still waits for the shared session destination via `T-FE-069`.
+
+### `ST-FE-061` — Prepare Exams/Learning screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Packet prepared with E61-1–E61-13 human-approved; per-screen display contracts, field/non-exposure authority, visual binding to `all pages.pdf` values (PDF lives in user-provided context, values recorded verbatim), finalized copy concepts, responsive/RTL/accessibility rules, and EXM-007/008/009 boundaries recorded; catalog/detail/session/submit need no further design approval.
+
+### `GATE-FE-T061`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence satisfies the family-packet requirement: `exams-screen-approval-packet.md` exists with explicit APPROVED decisions for catalog/detail presentation (E61-1–E61-5), instructions/start (E61-6–E61-8), session/submit/transient-result (E61-9–E61-13), explicit EXM-007-transient vs full-result boundary, explicit EXM-008/009 exclusions to owning gates, and no invented search/sort/commerce/routes/review-early behavior. `T-FE-067` is thereby unblocked and remains NOT STARTED pending separate authorization.
+
 ### `T-FE-076` — PP entitlements list + detail
 
 - status: `VERIFIED`

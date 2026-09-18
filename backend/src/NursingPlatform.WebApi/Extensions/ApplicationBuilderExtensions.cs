@@ -431,6 +431,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("StartExamSession")
+        .Produces<ExamSessionDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/exam-sessions/{id:guid}", async (Guid id, ISender sender) =>

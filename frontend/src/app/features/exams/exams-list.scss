@@ -1,0 +1,32 @@
+.np-exams-list {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-exams-list h1 {
+  margin: var(--np-space-16) 0 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-exams-list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-16);
+  margin-block-start: var(--np-space-16);
+}
+
+.np-exams-list-items {
+  display: grid;
+  gap: var(--np-space-16);
+  margin: var(--np-space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}

@@ -1,0 +1,63 @@
+<section class="np-exams-list" aria-labelledby="exams-title">
+  <np-live-region />
+
+  <h1 id="exams-title">Exams</h1>
+
+  <div class="np-exams-list-filters">
+    <np-select-control
+      controlId="exams-country-filter"
+      label="Country"
+      data-testid="exams-country-filter"
+      [options]="countryOptions()"
+      [value]="countryId()"
+      (valueChange)="onCountryChange($event)"
+    />
+    <np-select-control
+      controlId="exams-category-filter"
+      label="Exam category"
+      data-testid="exams-category-filter"
+      [options]="categoryOptions()"
+      [value]="categoryId()"
+      (valueChange)="onCategoryChange($event)"
+    />
+  </div>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading exams"
+    fallbackErrorTitle="Exams could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (listState() === 'empty') {
+      <np-empty-state
+        kind="empty"
+        title="No exams available."
+        description="There are no exams to show right now. Please check back later."
+      />
+    } @else if (listState() === 'no-results') {
+      <np-empty-state
+        kind="no-results"
+        title="No exams match the selected filters."
+        description="Try a different country or category."
+      />
+    } @else {
+      <ul class="np-exams-list-items">
+        @for (exam of result()?.items ?? []; track exam.id) {
+          <li>
+            <np-exam-card [exam]="exam" />
+          </li>
+        }
+      </ul>
+      <np-pagination
+        [page]="page()"
+        [totalPages]="result()?.totalPages ?? 0"
+        [totalCount]="result()?.totalCount ?? 0"
+        itemLabel="exams"
+        ariaLabel="Exams pagination"
+        (pageRequested)="loadPage($event)"
+      />
+    }
+  }
+</section>

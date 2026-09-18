@@ -1,0 +1,17 @@
+<article class="np-exam-card">
+  <h3>{{ exam().title }}</h3>
+  @if (hasDescription()) {
+    <p class="np-exam-card-description">{{ exam().description }}</p>
+  }
+  @if (hasCountry()) {
+    <p class="np-exam-card-country">{{ exam().countryName }}</p>
+  }
+  @if (hasCategory()) {
+    <p class="np-exam-card-category">{{ exam().categoryName }}</p>
+  }
+  <p class="np-exam-card-facts">{{ exam().durationMinutes }} minutes · {{ exam().questionCount }} questions</p>
+  @if (exam().isFree) {
+    <p class="np-exam-card-free">Free</p>
+  }
+  <a [routerLink]="detailPath()" data-testid="exam-details-link">View details</a>
+</article>

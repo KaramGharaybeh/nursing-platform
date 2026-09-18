@@ -162,4 +162,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/preparation-packages/offer-detail').then((m) => m.OfferDetail),
     data: { routeId: 'PREPARATION_PACKAGES_OFFER_DETAIL' },
   },
+  {
+    path: 'exams',
+    loadComponent: () => import('./features/exams/exams-list').then((m) => m.ExamsList),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'EXAMS_CATALOG' },
+  },
+  {
+    path: 'exams/:examId',
+    loadComponent: () => import('./features/exams/exam-detail').then((m) => m.ExamDetail),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'EXAMS_DETAIL' },
+  },
 ];

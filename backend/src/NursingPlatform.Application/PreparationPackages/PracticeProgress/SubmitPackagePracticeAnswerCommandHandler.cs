@@ -37,11 +37,13 @@ public sealed class SubmitPackagePracticeAnswerCommandHandler : IRequestHandler<
             .FirstOrDefaultAsync(item => item.Id == request.EntitlementId, cancellationToken)
             ?? throw new KeyNotFoundException("Package practice progress was not found.");
 
-        var itemExists = await _context.PracticeItems
+        var immediateFeedback = await _context.PracticeItems
             .AsNoTracking()
-            .AnyAsync(item => item.Id == request.PracticeItemId
-                && item.PracticeCollectionVersionId == entitlement.PracticeCollectionVersionId, cancellationToken);
-        if (!itemExists)
+            .Where(item => item.Id == request.PracticeItemId
+                && item.PracticeCollectionVersionId == entitlement.PracticeCollectionVersionId)
+            .Select(item => item.ImmediateFeedback)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (immediateFeedback is null)
         {
             throw new KeyNotFoundException("Practice item was not found for the package practice collection.");
         }
@@ -90,7 +92,8 @@ public sealed class SubmitPackagePracticeAnswerCommandHandler : IRequestHandler<
                 ? PackagePracticeProgressItemState.AnsweredCorrect
                 : PackagePracticeProgressItemState.AnsweredIncorrect,
             SelectedPracticeAnswerOptionId = existing.SelectedPracticeAnswerOptionId,
-            LastAnsweredAt = existing.LastAnsweredAt
+            LastAnsweredAt = existing.LastAnsweredAt,
+            ImmediateFeedback = immediateFeedback
         };
     }
 }

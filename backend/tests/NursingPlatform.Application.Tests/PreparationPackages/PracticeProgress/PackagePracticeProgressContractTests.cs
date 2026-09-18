@@ -70,12 +70,67 @@ public class PackagePracticeProgressContractTests
             "PracticeItemId",
             "State",
             "SelectedPracticeAnswerOptionId",
-            "LastAnsweredAt");
+            "LastAnsweredAt",
+            "ImmediateFeedback");
 
         Assert.Equal(typeof(Guid), typeof(PackagePracticeAnswerSubmissionDto).GetProperty("PracticeItemId")!.PropertyType);
         Assert.Equal(typeof(PackagePracticeProgressItemState), typeof(PackagePracticeAnswerSubmissionDto).GetProperty("State")!.PropertyType);
         Assert.Equal(typeof(Guid), typeof(PackagePracticeAnswerSubmissionDto).GetProperty("SelectedPracticeAnswerOptionId")!.PropertyType);
         Assert.Equal(typeof(DateTime), typeof(PackagePracticeAnswerSubmissionDto).GetProperty("LastAnsweredAt")!.PropertyType);
+        Assert.Equal(typeof(string), typeof(PackagePracticeAnswerSubmissionDto).GetProperty("ImmediateFeedback")!.PropertyType);
+    }
+
+    [Fact]
+    public void GetPackagePracticeItemsQuery_ShouldUsePackageEntitlementOnly()
+    {
+        AssertProperties(typeof(GetPackagePracticeItemsQuery), "EntitlementId");
+        Assert.Equal(typeof(Guid), typeof(GetPackagePracticeItemsQuery).GetProperty("EntitlementId")!.PropertyType);
+    }
+
+    [Fact]
+    public void PackagePracticeContentListDto_ShouldExposeLearnerContentCollectionOnly()
+    {
+        AssertProperties(
+            typeof(PackagePracticeContentListDto),
+            "PackagePurchaseEntitlementId",
+            "PracticeCollectionVersionId",
+            "TotalItems",
+            "Items");
+    }
+
+    [Fact]
+    public void PackagePracticeItemContentDto_ShouldExposePromptAndOptionsOnly()
+    {
+        AssertProperties(
+            typeof(PackagePracticeItemContentDto),
+            "PracticeItemId",
+            "DisplayOrder",
+            "Prompt",
+            "AnswerOptions");
+
+        Assert.Equal(typeof(Guid), typeof(PackagePracticeItemContentDto).GetProperty("PracticeItemId")!.PropertyType);
+        Assert.Equal(typeof(string), typeof(PackagePracticeItemContentDto).GetProperty("Prompt")!.PropertyType);
+    }
+
+    [Fact]
+    public void PackagePracticeAnswerOptionContentDto_ShouldExposeOptionTextOnly()
+    {
+        AssertProperties(
+            typeof(PackagePracticeAnswerOptionContentDto),
+            "PracticeAnswerOptionId",
+            "OptionText",
+            "DisplayOrder");
+
+        Assert.Equal(typeof(Guid), typeof(PackagePracticeAnswerOptionContentDto).GetProperty("PracticeAnswerOptionId")!.PropertyType);
+        Assert.Equal(typeof(string), typeof(PackagePracticeAnswerOptionContentDto).GetProperty("OptionText")!.PropertyType);
+    }
+
+    [Fact]
+    public void GetPackagePracticeItemsQueryValidator_ShouldRejectEmptyEntitlementId()
+    {
+        new GetPackagePracticeItemsQueryValidator()
+            .TestValidate(new GetPackagePracticeItemsQuery(Guid.Empty))
+            .ShouldHaveValidationErrorFor(query => query.EntitlementId);
     }
 
     [Fact]
@@ -130,11 +185,15 @@ public class PackagePracticeProgressContractTests
         var contractTypes = new[]
         {
             typeof(GetPackagePracticeProgressQuery),
+            typeof(GetPackagePracticeItemsQuery),
             typeof(SubmitPackagePracticeAnswerCommand),
             typeof(SubmitPackagePracticeAnswerRequest),
             typeof(PackagePracticeProgressSummaryDto),
             typeof(PackagePracticeProgressItemStateDto),
-            typeof(PackagePracticeAnswerSubmissionDto)
+            typeof(PackagePracticeAnswerSubmissionDto),
+            typeof(PackagePracticeContentListDto),
+            typeof(PackagePracticeItemContentDto),
+            typeof(PackagePracticeAnswerOptionContentDto)
         };
 
         var forbiddenTerms = new[]
@@ -151,7 +210,8 @@ public class PackagePracticeProgressContractTests
             "Ration" + "ale",
             "Explanation" + "Snapshot",
             "Benefit" + "Right" + "Id",
-            "Package" + "Benefit" + "Right" + "Id"
+            "Package" + "Benefit" + "Right" + "Id",
+            "Is" + "Correct"
         };
 
         Assert.All(contractTypes.SelectMany(GetPublicPropertyNames), propertyName =>
@@ -159,6 +219,15 @@ public class PackagePracticeProgressContractTests
             Assert.DoesNotContain(forbiddenTerms, term =>
                 propertyName.Contains(term, StringComparison.OrdinalIgnoreCase));
         });
+
+        Assert.All(
+            new[]
+            {
+                typeof(PackagePracticeContentListDto),
+                typeof(PackagePracticeItemContentDto),
+                typeof(PackagePracticeAnswerOptionContentDto)
+            }.SelectMany(GetPublicPropertyNames),
+            propertyName => Assert.DoesNotContain("ImmediateFeedback", propertyName, StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -167,10 +236,14 @@ public class PackagePracticeProgressContractTests
         var assembly = typeof(PreparationPackageOfferListItemDto).Assembly;
 
         Assert.NotNull(assembly.GetType("NursingPlatform.Application.PreparationPackages.PracticeProgress.GetPackagePracticeProgressQuery"));
+        Assert.NotNull(assembly.GetType("NursingPlatform.Application.PreparationPackages.PracticeProgress.GetPackagePracticeItemsQuery"));
         Assert.NotNull(assembly.GetType("NursingPlatform.Application.PreparationPackages.PracticeProgress.SubmitPackagePracticeAnswerCommand"));
         Assert.NotNull(assembly.GetType("NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs.PackagePracticeProgressSummaryDto"));
         Assert.NotNull(assembly.GetType("NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs.PackagePracticeProgressItemStateDto"));
         Assert.NotNull(assembly.GetType("NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs.PackagePracticeAnswerSubmissionDto"));
+        Assert.NotNull(assembly.GetType("NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs.PackagePracticeContentListDto"));
+        Assert.NotNull(assembly.GetType("NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs.PackagePracticeItemContentDto"));
+        Assert.NotNull(assembly.GetType("NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs.PackagePracticeAnswerOptionContentDto"));
     }
 
     private static IEnumerable<string> GetPublicPropertyNames(Type type)

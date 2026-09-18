@@ -13,6 +13,7 @@ public class PackagePracticeProgressEndpointTests
 {
     private const string ProgressRouteTemplate = "/api/v1/me/nurse-profile/preparation-packages/entitlements/{0}/practice-progress";
     private const string SubmitRouteTemplate = "/api/v1/me/nurse-profile/preparation-packages/entitlements/{0}/practice-progress/items/{1}/answer";
+    private const string ItemsRouteTemplate = "/api/v1/me/nurse-profile/preparation-packages/entitlements/{0}/practice-progress/items";
 
     private static readonly string[] ForbiddenPracticeProgressJsonPatterns =
     [
@@ -24,6 +25,7 @@ public class PackagePracticeProgressEndpointTests
         "OptionTextSnapshot",
         "CorrectAnswer",
         "CorrectOption",
+        "IsCorrect",
         "AnswerKey",
         "Rationale",
         "ExplanationSnapshot",
@@ -273,5 +275,83 @@ public class PackagePracticeProgressEndpointTests
         {
             Assert.DoesNotContain(pattern, json, StringComparison.OrdinalIgnoreCase);
         }
+    }
+
+    [Fact]
+    public async Task GetPackagePracticeItems_WhenUnauthenticated_Returns401()
+    {
+        var response = await _client.GetAsync(string.Format(ItemsRouteTemplate, Guid.NewGuid()));
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetPackagePracticeItems_WhenOwnedByCurrentNurse_ReturnsLearnerContentWithoutAnswerKey()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var entitlementId = Guid.NewGuid();
+        var dto = new NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs.PackagePracticeContentListDto
+        {
+            PackagePurchaseEntitlementId = entitlementId,
+            PracticeCollectionVersionId = Guid.NewGuid(),
+            TotalItems = 1,
+            Items =
+            [
+                new NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs.PackagePracticeItemContentDto
+                {
+                    PracticeItemId = Guid.NewGuid(),
+                    DisplayOrder = 1,
+                    Prompt = "Practice prompt",
+                    AnswerOptions =
+                    [
+                        new NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs.PackagePracticeAnswerOptionContentDto
+                        {
+                            PracticeAnswerOptionId = Guid.NewGuid(),
+                            OptionText = "Option A",
+                            DisplayOrder = 1
+                        }
+                    ]
+                }
+            ]
+        };
+        _senderMock
+            .Setup(s => s.Send(It.Is<NursingPlatform.Application.PreparationPackages.PracticeProgress.GetPackagePracticeItemsQuery>(q => q.EntitlementId == entitlementId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(dto);
+
+        var response = await _client.GetAsync(string.Format(ItemsRouteTemplate, entitlementId));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        AssertDoesNotContain(json, ForbiddenPracticeProgressJsonPatterns);
+        Assert.DoesNotContain("IsCorrect", json, StringComparison.Ordinal);
+        Assert.DoesNotContain("ImmediateFeedback", json, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task GetPackagePracticeItems_WhenEntitlementOwnedByAnotherNurse_Returns404WithoutOwnershipExposure()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<NursingPlatform.Application.PreparationPackages.PracticeProgress.GetPackagePracticeItemsQuery>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new KeyNotFoundException("Package practice items were not found."));
+
+        var response = await _client.GetAsync(string.Format(ItemsRouteTemplate, Guid.NewGuid()));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.DoesNotContain("nurseProfileId", json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task GetPackagePracticeItems_WhenPracticeAccessUnavailable_Returns409()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<NursingPlatform.Application.PreparationPackages.PracticeProgress.GetPackagePracticeItemsQuery>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Package practice access is not available."));
+
+        var response = await _client.GetAsync(string.Format(ItemsRouteTemplate, Guid.NewGuid()));
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
 }

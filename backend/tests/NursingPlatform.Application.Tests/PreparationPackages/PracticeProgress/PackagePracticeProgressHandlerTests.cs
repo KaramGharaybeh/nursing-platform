@@ -211,6 +211,86 @@ public class PackagePracticeProgressHandlerTests
         Assert.True(progress.LastAnsweredAt >= firstAnsweredAt);
     }
 
+    [Fact]
+    public async Task Handle_GetPackagePracticeItems_ForOwnerWithActiveAccess_ReturnsOrderedContentWithoutAnswerKey()
+    {
+        var fixture = CreatePackagePractice(DateTime.UtcNow.AddDays(-1), accessDurationDays: 30, itemCount: 2);
+        var context = CreateContext(fixture, []);
+        var handler = new GetPackagePracticeItemsQueryHandler(context.Object, CreateGuard(context.Object, fixture.UserId));
+
+        var result = await handler.Handle(new GetPackagePracticeItemsQuery(fixture.Entitlement.Id), default);
+
+        Assert.Equal(fixture.Entitlement.Id, result.PackagePurchaseEntitlementId);
+        Assert.Equal(fixture.Entitlement.PracticeCollectionVersionId, result.PracticeCollectionVersionId);
+        Assert.Equal(2, result.TotalItems);
+        Assert.Equal(
+            fixture.Items.Select(item => item.Id),
+            result.Items.Select(item => item.PracticeItemId));
+        Assert.Collection(result.Items,
+            item =>
+            {
+                Assert.Equal(1, item.DisplayOrder);
+                Assert.Equal("Practice prompt 1", item.Prompt);
+                Assert.Equal(
+                    fixture.Items[0].AnswerOptions.OrderBy(option => option.DisplayOrder).Select(option => option.Id),
+                    item.AnswerOptions.Select(option => option.PracticeAnswerOptionId));
+                Assert.Equal("Accurate practice option 1", item.AnswerOptions.Single(option => option.DisplayOrder == 1).OptionText);
+            },
+            item =>
+            {
+                Assert.Equal(2, item.DisplayOrder);
+                Assert.Equal("Practice prompt 2", item.Prompt);
+                Assert.Equal(2, item.AnswerOptions.Count);
+            });
+
+        var json = System.Text.Json.JsonSerializer.Serialize(result);
+        Assert.DoesNotContain("IsCorrect", json, StringComparison.Ordinal);
+        Assert.DoesNotContain("ImmediateFeedback", json, StringComparison.Ordinal);
+        Assert.DoesNotContain("CorrectOption", json, StringComparison.Ordinal);
+        Assert.DoesNotContain("AnswerKey", json, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Handle_GetPackagePracticeItems_ForDifferentNurse_ThrowsKeyNotFoundWithoutRevealingData()
+    {
+        var fixture = CreatePackagePractice(DateTime.UtcNow.AddDays(-1), accessDurationDays: 30, itemCount: 1);
+        var other = CreateNurse("other@nurse.test");
+        var context = CreateContext(fixture, [], [fixture.Nurse, other]);
+        var handler = new GetPackagePracticeItemsQueryHandler(context.Object, CreateGuard(context.Object, other.UserId));
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() =>
+            handler.Handle(new GetPackagePracticeItemsQuery(fixture.Entitlement.Id), default));
+    }
+
+    [Fact]
+    public async Task Handle_GetPackagePracticeItems_WhenPracticeAccessUnavailable_ThrowsInvalidOperation()
+    {
+        var fixture = CreatePackagePractice(DateTime.UtcNow.AddDays(-30), accessDurationDays: 7, itemCount: 1);
+        var context = CreateContext(fixture, []);
+        var handler = new GetPackagePracticeItemsQueryHandler(context.Object, CreateGuard(context.Object, fixture.UserId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(new GetPackagePracticeItemsQuery(fixture.Entitlement.Id), default));
+    }
+
+    [Fact]
+    public async Task Handle_SubmitPackagePracticeAnswer_ReturnsImmediateFeedbackAfterSubmission()
+    {
+        var fixture = CreatePackagePractice(DateTime.UtcNow.AddDays(-1), accessDurationDays: 30, itemCount: 1);
+        var context = CreateContext(fixture, []);
+        var item = fixture.Items[0];
+        var selectedAnswer = item.AnswerOptions.Single(option => option.IsCorrect);
+        var handler = new SubmitPackagePracticeAnswerCommandHandler(context.Object, CreateGuard(context.Object, fixture.UserId));
+
+        var result = await handler.Handle(new SubmitPackagePracticeAnswerCommand(
+            fixture.Entitlement.Id,
+            item.Id,
+            new SubmitPackagePracticeAnswerRequest { SelectedPracticeAnswerOptionId = selectedAnswer.Id }), default);
+
+        Assert.Equal(PackagePracticeProgressItemState.AnsweredCorrect, result.State);
+        Assert.Equal("Practice feedback 1", result.ImmediateFeedback);
+    }
+
     private static Mock<IApplicationDbContext> CreateContext(
         PracticeFixture fixture,
         List<PackagePracticeProgress> progressRows,

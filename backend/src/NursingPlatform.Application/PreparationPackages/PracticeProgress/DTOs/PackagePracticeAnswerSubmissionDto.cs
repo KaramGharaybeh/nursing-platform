@@ -6,4 +6,5 @@ public sealed class PackagePracticeAnswerSubmissionDto
     public PackagePracticeProgressItemState State { get; init; }
     public Guid SelectedPracticeAnswerOptionId { get; init; }
     public DateTime LastAnsweredAt { get; init; }
+    public string ImmediateFeedback { get; init; } = string.Empty;
 }

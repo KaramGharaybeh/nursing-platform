@@ -109,6 +109,19 @@ public static class PreparationPackageEndpointExtensions
             includeConflict: true)
         .RequireAuthorization();
 
+        entitlements.MapGet("/{entitlementId:guid}/practice-progress/items", async (Guid entitlementId, ISender sender) =>
+        {
+            var result = await sender.Send(new GetPackagePracticeItemsQuery(entitlementId));
+            return Results.Ok(result);
+        })
+        .WithName("GetPackagePracticeItems")
+        .WithNurseEntitlementMetadata<PackagePracticeContentListDto>(
+            "Get package practice items",
+            "Gets learner-safe practice item content for one owned preparation package entitlement.",
+            includeNotFound: true,
+            includeConflict: true)
+        .RequireAuthorization();
+
         examSessions.MapGet("/{sessionId:guid}/report", async (Guid sessionId, ISender sender) =>
         {
             var result = await sender.Send(new GetPackageAnalyticalReportQuery(sessionId));

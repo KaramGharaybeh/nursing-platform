@@ -1,0 +1,42 @@
+.np-exam-instructions {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-exam-instructions h1 {
+  margin: var(--np-space-16) 0 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-exam-instructions-text,
+.np-exam-instructions-fallback,
+.np-exam-instructions-purchase-note {
+  margin: var(--np-space-8) 0 0;
+}
+
+.np-exam-instructions-facts {
+  display: grid;
+  gap: var(--np-space-8);
+  margin: var(--np-space-24) 0 0;
+}
+
+.np-exam-instructions-facts div {
+  display: grid;
+  gap: var(--np-space-4);
+}
+
+.np-exam-instructions-facts dt {
+  font-weight: 600;
+}
+
+.np-exam-instructions-facts dd {
+  margin: 0;
+}

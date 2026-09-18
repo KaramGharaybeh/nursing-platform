@@ -1,11 +1,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiConfiguration } from './generated/api-configuration';
 import { getExam } from './generated/fn/nursing-platform-web-api/get-exam';
 import { listCountries } from './generated/fn/nursing-platform-web-api/list-countries';
 import { listExams } from './generated/fn/nursing-platform-web-api/list-exams';
+import { listMyExamAttempts } from './generated/fn/nursing-platform-web-api/list-my-exam-attempts';
+import { startExamSession } from './generated/fn/nursing-platform-web-api/start-exam-session';
+import type { ExamAttemptDto } from './generated/models/exam-attempt-dto';
+
+const ATTEMPTS_PAGE_SIZE = 100;
+const SESSION_STATUS_IN_PROGRESS = 0;
 
 export interface ExamCatalogItem {
   readonly id: string;
@@ -37,6 +44,11 @@ export interface ExamDetail extends ExamCatalogItem {
 export interface CountryOption {
   readonly id: string;
   readonly name: string;
+}
+
+export interface ExamSessionStart {
+  readonly sessionId: string;
+  readonly examId: string;
 }
 
 export interface ExamCatalogQuery {
@@ -73,6 +85,61 @@ export class ExamsApi {
       ),
     );
   }
+
+  listMyExamAttempts(query: { status: number; page: number; pageSize: number }): Observable<{
+    readonly items: ExamAttemptDto[];
+    readonly page: number;
+    readonly pageSize: number;
+    readonly totalCount: number;
+    readonly totalPages: number;
+  }> {
+    return listMyExamAttempts(this.http, this.config.rootUrl, {
+      status: query.status,
+      page: query.page,
+      pageSize: query.pageSize,
+    }).pipe(map((response) => response.body));
+  }
+
+  async findResumableAttempt(examId: string, now: Date = new Date()): Promise<ExamAttemptDto | undefined> {
+    let page = 1;
+    for (;;) {
+      const result = await firstValueFrom(
+        this.listMyExamAttempts({ status: SESSION_STATUS_IN_PROGRESS, page, pageSize: ATTEMPTS_PAGE_SIZE }),
+      );
+      const match = result.items.find((attempt) => isResumableMatch(attempt, examId, now));
+      if (match !== undefined) {
+        return match;
+      }
+      if (result.page >= result.totalPages || result.items.length === 0) {
+        return undefined;
+      }
+      page += 1;
+    }
+  }
+
+  startExamSession(examId: string): Observable<ExamSessionStart> {
+    return startExamSession(this.http, this.config.rootUrl, { id: examId }).pipe(
+      map((response) => adaptSessionStart(response.body)),
+    );
+  }
+}
+
+function isResumableMatch(attempt: ExamAttemptDto, examId: string, now: Date): boolean {
+  if (attempt.examId !== examId || attempt.status !== 'InProgress') {
+    return false;
+  }
+  const expiresAt = Date.parse(attempt.expiresAt);
+  return Number.isFinite(expiresAt) && expiresAt > now.getTime();
+}
+
+function adaptSessionStart(body: unknown): ExamSessionStart {
+  const record = asRecord(body);
+  const sessionId = asString(record['id']);
+  const examId = asString(record['examId']);
+  if (sessionId === '' || examId === '') {
+    throw new Error('Exam session response did not include a session identity.');
+  }
+  return { sessionId, examId };
 }
 
 function adaptCatalogPage(body: unknown): ExamCatalogPage {

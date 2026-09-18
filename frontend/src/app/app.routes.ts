@@ -174,4 +174,10 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'EXAMS_DETAIL' },
   },
+  {
+    path: 'exams/:examId/instructions',
+    loadComponent: () => import('./features/exams/exam-instructions').then((m) => m.ExamInstructions),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'EXAMS_INSTRUCTIONS' },
+  },
 ];

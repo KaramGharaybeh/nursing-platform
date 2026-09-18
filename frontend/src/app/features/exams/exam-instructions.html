@@ -1,0 +1,92 @@
+<section class="np-exam-instructions" aria-labelledby="exam-instructions-title">
+  <a [routerLink]="backPath" data-testid="instructions-back-link">Back to exam</a>
+
+  <np-live-region />
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading exam instructions"
+    fallbackErrorTitle="Exam instructions could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (notFound()) {
+      <p role="status" data-testid="instructions-missing-notice">
+        These exam instructions are no longer available. The exam may have been removed, or the link is incorrect.
+      </p>
+    } @else if (exam(); as detail) {
+      <h1 id="exam-instructions-title">{{ detail.title }}</h1>
+      @if (hasInstructions()) {
+        <p class="np-exam-instructions-text">{{ detail.instructions }}</p>
+      } @else {
+        <p class="np-exam-instructions-fallback">No instructions were supplied for this exam.</p>
+      }
+      <dl class="np-exam-instructions-facts">
+        <div><dt>Duration</dt><dd>{{ detail.durationMinutes }} minutes</dd></div>
+        <div><dt>Questions</dt><dd>{{ detail.questionCount }} questions</dd></div>
+        <div><dt>Passing score</dt><dd>{{ detail.passingScorePercentage }}%</dd></div>
+      </dl>
+      @if (requiresPurchase()) {
+        <p role="status" data-testid="instructions-requires-purchase">Requires purchase</p>
+        <p class="np-exam-instructions-purchase-note">This exam requires purchase before it can be started.</p>
+      } @else if (isStartable()) {
+        @if (resumeState() === 'loading') {
+          <p role="status" data-testid="instructions-resume-loading">Checking for an active session…</p>
+        } @else if (resumeState() === 'error') {
+          <div data-testid="instructions-resume-error" role="alert">
+            <p>Active session status could not be loaded.</p>
+            <button type="button" data-testid="instructions-resume-retry" (click)="retryAttempts()">Try again</button>
+          </div>
+        } @else if (isResuming()) {
+          <button
+            type="button"
+            data-testid="instructions-resume"
+            [disabled]="starting()"
+            (click)="requestAction()"
+          >
+            Resume exam
+          </button>
+        } @else {
+          <button
+            type="button"
+            data-testid="instructions-start"
+            [disabled]="starting()"
+            (click)="requestAction()"
+          >
+            Start exam
+          </button>
+        }
+        @if (isConfirming()) {
+          <div data-testid="instructions-confirm" role="group" aria-labelledby="instructions-confirm-title">
+            @if (isResuming()) {
+              <h2 id="instructions-confirm-title">Resume this exam?</h2>
+              <p>This is a timed exam session. Resuming the exam continues the timer, which cannot be paused.</p>
+            } @else {
+              <h2 id="instructions-confirm-title">Start this exam?</h2>
+              <p>This is a timed exam session. Starting the exam begins the timer and the attempt cannot be paused.</p>
+            }
+            <button type="button" data-testid="instructions-cancel" (click)="cancelAction()">Cancel</button>
+            <button
+              type="button"
+              data-testid="instructions-confirm-go"
+              [disabled]="starting()"
+              (click)="confirmAction()"
+            >
+              @if (isResuming()) {
+                Resume exam
+              } @else {
+                Start exam
+              }
+            </button>
+          </div>
+        }
+        @if (startError()) {
+          <div data-testid="instructions-start-error" role="alert">
+            <p>The exam could not be started. Please try again.</p>
+          </div>
+        }
+      }
+    }
+  }
+</section>

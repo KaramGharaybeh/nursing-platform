@@ -62,7 +62,10 @@ export type { PackageEntitlementDetailDto } from './models/package-entitlement-d
 export type { PackageEntitlementListItemDto } from './models/package-entitlement-list-item-dto';
 export type { PackageEntitlementSnapshotDto } from './models/package-entitlement-snapshot-dto';
 export type { PackageExamSessionStartDto } from './models/package-exam-session-start-dto';
+export type { PackagePracticeAnswerOptionContentDto } from './models/package-practice-answer-option-content-dto';
 export type { PackagePracticeAnswerSubmissionDto } from './models/package-practice-answer-submission-dto';
+export type { PackagePracticeContentListDto } from './models/package-practice-content-list-dto';
+export type { PackagePracticeItemContentDto } from './models/package-practice-item-content-dto';
 export type { PackagePracticeProgressItemState } from './models/package-practice-progress-item-state';
 export type { PackagePracticeProgressItemStateDto } from './models/package-practice-progress-item-state-dto';
 export type { PackagePracticeProgressSummaryDto } from './models/package-practice-progress-summary-dto';

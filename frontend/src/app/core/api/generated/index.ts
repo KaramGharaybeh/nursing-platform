@@ -67,7 +67,10 @@ export type { PackageEntitlementDetailDto } from './models/package-entitlement-d
 export type { PackageEntitlementListItemDto } from './models/package-entitlement-list-item-dto';
 export type { PackageEntitlementSnapshotDto } from './models/package-entitlement-snapshot-dto';
 export type { PackageExamSessionStartDto } from './models/package-exam-session-start-dto';
+export type { PackagePracticeAnswerOptionContentDto } from './models/package-practice-answer-option-content-dto';
 export type { PackagePracticeAnswerSubmissionDto } from './models/package-practice-answer-submission-dto';
+export type { PackagePracticeContentListDto } from './models/package-practice-content-list-dto';
+export type { PackagePracticeItemContentDto } from './models/package-practice-item-content-dto';
 export type { PackagePracticeProgressItemState } from './models/package-practice-progress-item-state';
 export type { PackagePracticeProgressItemStateDto } from './models/package-practice-progress-item-state-dto';
 export type { PackagePracticeProgressSummaryDto } from './models/package-practice-progress-summary-dto';
@@ -374,6 +377,8 @@ export type { GetPackagePracticeProgress$Params as GetPackagePracticeProgress$Pa
 export { getPackagePracticeProgress as getPackagePracticeProgress } from './fn/preparation-package-entitlements/get-package-practice-progress';
 export type { SubmitPackagePracticeAnswer$Params as SubmitPackagePracticeAnswer$Params } from './fn/preparation-package-entitlements/submit-package-practice-answer';
 export { submitPackagePracticeAnswer as submitPackagePracticeAnswer } from './fn/preparation-package-entitlements/submit-package-practice-answer';
+export type { GetPackagePracticeItems$Params as GetPackagePracticeItems$Params } from './fn/preparation-package-entitlements/get-package-practice-items';
+export { getPackagePracticeItems as getPackagePracticeItems } from './fn/preparation-package-entitlements/get-package-practice-items';
 export type { GetMyPackageAnalyticalReport$Params as GetMyPackageAnalyticalReport$Params } from './fn/preparation-package-entitlements/get-my-package-analytical-report';
 export { getMyPackageAnalyticalReport as getMyPackageAnalyticalReport } from './fn/preparation-package-entitlements/get-my-package-analytical-report';
 export type { AdminListPreparationPackageReportingTopics$Params as AdminListPreparationPackageReportingTopics$Params } from './fn/preparation-package-admin-reporting-topics/admin-list-preparation-package-reporting-topics';

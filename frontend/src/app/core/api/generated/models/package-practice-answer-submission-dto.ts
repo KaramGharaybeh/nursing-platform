@@ -3,6 +3,7 @@
 
 import { PackagePracticeProgressItemState } from '../models/package-practice-progress-item-state';
 export interface PackagePracticeAnswerSubmissionDto {
+  immediateFeedback: string;
   lastAnsweredAt: string;
   practiceItemId: string;
   selectedPracticeAnswerOptionId: string;

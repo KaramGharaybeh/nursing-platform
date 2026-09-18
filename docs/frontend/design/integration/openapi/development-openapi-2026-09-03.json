@@ -518,6 +518,82 @@
         ]
       }
     },
+    "/api/v1/me/nurse-profile/preparation-packages/entitlements/{entitlementId}/practice-progress/items": {
+      "get": {
+        "tags": [
+          "Preparation Package Entitlements"
+        ],
+        "summary": "Get package practice items",
+        "description": "Gets learner-safe practice item content for one owned preparation package entitlement.",
+        "operationId": "GetPackagePracticeItems",
+        "parameters": [
+          {
+            "name": "entitlementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PackagePracticeContentListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "Bearer authentication challenge."
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
     "/api/v1/me/nurse-profile/preparation-packages/exam-sessions/{sessionId}/report": {
       "get": {
         "tags": [
@@ -10458,12 +10534,34 @@
           }
         }
       },
+      "PackagePracticeAnswerOptionContentDto": {
+        "required": [
+          "practiceAnswerOptionId",
+          "optionText",
+          "displayOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "practiceAnswerOptionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "optionText": {
+            "type": "string"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "PackagePracticeAnswerSubmissionDto": {
         "required": [
           "practiceItemId",
           "state",
           "selectedPracticeAnswerOptionId",
-          "lastAnsweredAt"
+          "lastAnsweredAt",
+          "immediateFeedback"
         ],
         "type": "object",
         "properties": {
@@ -10481,6 +10579,66 @@
           "lastAnsweredAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "immediateFeedback": {
+            "type": "string"
+          }
+        }
+      },
+      "PackagePracticeContentListDto": {
+        "required": [
+          "packagePurchaseEntitlementId",
+          "practiceCollectionVersionId",
+          "totalItems",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "packagePurchaseEntitlementId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "practiceCollectionVersionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackagePracticeItemContentDto"
+            }
+          }
+        }
+      },
+      "PackagePracticeItemContentDto": {
+        "required": [
+          "practiceItemId",
+          "displayOrder",
+          "prompt",
+          "answerOptions"
+        ],
+        "type": "object",
+        "properties": {
+          "practiceItemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "answerOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackagePracticeAnswerOptionContentDto"
+            }
           }
         }
       },

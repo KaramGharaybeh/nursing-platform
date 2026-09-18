@@ -233,6 +233,8 @@ export type { GetPackagePracticeProgress$Params as GetPackagePracticeProgress$Pa
 export { getPackagePracticeProgress as getPackagePracticeProgress } from './fn/preparation-package-entitlements/get-package-practice-progress';
 export type { SubmitPackagePracticeAnswer$Params as SubmitPackagePracticeAnswer$Params } from './fn/preparation-package-entitlements/submit-package-practice-answer';
 export { submitPackagePracticeAnswer as submitPackagePracticeAnswer } from './fn/preparation-package-entitlements/submit-package-practice-answer';
+export type { GetPackagePracticeItems$Params as GetPackagePracticeItems$Params } from './fn/preparation-package-entitlements/get-package-practice-items';
+export { getPackagePracticeItems as getPackagePracticeItems } from './fn/preparation-package-entitlements/get-package-practice-items';
 export type { GetMyPackageAnalyticalReport$Params as GetMyPackageAnalyticalReport$Params } from './fn/preparation-package-entitlements/get-my-package-analytical-report';
 export { getMyPackageAnalyticalReport as getMyPackageAnalyticalReport } from './fn/preparation-package-entitlements/get-my-package-analytical-report';
 export type { AdminListPreparationPackageReportingTopics$Params as AdminListPreparationPackageReportingTopics$Params } from './fn/preparation-package-admin-reporting-topics/admin-list-preparation-package-reporting-topics';

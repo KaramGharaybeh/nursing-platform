@@ -295,3 +295,134 @@ describe('exams-api resume detection (T-FE-068)', () => {
     await expect(result).rejects.toThrow('Exam session response did not include a session identity.');
   });
 });
+
+function sessionResponse(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'session-9',
+    examId: 'exam-1',
+    examTitle: 'Exam',
+    status: 'InProgress',
+    source: 'Free',
+    startedAt: '2026-09-18T00:00:00Z',
+    expiresAt: '2999-01-01T00:00:00Z',
+    remainingSeconds: 3600,
+    items: [
+      {
+        id: 'q-1',
+        displayOrder: 1,
+        text: 'First prompt',
+        points: 1,
+        selectedExamSessionAnswerOptionId: null,
+        options: [
+          { id: 'o-1a', displayOrder: 1, text: 'First option one' },
+          { id: 'o-1b', displayOrder: 2, text: 'First option two' },
+        ],
+      },
+      {
+        id: 'q-2',
+        displayOrder: 2,
+        text: 'Second prompt',
+        points: 1,
+        selectedExamSessionAnswerOptionId: 'o-2a',
+        options: [
+          { id: 'o-2a', displayOrder: 1, text: 'Second option one' },
+          { id: 'o-2b', displayOrder: 2, text: 'Second option two' },
+        ],
+      },
+    ],
+    ...overrides,
+  };
+}
+
+/**
+ * T-FE-069 proving evidence: the session facade delegates to the generated
+ * exam-session operations with exact session ids and adapts bodies into
+ * explicit frontend-owned shapes that carry no correctness/review fields.
+ * Save posts the generated answer-item shape; submit exposes only the
+ * aggregate transient result.
+ */
+describe('exams-api exam session (T-FE-069)', () => {
+  let api: ExamsApi;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideApiConfig()],
+    });
+
+    api = TestBed.inject(ExamsApi);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('gets a session by id with adapted questions, options, and persisted answers', async () => {
+    const result = firstValueFrom(api.getExamSession('session-9'));
+    const request = httpMock.expectOne('/api/v1/exam-sessions/session-9');
+
+    expect(request.request.method).toBe('GET');
+    request.flush(sessionResponse());
+    const session = await result;
+
+    expect(session.id).toBe('session-9');
+    expect(session.status).toBe('InProgress');
+    expect(session.remainingSeconds).toBe(3600);
+    expect(session.items.map((item) => item.examSessionQuestionId)).toEqual(['q-1', 'q-2']);
+    expect(session.items[1].selectedExamSessionAnswerOptionId).toBe('o-2a');
+    expect(session.items[0].options.map((option) => option.text)).toEqual([
+      'First option one',
+      'First option two',
+    ]);
+    expect(JSON.stringify(session)).not.toContain('IsCorrect');
+    expect(JSON.stringify(session)).not.toContain('CorrectAnswer');
+  });
+
+  it('saves answers with the exact generated request shape', async () => {
+    const result = firstValueFrom(
+      api.saveExamSessionAnswers('session-9', [
+        { examSessionQuestionId: 'q-1', selectedExamSessionAnswerOptionId: 'o-1b' },
+      ]),
+    );
+    const request = httpMock.expectOne('/api/v1/exam-sessions/session-9/answers');
+
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({
+      answers: [{ examSessionQuestionId: 'q-1', selectedExamSessionAnswerOptionId: 'o-1b' }],
+    });
+    request.flush(sessionResponse());
+    await expect(result).resolves.toMatchObject({ id: 'session-9' });
+  });
+
+  it('submits a session with the exact id and adapts only aggregate result fields', async () => {
+    const result = firstValueFrom(api.submitExamSession('session-9'));
+    const request = httpMock.expectOne('/api/v1/exam-sessions/session-9/submit');
+
+    expect(request.request.method).toBe('POST');
+    request.flush({
+      id: 'session-9',
+      examId: 'exam-1',
+      examTitle: 'Exam',
+      status: 'Submitted',
+      startedAt: '2026-09-18T00:00:00Z',
+      expiresAt: '2999-01-01T00:00:00Z',
+      submittedAt: '2026-09-18T00:30:00Z',
+      finalizedAt: '2026-09-18T00:30:00Z',
+      score: 1,
+      maxScore: 2,
+      percentage: 50,
+      passed: false,
+      correctCount: 1,
+      questionCount: 2,
+    });
+    await expect(result).resolves.toEqual({
+      score: 1,
+      maxScore: 2,
+      percentage: 50,
+      passed: false,
+      correctCount: 1,
+      questionCount: 2,
+    });
+  });
+});

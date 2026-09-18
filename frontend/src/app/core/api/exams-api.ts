@@ -5,10 +5,13 @@ import { firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiConfiguration } from './generated/api-configuration';
 import { getExam } from './generated/fn/nursing-platform-web-api/get-exam';
+import { getExamSession } from './generated/fn/nursing-platform-web-api/get-exam-session';
 import { listCountries } from './generated/fn/nursing-platform-web-api/list-countries';
 import { listExams } from './generated/fn/nursing-platform-web-api/list-exams';
 import { listMyExamAttempts } from './generated/fn/nursing-platform-web-api/list-my-exam-attempts';
+import { saveExamSessionAnswers } from './generated/fn/nursing-platform-web-api/save-exam-session-answers';
 import { startExamSession } from './generated/fn/nursing-platform-web-api/start-exam-session';
+import { submitExamSession } from './generated/fn/nursing-platform-web-api/submit-exam-session';
 import type { ExamAttemptDto } from './generated/models/exam-attempt-dto';
 
 const ATTEMPTS_PAGE_SIZE = 100;
@@ -49,6 +52,46 @@ export interface CountryOption {
 export interface ExamSessionStart {
   readonly sessionId: string;
   readonly examId: string;
+}
+
+export interface ExamSessionQuestion {
+  readonly examSessionQuestionId: string;
+  readonly text: string;
+  readonly points: number;
+  readonly displayOrder: number;
+  readonly selectedExamSessionAnswerOptionId: string | null;
+  readonly options: ExamSessionAnswerOption[];
+}
+
+export interface ExamSessionAnswerOption {
+  readonly examSessionAnswerOptionId: string;
+  readonly text: string;
+  readonly displayOrder: number;
+}
+
+export interface ExamSession {
+  readonly id: string;
+  readonly examId: string;
+  readonly examTitle: string;
+  readonly status: string;
+  readonly startedAt: string;
+  readonly expiresAt: string;
+  readonly remainingSeconds: number;
+  readonly items: ExamSessionQuestion[];
+}
+
+export interface ExamSessionAnswer {
+  readonly examSessionQuestionId: string;
+  readonly selectedExamSessionAnswerOptionId: string;
+}
+
+export interface ExamSessionResult {
+  readonly score: number;
+  readonly maxScore: number;
+  readonly percentage: number;
+  readonly passed: boolean;
+  readonly correctCount: number;
+  readonly questionCount: number;
 }
 
 export interface ExamCatalogQuery {
@@ -122,6 +165,25 @@ export class ExamsApi {
       map((response) => adaptSessionStart(response.body)),
     );
   }
+
+  getExamSession(sessionId: string): Observable<ExamSession> {
+    return getExamSession(this.http, this.config.rootUrl, { id: sessionId }).pipe(
+      map((response) => adaptExamSession(response.body)),
+    );
+  }
+
+  saveExamSessionAnswers(sessionId: string, answers: ExamSessionAnswer[]): Observable<ExamSession> {
+    return saveExamSessionAnswers(this.http, this.config.rootUrl, {
+      id: sessionId,
+      body: { answers },
+    }).pipe(map((response) => adaptExamSession(response.body)));
+  }
+
+  submitExamSession(sessionId: string): Observable<ExamSessionResult> {
+    return submitExamSession(this.http, this.config.rootUrl, { id: sessionId }).pipe(
+      map((response) => adaptExamSessionResult(response.body)),
+    );
+  }
 }
 
 function isResumableMatch(attempt: ExamAttemptDto, examId: string, now: Date): boolean {
@@ -140,6 +202,55 @@ function adaptSessionStart(body: unknown): ExamSessionStart {
     throw new Error('Exam session response did not include a session identity.');
   }
   return { sessionId, examId };
+}
+
+function adaptExamSession(body: unknown): ExamSession {
+  const record = asRecord(body);
+  const items = Array.isArray(record['items']) ? record['items'].map(adaptSessionQuestion) : [];
+  return {
+    id: asString(record['id']),
+    examId: asString(record['examId']),
+    examTitle: asString(record['examTitle']),
+    status: asString(record['status']),
+    startedAt: asString(record['startedAt']),
+    expiresAt: asString(record['expiresAt']),
+    remainingSeconds: asNumber(record['remainingSeconds'], 0),
+    items,
+  };
+}
+
+function adaptSessionQuestion(item: unknown): ExamSessionQuestion {
+  const record = asRecord(item);
+  const options = Array.isArray(record['options']) ? record['options'].map(adaptSessionOption) : [];
+  return {
+    examSessionQuestionId: asString(record['id']),
+    text: asString(record['text']),
+    points: asNumber(record['points'], 0),
+    displayOrder: asNumber(record['displayOrder'], 0),
+    selectedExamSessionAnswerOptionId: asNullableString(record['selectedExamSessionAnswerOptionId']),
+    options,
+  };
+}
+
+function adaptSessionOption(option: unknown): ExamSessionAnswerOption {
+  const record = asRecord(option);
+  return {
+    examSessionAnswerOptionId: asString(record['id']),
+    text: asString(record['text']),
+    displayOrder: asNumber(record['displayOrder'], 0),
+  };
+}
+
+function adaptExamSessionResult(body: unknown): ExamSessionResult {
+  const record = asRecord(body);
+  return {
+    score: asNumber(record['score'], 0),
+    maxScore: asNumber(record['maxScore'], 0),
+    percentage: asNumber(record['percentage'], 0),
+    passed: record['passed'] === true,
+    correctCount: asNumber(record['correctCount'], 0),
+    questionCount: asNumber(record['questionCount'], 0),
+  };
 }
 
 function adaptCatalogPage(body: unknown): ExamCatalogPage {

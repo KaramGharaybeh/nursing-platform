@@ -180,4 +180,10 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'EXAMS_INSTRUCTIONS' },
   },
+  {
+    path: 'exams/:examId/sessions/:sessionId',
+    loadComponent: () => import('./features/exams/exam-session').then((m) => m.ExamSessionScreen),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'EXAMS_SESSION' },
+  },
 ];

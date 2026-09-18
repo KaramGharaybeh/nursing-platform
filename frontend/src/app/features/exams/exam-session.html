@@ -1,0 +1,133 @@
+<section class="np-exam-session" aria-labelledby="exam-session-title">
+  <a [routerLink]="backPath" data-testid="session-back-link">Back to exam</a>
+
+  <np-live-region />
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading exam session"
+    fallbackErrorTitle="Exam session could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (notFound()) {
+      <p role="status" data-testid="session-missing-notice">
+        This exam session is no longer available. It may have been removed, or the link is incorrect.
+      </p>
+    } @else if (session(); as active) {
+      <h1 id="exam-session-title">{{ active.examTitle }}</h1>
+      @if (!isTerminal()) {
+        <p data-testid="session-timer" role="timer">Time remaining: {{ formattedRemaining() }}</p>
+      }
+      @if (isWarning()) {
+        <p role="status" data-testid="session-expiry-warning">Time is almost up. Submit your exam soon.</p>
+      }
+      @if (isTerminal()) {
+        @if (result(); as transient) {
+          <p role="status" data-testid="session-result">Exam submitted.</p>
+          <dl class="np-exam-session-result">
+            <div><dt>Score</dt><dd>{{ transient.score }} of {{ transient.maxScore }}</dd></div>
+            <div><dt>Percentage</dt><dd>{{ transient.percentage }}%</dd></div>
+            <div><dt>Result</dt><dd>{{ transient.passed ? 'Passed' : 'Not passed' }}</dd></div>
+            <div><dt>Correct count</dt><dd>{{ transient.correctCount }}</dd></div>
+            <div><dt>Questions</dt><dd>{{ transient.questionCount }}</dd></div>
+          </dl>
+        } @else {
+          <p role="status" data-testid="session-terminal-notice">
+            @if (active.status === 'Expired') {
+              The exam session has expired. Your submitted answers were finalized.
+            } @else {
+              This exam session has been submitted.
+            }
+          </p>
+        }
+      } @else {
+        @if (currentQuestion(); as question) {
+          <p data-testid="session-position">
+            Question {{ currentIndex() + 1 }} of {{ active.items.length }}
+          </p>
+          <fieldset class="np-exam-session-question">
+            <legend data-testid="session-prompt">{{ question.text }}</legend>
+            @for (option of question.options; track option.examSessionAnswerOptionId) {
+              <label data-testid="session-option">
+                <input
+                  type="radio"
+                  [name]="'session-question-' + question.examSessionQuestionId"
+                  [value]="option.examSessionAnswerOptionId"
+                  [checked]="effectiveSelection(question.examSessionQuestionId) === option.examSessionAnswerOptionId"
+                  [disabled]="saving() || submitting()"
+                  (change)="selectOption(option.examSessionAnswerOptionId)"
+                />
+                {{ option.text }}
+              </label>
+            }
+          </fieldset>
+          @if (hasUnsavedChange(question.examSessionQuestionId)) {
+            <p data-testid="session-unsaved-notice">You have an unsaved answer for this question.</p>
+          }
+          <div class="np-exam-session-actions">
+            <button
+              type="button"
+              data-testid="session-prev"
+              [disabled]="currentIndex() === 0 || saving() || submitting()"
+              (click)="previous()"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              data-testid="session-next"
+              [disabled]="currentIndex() + 1 >= active.items.length || saving() || submitting()"
+              (click)="next()"
+            >
+              Next
+            </button>
+            <button
+              type="button"
+              data-testid="session-save"
+              [disabled]="saving() || submitting()"
+              (click)="save()"
+            >
+              Save answer
+            </button>
+            <button
+              type="button"
+              data-testid="session-submit-open"
+              [disabled]="saving() || submitting()"
+              (click)="requestSubmit()"
+            >
+              Submit exam
+            </button>
+          </div>
+          @if (saveError()) {
+            <div data-testid="session-save-error" role="alert">
+              <p>The answer could not be saved. Please try again.</p>
+            </div>
+          }
+          @if (isConfirming()) {
+            <div data-testid="session-confirm" role="group" aria-labelledby="session-confirm-title">
+              <h2 id="session-confirm-title">Submit this exam?</h2>
+              <p>
+                @if (unansweredCount() === 0) {
+                  All questions have a saved answer. Submitting is irreversible.
+                } @else {
+                  {{ unansweredCount() }} questions are unanswered. Unanswered questions score zero. Submitting is irreversible.
+                }
+              </p>
+              <button type="button" data-testid="session-confirm-cancel" (click)="cancelSubmit()">Cancel</button>
+              <button
+                type="button"
+                data-testid="session-confirm-go"
+                [disabled]="submitting()"
+                (click)="confirmSubmit()"
+              >
+                Submit exam
+              </button>
+            </div>
+          }
+        }
+      }
+    }
+  }
+</section>

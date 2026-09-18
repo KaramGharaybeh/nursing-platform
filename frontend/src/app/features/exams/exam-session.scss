@@ -1,0 +1,56 @@
+.np-exam-session {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-exam-session h1 {
+  margin: var(--np-space-16) 0 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-exam-session-question {
+  display: grid;
+  gap: var(--np-space-8);
+  margin: var(--np-space-16) 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.np-exam-session-question legend {
+  padding: 0;
+  font-weight: 600;
+}
+
+.np-exam-session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-8);
+  margin-block-start: var(--np-space-16);
+}
+
+.np-exam-session-result {
+  display: grid;
+  gap: var(--np-space-8);
+  margin: var(--np-space-16) 0 0;
+}
+
+.np-exam-session-result div {
+  display: grid;
+  gap: var(--np-space-4);
+}
+
+.np-exam-session-result dt {
+  font-weight: 600;
+}
+
+.np-exam-session-result dd {
+  margin: 0;
+}

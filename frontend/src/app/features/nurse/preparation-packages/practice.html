@@ -1,0 +1,96 @@
+<section class="np-practice" aria-labelledby="practice-title">
+  <a [routerLink]="backPath" data-testid="practice-back-link">Back to preparation package</a>
+
+  <h1 id="practice-title">Practice</h1>
+  <np-live-region />
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading practice"
+    fallbackErrorTitle="Practice could not be loaded"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (notFound()) {
+      <p role="status" data-testid="practice-missing-notice">
+        This practice is no longer available. It may have been removed, or the link is incorrect.
+      </p>
+    } @else if (accessEnded()) {
+      <p role="status" data-testid="practice-access-ended-notice">
+        Practice access is no longer available. Your previous progress is shown below.
+      </p>
+      @if (progress(); as endedProgress) {
+        <p data-testid="practice-progress-summary">
+          {{ endedProgress.answeredCount }} of {{ endedProgress.totalItems }} answered
+        </p>
+      }
+    } @else if (isEmpty()) {
+      <np-empty-state
+        kind="empty"
+        title="No practice items available."
+        description="There are no practice items to show right now. Please check back later."
+      />
+    } @else if (currentItem(); as item) {
+      @if (isComplete()) {
+        <p role="status" data-testid="practice-complete-notice">Practice complete</p>
+      }
+      <p data-testid="practice-position">Question {{ currentIndex() + 1 }} of {{ content()?.totalItems }}</p>
+      @if (progress(); as activeProgress) {
+        <p data-testid="practice-progress-summary">
+          {{ activeProgress.answeredCount }} of {{ activeProgress.totalItems }} answered
+        </p>
+      }
+      <fieldset class="np-practice-question">
+        <legend data-testid="practice-prompt">{{ item.prompt }}</legend>
+        @for (option of item.answerOptions; track option.practiceAnswerOptionId) {
+          <label data-testid="practice-option">
+            <input
+              type="radio"
+              name="practice-option"
+              [value]="option.practiceAnswerOptionId"
+              [checked]="selectedOptionId() === option.practiceAnswerOptionId"
+              (change)="selectOption(option.practiceAnswerOptionId)"
+            />
+            {{ option.optionText }}
+          </label>
+        }
+      </fieldset>
+      @if (isAnswered() && isCorrect()) {
+        <p role="status" data-testid="practice-correct-notice">Correct.</p>
+      }
+      @if (isAnswered() && !isCorrect()) {
+        <p role="status" data-testid="practice-incorrect-notice">Incorrect.</p>
+      }
+      @if (feedback(); as itemFeedback) {
+        <p data-testid="practice-feedback">{{ itemFeedback }}</p>
+      }
+      <div class="np-practice-actions">
+        <button
+          type="button"
+          data-testid="practice-prev"
+          [disabled]="currentIndex() === 0 || submitting()"
+          (click)="previous()"
+        >
+          Previous
+        </button>
+        <button
+          type="button"
+          data-testid="practice-next"
+          [disabled]="currentIndex() + 1 >= (content()?.items.length ?? 0) || submitting()"
+          (click)="next()"
+        >
+          Next
+        </button>
+        <button
+          type="button"
+          data-testid="practice-submit"
+          [disabled]="selectedOptionId() === undefined || submitting()"
+          (click)="submit()"
+        >
+          Submit
+        </button>
+      </div>
+    }
+  }
+</section>

@@ -6,7 +6,7 @@ import { PreparationPackageEntitlementsApi } from '../../../core/api/preparation
 import type { PackageEntitlementDetailDto } from '../../../core/api/generated/models/package-entitlement-detail-dto';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
-import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
+import { canonicalRoutePath, buildCanonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { LoadingErrorRetry } from '../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../shared/ui/loading-error-retry';
 import { NurseEntitlementRight } from './nurse-entitlement-right';
@@ -36,6 +36,18 @@ export class NurseEntitlementDetail implements OnInit {
 
   protected hasSummary(): boolean {
     return (this.entitlement()?.purchasedSnapshot?.packageOfferSummary?.trim() ?? '') !== '';
+  }
+
+  protected hasPracticeAccess(): boolean {
+    return (this.entitlement()?.benefitRights ?? []).some(
+      (right) => right.rightType === 'PracticeAccess' && right.isAvailable,
+    );
+  }
+
+  protected practicePath(): string {
+    return buildCanonicalRoutePath('PREPARATION_PACKAGES_PRACTICE', {
+      entitlementId: this.route.snapshot.paramMap.get('entitlementId') ?? '',
+    });
   }
 
   private async load(): Promise<void> {

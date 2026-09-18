@@ -31,6 +31,10 @@
         <p class="np-nurse-entitlement-detail-summary">{{ detail.purchasedSnapshot.packageOfferSummary }}</p>
       }
 
+      @if (hasPracticeAccess()) {
+        <a [routerLink]="practicePath()" data-testid="entitlement-practice-link">Practice</a>
+      }
+
       <h2>Benefit rights</h2>
       @if (detail.benefitRights.length > 0) {
         <ul class="np-nurse-entitlement-detail-rights">

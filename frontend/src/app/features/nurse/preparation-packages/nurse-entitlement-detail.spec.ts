@@ -193,6 +193,64 @@ describe('NurseEntitlementDetail', () => {
     expect(api.requested).toEqual(['ent-1', 'ent-1']);
     expect(text(fixture)).toContain('NCLEX Preparation Package');
   });
+
+  it('shows the Practice link only when PracticeAccess is Available', async () => {
+    const stub = new EntitlementsApiStub();
+    stub.detail = {
+      ...DETAIL,
+      benefitRights: [
+        ...DETAIL.benefitRights,
+        {
+          rightType: 'PracticeAccess',
+          status: 'Available',
+          accessStartsAt: '2026-09-01T00:00:00Z',
+          accessEndsAt: '2026-11-30T00:00:00Z',
+          isAvailable: true,
+          isDormant: false,
+        },
+      ],
+    };
+    const { fixture } = await setup(stub);
+    const link = byTestId(fixture, 'entitlement-practice-link') as HTMLAnchorElement | null;
+
+    expect(link).not.toBeNull();
+    expect(link?.textContent).toContain('Practice');
+    expect(link?.getAttribute('href')).toBe('/nurse/preparation-packages/ent-1/practice');
+  });
+
+  it('hides the Practice link when PracticeAccess is missing, dormant, or unavailable', async () => {
+    const variants: PackageEntitlementDetailDto['benefitRights'][] = [
+      DETAIL.benefitRights,
+      [
+        {
+          rightType: 'PracticeAccess',
+          status: 'Dormant',
+          accessStartsAt: '2026-09-01T00:00:00Z',
+          accessEndsAt: null,
+          isAvailable: false,
+          isDormant: true,
+        },
+      ],
+      [
+        {
+          rightType: 'PracticeAccess',
+          status: 'Expired',
+          accessStartsAt: '2026-09-01T00:00:00Z',
+          accessEndsAt: '2026-09-02T00:00:00Z',
+          isAvailable: false,
+          isDormant: false,
+        },
+      ],
+    ];
+
+    for (const benefitRights of variants) {
+      const stub = new EntitlementsApiStub();
+      stub.detail = { ...DETAIL, benefitRights };
+      const { fixture } = await setup(stub);
+
+      expect(byTestId(fixture, 'entitlement-practice-link')).toBeNull();
+    }
+  });
 });
 
 describe('Nurse entitlement detail route', () => {

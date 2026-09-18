@@ -1225,7 +1225,8 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListMyExamAttempts");
+        .WithName("ListMyExamAttempts")
+        .Produces<PaginatedResult<ExamAttemptDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/payment/orders", async (CreatePaymentOrderRequest request, ISender sender) =>
         {

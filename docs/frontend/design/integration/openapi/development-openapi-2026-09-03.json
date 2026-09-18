@@ -7907,7 +7907,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultOfExamAttemptDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -9606,6 +9613,75 @@
           }
         }
       },
+      "ExamAttemptDto": {
+        "required": [
+          "id",
+          "examId",
+          "examTitle",
+          "status",
+          "startedAt",
+          "expiresAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "examId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "examTitle": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finalizedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "score": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "maxScore": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "percentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "passed": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          }
+        }
+      },
       "ExamCatalogItemDto": {
         "required": [
           "id",
@@ -11163,6 +11239,40 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ContactRequestDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PaginatedResultOfExamAttemptDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamAttemptDto"
             }
           },
           "page": {

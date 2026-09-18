@@ -4114,7 +4114,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultOfExamCatalogItemDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -4151,7 +4158,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamDetailDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -9592,6 +9606,146 @@
           }
         }
       },
+      "ExamCatalogItemDto": {
+        "required": [
+          "id",
+          "title",
+          "countryId",
+          "countryName",
+          "durationMinutes",
+          "questionCount",
+          "passingScorePercentage",
+          "isFree",
+          "canStart"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "countryName": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "categoryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passingScorePercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "isFree": {
+            "type": "boolean"
+          },
+          "canStart": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ExamDetailDto": {
+        "required": [
+          "id",
+          "title",
+          "countryId",
+          "countryName",
+          "durationMinutes",
+          "questionCount",
+          "passingScorePercentage",
+          "isFree",
+          "canStart"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instructions": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "countryName": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "categoryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passingScorePercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "isFree": {
+            "type": "boolean"
+          },
+          "canStart": {
+            "type": "boolean"
+          }
+        }
+      },
       "ExamQuestionType": {
         "type": "integer"
       },
@@ -11009,6 +11163,40 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ContactRequestDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PaginatedResultOfExamCatalogItemDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamCatalogItemDto"
             }
           },
           "page": {

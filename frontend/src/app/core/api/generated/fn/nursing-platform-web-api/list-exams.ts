@@ -7,6 +7,7 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { PaginatedResultOfExamCatalogItemDto } from '../../models/paginated-result-of-exam-catalog-item-dto';
 
 export interface ListExams$Params {
   page?: (number | null);
@@ -15,7 +16,7 @@ export interface ListExams$Params {
   categoryId?: string;
 }
 
-export function listExams(http: HttpClient, rootUrl: string, params?: ListExams$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function listExams(http: HttpClient, rootUrl: string, params?: ListExams$Params, context?: HttpContext): Observable<StrictHttpResponse<PaginatedResultOfExamCatalogItemDto>> {
   const rb = new RequestBuilder(rootUrl, listExams.PATH, 'get');
   if (params) {
     rb.query('page', params.page, {});
@@ -25,11 +26,11 @@ export function listExams(http: HttpClient, rootUrl: string, params?: ListExams$
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<PaginatedResultOfExamCatalogItemDto>;
     })
   );
 }

@@ -19,6 +19,7 @@ using NursingPlatform.Application.Exams.Analytics.Queries.GetMyExamAnalyticsSumm
 using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsByCategory;
 using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsByExam;
 using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsTrends;
+using NursingPlatform.Application.Exams.DTOs;
 using NursingPlatform.Application.Exams.Queries.GetExam;
 using NursingPlatform.Application.Exams.Queries.GetExamSession;
 using NursingPlatform.Application.Exams.Queries.GetExamSessionResult;
@@ -387,6 +388,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListExams")
+        .Produces<PaginatedResult<ExamCatalogItemDto>>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/exams/{id:guid}", async (Guid id, ISender sender) =>
@@ -395,6 +397,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetExam")
+        .Produces<ExamDetailDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/payment/products", async (

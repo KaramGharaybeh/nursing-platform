@@ -7,23 +7,24 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { ExamSessionResultDto } from '../../models/exam-session-result-dto';
 
 export interface SubmitExamSession$Params {
   id: string;
 }
 
-export function submitExamSession(http: HttpClient, rootUrl: string, params: SubmitExamSession$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function submitExamSession(http: HttpClient, rootUrl: string, params: SubmitExamSession$Params, context?: HttpContext): Observable<StrictHttpResponse<ExamSessionResultDto>> {
   const rb = new RequestBuilder(rootUrl, submitExamSession.PATH, 'post');
   if (params) {
     rb.path('id', params.id, {});
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<ExamSessionResultDto>;
     })
   );
 }

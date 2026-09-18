@@ -440,6 +440,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetExamSession")
+        .Produces<ExamSessionDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapPut("/exam-sessions/{id:guid}/answers", async (
@@ -455,6 +456,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("SaveExamSessionAnswers")
+        .Produces<ExamSessionDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapPost("/exam-sessions/{id:guid}/submit", async (Guid id, ISender sender) =>
@@ -463,6 +465,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("SubmitExamSession")
+        .Produces<ExamSessionResultDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/exam-sessions/{id:guid}/result", async (Guid id, ISender sender) =>

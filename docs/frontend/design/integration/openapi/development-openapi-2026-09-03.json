@@ -4341,7 +4341,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamSessionDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -4388,7 +4395,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamSessionDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -4425,7 +4439,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamSessionResultDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -9930,6 +9951,84 @@
             "items": {
               "$ref": "#/components/schemas/ExamSessionAnswerOptionDto"
             }
+          }
+        }
+      },
+      "ExamSessionResultDto": {
+        "required": [
+          "id",
+          "examId",
+          "examTitle",
+          "status",
+          "startedAt",
+          "expiresAt",
+          "score",
+          "maxScore",
+          "percentage",
+          "passed",
+          "correctCount",
+          "questionCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "examId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "examTitle": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "submittedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "finalizedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxScore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "correctCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

@@ -45,6 +45,7 @@ export type { ExamQuestionType } from './models/exam-question-type';
 export type { ExamSessionAnswerOptionDto } from './models/exam-session-answer-option-dto';
 export type { ExamSessionDto } from './models/exam-session-dto';
 export type { ExamSessionQuestionDto } from './models/exam-session-question-dto';
+export type { ExamSessionResultDto } from './models/exam-session-result-dto';
 export type { ExamSessionStatus } from './models/exam-session-status';
 export type { ExamStatus } from './models/exam-status';
 export type { ForgotPasswordRequest } from './models/forgot-password-request';

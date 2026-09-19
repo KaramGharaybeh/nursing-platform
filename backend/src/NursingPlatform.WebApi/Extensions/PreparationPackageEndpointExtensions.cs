@@ -15,6 +15,7 @@ using NursingPlatform.Application.PreparationPackages.Entitlements.DTOs;
 using NursingPlatform.Application.PreparationPackages.Entitlements.GetMyPackageEntitlement;
 using NursingPlatform.Application.PreparationPackages.Entitlements.ListMyPackageEntitlements;
 using NursingPlatform.Application.PreparationPackages.ExamSessions.DTOs;
+using NursingPlatform.Application.PreparationPackages.ExamSessions.GetMyPackageExamSessionState;
 using NursingPlatform.Application.PreparationPackages.ExamSessions.StartPackageExamSession;
 using NursingPlatform.Application.PreparationPackages.PracticeProgress;
 using NursingPlatform.Application.PreparationPackages.PracticeProgress.DTOs;
@@ -78,6 +79,18 @@ public static class PreparationPackageEndpointExtensions
             "Starts the exam attempt for one owned preparation package entitlement.",
             includeNotFound: true,
             includeConflict: true)
+        .RequireAuthorization();
+
+        entitlements.MapGet("/{entitlementId:guid}/exam-session", async (Guid entitlementId, ISender sender) =>
+        {
+            var result = await sender.Send(new GetMyPackageExamSessionStateQuery(entitlementId));
+            return Results.Ok(result);
+        })
+        .WithName("GetMyPackageExamSessionState")
+        .WithNurseEntitlementMetadata<PackageExamSessionStateDto>(
+            "Get my package exam session state",
+            "Gets the current package exam session state for one owned preparation package entitlement without starting or consuming an attempt.",
+            includeNotFound: true)
         .RequireAuthorization();
 
         entitlements.MapGet("/{entitlementId:guid}/practice-progress", async (Guid entitlementId, ISender sender) =>

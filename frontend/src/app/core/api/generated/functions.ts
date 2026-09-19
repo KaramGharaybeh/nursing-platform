@@ -227,6 +227,8 @@ export type { ListMyPackageEntitlements$Params as ListMyPackageEntitlements$Para
 export { listMyPackageEntitlements as listMyPackageEntitlements } from './fn/preparation-package-entitlements/list-my-package-entitlements';
 export type { GetMyPackageEntitlement$Params as GetMyPackageEntitlement$Params } from './fn/preparation-package-entitlements/get-my-package-entitlement';
 export { getMyPackageEntitlement as getMyPackageEntitlement } from './fn/preparation-package-entitlements/get-my-package-entitlement';
+export type { GetMyPackageExamSessionState$Params as GetMyPackageExamSessionState$Params } from './fn/preparation-package-entitlements/get-my-package-exam-session-state';
+export { getMyPackageExamSessionState as getMyPackageExamSessionState } from './fn/preparation-package-entitlements/get-my-package-exam-session-state';
 export type { StartPackageExamSession$Params as StartPackageExamSession$Params } from './fn/preparation-package-entitlements/start-package-exam-session';
 export { startPackageExamSession as startPackageExamSession } from './fn/preparation-package-entitlements/start-package-exam-session';
 export type { GetPackagePracticeProgress$Params as GetPackagePracticeProgress$Params } from './fn/preparation-package-entitlements/get-package-practice-progress';

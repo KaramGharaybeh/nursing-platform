@@ -13,6 +13,7 @@ namespace NursingPlatform.WebApi.Tests.IntegrationTests;
 public class PackageExamSessionEndpointTests
 {
     private const string RouteTemplate = "/api/v1/me/nurse-profile/preparation-packages/entitlements/{0}/exam-session";
+    private const string StateRouteTemplate = "/api/v1/me/nurse-profile/preparation-packages/entitlements/{0}/exam-session";
 
     private static readonly string[] ForbiddenResponsePatterns =
     [
@@ -288,5 +289,61 @@ public class PackageExamSessionEndpointTests
         {
             Assert.DoesNotContain(pattern, json, StringComparison.OrdinalIgnoreCase);
         }
+    }
+
+    [Fact]
+    public async Task GetMyPackageExamSessionState_WhenUnauthenticated_Returns401()
+    {
+        var response = await _client.GetAsync(string.Format(StateRouteTemplate, Guid.NewGuid()));
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        _senderMock.Verify(s => s.Send(It.IsAny<NursingPlatform.Application.PreparationPackages.ExamSessions.GetMyPackageExamSessionState.GetMyPackageExamSessionStateQuery>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetMyPackageExamSessionState_WhenOwnedWithSession_ReturnsStateWithoutProvenance()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        var entitlementId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
+        _senderMock
+            .Setup(s => s.Send(
+                It.Is<NursingPlatform.Application.PreparationPackages.ExamSessions.GetMyPackageExamSessionState.GetMyPackageExamSessionStateQuery>(
+                    q => q.EntitlementId == entitlementId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new NursingPlatform.Application.PreparationPackages.ExamSessions.DTOs.PackageExamSessionStateDto
+            {
+                HasSession = true,
+                SessionId = sessionId,
+                ExamId = Guid.NewGuid(),
+                Status = "InProgress",
+                ExpiresAt = DateTime.UtcNow.AddMinutes(30)
+            });
+
+        var response = await _client.GetAsync(string.Format(StateRouteTemplate, entitlementId));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        AssertDoesNotContain(json, ForbiddenResponsePatterns);
+        Assert.DoesNotContain("PackageBenefitRightId", json, StringComparison.OrdinalIgnoreCase);
+        var body = JsonSerializer.Deserialize<NursingPlatform.Application.PreparationPackages.ExamSessions.DTOs.PackageExamSessionStateDto>(json, NurseEndpointTestAuth.JsonOptions);
+        Assert.NotNull(body);
+        Assert.True(body.HasSession);
+        Assert.Equal(sessionId, body.SessionId);
+    }
+
+    [Fact]
+    public async Task GetMyPackageExamSessionState_WhenEntitlementForeign_Returns404WithoutOwnershipExposure()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<NursingPlatform.Application.PreparationPackages.ExamSessions.GetMyPackageExamSessionState.GetMyPackageExamSessionStateQuery>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new KeyNotFoundException("Package exam session was not found."));
+
+        var response = await _client.GetAsync(string.Format(StateRouteTemplate, Guid.NewGuid()));
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.DoesNotContain("nurseProfileId", json, StringComparison.OrdinalIgnoreCase);
     }
 }

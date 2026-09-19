@@ -16,6 +16,9 @@ authorization: Decisions E61-1–E61-13 were approved
   Decisions E71-1–E71-9 were approved by the human technical lead on
   2026-09-19 as EXM-007/T-FE-071 design/source-ownership authority. Approval
   does not itself start T-FE-071 implementation.
+  Decisions E72-1–E72-14 were approved by the human technical lead on
+  2026-09-19 as EXM-009/T-FE-072 design/source-ownership authority. Approval
+  does not itself start T-FE-072 implementation.
 ```
 
 ## 1. Purpose
@@ -40,7 +43,7 @@ HUMAN_APPROVED below). Per the frontend ledger, GATE-FE-T061 requires an
 | Submit confirmation (EXM-006) | TRANSIENT WITHIN EXM-005, NO ROUTE | `T-FE-069` | `POST /api/v1/exam-sessions/{id}/submit` → `ExamSessionResultDto` | NOT STARTED | APPROVED (E61-12; transient summary only) |
 | Full result (EXM-007) | `/exams/:examId/sessions/:sessionId/result` (APPROVED_CANONICAL) | `T-FE-071` | `GET .../result` | NOT STARTED | HUMAN_APPROVED (E71-1–E71-9; source-agnostic aggregate result only; no review CTA) |
 | Analytics (EXM-008) | `/exams/analytics` | `T-FE-074` | aggregate contracts | NOT STARTED | OUT OF SCOPE for this packet |
-| Answer review (EXM-009) | `/exams/:examId/sessions/:sessionId/review` (SECURITY-sensitive) | `T-FE-072` | `GET .../review` | NOT STARTED | OUT OF SCOPE for this packet |
+| Answer review (EXM-009) | `/exams/:examId/sessions/:sessionId/review` (SECURITY-sensitive) | `T-FE-072` | `GET .../review` | NOT STARTED | HUMAN_APPROVED (E72-1–E72-14; source-agnostic finalized per-question review only; no analytics) |
 
 ## 3. Exam catalog/detail contract (verified from source, T-FE-066 scope)
 
@@ -231,12 +234,114 @@ question text, user per-question answers, answer-option text, correct option,
 answer key, per-question correctness, explanation/rationale, review DTO data,
 or analytics. T-FE-072 owns review; T-FE-074 owns analytics.
 
-## 8. EXM-008 / EXM-009 exclusions
+## 7B. EXM-009 answer review approval (T-FE-072 owns)
 
-Analytics (T-FE-074) and SECURITY-sensitive answer review (T-FE-072) are
-outside this packet's minimum approved scope and keep their own gates. Nothing
-in T-FE-067/068/069 requires them. (Their contracts, routes, and policies
-already exist; only their presentations await their owning approvals.)
+**E72-1 — Source ownership. HUMAN_APPROVED.** EXM-009 Answer Review is
+source-agnostic for an authenticated learner's owned finalized exam session. It
+applies to both `Standalone` and `PackageAttempt` sessions, provided the backend
+review endpoint authorizes the learner and the session is finalized. The review
+UI must not branch by source/provenance. T-FE-079 remains the separate
+package-specific analytical report at
+`/nurse/preparation-packages/reports/:sessionId`; EXM-009 is per-question
+finalized answer review and the T-FE-079 report is package-specific
+analytical/topic/guidance reporting. Both may coexist for `PackageAttempt`
+sessions. Neither replaces the other.
+
+**E72-2 — Entry from T-FE-071. HUMAN_APPROVED.** When T-FE-072 is implemented,
+add to the finalized T-FE-071 result screen a navigation-only CTA "Review
+answers" -> canonical `EXAMS_REVIEW` via `buildExamsReviewPath(examId,
+sessionId)`. This CTA is allowed for both `Submitted` and `Expired` finalized
+results. T-FE-071 must not fetch review data and must not display correctness
+inline on the result screen.
+
+**E72-3 — Page heading. HUMAN_APPROVED.** Page heading is "Answer review". If
+the backend provides a safe non-empty exam title, display it as contextual
+secondary information. Do not require the title for route/page identity.
+
+**E72-4 — Layout and navigation. HUMAN_APPROVED.** One question at a time.
+Preserve backend question order. Show "Question {current} of {total}".
+Navigation is "Previous" / "Next": Previous disabled at the first question,
+Next disabled at the last question. Navigation changes the local review index
+only, with no API request per navigation. No direct question-number navigator,
+no flagged-question system, no audit-inspired question navigator.
+
+**E72-5 — Question content. HUMAN_APPROVED.** For each reviewed question
+display: question text; factual review status; answer options in backend order;
+learner-selection indicator; correct-answer indicator; explanation when
+non-empty; points as "Points: {pointsEarned} of {points}". Use backend values
+verbatim. Never calculate points locally.
+
+**E72-6 — Correctness status. HUMAN_APPROVED.** Explicit text, never color
+alone: answered correctly -> "Correct"; answered incorrectly -> "Incorrect"; not
+answered -> "Unanswered". Adapt authoritative backend truth (selected/correct
+option linkage, option `IsCorrect` fields) into a frontend-safe model. Never
+derive correctness from option IDs when the DTO provides authoritative
+correctness.
+
+**E72-7 — Option presentation. HUMAN_APPROVED.** Render all answer options in
+backend order as plain review rows/list items, never as active radio inputs;
+review is read-only. The learner-selected option carries the visible text "Your
+answer". The correct option carries the visible text "Correct answer". An
+option that is both may carry both labels. Never rely on color/check icons
+alone. Answers cannot be changed in review.
+
+**E72-8 — Unanswered presentation. HUMAN_APPROVED.** When
+`SelectedExamSessionAnswerOptionId` is null, display "Unanswered". No option
+receives "Your answer". The authoritative correct option is still displayed as
+"Correct answer" because this is finalized review. Do not invent alternate
+unanswered copy.
+
+**E72-9 — Explanation. HUMAN_APPROVED.** When backend `Explanation` is non-null
+and non-empty, show section heading "Explanation" and render the backend text
+verbatim. When null/blank, omit the Explanation section entirely. Never invent
+fallback explanation copy or derive rationale from correctness.
+
+**E72-10 — Submitted and expired behavior. HUMAN_APPROVED.** For finalized
+status `Submitted`, the review is available; render §§E72-4–E72-9 with no
+additional Submitted banner and no duplicate of the aggregate T-FE-071 result
+summary. For finalized status `Expired`, review is also available; display the
+factual contextual status "Time expired", then render the finalized question
+review exactly as the backend returns it. Unanswered questions remain
+"Unanswered". Never force remaining questions incorrect locally, invent zero
+points, hide correct answers because the session expired, or create a separate
+Expired review design. Backend finalized review is authoritative.
+
+**E72-11 — Back navigation. HUMAN_APPROVED.** Stable action "Back to result" ->
+canonical `EXAMS_RESULT` (`/exams/:examId/sessions/:sessionId/result`) via the
+canonical builder. Works for direct URL, reload, `Standalone`, and
+`PackageAttempt`. Never depend on browser history. No package-specific back
+action on EXM-009; T-FE-079 keeps its own package navigation.
+
+**E72-12 — Direct URL and reload. HUMAN_APPROVED.** `EXAMS_REVIEW` loads from
+route identity alone (`examId`, `sessionId`); the backend review GET uses
+`sessionId`. Never depend on T-FE-071/T-FE-069 state, `localStorage`,
+`sessionStorage`, or browser history. On backend review `examId` vs route
+`examId` conflict, show the approved unavailable state and never show raw IDs.
+
+**E72-13 — Error copy. HUMAN_APPROVED.** 404 / foreign / unavailable: "This
+exam review isn't available." 409 / session not finalized: "Finish the exam
+before reviewing answers." Generic recoverable failure: "We couldn't load this
+exam review. Try again." Action: "Retry" using the same route `sessionId`.
+Never expose raw HTTP status, backend exception/message, GUIDs, or internal
+status/debug values.
+
+**E72-14 — Field, raw-id, and analytics boundary. HUMAN_APPROVED.** T-FE-072
+presentation may use only: `ExamId` internally for route reconciliation;
+`ExamTitle`; `Status`; per question `DisplayOrder`, `Text`, `Explanation`,
+`Points`, `PointsEarned`; internally `SelectedExamSessionAnswerOptionId`,
+`CorrectAnswerOptionId`, option `Id`, option `DisplayOrder`, option `Text`,
+option `IsCorrect`. Never display aggregate `Score`/`MaxScore`/`Percentage`/
+`Passed` on EXM-009 (T-FE-071 owns them). Never visibly render any raw IDs
+(review/session/exam/question/option/correct/selected/provenance). T-FE-074
+owns analytics: no topic summaries, strengths/weaknesses, performance bands,
+recommendations, charts, longitudinal data, or package guidance on EXM-009.
+
+## 8. EXM-008 exclusion (EXM-009 approved in §7B above)
+
+Analytics (T-FE-074) is outside this packet's minimum approved scope and keeps
+its own gate. Nothing in T-FE-067/068/069 requires it. (Its contracts, routes,
+and policies already exist; only its presentation awaits its owning approval.)
+Answer review (T-FE-072) is approved in §7B above and keeps its own gate.
 
 ## 9. Visual-foundation binding (all pages.pdf)
 

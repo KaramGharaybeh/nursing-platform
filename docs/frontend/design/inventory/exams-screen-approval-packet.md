@@ -13,6 +13,9 @@ authorization: Decisions E61-1–E61-13 were approved
   post-submit minimum) are APPROVED as design authority. Approval does not
   itself start implementation; T-FE-067 remains NOT STARTED until separately
   authorized, and T-FE-068/T-FE-069 remain gated behind their own gates.
+  Decisions E71-1–E71-9 were approved by the human technical lead on
+  2026-09-19 as EXM-007/T-FE-071 design/source-ownership authority. Approval
+  does not itself start T-FE-071 implementation.
 ```
 
 ## 1. Purpose
@@ -35,7 +38,7 @@ HUMAN_APPROVED below). Per the frontend ledger, GATE-FE-T061 requires an
 | Exam instructions/start (EXM-004) | `/exams/:examId/instructions` (APPROVED_CANONICAL, AUTHENTICATED_ONLY) | `T-FE-068` | `ExamDetailDto` facts + `POST /api/v1/exams/{id}/sessions` (200/404/409) | NOT STARTED | APPROVED (E61-6, E61-7; confirmation + resume routing) |
 | Exam session (EXM-005) | `/exams/:examId/sessions/:sessionId` (APPROVED_CANONICAL, AUTHENTICATED_ONLY) | `T-FE-069` | `GET/PUT/POST /api/v1/exam-sessions/{id}[...]` session contracts | NOT STARTED | APPROVED (E61-9–E61-11, E61-13; single-question pager, explicit save, countdown) |
 | Submit confirmation (EXM-006) | TRANSIENT WITHIN EXM-005, NO ROUTE | `T-FE-069` | `POST /api/v1/exam-sessions/{id}/submit` → `ExamSessionResultDto` | NOT STARTED | APPROVED (E61-12; transient summary only) |
-| Full result (EXM-007) | `/exams/:examId/sessions/:sessionId/result` (APPROVED_CANONICAL) | `T-FE-071` | `GET .../result` | NOT STARTED | OUT OF SCOPE except the §7 transient boundary |
+| Full result (EXM-007) | `/exams/:examId/sessions/:sessionId/result` (APPROVED_CANONICAL) | `T-FE-071` | `GET .../result` | NOT STARTED | HUMAN_APPROVED (E71-1–E71-9; source-agnostic aggregate result only; no review CTA) |
 | Analytics (EXM-008) | `/exams/analytics` | `T-FE-074` | aggregate contracts | NOT STARTED | OUT OF SCOPE for this packet |
 | Answer review (EXM-009) | `/exams/:examId/sessions/:sessionId/review` (SECURITY-sensitive) | `T-FE-072` | `GET .../review` | NOT STARTED | OUT OF SCOPE for this packet |
 
@@ -156,6 +159,77 @@ T-FE-069 may render transiently from the submit response only: `Score`,
 `CorrectCount`, `QuestionCount`, plus a back/continue action. It must not build
 the `EXAMS_RESULT` route experience, historical results, comparisons, review
 linkage, or per-question breakdowns. Full EXM-007 remains owned by T-FE-071.
+
+## 7A. EXM-007 full result approval (T-FE-071 owns)
+
+**E71-1 — Source ownership. HUMAN_APPROVED.** EXM-007 is a source-agnostic
+aggregate exam-result screen. It may display an owned finalized session result
+for either `Standalone` or `PackageAttempt` sessions when the existing result
+endpoint authorizes the authenticated learner. The EXM-007 UI must not branch
+by source/provenance and must not require source detection. T-FE-079 continues
+to own the package-specific analytical report at
+`/nurse/preparation-packages/reports/:sessionId`; EXM-007 is the generic
+aggregate exam result, and the T-FE-079 report is the package-specific
+topic/guidance analysis. They are complementary. EXM-007 must not replace the
+T-FE-079 report.
+
+**E71-2 — Heading and contextual title. HUMAN_APPROVED.** Page heading is
+"Exam result". If the backend provides a non-empty safe exam title, display it
+as contextual secondary information. Do not require the title for page identity.
+
+**E71-3 — Display fields and terminal status. HUMAN_APPROVED.** Render only
+these backend-provided aggregate values: `Score`, `MaxScore`, `Percentage`,
+`Passed`/`Not passed`, `CorrectCount`, and `QuestionCount`. Render factual
+terminal status as `Submitted` -> "Completed" and `Expired` -> "Time expired".
+Do not display timestamps in T-FE-071, including `StartedAt` or `FinalizedAt`,
+even when present in the DTO. Do not calculate any aggregate locally when the
+backend supplies it.
+
+**E71-4 — Submitted and expired behavior. HUMAN_APPROVED.** For backend result
+status `Submitted`, show "Completed" and the six approved aggregate values;
+`Passed`/`Not passed` comes only from backend `passed`, with no locally derived
+thresholds. For backend result status `Expired`, show "Time expired" and, when
+the finalized-result endpoint returns a valid `ExamSessionResultDto`, render the
+backend aggregate values exactly as returned. Do not manufacture zero scores,
+force "Not passed" locally, infer missing answers, or invent a separate expiry
+result. Backend result truth is authoritative.
+
+**E71-5 — T-FE-069 entry action. HUMAN_APPROVED.** T-FE-069's transient
+aggregate result remains intact and is not replaced automatically. When T-FE-071
+is implemented, add a navigation action to the existing transient successful
+result state: "View full result" -> canonical `EXAMS_RESULT`. This action may
+appear for both standalone and package-attempt sessions because EXM-007 is
+source-agnostic. Do not auto-navigate immediately after submit; the transient
+result remains visible first.
+
+**E71-6 — Result navigation. HUMAN_APPROVED.** On EXM-007, the primary stable
+navigation after viewing the result is "Back to exams" -> canonical
+`EXAMS_CATALOG`. Do not depend on browser history. No package-specific back
+action is required because EXM-007 is source-agnostic. T-FE-079's analytical
+report keeps its own "Back to preparation packages" behavior.
+
+**E71-7 — Review CTA boundary. HUMAN_APPROVED.** Do not show "Review answers"
+in T-FE-071. T-FE-072 owns review design, route behavior, eligibility, and
+security. When T-FE-072 is later implemented and verified, it may add an
+appropriate review entry action. Until then, EXM-007 contains no review CTA.
+
+**E71-8 — Direct URL, reload, and result mismatch. HUMAN_APPROVED.**
+`EXAMS_RESULT` must work from route identity alone:
+`/exams/:examId/sessions/:sessionId/result`. Load the result using `sessionId`.
+Do not depend on transient submit state, router navigation state,
+`localStorage`, `sessionStorage`, or browser history. The backend result endpoint
+is authoritative. If the returned result `examId` conflicts with the route
+`examId`, show the approved unavailable result state and expose neither raw id.
+
+**E71-9 — Error copy and security boundary. HUMAN_APPROVED.** Approved copy:
+404 / foreign / unavailable — "This exam result isn't available." 409 / session
+not finalized — "Finish the exam before viewing the result." Generic
+recoverable failure — "We couldn't load this exam result. Try again." Action:
+"Retry". Retry uses the same route `sessionId`. Never expose raw HTTP
+status/code/backend text. EXM-007 remains aggregate-only: never render or import
+question text, user per-question answers, answer-option text, correct option,
+answer key, per-question correctness, explanation/rationale, review DTO data,
+or analytics. T-FE-072 owns review; T-FE-074 owns analytics.
 
 ## 8. EXM-008 / EXM-009 exclusions
 

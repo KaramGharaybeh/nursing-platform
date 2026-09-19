@@ -8,6 +8,10 @@ import { getExam } from './generated/fn/nursing-platform-web-api/get-exam';
 import { getExamSession } from './generated/fn/nursing-platform-web-api/get-exam-session';
 import { getExamSessionResult } from './generated/fn/nursing-platform-web-api/get-exam-session-result';
 import { getExamSessionReview } from './generated/fn/nursing-platform-web-api/get-exam-session-review';
+import { getMyExamAnalyticsSummary } from './generated/fn/nursing-platform-web-api/get-my-exam-analytics-summary';
+import { listMyExamAnalyticsByCategory } from './generated/fn/nursing-platform-web-api/list-my-exam-analytics-by-category';
+import { listMyExamAnalyticsByExam } from './generated/fn/nursing-platform-web-api/list-my-exam-analytics-by-exam';
+import { listMyExamAnalyticsTrends } from './generated/fn/nursing-platform-web-api/list-my-exam-analytics-trends';
 import { listCountries } from './generated/fn/nursing-platform-web-api/list-countries';
 import { listExams } from './generated/fn/nursing-platform-web-api/list-exams';
 import { listMyExamAttempts } from './generated/fn/nursing-platform-web-api/list-my-exam-attempts';
@@ -18,6 +22,8 @@ import type { ExamAttemptDto } from './generated/models/exam-attempt-dto';
 
 const ATTEMPTS_PAGE_SIZE = 100;
 const SESSION_STATUS_IN_PROGRESS = 0;
+const ANALYTICS_PAGE_SIZE = 20;
+const ANALYTICS_TREND_BUCKET = 'Month';
 
 export interface ExamCatalogItem {
   readonly id: string;
@@ -101,6 +107,60 @@ export interface ExamFullResult extends ExamSessionResult {
   readonly examId: string;
   readonly examTitle: string | null;
   readonly status: string;
+}
+
+export interface ExamAnalyticsFilters {
+  readonly from?: string;
+  readonly to?: string;
+  readonly countryId?: string;
+  readonly categoryId?: string;
+}
+
+export interface ExamAnalyticsSummary {
+  readonly attemptCount: number;
+  readonly submittedCount: number;
+  readonly expiredCount: number;
+  readonly inProgressCount: number;
+  readonly passedCount: number;
+  readonly failedCount: number;
+  readonly passRate: number | null;
+  readonly averageScorePercentage: number | null;
+  readonly bestScorePercentage: number | null;
+  readonly latestScorePercentage: number | null;
+}
+
+export interface ExamAnalyticsByExamItem {
+  readonly examTitle: string;
+  readonly attemptCount: number;
+  readonly passRate: number | null;
+  readonly averageScorePercentage: number | null;
+  readonly bestScorePercentage: number | null;
+  readonly latestScorePercentage: number | null;
+}
+
+export interface ExamAnalyticsByCategoryItem {
+  readonly categoryId: string;
+  readonly categoryName: string | null;
+  readonly attemptCount: number;
+  readonly passRate: number | null;
+  readonly averageScorePercentage: number | null;
+  readonly bestScorePercentage: number | null;
+}
+
+export interface ExamAnalyticsTrendPoint {
+  readonly bucketStart: string;
+  readonly bucketEnd: string;
+  readonly attemptCount: number;
+  readonly averageScorePercentage: number | null;
+  readonly passRate: number | null;
+}
+
+export interface ExamAnalyticsPage<T> {
+  readonly items: T[];
+  readonly page: number;
+  readonly pageSize: number;
+  readonly totalCount: number;
+  readonly totalPages: number;
 }
 
 export interface ExamReviewOption {
@@ -228,6 +288,45 @@ export class ExamsApi {
       map((response) => adaptExamReview(response.body)),
     );
   }
+
+  getExamAnalyticsSummary(filters: ExamAnalyticsFilters): Observable<ExamAnalyticsSummary> {
+    return getMyExamAnalyticsSummary(this.http, this.config.rootUrl, {
+      ...optionalAnalyticsParams(filters),
+    }).pipe(map((response) => adaptAnalyticsSummary(response.body)));
+  }
+
+  listExamAnalyticsByExam(
+    filters: ExamAnalyticsFilters,
+    page: number,
+  ): Observable<ExamAnalyticsPage<ExamAnalyticsByExamItem>> {
+    return listMyExamAnalyticsByExam(this.http, this.config.rootUrl, {
+      ...optionalAnalyticsParams(filters),
+      page,
+      pageSize: ANALYTICS_PAGE_SIZE,
+    }).pipe(map((response) => adaptAnalyticsPage(response.body, adaptAnalyticsByExamItem)));
+  }
+
+  listExamAnalyticsByCategory(
+    filters: ExamAnalyticsFilters,
+    page: number,
+  ): Observable<ExamAnalyticsPage<ExamAnalyticsByCategoryItem>> {
+    return listMyExamAnalyticsByCategory(this.http, this.config.rootUrl, {
+      ...optionalAnalyticsParams(filters),
+      page,
+      pageSize: ANALYTICS_PAGE_SIZE,
+    }).pipe(map((response) => adaptAnalyticsPage(response.body, adaptAnalyticsByCategoryItem)));
+  }
+
+  listExamAnalyticsTrends(filters: ExamAnalyticsFilters): Observable<ExamAnalyticsTrendPoint[]> {
+    return listMyExamAnalyticsTrends(this.http, this.config.rootUrl, {
+      ...optionalAnalyticsParams(filters),
+      bucket: ANALYTICS_TREND_BUCKET,
+    }).pipe(
+      map((response) =>
+        Array.isArray(response.body) ? response.body.map(adaptAnalyticsTrendPoint) : [],
+      ),
+    );
+  }
 }
 
 function isResumableMatch(attempt: ExamAttemptDto, examId: string, now: Date): boolean {
@@ -347,6 +446,85 @@ function adaptReviewOption(option: unknown, selectedId: string | null): ExamRevi
     text,
     isCorrect: record['isCorrect'] === true,
     isSelected: selectedId !== null && optionId === selectedId,
+  };
+}
+
+function optionalAnalyticsParams(
+  filters: ExamAnalyticsFilters,
+): { from?: string; to?: string; countryId?: string; categoryId?: string } {
+  return {
+    ...(filters.from === undefined ? {} : { from: filters.from }),
+    ...(filters.to === undefined ? {} : { to: filters.to }),
+    ...(filters.countryId === undefined ? {} : { countryId: filters.countryId }),
+    ...(filters.categoryId === undefined ? {} : { categoryId: filters.categoryId }),
+  };
+}
+
+function asNullableNumber(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function adaptAnalyticsSummary(body: unknown): ExamAnalyticsSummary {
+  const record = asRecord(body);
+  return {
+    attemptCount: asNumber(record['attemptCount'], 0),
+    submittedCount: asNumber(record['submittedCount'], 0),
+    expiredCount: asNumber(record['expiredCount'], 0),
+    inProgressCount: asNumber(record['inProgressCount'], 0),
+    passedCount: asNumber(record['passedCount'], 0),
+    failedCount: asNumber(record['failedCount'], 0),
+    passRate: asNullableNumber(record['passRatePercentage']),
+    averageScorePercentage: asNullableNumber(record['averageScorePercentage']),
+    bestScorePercentage: asNullableNumber(record['bestScorePercentage']),
+    latestScorePercentage: asNullableNumber(record['latestScorePercentage']),
+  };
+}
+
+function adaptAnalyticsPage<T>(body: unknown, adaptItem: (item: unknown) => T): ExamAnalyticsPage<T> {
+  const page = asRecord(body);
+  const items = Array.isArray(page['items']) ? page['items'].map(adaptItem) : [];
+  return {
+    items,
+    page: asNumber(page['page'], 0),
+    pageSize: asNumber(page['pageSize'], 0),
+    totalCount: asNumber(page['totalCount'], 0),
+    totalPages: asNumber(page['totalPages'], 0),
+  };
+}
+
+function adaptAnalyticsByExamItem(item: unknown): ExamAnalyticsByExamItem {
+  const record = asRecord(item);
+  return {
+    examTitle: asString(record['examTitle']),
+    attemptCount: asNumber(record['attemptCount'], 0),
+    passRate: asNullableNumber(record['passRatePercentage']),
+    averageScorePercentage: asNullableNumber(record['averageScorePercentage']),
+    bestScorePercentage: asNullableNumber(record['bestScorePercentage']),
+    latestScorePercentage: asNullableNumber(record['latestScorePercentage']),
+  };
+}
+
+function adaptAnalyticsByCategoryItem(item: unknown): ExamAnalyticsByCategoryItem {
+  const record = asRecord(item);
+  const categoryName = asNullableString(record['categoryName']);
+  return {
+    categoryId: asString(record['categoryId']),
+    categoryName: categoryName === null || categoryName.trim() === '' ? null : categoryName,
+    attemptCount: asNumber(record['attemptCount'], 0),
+    passRate: asNullableNumber(record['passRatePercentage']),
+    averageScorePercentage: asNullableNumber(record['averageScorePercentage']),
+    bestScorePercentage: asNullableNumber(record['bestScorePercentage']),
+  };
+}
+
+function adaptAnalyticsTrendPoint(item: unknown): ExamAnalyticsTrendPoint {
+  const record = asRecord(item);
+  return {
+    bucketStart: asString(record['bucketStart']),
+    bucketEnd: asString(record['bucketEnd']),
+    attemptCount: asNumber(record['attemptCount'], 0),
+    averageScorePercentage: asNullableNumber(record['averageScorePercentage']),
+    passRate: asNullableNumber(record['passRatePercentage']),
   };
 }
 

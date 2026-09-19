@@ -1,9 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { NpLiveRegion } from '../../shared/ui/announcement';
 import { ExamsApi } from '../../core/api/exams-api';
 import type { CountryOption, ExamCatalogPage } from '../../core/api/exams-api';
 import { NpSelectControl } from '../../shared/ui/form-controls';
+import { canonicalRoutePath } from '../../core/routing/canonical-routes';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
 import { NpEmptyState } from '../../shared/ui/empty-state';
@@ -17,7 +19,7 @@ const NO_FILTER = '';
 
 @Component({
   selector: 'np-exams-list',
-  imports: [LoadingErrorRetry, NpEmptyState, NpLiveRegion, NpPagination, NpSelectControl, ExamCard],
+  imports: [LoadingErrorRetry, NpEmptyState, NpLiveRegion, NpPagination, NpSelectControl, ExamCard, RouterLink],
   templateUrl: './exams-list.html',
   styleUrl: './exams-list.scss',
 })
@@ -32,6 +34,8 @@ export class ExamsList implements OnInit {
   protected readonly countries = signal<CountryOption[]>([]);
 
   protected readonly pageSize = PAGE_SIZE;
+
+  protected readonly analyticsPath = canonicalRoutePath('EXAMS_ANALYTICS');
 
   ngOnInit(): void {
     void this.initialize();

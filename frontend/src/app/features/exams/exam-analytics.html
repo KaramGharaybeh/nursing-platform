@@ -1,0 +1,280 @@
+<section class="np-exam-analytics" aria-labelledby="exam-analytics-heading">
+  <a [routerLink]="backPath" data-testid="analytics-back">Back to exams</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading exam analytics"
+    fallbackErrorTitle="We couldn't load your exam analytics. Try again."
+    retryLabel="Retry"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    <h1 id="exam-analytics-heading" data-testid="exam-analytics-heading">Exam analytics</h1>
+    <p>Review your exam performance over time.</p>
+
+    @if (summary(); as overview) {
+      @if (overview.attemptCount === 0) {
+        <div data-testid="analytics-empty">
+          <np-empty-state
+            kind="empty"
+            title="No exam analytics yet"
+            description="Complete an exam to see your analytics."
+          />
+        </div>
+      } @else {
+        <form
+          class="np-exam-analytics-filters"
+          aria-label="Analytics filters"
+          (submit)="$event.preventDefault(); applyFilters()"
+        >
+          <np-date-control
+            controlId="analytics-from-filter"
+            label="From date"
+            data-testid="analytics-from-filter"
+            [value]="draft().from"
+            (valueChange)="setDraftFilters({ from: $event })"
+          />
+          <np-date-control
+            controlId="analytics-to-filter"
+            label="To date"
+            data-testid="analytics-to-filter"
+            [value]="draft().to"
+            (valueChange)="setDraftFilters({ to: $event })"
+          />
+          <np-select-control
+            controlId="analytics-country-filter"
+            label="Country"
+            data-testid="analytics-country-filter"
+            [options]="countryOptions()"
+            [value]="draft().countryId"
+            (valueChange)="setDraftFilters({ countryId: $event })"
+          />
+          <np-select-control
+            controlId="analytics-category-filter"
+            label="Exam category"
+            data-testid="analytics-category-filter"
+            [options]="categoryOptions()"
+            [value]="draft().categoryId"
+            (valueChange)="setDraftFilters({ categoryId: $event })"
+          />
+          @if (dateError() !== null) {
+            <p role="alert" data-testid="analytics-date-error">{{ dateError() }}</p>
+          }
+          <div class="np-exam-analytics-filter-actions">
+            <button type="submit" data-testid="analytics-apply">Apply filters</button>
+            <button type="button" data-testid="analytics-clear" (click)="clearFilters()">
+              Clear filters
+            </button>
+          </div>
+        </form>
+
+        <section aria-labelledby="analytics-overview-heading">
+          <h2 id="analytics-overview-heading">Overview</h2>
+          <dl class="np-exam-analytics-overview">
+            <div>
+              <dt>Total attempts</dt>
+              <dd data-testid="analytics-total-attempts">{{ overview.attemptCount }}</dd>
+            </div>
+            <div>
+              <dt>Submitted</dt>
+              <dd data-testid="analytics-submitted">{{ overview.submittedCount }}</dd>
+            </div>
+            <div>
+              <dt>Expired</dt>
+              <dd data-testid="analytics-expired">{{ overview.expiredCount }}</dd>
+            </div>
+            <div>
+              <dt>In progress</dt>
+              <dd data-testid="analytics-in-progress">{{ overview.inProgressCount }}</dd>
+            </div>
+            <div>
+              <dt>Passed</dt>
+              <dd data-testid="analytics-passed">{{ overview.passedCount }}</dd>
+            </div>
+            <div>
+              <dt>Failed</dt>
+              <dd data-testid="analytics-failed">{{ overview.failedCount }}</dd>
+            </div>
+            <div>
+              <dt>Pass rate</dt>
+              <dd data-testid="analytics-pass-rate">{{ metric(overview.passRate) }}</dd>
+            </div>
+            <div>
+              <dt>Average score</dt>
+              <dd data-testid="analytics-average-score">
+                {{ metric(overview.averageScorePercentage) }}
+              </dd>
+            </div>
+            <div>
+              <dt>Best score</dt>
+              <dd data-testid="analytics-best-score">{{ metric(overview.bestScorePercentage) }}</dd>
+            </div>
+            <div>
+              <dt>Latest score</dt>
+              <dd data-testid="analytics-latest-score">
+                {{ metric(overview.latestScorePercentage) }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <section aria-labelledby="analytics-by-exam-heading">
+          <h2 id="analytics-by-exam-heading">Performance by exam</h2>
+          @if (examSection() === 'loading') {
+            <p role="status">Loading exam-level analytics.</p>
+          } @else if (examSection() === 'error') {
+            <div role="alert">
+              <p>We couldn't load exam-level analytics. Try again.</p>
+              <button
+                type="button"
+                class="np-exam-analytics-retry"
+                data-testid="analytics-exam-retry"
+                (click)="retryExamSection()"
+              >
+                Retry
+              </button>
+            </div>
+          } @else if ((examPage()?.items.length ?? 0) === 0) {
+            <p role="status">No data is available for these filters.</p>
+          } @else {
+            <ul class="np-exam-analytics-rows">
+              @for (row of examPage()?.items ?? []; track $index) {
+                <li data-testid="analytics-exam-row">
+                  <h3>{{ row.examTitle }}</h3>
+                  <dl>
+                    <div>
+                      <dt>Attempts</dt>
+                      <dd>{{ row.attemptCount }}</dd>
+                    </div>
+                    <div>
+                      <dt>Pass rate</dt>
+                      <dd>{{ metric(row.passRate) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Average score</dt>
+                      <dd>{{ metric(row.averageScorePercentage) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Best score</dt>
+                      <dd>{{ metric(row.bestScorePercentage) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Latest score</dt>
+                      <dd>{{ metric(row.latestScorePercentage) }}</dd>
+                    </div>
+                  </dl>
+                </li>
+              }
+            </ul>
+            <np-pagination
+              data-testid="analytics-exam-pagination"
+              [page]="examPage()?.page ?? 1"
+              [totalPages]="examPage()?.totalPages ?? 0"
+              [totalCount]="examPage()?.totalCount ?? 0"
+              itemLabel="exams"
+              ariaLabel="Performance by exam pagination"
+              (pageRequested)="loadExamPage($event)"
+            />
+          }
+        </section>
+
+        <section aria-labelledby="analytics-by-category-heading">
+          <h2 id="analytics-by-category-heading">Performance by category</h2>
+          @if (categorySection() === 'loading') {
+            <p role="status">Loading category analytics.</p>
+          } @else if (categorySection() === 'error') {
+            <div role="alert">
+              <p>We couldn't load category analytics. Try again.</p>
+              <button
+                type="button"
+                class="np-exam-analytics-retry"
+                data-testid="analytics-category-retry"
+                (click)="retryCategorySection()"
+              >
+                Retry
+              </button>
+            </div>
+          } @else if ((categoryPage()?.items.length ?? 0) === 0) {
+            <p role="status">No data is available for these filters.</p>
+          } @else {
+            <ul class="np-exam-analytics-rows">
+              @for (row of categoryPage()?.items ?? []; track $index) {
+                <li data-testid="analytics-category-row">
+                  @if (row.categoryName !== null) {
+                    <h3>{{ row.categoryName }}</h3>
+                  }
+                  <dl>
+                    <div>
+                      <dt>Attempts</dt>
+                      <dd>{{ row.attemptCount }}</dd>
+                    </div>
+                    <div>
+                      <dt>Pass rate</dt>
+                      <dd>{{ metric(row.passRate) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Average score</dt>
+                      <dd>{{ metric(row.averageScorePercentage) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Best score</dt>
+                      <dd>{{ metric(row.bestScorePercentage) }}</dd>
+                    </div>
+                  </dl>
+                </li>
+              }
+            </ul>
+            <np-pagination
+              data-testid="analytics-category-pagination"
+              [page]="categoryPage()?.page ?? 1"
+              [totalPages]="categoryPage()?.totalPages ?? 0"
+              [totalCount]="categoryPage()?.totalCount ?? 0"
+              itemLabel="categories"
+              ariaLabel="Performance by category pagination"
+              (pageRequested)="loadCategoryPage($event)"
+            />
+          }
+        </section>
+
+        <section aria-labelledby="analytics-trends-heading" data-testid="analytics-trends">
+          <h2 id="analytics-trends-heading">Performance over time</h2>
+          @if (trendsSection() === 'loading') {
+            <p role="status">Loading performance-over-time data.</p>
+          } @else if (trendsSection() === 'error') {
+            <div role="alert">
+              <p>We couldn't load performance-over-time data. Try again.</p>
+              <button type="button" class="np-exam-analytics-retry" data-testid="analytics-trends-retry" (click)="retryTrends()">
+                Retry
+              </button>
+            </div>
+          } @else if ((trends()?.length ?? 0) === 0) {
+            <p role="status">No data is available for these filters.</p>
+          } @else {
+            <ul class="np-exam-analytics-rows">
+              @for (point of trends() ?? []; track $index) {
+                <li data-testid="analytics-trend-point">
+                  <h3>{{ point.bucketStart | date: 'MMMM y' }}</h3>
+                  <dl>
+                    <div>
+                      <dt>Attempts</dt>
+                      <dd>{{ point.attemptCount }}</dd>
+                    </div>
+                    <div>
+                      <dt>Average score</dt>
+                      <dd>{{ metric(point.averageScorePercentage) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Pass rate</dt>
+                      <dd>{{ metric(point.passRate) }}</dd>
+                    </div>
+                  </dl>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+    }
+  }
+</section>

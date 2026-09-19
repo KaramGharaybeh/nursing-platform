@@ -175,6 +175,12 @@ export const routes: Routes = [
     data: { routeId: 'EXAMS_CATALOG' },
   },
   {
+    path: 'exams/analytics',
+    loadComponent: () => import('./features/exams/exam-analytics').then((m) => m.ExamAnalyticsScreen),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'EXAMS_ANALYTICS' },
+  },
+  {
     path: 'exams/:examId',
     loadComponent: () => import('./features/exams/exam-detail').then((m) => m.ExamDetail),
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],

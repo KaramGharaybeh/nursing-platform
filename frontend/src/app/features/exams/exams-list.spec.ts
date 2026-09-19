@@ -212,6 +212,16 @@ describe('ExamsList (T-FE-067)', () => {
     expect(text(fixture)).toContain('NCLEX Readiness');
   });
 
+  it('links View analytics to the canonical analytics route without fetching analytics', async () => {
+    const { fixture, api } = await setup();
+    const link = byTestId(fixture, 'exam-analytics-link') as HTMLAnchorElement | null;
+
+    expect(link?.textContent).toContain('View analytics');
+    expect(link?.getAttribute('href')).toBe('/exams/analytics');
+    expect(api.requested.length).toBe(1);
+    expect(text(fixture)).toContain('NCLEX Readiness');
+  });
+
   it('links each card to its detail route', async () => {
     const { fixture } = await setup();
     const link = byTestId(fixture, 'exam-details-link') as HTMLAnchorElement | null;

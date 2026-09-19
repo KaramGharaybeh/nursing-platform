@@ -685,3 +685,275 @@ describe('exams-api exam review (T-FE-072)', () => {
     await expect(result).rejects.toThrow('Exam review response did not include usable review content.');
   });
 });
+
+describe('exams-api exam analytics (T-FE-074)', () => {
+  let api: ExamsApi;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideApiConfig()],
+    });
+
+    api = TestBed.inject(ExamsApi);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  function summaryResponse(overrides: Record<string, unknown> = {}) {
+    return {
+      attemptCount: 4,
+      submittedCount: 3,
+      expiredCount: 1,
+      abandonedCount: 0,
+      inProgressCount: 0,
+      countedAttemptCount: 4,
+      passedCount: 3,
+      failedCount: 1,
+      passRatePercentage: 75,
+      averageScorePercentage: 80.5,
+      bestScorePercentage: 100,
+      latestScorePercentage: null,
+      averageScore: 8,
+      averageMaxScore: 10,
+      averageCorrectCount: 8,
+      averageQuestionCount: 10,
+      firstAttemptStartedAt: '2026-01-01T00:00:00Z',
+      latestAttemptStartedAt: '2026-02-01T00:00:00Z',
+      ...overrides,
+    };
+  }
+
+  it('gets the analytics summary with exact filters and approved fields only', async () => {
+    const result = firstValueFrom(
+      api.getExamAnalyticsSummary({ from: '2026-01-01', to: '2026-03-01', countryId: 'c-1', categoryId: 'cat-1' }),
+    );
+    const request = httpMock.expectOne(
+      '/api/v1/me/nurse-profile/exam-analytics/summary?from=2026-01-01&to=2026-03-01&countryId=c-1&categoryId=cat-1',
+    );
+
+    expect(request.request.method).toBe('GET');
+    request.flush(summaryResponse());
+    await expect(result).resolves.toEqual({
+      attemptCount: 4,
+      submittedCount: 3,
+      expiredCount: 1,
+      inProgressCount: 0,
+      passedCount: 3,
+      failedCount: 1,
+      passRate: 75,
+      averageScorePercentage: 80.5,
+      bestScorePercentage: 100,
+      latestScorePercentage: null,
+    });
+  });
+
+  it('omits unset summary filters and keeps null metrics nullable', async () => {
+    const result = firstValueFrom(api.getExamAnalyticsSummary({}));
+    const request = httpMock.expectOne('/api/v1/me/nurse-profile/exam-analytics/summary');
+
+    expect(request.request.method).toBe('GET');
+    request.flush(summaryResponse({ passRatePercentage: null, averageScorePercentage: null }));
+    const adapted = await result;
+    expect(adapted.passRate).toBeNull();
+    expect(adapted.averageScorePercentage).toBeNull();
+    expect(JSON.stringify(adapted)).not.toContain('abandonedCount');
+    expect(JSON.stringify(adapted)).not.toContain('countedAttemptCount');
+    expect(JSON.stringify(adapted)).not.toContain('firstAttemptStartedAt');
+  });
+
+  function byExamResponse() {
+    return {
+      items: [
+        {
+          examId: 'exam-2',
+          examTitle: 'Second exam',
+          countryId: 'c-1',
+          countryName: 'Jordan',
+          categoryId: null,
+          categoryName: null,
+          attemptCount: 2,
+          submittedCount: 2,
+          expiredCount: 0,
+          abandonedCount: 0,
+          inProgressCount: 0,
+          countedAttemptCount: 2,
+          passedCount: 1,
+          failedCount: 1,
+          passRatePercentage: 50,
+          averageScorePercentage: 70,
+          bestScorePercentage: 90,
+          latestScorePercentage: 60,
+          averageScore: 7,
+          averageMaxScore: 10,
+          averageCorrectCount: 7,
+          averageQuestionCount: 10,
+          firstAttemptStartedAt: '2026-01-01T00:00:00Z',
+          latestAttemptStartedAt: '2026-02-01T00:00:00Z',
+        },
+        {
+          examId: 'exam-1',
+          examTitle: 'First exam',
+          countryId: 'c-1',
+          countryName: 'Jordan',
+          categoryId: 'cat-1',
+          categoryName: 'Licensure',
+          attemptCount: 1,
+          submittedCount: 1,
+          expiredCount: 0,
+          abandonedCount: 0,
+          inProgressCount: 0,
+          countedAttemptCount: 1,
+          passedCount: 1,
+          failedCount: 0,
+          passRatePercentage: 100,
+          averageScorePercentage: 95,
+          bestScorePercentage: 95,
+          latestScorePercentage: 95,
+          averageScore: 9.5,
+          averageMaxScore: 10,
+          averageCorrectCount: 9,
+          averageQuestionCount: 10,
+          firstAttemptStartedAt: '2026-03-01T00:00:00Z',
+          latestAttemptStartedAt: '2026-03-01T00:00:00Z',
+        },
+      ],
+      page: 1,
+      pageSize: 20,
+      totalCount: 2,
+      totalPages: 1,
+    };
+  }
+
+  it('lists by-exam analytics with page size 20 preserving backend order and metadata', async () => {
+    const result = firstValueFrom(
+      api.listExamAnalyticsByExam({ countryId: 'c-1' }, 1),
+    );
+    const request = httpMock.expectOne(
+      '/api/v1/me/nurse-profile/exam-analytics/by-exam?countryId=c-1&page=1&pageSize=20',
+    );
+
+    expect(request.request.method).toBe('GET');
+    request.flush(byExamResponse());
+    const adapted = await result;
+    expect(adapted.page).toBe(1);
+    expect(adapted.pageSize).toBe(20);
+    expect(adapted.totalCount).toBe(2);
+    expect(adapted.totalPages).toBe(1);
+    expect(adapted.items.map((item) => item.examTitle)).toEqual(['Second exam', 'First exam']);
+    expect(adapted.items[0]).toEqual({
+      examTitle: 'Second exam',
+      attemptCount: 2,
+      passRate: 50,
+      averageScorePercentage: 70,
+      bestScorePercentage: 90,
+      latestScorePercentage: 60,
+    });
+    expect(JSON.stringify(adapted)).not.toContain('exam-2');
+  });
+
+  it('lists by-category analytics without a latest metric and without raw ids', async () => {
+    const result = firstValueFrom(api.listExamAnalyticsByCategory({}, 2));
+    const request = httpMock.expectOne(
+      '/api/v1/me/nurse-profile/exam-analytics/by-category?page=2&pageSize=20',
+    );
+
+    request.flush({
+      items: [
+        {
+          countryId: 'c-1',
+          countryName: 'Jordan',
+          categoryId: 'cat-1',
+          categoryName: 'Licensure',
+          attemptCount: 3,
+          submittedCount: 3,
+          expiredCount: 0,
+          abandonedCount: 0,
+          inProgressCount: 0,
+          countedAttemptCount: 3,
+          passedCount: 2,
+          failedCount: 1,
+          passRatePercentage: 66.67,
+          averageScorePercentage: 82,
+          bestScorePercentage: 100,
+          latestScorePercentage: 90,
+          averageScore: 8.2,
+          averageMaxScore: 10,
+          averageCorrectCount: 8,
+          averageQuestionCount: 10,
+          firstAttemptStartedAt: '2026-01-01T00:00:00Z',
+          latestAttemptStartedAt: '2026-02-01T00:00:00Z',
+        },
+      ],
+      page: 2,
+      pageSize: 20,
+      totalCount: 1,
+      totalPages: 1,
+    });
+    const adapted = await result;
+    expect(adapted.items).toEqual([
+      {
+        categoryId: 'cat-1',
+        categoryName: 'Licensure',
+        attemptCount: 3,
+        passRate: 66.67,
+        averageScorePercentage: 82,
+        bestScorePercentage: 100,
+      },
+    ]);
+    expect(JSON.stringify(adapted)).not.toContain('latestScore');
+    expect(adapted.items[0].categoryId).toBe('cat-1');
+  });
+
+  it('lists trends with the fixed Month bucket preserving chronological order', async () => {
+    const result = firstValueFrom(api.listExamAnalyticsTrends({ from: '2026-01-01' }));
+    const request = httpMock.expectOne(
+      '/api/v1/me/nurse-profile/exam-analytics/trends?from=2026-01-01&bucket=Month',
+    );
+
+    expect(request.request.method).toBe('GET');
+    request.flush([
+      {
+        bucketStart: '2026-01-01T00:00:00Z',
+        bucketEnd: '2026-02-01T00:00:00Z',
+        attemptCount: 1,
+        countedAttemptCount: 1,
+        passedCount: 1,
+        failedCount: 0,
+        passRatePercentage: 100,
+        averageScorePercentage: 90,
+        bestScorePercentage: 90,
+      },
+      {
+        bucketStart: '2026-02-01T00:00:00Z',
+        bucketEnd: '2026-03-01T00:00:00Z',
+        attemptCount: 2,
+        countedAttemptCount: 2,
+        passedCount: 1,
+        failedCount: 1,
+        passRatePercentage: null,
+        averageScorePercentage: null,
+        bestScorePercentage: null,
+      },
+    ]);
+    await expect(result).resolves.toEqual([
+      {
+        bucketStart: '2026-01-01T00:00:00Z',
+        bucketEnd: '2026-02-01T00:00:00Z',
+        attemptCount: 1,
+        averageScorePercentage: 90,
+        passRate: 100,
+      },
+      {
+        bucketStart: '2026-02-01T00:00:00Z',
+        bucketEnd: '2026-03-01T00:00:00Z',
+        attemptCount: 2,
+        averageScorePercentage: null,
+        passRate: null,
+      },
+    ]);
+  });
+});

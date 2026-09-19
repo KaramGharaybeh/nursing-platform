@@ -1,0 +1,108 @@
+@use '../../../styles/abstracts/mixins' as mixins;
+
+.np-exam-analytics {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-exam-analytics h1 {
+  margin: var(--np-space-16) 0 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-exam-analytics h2 {
+  margin: var(--np-space-24) 0 0;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+.np-exam-analytics-filters {
+  display: grid;
+  gap: var(--np-space-12);
+  margin: var(--np-space-16) 0 0;
+}
+
+.np-exam-analytics-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-8);
+}
+
+.np-exam-analytics-filter-actions button,
+.np-exam-analytics-retry {
+  @include mixins.touch-target;
+}
+
+.np-exam-analytics-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: var(--np-space-8);
+  margin: var(--np-space-16) 0 0;
+}
+
+.np-exam-analytics-overview div {
+  display: grid;
+  gap: var(--np-space-4);
+  padding-block: var(--np-space-8);
+  padding-inline: var(--np-space-12);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+}
+
+.np-exam-analytics-overview dt {
+  font-weight: 600;
+}
+
+.np-exam-analytics-overview dd {
+  margin: 0;
+}
+
+.np-exam-analytics-rows {
+  display: grid;
+  gap: var(--np-space-8);
+  margin: var(--np-space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.np-exam-analytics-rows li {
+  display: grid;
+  gap: var(--np-space-4);
+  padding-block: var(--np-space-8);
+  padding-inline: var(--np-space-12);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+}
+
+.np-exam-analytics-rows h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.np-exam-analytics-rows dl {
+  display: grid;
+  gap: var(--np-space-4);
+  margin: 0;
+}
+
+.np-exam-analytics-rows dl div {
+  display: grid;
+  gap: var(--np-space-4);
+}
+
+.np-exam-analytics-rows dt {
+  font-weight: 600;
+}
+
+.np-exam-analytics-rows dd {
+  margin: 0;
+}

@@ -1,0 +1,52 @@
+<section class="np-package-report" aria-labelledby="package-report-title">
+  <a [routerLink]="backPath" data-testid="package-report-back-link">Back to preparation packages</a>
+
+  <h1 id="package-report-title">Exam report</h1>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading exam report"
+    fallbackErrorTitle="We couldn't load this exam report. Try again."
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (unavailable()) {
+      <p role="status" data-testid="package-report-unavailable">This exam report isn't available.</p>
+    } @else if (notFinalized()) {
+      <p role="status" data-testid="package-report-unavailable">Finish the exam before viewing this report.</p>
+    } @else if (report(); as detail) {
+      <dl class="np-package-report-summary">
+        <div><dt>Correct count</dt><dd data-testid="package-report-correct">{{ detail.correctCount }}</dd></div>
+        <div><dt>Questions</dt><dd data-testid="package-report-questions">{{ detail.questionCount }}</dd></div>
+        <div><dt>Percentage</dt><dd data-testid="package-report-percentage">{{ detail.percentage }}%</dd></div>
+      </dl>
+      <h2>Topic results</h2>
+      @if (detail.topicResults.length > 0) {
+        <ul class="np-package-report-topics">
+          @for (topic of detail.topicResults; track topic.reportingTopicId) {
+            <li data-testid="package-report-topic">
+              <p data-testid="package-report-topic-name">{{ topic.topicName }}</p>
+              <p>{{ topic.correctCount }} of {{ topic.scoredQuestionCount }} · {{ topic.percentage }}%</p>
+            </li>
+          }
+        </ul>
+      }
+      <h2>Recommended package content</h2>
+      @if (hasGuidance()) {
+        <ul class="np-package-report-guidance">
+          @for (item of detail.guidanceItems; track $index) {
+            <li data-testid="package-report-guidance">
+              @if (guidanceLabel(item); as label) {
+                <p>{{ label }}</p>
+              }
+              <p>{{ item.title }}</p>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p>No additional package content recommendations are available for this report.</p>
+      }
+    }
+  }
+</section>

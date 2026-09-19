@@ -3,6 +3,7 @@ import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/route
 import { of, throwError } from 'rxjs';
 import { routes } from '../../../app.routes';
 import { PreparationPackageEntitlementsApi } from '../../../core/api/preparation-package-entitlements-api';
+import { ExamsApi } from '../../../core/api/exams-api';
 import type { PackageEntitlementDetailDto } from '../../../core/api/generated/models/package-entitlement-detail-dto';
 import { NurseEntitlementDetail } from './nurse-entitlement-detail';
 
@@ -57,6 +58,24 @@ class EntitlementsApiStub {
     }
     return of(this.detail);
   }
+
+  getPackageExamSessionState() {
+    return of({ hasSession: false, sessionId: null, examId: null, status: null, expiresAt: null });
+  }
+
+  startPackageExamSession() {
+    return throwError(() => ({ status: 409 }));
+  }
+
+  getPackageAnalyticalReport() {
+    return throwError(() => ({ status: 404 }));
+  }
+}
+
+class ExamsApiStub {
+  getExamSession() {
+    return throwError(() => ({ status: 500 }));
+  }
 }
 
 async function setup(stub?: EntitlementsApiStub): Promise<{ fixture: ComponentFixture<NurseEntitlementDetail>; api: EntitlementsApiStub }> {
@@ -67,6 +86,7 @@ async function setup(stub?: EntitlementsApiStub): Promise<{ fixture: ComponentFi
     providers: [
       provideRouter([]),
       { provide: PreparationPackageEntitlementsApi, useValue: api },
+      { provide: ExamsApi, useValue: new ExamsApiStub() },
       {
         provide: ActivatedRoute,
         useValue: { snapshot: { paramMap: convertToParamMap({ entitlementId: 'ent-1' }) } },
@@ -149,14 +169,10 @@ describe('NurseEntitlementDetail', () => {
     expect(content).not.toContain('Complete');
   });
 
-  it('offers no practice, exam, report, material, or purchase actions', async () => {
+  it('offers no material or purchase actions while the package exam section renders backend truth', async () => {
     const { fixture } = await setup();
     const content = text(fixture);
 
-    expect(content).not.toContain('Start practice');
-    expect(content).not.toContain('Continue practice');
-    expect(content).not.toContain('Start exam');
-    expect(content).not.toContain('View report');
     expect(content).not.toContain('Open material');
     expect(content).not.toContain('Purchase');
     expect(content).not.toContain('Renew');

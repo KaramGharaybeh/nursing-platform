@@ -35,6 +35,12 @@
         <a [routerLink]="practicePath()" data-testid="entitlement-practice-link">Practice</a>
       }
 
+      <np-package-exam-section
+        [entitlementId]="detail.id"
+        [rights]="detail.benefitRights"
+        [entitlementActive]="detail.status === 'Active'"
+      />
+
       <h2>Benefit rights</h2>
       @if (detail.benefitRights.length > 0) {
         <ul class="np-nurse-entitlement-detail-rights">

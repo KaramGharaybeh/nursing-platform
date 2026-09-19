@@ -1,31 +1,30 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { PreparationPackageEntitlementsApi } from '../../../core/api/preparation-package-entitlements-api';
-import type { PackageEntitlementDetailDto } from '../../../core/api/generated/models/package-entitlement-detail-dto';
+import type { PackageAnalyticalReportDto } from '../../../core/api/generated/models/package-analytical-report-dto';
+import type { PackageAnalyticalReportGuidanceItemDto } from '../../../core/api/generated/models/package-analytical-report-guidance-item-dto';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
-import { canonicalRoutePath, buildCanonicalRoutePath } from '../../../core/routing/canonical-routes';
+import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { LoadingErrorRetry } from '../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../shared/ui/loading-error-retry';
-import { NurseEntitlementRight } from './nurse-entitlement-right';
-import { PackageExamSection } from './package-exam-section';
 
 @Component({
-  selector: 'np-nurse-entitlement-detail',
-  imports: [DatePipe, LoadingErrorRetry, NurseEntitlementRight, PackageExamSection, RouterLink],
-  templateUrl: './nurse-entitlement-detail.html',
-  styleUrl: './nurse-entitlement-detail.scss',
+  selector: 'np-package-report',
+  imports: [LoadingErrorRetry, RouterLink],
+  templateUrl: './package-report.html',
+  styleUrl: './package-report.scss',
 })
-export class NurseEntitlementDetail implements OnInit {
+export class PackageReport implements OnInit {
   private readonly api = inject(PreparationPackageEntitlementsApi);
   private readonly route = inject(ActivatedRoute);
 
   protected readonly backPath = canonicalRoutePath('PREPARATION_PACKAGES_ENTITLEMENTS');
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
-  protected readonly entitlement = signal<PackageEntitlementDetailDto | undefined>(undefined);
-  protected readonly notFound = signal(false);
+  protected readonly report = signal<PackageAnalyticalReportDto | undefined>(undefined);
+  protected readonly unavailable = signal(false);
+  protected readonly notFinalized = signal(false);
 
   ngOnInit(): void {
     void this.load();
@@ -35,33 +34,38 @@ export class NurseEntitlementDetail implements OnInit {
     await this.load();
   }
 
-  protected hasSummary(): boolean {
-    return (this.entitlement()?.purchasedSnapshot?.packageOfferSummary?.trim() ?? '') !== '';
+  protected guidanceLabel(item: PackageAnalyticalReportGuidanceItemDto): string | undefined {
+    if (item.sourceType === 'StudyMaterialVersion') {
+      return 'Study material';
+    }
+    if (item.sourceType === 'PracticeCollectionVersion') {
+      return 'Practice collection';
+    }
+    return undefined;
   }
 
-  protected hasPracticeAccess(): boolean {
-    return (this.entitlement()?.benefitRights ?? []).some(
-      (right) => right.rightType === 'PracticeAccess' && right.isAvailable,
-    );
+  protected hasGuidance(): boolean {
+    return (this.report()?.guidanceItems.length ?? 0) > 0;
   }
 
-  protected practicePath(): string {
-    return buildCanonicalRoutePath('PREPARATION_PACKAGES_PRACTICE', {
-      entitlementId: this.route.snapshot.paramMap.get('entitlementId') ?? '',
-    });
+  private sessionId(): string {
+    return this.route.snapshot.paramMap.get('sessionId') ?? '';
   }
 
   private async load(): Promise<void> {
     this.state.set({ kind: 'loading' });
-    this.notFound.set(false);
-    const entitlementId = this.route.snapshot.paramMap.get('entitlementId') ?? '';
+    this.unavailable.set(false);
+    this.notFinalized.set(false);
     try {
-      const loaded = await firstValueFrom(this.api.getMyEntitlement(entitlementId));
-      this.entitlement.set(loaded);
+      const loaded = await firstValueFrom(this.api.getPackageAnalyticalReport(this.sessionId()));
+      this.report.set(loaded);
       this.state.set({ kind: 'ready' });
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
-        this.notFound.set(true);
+        this.unavailable.set(true);
+        this.state.set({ kind: 'ready' });
+      } else if (this.isConflict(error)) {
+        this.notFinalized.set(true);
         this.state.set({ kind: 'ready' });
       } else {
         this.state.set({ kind: 'error', error: this.normalizeError(error), canRetry: true });
@@ -75,6 +79,15 @@ export class NurseEntitlementDetail implements OnInit {
       error !== null &&
       'status' in error &&
       (error as { status?: unknown }).status === 404
+    );
+  }
+
+  private isConflict(error: unknown): boolean {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'status' in error &&
+      (error as { status?: unknown }).status === 409
     );
   }
 

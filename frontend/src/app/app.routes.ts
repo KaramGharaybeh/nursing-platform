@@ -153,6 +153,12 @@ export const routes: Routes = [
     data: { routeId: 'PREPARATION_PACKAGES_PRACTICE' },
   },
   {
+    path: 'nurse/preparation-packages/reports/:sessionId',
+    loadComponent: () => import('./features/nurse/preparation-packages/package-report').then((m) => m.PackageReport),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'PREPARATION_PACKAGES_REPORT' },
+  },
+  {
     path: 'preparation-packages',
     loadComponent: () => import('./features/preparation-packages/offers-list').then((m) => m.OffersList),
     data: { routeId: 'PREPARATION_PACKAGES_OFFERS' },

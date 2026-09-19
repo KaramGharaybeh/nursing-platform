@@ -79,3 +79,98 @@ describe('preparation-package-entitlements-api (T-FE-076)', () => {
     await expect(result).resolves.toEqual(expected);
   });
 });
+
+/**
+ * T-FE-079 proving evidence: the package exam trio delegates to the generated
+ * entitlement operations with exact path parameters and maps strict bodies.
+ * The consumptive start is never called except through explicit user action
+ * covered by component tests; the facade itself only forwards.
+ */
+describe('preparation-package-entitlements-api package exam (T-FE-079)', () => {
+  let api: PreparationPackageEntitlementsApi;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideApiConfig()],
+    });
+
+    api = TestBed.inject(PreparationPackageEntitlementsApi);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('gets package exam session state by entitlement id', async () => {
+    const expected = {
+      hasSession: true,
+      sessionId: 'sess-1',
+      examId: 'exam-1',
+      status: 'InProgress',
+      expiresAt: '2999-01-01T00:00:00Z',
+    };
+
+    const result = firstValueFrom(api.getPackageExamSessionState('ent-1'));
+    const request = httpMock.expectOne(
+      '/api/v1/me/nurse-profile/preparation-packages/entitlements/ent-1/exam-session',
+    );
+
+    expect(request.request.method).toBe('GET');
+    request.flush(expected);
+    await expect(result).resolves.toEqual(expected);
+  });
+
+  it('starts a package exam session with the exact entitlement id', async () => {
+    const result = firstValueFrom(api.startPackageExamSession('ent-1'));
+    const request = httpMock.expectOne(
+      '/api/v1/me/nurse-profile/preparation-packages/entitlements/ent-1/exam-session',
+    );
+
+    expect(request.request.method).toBe('POST');
+    request.flush({
+      session: { id: 'sess-9', examId: 'exam-1' },
+      entitlementId: 'ent-1',
+      includedExamId: 'exam-1',
+    });
+    await expect(result).resolves.toEqual({ sessionId: 'sess-9', examId: 'exam-1' });
+  });
+
+  it('rejects a package start response without session identity', async () => {
+    const result = firstValueFrom(api.startPackageExamSession('ent-1'));
+    httpMock
+      .expectOne(
+        '/api/v1/me/nurse-profile/preparation-packages/entitlements/ent-1/exam-session',
+      )
+      .flush({ session: null, entitlementId: 'ent-1', includedExamId: 'exam-1' });
+
+    await expect(result).rejects.toThrow(
+      'Package exam start response did not include a session identity.',
+    );
+  });
+
+  it('gets a package analytical report by session id', async () => {
+    const result = firstValueFrom(api.getPackageAnalyticalReport('sess-1'));
+    const request = httpMock.expectOne(
+      '/api/v1/me/nurse-profile/preparation-packages/exam-sessions/sess-1/report',
+    );
+
+    expect(request.request.method).toBe('GET');
+    request.flush({
+      id: 'rep-1',
+      examSessionId: 'sess-1',
+      score: 1,
+      maxScore: 2,
+      percentage: 50,
+      passed: false,
+      correctCount: 1,
+      questionCount: 2,
+      topicResults: [],
+      guidanceItems: [],
+    });
+    const report = await result;
+    expect(report.score).toBe(1);
+    expect(report.questionCount).toBe(2);
+  });
+});

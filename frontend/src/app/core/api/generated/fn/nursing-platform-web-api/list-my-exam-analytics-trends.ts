@@ -7,6 +7,7 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { ExamAnalyticsTrendPointDto } from '../../models/exam-analytics-trend-point-dto';
 
 export interface ListMyExamAnalyticsTrends$Params {
   from?: string;
@@ -17,7 +18,7 @@ export interface ListMyExamAnalyticsTrends$Params {
   bucket?: string;
 }
 
-export function listMyExamAnalyticsTrends(http: HttpClient, rootUrl: string, params?: ListMyExamAnalyticsTrends$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function listMyExamAnalyticsTrends(http: HttpClient, rootUrl: string, params?: ListMyExamAnalyticsTrends$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<ExamAnalyticsTrendPointDto>>> {
   const rb = new RequestBuilder(rootUrl, listMyExamAnalyticsTrends.PATH, 'get');
   if (params) {
     rb.query('from', params.from, {});
@@ -29,11 +30,11 @@ export function listMyExamAnalyticsTrends(http: HttpClient, rootUrl: string, par
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<Array<ExamAnalyticsTrendPointDto>>;
     })
   );
 }

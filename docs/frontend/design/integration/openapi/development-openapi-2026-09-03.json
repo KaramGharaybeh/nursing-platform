@@ -7709,7 +7709,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamAnalyticsSummaryDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7799,7 +7806,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultOfExamAnalyticsByExamDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7881,7 +7895,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultOfExamAnalyticsByCategoryDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -7956,7 +7977,17 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamAnalyticsTrendPointDto"
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -9716,6 +9747,468 @@
               "string"
             ],
             "format": "uuid"
+          }
+        }
+      },
+      "ExamAnalyticsByCategoryDto": {
+        "required": [
+          "countryId",
+          "countryName",
+          "attemptCount",
+          "submittedCount",
+          "expiredCount",
+          "abandonedCount",
+          "inProgressCount",
+          "countedAttemptCount",
+          "passedCount",
+          "failedCount"
+        ],
+        "type": "object",
+        "properties": {
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "countryName": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "categoryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "attemptCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "submittedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expiredCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abandonedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inProgressCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "countedAttemptCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "failedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passRatePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "bestScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "latestScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageScore": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageMaxScore": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageCorrectCount": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageQuestionCount": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "firstAttemptStartedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "latestAttemptStartedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "ExamAnalyticsByExamDto": {
+        "required": [
+          "examId",
+          "examTitle",
+          "countryId",
+          "countryName",
+          "attemptCount",
+          "submittedCount",
+          "expiredCount",
+          "abandonedCount",
+          "inProgressCount",
+          "countedAttemptCount",
+          "passedCount",
+          "failedCount"
+        ],
+        "type": "object",
+        "properties": {
+          "examId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "examTitle": {
+            "type": "string"
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "countryName": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "categoryName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "attemptCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "submittedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expiredCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abandonedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inProgressCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "countedAttemptCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "failedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passRatePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "bestScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "latestScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageScore": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageMaxScore": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageCorrectCount": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageQuestionCount": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "firstAttemptStartedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "latestAttemptStartedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "ExamAnalyticsSummaryDto": {
+        "required": [
+          "attemptCount",
+          "submittedCount",
+          "expiredCount",
+          "abandonedCount",
+          "inProgressCount",
+          "countedAttemptCount",
+          "passedCount",
+          "failedCount"
+        ],
+        "type": "object",
+        "properties": {
+          "attemptCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "submittedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expiredCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "abandonedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inProgressCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "countedAttemptCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "failedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passRatePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "bestScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "latestScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageScore": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageMaxScore": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageCorrectCount": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageQuestionCount": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "firstAttemptStartedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "latestAttemptStartedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "ExamAnalyticsTrendPointDto": {
+        "required": [
+          "bucketStart",
+          "bucketEnd",
+          "attemptCount",
+          "countedAttemptCount",
+          "passedCount",
+          "failedCount"
+        ],
+        "type": "object",
+        "properties": {
+          "bucketStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "bucketEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attemptCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "countedAttemptCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "failedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passRatePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "averageScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "bestScorePercentage": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
           }
         }
       },
@@ -11593,6 +12086,74 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ContactRequestDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PaginatedResultOfExamAnalyticsByCategoryDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamAnalyticsByCategoryDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PaginatedResultOfExamAnalyticsByExamDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount",
+          "totalPages"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamAnalyticsByExamDto"
             }
           },
           "page": {

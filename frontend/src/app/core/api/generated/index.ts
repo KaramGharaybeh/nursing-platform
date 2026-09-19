@@ -43,6 +43,10 @@ export type { CreateNurseCertificateCommand } from './models/create-nurse-certif
 export type { CreateNurseEducationCommand } from './models/create-nurse-education-command';
 export type { CreateNurseExperienceCommand } from './models/create-nurse-experience-command';
 export type { CreatePaymentOrderRequest } from './models/create-payment-order-request';
+export type { ExamAnalyticsByCategoryDto } from './models/exam-analytics-by-category-dto';
+export type { ExamAnalyticsByExamDto } from './models/exam-analytics-by-exam-dto';
+export type { ExamAnalyticsSummaryDto } from './models/exam-analytics-summary-dto';
+export type { ExamAnalyticsTrendPointDto } from './models/exam-analytics-trend-point-dto';
 export type { ExamAttemptDto } from './models/exam-attempt-dto';
 export type { ExamCatalogItemDto } from './models/exam-catalog-item-dto';
 export type { ExamDetailDto } from './models/exam-detail-dto';
@@ -92,6 +96,8 @@ export type { PaginatedResultOfAdminReportingTopicDto } from './models/paginated
 export type { PaginatedResultOfAdminStudyMaterialDto } from './models/paginated-result-of-admin-study-material-dto';
 export type { PaginatedResultOfCandidateListItemDto } from './models/paginated-result-of-candidate-list-item-dto';
 export type { PaginatedResultOfContactRequestDto } from './models/paginated-result-of-contact-request-dto';
+export type { PaginatedResultOfExamAnalyticsByCategoryDto } from './models/paginated-result-of-exam-analytics-by-category-dto';
+export type { PaginatedResultOfExamAnalyticsByExamDto } from './models/paginated-result-of-exam-analytics-by-exam-dto';
 export type { PaginatedResultOfExamAttemptDto } from './models/paginated-result-of-exam-attempt-dto';
 export type { PaginatedResultOfExamCatalogItemDto } from './models/paginated-result-of-exam-catalog-item-dto';
 export type { PaginatedResultOfPackageEntitlementListItemDto } from './models/paginated-result-of-package-entitlement-list-item-dto';

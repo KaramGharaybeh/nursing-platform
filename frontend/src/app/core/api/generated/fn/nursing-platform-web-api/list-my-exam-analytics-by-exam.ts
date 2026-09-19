@@ -7,6 +7,7 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { PaginatedResultOfExamAnalyticsByExamDto } from '../../models/paginated-result-of-exam-analytics-by-exam-dto';
 
 export interface ListMyExamAnalyticsByExam$Params {
   from?: string;
@@ -18,7 +19,7 @@ export interface ListMyExamAnalyticsByExam$Params {
   pageSize?: (number | null);
 }
 
-export function listMyExamAnalyticsByExam(http: HttpClient, rootUrl: string, params?: ListMyExamAnalyticsByExam$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function listMyExamAnalyticsByExam(http: HttpClient, rootUrl: string, params?: ListMyExamAnalyticsByExam$Params, context?: HttpContext): Observable<StrictHttpResponse<PaginatedResultOfExamAnalyticsByExamDto>> {
   const rb = new RequestBuilder(rootUrl, listMyExamAnalyticsByExam.PATH, 'get');
   if (params) {
     rb.query('from', params.from, {});
@@ -31,11 +32,11 @@ export function listMyExamAnalyticsByExam(http: HttpClient, rootUrl: string, par
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<PaginatedResultOfExamAnalyticsByExamDto>;
     })
   );
 }

@@ -15,6 +15,7 @@ using NursingPlatform.Application.Exams.Admin.Exams;
 using NursingPlatform.Application.Exams.Admin.Questions;
 using NursingPlatform.Application.Exams.Admin.Versions;
 using NursingPlatform.Application.Exams.Analytics.Common;
+using NursingPlatform.Application.Exams.Analytics.DTOs;
 using NursingPlatform.Application.Exams.Analytics.Queries.GetMyExamAnalyticsSummary;
 using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsByCategory;
 using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsByExam;
@@ -1147,7 +1148,8 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("GetMyExamAnalyticsSummary");
+        .WithName("GetMyExamAnalyticsSummary")
+        .Produces<ExamAnalyticsSummaryDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/exam-analytics/by-exam", async (
             DateTime? from,
@@ -1171,7 +1173,8 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListMyExamAnalyticsByExam");
+        .WithName("ListMyExamAnalyticsByExam")
+        .Produces<PaginatedResult<ExamAnalyticsByExamDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/exam-analytics/by-category", async (
             DateTime? from,
@@ -1193,7 +1196,8 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListMyExamAnalyticsByCategory");
+        .WithName("ListMyExamAnalyticsByCategory")
+        .Produces<PaginatedResult<ExamAnalyticsByCategoryDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/exam-analytics/trends", async (
             DateTime? from,
@@ -1215,7 +1219,8 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListMyExamAnalyticsTrends");
+        .WithName("ListMyExamAnalyticsTrends")
+        .Produces<IReadOnlyList<ExamAnalyticsTrendPointDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/exam-attempts", async (
             int? page,

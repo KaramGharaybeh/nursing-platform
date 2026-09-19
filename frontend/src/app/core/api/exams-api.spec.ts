@@ -957,3 +957,133 @@ describe('exams-api exam analytics (T-FE-074)', () => {
     ]);
   });
 });
+
+describe('exams-api exam history (T-FE-073)', () => {
+  let api: ExamsApi;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideApiConfig()],
+    });
+
+    api = TestBed.inject(ExamsApi);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  function attemptResponse(overrides: Record<string, unknown> = {}) {
+    return {
+      id: 'session-9',
+      examId: 'exam-1',
+      examTitle: 'NCLEX Readiness',
+      status: 'Submitted',
+      startedAt: '2026-09-18T00:00:00Z',
+      expiresAt: '2026-09-18T01:00:00Z',
+      finalizedAt: '2026-09-18T00:30:00Z',
+      score: 68,
+      maxScore: 75,
+      percentage: 90.67,
+      passed: true,
+      ...overrides,
+    };
+  }
+
+  function pageResponse(items: Record<string, unknown>[], page = 1) {
+    return { items, page, pageSize: 20, totalCount: items.length, totalPages: 1 };
+  }
+
+  it('lists history unfiltered with page size 20 preserving backend order', async () => {
+    const result = firstValueFrom(api.listExamHistory({}, 1));
+    const request = httpMock.expectOne('/api/v1/me/nurse-profile/exam-attempts?page=1&pageSize=20');
+
+    expect(request.request.method).toBe('GET');
+    request.flush(
+      pageResponse([
+        attemptResponse(),
+        attemptResponse({
+          id: 'session-8',
+          examId: 'exam-2',
+          examTitle: 'Second exam',
+          status: 'InProgress',
+          score: null,
+          maxScore: null,
+          percentage: null,
+          passed: null,
+        }),
+      ]),
+    );
+    const adapted = await result;
+    expect(adapted.page).toBe(1);
+    expect(adapted.totalCount).toBe(2);
+    expect(adapted.items.map((item) => item.sessionId)).toEqual(['session-9', 'session-8']);
+    expect(adapted.items[0]).toEqual({
+      sessionId: 'session-9',
+      examId: 'exam-1',
+      examTitle: 'NCLEX Readiness',
+      status: 'Submitted',
+      startedAt: '2026-09-18T00:00:00Z',
+      expiresAt: '2026-09-18T01:00:00Z',
+      score: 68,
+      maxScore: 75,
+      percentage: 90.67,
+      passed: true,
+    });
+    expect(adapted.items[1].percentage).toBeNull();
+    expect(adapted.items[1].passed).toBeNull();
+  });
+
+  it('transmits the backend status for each approved filter', async () => {
+    for (const [status, expected] of [
+      [0, 'status=0'],
+      [1, 'status=1'],
+      [2, 'status=2'],
+    ] as const) {
+      const result = firstValueFrom(api.listExamHistory({ status }, 2));
+      const request = httpMock.expectOne(
+        `/api/v1/me/nurse-profile/exam-attempts?page=2&pageSize=20&${expected}`,
+      );
+
+      expect(request.request.method).toBe('GET');
+      request.flush(pageResponse([]));
+      await result;
+    }
+  });
+
+  it('exposes no source, provenance, or raw review fields in the presentation model', async () => {
+    const result = firstValueFrom(api.listExamHistory({}, 1));
+    httpMock
+      .expectOne('/api/v1/me/nurse-profile/exam-attempts?page=1&pageSize=20')
+      .flush(pageResponse([attemptResponse()]));
+
+    const serialized = JSON.stringify(await result);
+    expect(serialized).not.toContain('source');
+    expect(serialized).not.toContain('correct');
+    expect(serialized).not.toContain('explanation');
+  });
+
+  it('rejects attempts with unusable status instead of surfacing raw enums', async () => {
+    const result = firstValueFrom(api.listExamHistory({}, 1));
+    httpMock
+      .expectOne('/api/v1/me/nurse-profile/exam-attempts?page=1&pageSize=20')
+      .flush(pageResponse([attemptResponse({ status: 'Mystery' })]));
+
+    await expect(result).rejects.toThrow(
+      'Exam history response did not include usable attempt content.',
+    );
+  });
+
+  it('rejects attempts without navigation identity', async () => {
+    const result = firstValueFrom(api.listExamHistory({}, 1));
+    httpMock
+      .expectOne('/api/v1/me/nurse-profile/exam-attempts?page=1&pageSize=20')
+      .flush(pageResponse([attemptResponse({ id: null })]));
+
+    await expect(result).rejects.toThrow(
+      'Exam history response did not include usable attempt content.',
+    );
+  });
+});

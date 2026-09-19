@@ -1,0 +1,102 @@
+<section class="np-exam-history" aria-labelledby="exam-history-heading">
+  <a [routerLink]="backPath" data-testid="exam-history-back">Back to exams</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading exam history"
+    fallbackErrorTitle="We couldn't load your exam history. Try again."
+    retryLabel="Retry"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    <h1 id="exam-history-heading" data-testid="exam-history-heading">Exam history</h1>
+    <p>Review your current and completed exam attempts.</p>
+
+    <np-select-control
+      controlId="exam-history-status-filter"
+      label="Status"
+      data-testid="exam-history-status-filter"
+      [options]="statusOptions()"
+      [value]="filter()"
+      (valueChange)="applyStatusFilter($event)"
+    />
+
+    @if ((page()?.items.length ?? 0) === 0) {
+      @if (filter() === '') {
+        <div data-testid="exam-history-empty">
+          <np-empty-state
+            kind="empty"
+            title="No exam attempts yet"
+            description="Start an exam to see your history."
+          />
+          <a [routerLink]="backPath">Browse exams</a>
+        </div>
+      } @else {
+        <div data-testid="exam-history-filtered-empty">
+          <np-empty-state
+            kind="no-results"
+            title="No exam attempts match this filter"
+            description="Try another status."
+          />
+          <button type="button" data-testid="exam-history-clear" (click)="clearFilter()">
+            Clear filter
+          </button>
+        </div>
+      }
+    } @else {
+      <ul class="np-exam-history-rows">
+        @for (attempt of page()?.items ?? []; track attempt.sessionId) {
+          <li data-testid="exam-history-row">
+            <h2>{{ attempt.examTitle }}</h2>
+            <p role="status">{{ statusLabel(attempt.status) }}</p>
+            <p>Started {{ attempt.startedAt | date: 'medium' }}</p>
+            @if (attempt.status === 'InProgress' && attempt.expiresAt !== null) {
+              <p>Ends {{ attempt.expiresAt | date: 'medium' }}</p>
+            }
+            @if (attempt.percentage !== null) {
+              <p>{{ attempt.percentage }}%</p>
+            }
+            @if (attempt.passed === true) {
+              <p>Passed</p>
+            } @else if (attempt.passed === false) {
+              <p>Not passed</p>
+            }
+            <div class="np-exam-history-actions">
+              @if (attempt.status === 'InProgress') {
+                <a
+                  [routerLink]="resumePath(attempt.examId, attempt.sessionId)"
+                  data-testid="exam-history-resume"
+                >
+                  Resume exam
+                </a>
+              } @else if (isFinalizedStatus(attempt.status)) {
+                <a
+                  [routerLink]="resultPath(attempt.examId, attempt.sessionId)"
+                  data-testid="exam-history-result"
+                >
+                  View result
+                </a>
+                <a
+                  [routerLink]="reviewPath(attempt.examId, attempt.sessionId)"
+                  data-testid="exam-history-review"
+                >
+                  Review answers
+                </a>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+      <np-pagination
+        data-testid="exam-history-pagination"
+        [page]="page()?.page ?? 1"
+        [totalPages]="page()?.totalPages ?? 0"
+        [totalCount]="page()?.totalCount ?? 0"
+        itemLabel="attempts"
+        ariaLabel="Exam history pagination"
+        (pageRequested)="loadHistoryPage($event)"
+      />
+    }
+  }
+</section>

@@ -37,6 +37,8 @@ export class ExamsList implements OnInit {
 
   protected readonly analyticsPath = canonicalRoutePath('EXAMS_ANALYTICS');
 
+  protected readonly historyPath = canonicalRoutePath('EXAMS_HISTORY');
+
   ngOnInit(): void {
     void this.initialize();
   }

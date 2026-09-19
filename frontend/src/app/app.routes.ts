@@ -181,6 +181,12 @@ export const routes: Routes = [
     data: { routeId: 'EXAMS_ANALYTICS' },
   },
   {
+    path: 'exams/history',
+    loadComponent: () => import('./features/exams/exam-history').then((m) => m.ExamHistoryScreen),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'EXAMS_HISTORY' },
+  },
+  {
     path: 'exams/:examId',
     loadComponent: () => import('./features/exams/exam-detail').then((m) => m.ExamDetail),
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],

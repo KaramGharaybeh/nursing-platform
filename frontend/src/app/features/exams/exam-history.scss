@@ -1,0 +1,53 @@
+@use '../../../styles/abstracts/mixins' as mixins;
+
+.np-exam-history {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-exam-history h1 {
+  margin: var(--np-space-16) 0 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-exam-history-rows {
+  display: grid;
+  gap: var(--np-space-8);
+  margin: var(--np-space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.np-exam-history-rows li {
+  display: grid;
+  gap: var(--np-space-4);
+  padding-block: var(--np-space-8);
+  padding-inline: var(--np-space-12);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+}
+
+.np-exam-history-rows h2 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.np-exam-history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-8);
+}
+
+.np-exam-history-actions a,
+.np-exam-history button {
+  @include mixins.touch-target;
+}

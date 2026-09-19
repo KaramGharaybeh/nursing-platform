@@ -21,6 +21,7 @@ import { submitExamSession } from './generated/fn/nursing-platform-web-api/submi
 import type { ExamAttemptDto } from './generated/models/exam-attempt-dto';
 
 const ATTEMPTS_PAGE_SIZE = 100;
+const HISTORY_PAGE_SIZE = 20;
 const SESSION_STATUS_IN_PROGRESS = 0;
 const ANALYTICS_PAGE_SIZE = 20;
 const ANALYTICS_TREND_BUCKET = 'Month';
@@ -186,6 +187,27 @@ export interface ExamReview {
   readonly items: ExamReviewQuestion[];
 }
 
+export interface ExamHistoryAttempt {
+  readonly sessionId: string;
+  readonly examId: string;
+  readonly examTitle: string;
+  readonly status: string;
+  readonly startedAt: string;
+  readonly expiresAt: string | null;
+  readonly score: number | null;
+  readonly maxScore: number | null;
+  readonly percentage: number | null;
+  readonly passed: boolean | null;
+}
+
+export interface ExamHistoryPage {
+  readonly items: ExamHistoryAttempt[];
+  readonly page: number;
+  readonly pageSize: number;
+  readonly totalCount: number;
+  readonly totalPages: number;
+}
+
 export interface ExamCatalogQuery {
   readonly page: number;
   readonly pageSize: number;
@@ -219,6 +241,17 @@ export class ExamsApi {
         response.body.map((country) => ({ id: country.id, name: country.name })),
       ),
     );
+  }
+
+  listExamHistory(
+    filters: { status?: number },
+    page: number,
+  ): Observable<ExamHistoryPage> {
+    return listMyExamAttempts(this.http, this.config.rootUrl, {
+      ...optionalHistoryParams(filters),
+      page,
+      pageSize: HISTORY_PAGE_SIZE,
+    }).pipe(map((response) => adaptHistoryPage(response.body)));
   }
 
   listMyExamAttempts(query: { status: number; page: number; pageSize: number }): Observable<{
@@ -525,6 +558,52 @@ function adaptAnalyticsTrendPoint(item: unknown): ExamAnalyticsTrendPoint {
     attemptCount: asNumber(record['attemptCount'], 0),
     averageScorePercentage: asNullableNumber(record['averageScorePercentage']),
     passRate: asNullableNumber(record['passRatePercentage']),
+  };
+}
+
+const KNOWN_HISTORY_STATUSES = ['InProgress', 'Submitted', 'Expired', 'Abandoned'];
+
+function optionalHistoryParams(filters: { status?: number }): { status?: number } {
+  return filters.status === undefined ? {} : { status: filters.status };
+}
+
+function adaptHistoryPage(body: unknown): ExamHistoryPage {
+  const page = asRecord(body);
+  const items = Array.isArray(page['items']) ? page['items'].map(adaptHistoryAttempt) : [];
+  return {
+    items,
+    page: asNumber(page['page'], 0),
+    pageSize: asNumber(page['pageSize'], 0),
+    totalCount: asNumber(page['totalCount'], 0),
+    totalPages: asNumber(page['totalPages'], 0),
+  };
+}
+
+function adaptHistoryAttempt(item: unknown): ExamHistoryAttempt {
+  const record = asRecord(item);
+  const sessionId = asNullableString(record['id']);
+  const examId = asNullableString(record['examId']);
+  const status = asString(record['status']);
+  if (
+    sessionId === null ||
+    sessionId === '' ||
+    examId === null ||
+    examId === '' ||
+    !KNOWN_HISTORY_STATUSES.includes(status)
+  ) {
+    throw new Error('Exam history response did not include usable attempt content.');
+  }
+  return {
+    sessionId,
+    examId,
+    examTitle: asString(record['examTitle']),
+    status,
+    startedAt: asString(record['startedAt']),
+    expiresAt: asNullableString(record['expiresAt']),
+    score: asNullableNumber(record['score']),
+    maxScore: asNullableNumber(record['maxScore']),
+    percentage: asNullableNumber(record['percentage']),
+    passed: record['passed'] === true ? true : record['passed'] === false ? false : null,
   };
 }
 

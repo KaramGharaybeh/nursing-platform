@@ -1828,6 +1828,26 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence covers empty/no-results focused tests (semantics, action emission, no filter mutation, no illustration, landmark structure, no live-region), restricted evidence via the shipped VERIFIED access-denied screen and its story (generic privacy-safe copy, no role/permission exposure), per-screen visual evidence via the three empty-state stories, component separation with external template/style/spec/stories, absence of pagination/filter/query/product/backend behavior, full frontend verification (59 files / 534 tests), lint/stylelint/dependency-guard/build/Storybook, git diff checks, and scope review. `T-FE-038` may now consume SYS-006/SYS-007; `T-FE-038` itself is not verified by this gate.
 
+### `T-FE-028` — SYS-001 system loading route state
+
+- status: `VERIFIED`
+- evidence_date: 2026-09-19
+- scope_summary: Implemented the NOT_ROUTABLE SYS-001 route-loading state in the app shell by composition only. `App` subscribes to Router events and renders the verified T-FE-033 `LoadingErrorRetry` loading treatment (`Loading page`, role=status) inside `data-testid="route-loading"` while navigation is in progress; it hides on NavigationEnd/Cancel/Error with subscription cleanup via DestroyRef. No loading route created (registry and canonical routes untouched), no shell redesign, no navigation/product UI, no backend/OpenAPI/generated/DB changes. Selected as the single fully-eligible next task by ledger DAG (predecessors GATE-FE-T027 + GATE-FE-T113 VERIFIED, HUMAN_APPROVED SYS-001 design, frontend-only contract); T-FE-073 (no EXM-010 design), T-FE-077/085/098 packets (author human-approved design; not directly implementable), T-FE-116/117 (DEFERRED), and hardening tasks (tooling/matrix/human gates) reported as follow-ups, not started.
+- predecessor_summary: `GATE-FE-T027` VERIFIED and `GATE-FE-T113` VERIFIED before implementation, per DAG; design authority system-screen-approval-packet HD-SYS/SYS-001.
+- verification_summary: Focused RED→GREEN specs in `app.spec.ts` (announce-while-navigating with role=status + `Loading page` copy, hide-after-settle, hide-on-failed-navigation, no-loading-route registry assertion); full frontend suite 80 files / 789 tests green. Stylelint, dependency guard, production build, Storybook build green; `git diff --check` clean. `npm run lint` has one PRE-EXISTING error in untouched `nurse-contact-requests.spec.ts` (`byTestId` unused); all T-FE-028 files lint-clean.
+- populated_e2e_summary: Real browser navigation smoke on live data (no interception/mocks except chunk-throttling to observe the transient state): catalog → analytics navigation settles with shell intact (one main landmark), loader hidden after settle, analytics page functional; throttled chunk load captures the visible `Loading page` role=status treatment (screenshot `.playwright-mcp/t-fe-028-route-loading.png`).
+- closure_evidence: Task accepted as complete from implementation + focused/full verification + live navigation evidence above.
+
+### `ST-FE-028` — Build SYS-001 loading route state
+
+- status: `VERIFIED`
+- evidence_summary: Shell Router-events subscription + composed T-FE-033 loading treatment + specs delivered within SYS-001 authority; focused 2/2 new tests and full 80/789 green; live navigation smoke with transient-loader capture; no route, redesign, or backend work.
+
+### `GATE-FE-T028`
+
+- status_result: `VERIFIED`
+- evidence_summary: Loading-state tests + per-screen visual evidence satisfied: 2/2 new focused tests, 80/789 full suite, stylelint/deps/build/Storybook green, live navigation smoke with visible `Loading page` capture. Prerequisite GATE-FE-T027 and GATE-FE-T113 were VERIFIED before closeout, per DAG.
+
 ### `T-FE-038` — List/filter/pagination pattern
 
 - status: `VERIFIED`

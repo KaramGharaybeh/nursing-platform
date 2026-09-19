@@ -211,13 +211,34 @@ describe('ExamResult screen (T-FE-071)', () => {
     expect(back?.getAttribute('href')).toBe('/exams');
   });
 
-  it('never renders ids, timestamps, review content, or a review CTA', async () => {
+  it('offers Review answers on a finalized Submitted result via the canonical review route', async () => {
+    const { fixture, api } = await setup();
+    const link = byTestId(fixture, 'exam-result-review') as HTMLAnchorElement | null;
+
+    expect(link?.textContent).toContain('Review answers');
+    expect(link?.getAttribute('href')).toBe('/exams/exam-1/sessions/session-9/review');
+    expect(api.calls).toEqual(['session-9']);
+    expect(byTestId(fixture, 'exam-result-score')?.textContent).toContain('68');
+    expect(byTestId(fixture, 'exam-result-back')?.textContent).toContain('Back to exams');
+  });
+
+  it('offers Review answers on a finalized Expired result without inline correctness', async () => {
+    const stub = new ExamsApiStub();
+    stub.result = fullResult({ status: 'Expired', passed: false, score: 40, percentage: 53.33 });
+    const { fixture } = await setup(stub);
+    const link = byTestId(fixture, 'exam-result-review') as HTMLAnchorElement | null;
+
+    expect(link?.getAttribute('href')).toBe('/exams/exam-1/sessions/session-9/review');
+    expect(text(fixture)).not.toMatch(/correct answer|answer key|rationale|explanation/i);
+  });
+
+  it('never renders ids, timestamps, or inline review correctness', async () => {
     const { fixture } = await setup();
     const body = text(fixture);
 
     expect(body).not.toMatch(UUID_PATTERN);
     expect(body).not.toMatch(/startedAt|finalizedAt|20\d\d-/);
-    expect(body).not.toMatch(/correct answer|answer key|rationale|explanation|Review answers/i);
+    expect(body).not.toMatch(/correct answer|answer key|rationale|explanation/i);
   });
 });
 

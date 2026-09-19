@@ -2,38 +2,32 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ExamsApi } from '../../core/api/exams-api';
-import type { ExamFullResult } from '../../core/api/exams-api';
+import type { ExamReview, ExamReviewQuestion } from '../../core/api/exams-api';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
-import { buildExamsReviewPath, canonicalRoutePath } from '../../core/routing/canonical-routes';
+import { buildExamsResultPath } from '../../core/routing/canonical-routes';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
 
-const STATUS_SUBMITTED = 'Submitted';
 const STATUS_EXPIRED = 'Expired';
 
-const GENERIC_RETRY_COPY = "We couldn't load this exam result. Try again.";
+const GENERIC_RETRY_COPY = "We couldn't load this exam review. Try again.";
 
 @Component({
-  selector: 'np-exam-result',
+  selector: 'np-exam-review',
   imports: [LoadingErrorRetry, RouterLink],
-  templateUrl: './exam-result.html',
-  styleUrl: './exam-result.scss',
+  templateUrl: './exam-review.html',
+  styleUrl: './exam-review.scss',
 })
-export class ExamResultScreen implements OnInit {
+export class ExamReviewScreen implements OnInit {
   private readonly api = inject(ExamsApi);
   private readonly route = inject(ActivatedRoute);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
-  protected readonly result = signal<ExamFullResult | undefined>(undefined);
+  protected readonly review = signal<ExamReview | undefined>(undefined);
+  protected readonly currentIndex = signal(0);
   protected readonly unavailable = signal(false);
   protected readonly notFinalized = signal(false);
-
-  protected readonly backPath = canonicalRoutePath('EXAMS_CATALOG');
-
-  protected reviewPath(): string {
-    return buildExamsReviewPath(this.examId(), this.result()?.sessionId ?? this.sessionId());
-  }
 
   ngOnInit(): void {
     void this.load();
@@ -43,15 +37,40 @@ export class ExamResultScreen implements OnInit {
     await this.load();
   }
 
-  protected statusLabel(): string | undefined {
-    const status = this.result()?.status;
-    if (status === STATUS_SUBMITTED) {
-      return 'Completed';
+  protected backPath(): string {
+    return buildExamsResultPath(this.examId(), this.sessionId());
+  }
+
+  protected currentQuestion(): ExamReviewQuestion | undefined {
+    return this.review()?.items[this.currentIndex()];
+  }
+
+  protected questionStatus(question: ExamReviewQuestion): 'Correct' | 'Incorrect' | 'Unanswered' {
+    const selected = question.options.find((option) => option.isSelected);
+    if (selected === undefined) {
+      return 'Unanswered';
     }
-    if (status === STATUS_EXPIRED) {
-      return 'Time expired';
+    return selected.isCorrect ? 'Correct' : 'Incorrect';
+  }
+
+  protected isExpired(): boolean {
+    return this.review()?.status === STATUS_EXPIRED;
+  }
+
+  protected previous(): void {
+    this.goTo(this.currentIndex() - 1);
+  }
+
+  protected next(): void {
+    this.goTo(this.currentIndex() + 1);
+  }
+
+  protected goTo(index: number): void {
+    const total = this.review()?.items.length ?? 0;
+    if (total === 0) {
+      return;
     }
-    return undefined;
+    this.currentIndex.set(Math.min(Math.max(index, 0), total - 1));
   }
 
   private sessionId(): string {
@@ -64,17 +83,18 @@ export class ExamResultScreen implements OnInit {
 
   private async load(): Promise<void> {
     this.state.set({ kind: 'loading' });
-    this.result.set(undefined);
+    this.review.set(undefined);
+    this.currentIndex.set(0);
     this.unavailable.set(false);
     this.notFinalized.set(false);
     try {
-      const loaded = await firstValueFrom(this.api.getExamSessionResult(this.sessionId()));
+      const loaded = await firstValueFrom(this.api.getExamSessionReview(this.sessionId()));
       if (loaded.examId !== this.examId()) {
         this.unavailable.set(true);
         this.state.set({ kind: 'ready' });
         return;
       }
-      this.result.set(loaded);
+      this.review.set(loaded);
       this.state.set({ kind: 'ready' });
     } catch (error: unknown) {
       if (this.isNotFound(error)) {

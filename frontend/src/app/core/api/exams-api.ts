@@ -7,6 +7,7 @@ import { ApiConfiguration } from './generated/api-configuration';
 import { getExam } from './generated/fn/nursing-platform-web-api/get-exam';
 import { getExamSession } from './generated/fn/nursing-platform-web-api/get-exam-session';
 import { getExamSessionResult } from './generated/fn/nursing-platform-web-api/get-exam-session-result';
+import { getExamSessionReview } from './generated/fn/nursing-platform-web-api/get-exam-session-review';
 import { listCountries } from './generated/fn/nursing-platform-web-api/list-countries';
 import { listExams } from './generated/fn/nursing-platform-web-api/list-exams';
 import { listMyExamAttempts } from './generated/fn/nursing-platform-web-api/list-my-exam-attempts';
@@ -100,6 +101,29 @@ export interface ExamFullResult extends ExamSessionResult {
   readonly examId: string;
   readonly examTitle: string | null;
   readonly status: string;
+}
+
+export interface ExamReviewOption {
+  readonly displayOrder: number;
+  readonly text: string;
+  readonly isCorrect: boolean;
+  readonly isSelected: boolean;
+}
+
+export interface ExamReviewQuestion {
+  readonly displayOrder: number;
+  readonly text: string;
+  readonly explanation: string | null;
+  readonly points: number;
+  readonly pointsEarned: number;
+  readonly options: ExamReviewOption[];
+}
+
+export interface ExamReview {
+  readonly examId: string;
+  readonly examTitle: string | null;
+  readonly status: string;
+  readonly items: ExamReviewQuestion[];
 }
 
 export interface ExamCatalogQuery {
@@ -198,6 +222,12 @@ export class ExamsApi {
       map((response) => adaptExamFullResult(response.body)),
     );
   }
+
+  getExamSessionReview(sessionId: string): Observable<ExamReview> {
+    return getExamSessionReview(this.http, this.config.rootUrl, { id: sessionId }).pipe(
+      map((response) => adaptExamReview(response.body)),
+    );
+  }
 }
 
 function isResumableMatch(attempt: ExamAttemptDto, examId: string, now: Date): boolean {
@@ -264,6 +294,59 @@ function adaptExamFullResult(body: unknown): ExamFullResult {
     examTitle: examTitle === null || examTitle.trim() === '' ? null : examTitle,
     status: asString(record['status']),
     ...adaptExamSessionResult(body),
+  };
+}
+
+function adaptExamReview(body: unknown): ExamReview {
+  const record = asRecord(body);
+  const examId = asString(record['examId']);
+  const examTitle = asNullableString(record['examTitle']);
+  const items = record['items'];
+  if (examId === '' || !Array.isArray(items)) {
+    throw new Error('Exam review response did not include usable review content.');
+  }
+  return {
+    examId,
+    examTitle: examTitle === null || examTitle.trim() === '' ? null : examTitle,
+    status: asString(record['status']),
+    items: items.map(adaptReviewQuestion),
+  };
+}
+
+function adaptReviewQuestion(item: unknown): ExamReviewQuestion {
+  const record = asRecord(item);
+  const text = asString(record['text']);
+  const rawOptions = record['options'];
+  if (text.trim() === '' || !Array.isArray(rawOptions) || rawOptions.length === 0) {
+    throw new Error('Exam review response did not include usable review content.');
+  }
+  const selectedId = asNullableString(record['selectedExamSessionAnswerOptionId']);
+  if (selectedId !== null && !rawOptions.some((option) => asString(asRecord(option)['id']) === selectedId)) {
+    throw new Error('Exam review response did not include usable review content.');
+  }
+  const explanation = asNullableString(record['explanation']);
+  return {
+    displayOrder: asNumber(record['displayOrder'], 0),
+    text,
+    explanation: explanation === null || explanation.trim() === '' ? null : explanation,
+    points: asNumber(record['points'], 0),
+    pointsEarned: asNumber(record['pointsEarned'], 0),
+    options: rawOptions.map((option) => adaptReviewOption(option, selectedId)),
+  };
+}
+
+function adaptReviewOption(option: unknown, selectedId: string | null): ExamReviewOption {
+  const record = asRecord(option);
+  const text = asString(record['text']);
+  if (text.trim() === '') {
+    throw new Error('Exam review response did not include usable review content.');
+  }
+  const optionId = asString(record['id']);
+  return {
+    displayOrder: asNumber(record['displayOrder'], 0),
+    text,
+    isCorrect: record['isCorrect'] === true,
+    isSelected: selectedId !== null && optionId === selectedId,
   };
 }
 

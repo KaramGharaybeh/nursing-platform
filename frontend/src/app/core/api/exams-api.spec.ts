@@ -514,3 +514,174 @@ describe('exams-api exam result (T-FE-071)', () => {
     expect(JSON.stringify(adapted)).not.toContain('explanation');
   });
 });
+
+describe('exams-api exam review (T-FE-072)', () => {
+  let api: ExamsApi;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideApiConfig()],
+    });
+
+    api = TestBed.inject(ExamsApi);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  function reviewResponse(overrides: Record<string, unknown> = {}) {
+    return {
+      id: 'session-9',
+      examId: 'exam-1',
+      examTitle: 'NCLEX Readiness',
+      status: 'Submitted',
+      score: 1,
+      maxScore: 2,
+      percentage: 50,
+      passed: false,
+      items: [
+        {
+          id: 'question-1',
+          displayOrder: 2,
+          text: 'Second question',
+          explanation: 'Second why.',
+          points: 3,
+          pointsEarned: 0,
+          selectedExamSessionAnswerOptionId: 'question-1-option-b',
+          correctAnswerOptionId: 'question-1-option-a',
+          options: [
+            {
+              id: 'question-1-option-a',
+              displayOrder: 2,
+              text: 'Second A',
+              isCorrect: true,
+            },
+            {
+              id: 'question-1-option-b',
+              displayOrder: 1,
+              text: 'Second B',
+              isCorrect: false,
+            },
+          ],
+        },
+        {
+          id: 'question-2',
+          displayOrder: 1,
+          text: 'First question',
+          explanation: null,
+          points: 1,
+          pointsEarned: 1,
+          selectedExamSessionAnswerOptionId: 'question-2-option-a',
+          correctAnswerOptionId: 'question-2-option-a',
+          options: [
+            {
+              id: 'question-2-option-a',
+              displayOrder: 1,
+              text: 'First A',
+              isCorrect: true,
+            },
+          ],
+        },
+      ],
+      ...overrides,
+    };
+  }
+
+  it('gets finalized review by exact session id preserving backend order with selection mapping', async () => {
+    const result = firstValueFrom(api.getExamSessionReview('session-9'));
+    const request = httpMock.expectOne('/api/v1/exam-sessions/session-9/review');
+
+    expect(request.request.method).toBe('GET');
+    request.flush(reviewResponse());
+    await expect(result).resolves.toEqual({
+      examId: 'exam-1',
+      examTitle: 'NCLEX Readiness',
+      status: 'Submitted',
+      items: [
+        {
+          displayOrder: 2,
+          text: 'Second question',
+          explanation: 'Second why.',
+          points: 3,
+          pointsEarned: 0,
+          options: [
+            { displayOrder: 2, text: 'Second A', isCorrect: true, isSelected: false },
+            { displayOrder: 1, text: 'Second B', isCorrect: false, isSelected: true },
+          ],
+        },
+        {
+          displayOrder: 1,
+          text: 'First question',
+          explanation: null,
+          points: 1,
+          pointsEarned: 1,
+          options: [
+            { displayOrder: 1, text: 'First A', isCorrect: true, isSelected: true },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('normalizes blank titles and explanations and exposes no aggregates or raw ids', async () => {
+    const result = firstValueFrom(api.getExamSessionReview('session-9'));
+    httpMock
+      .expectOne('/api/v1/exam-sessions/session-9/review')
+      .flush(reviewResponse({ examTitle: '   ' }));
+
+    const adapted = await result;
+    expect(adapted.examTitle).toBeNull();
+    expect(adapted.examId).toBe('exam-1');
+    const serialized = JSON.stringify(adapted);
+    expect(serialized).not.toContain('score');
+    expect(serialized).not.toContain('passed');
+    expect(serialized).not.toContain('question-1');
+    expect(serialized).not.toContain('question-1-option-a');
+    expect(serialized).not.toContain('session-9');
+  });
+
+  it('maps an unanswered question with no selected option', async () => {
+    const response = reviewResponse();
+    const items = response.items as Record<string, unknown>[];
+    items[0] = { ...items[0], selectedExamSessionAnswerOptionId: null };
+    const result = firstValueFrom(api.getExamSessionReview('session-9'));
+    httpMock.expectOne('/api/v1/exam-sessions/session-9/review').flush(response);
+
+    const adapted = await result;
+    expect(adapted.items[0].options.every((option) => !option.isSelected)).toBe(true);
+    expect(adapted.items[0].options.find((option) => option.isCorrect)?.text).toBe('Second A');
+  });
+
+  it('rejects review content with empty question text', async () => {
+    const response = reviewResponse();
+    const items = response.items as Record<string, unknown>[];
+    items[0] = { ...items[0], text: '  ' };
+    const result = firstValueFrom(api.getExamSessionReview('session-9'));
+    httpMock.expectOne('/api/v1/exam-sessions/session-9/review').flush(response);
+
+    await expect(result).rejects.toThrow('Exam review response did not include usable review content.');
+  });
+
+  it('rejects review content with a selection matching no option', async () => {
+    const response = reviewResponse();
+    const items = response.items as Record<string, unknown>[];
+    items[0] = { ...items[0], selectedExamSessionAnswerOptionId: 'missing-option' };
+    const result = firstValueFrom(api.getExamSessionReview('session-9'));
+    httpMock.expectOne('/api/v1/exam-sessions/session-9/review').flush(response);
+
+    await expect(result).rejects.toThrow('Exam review response did not include usable review content.');
+  });
+
+  it('rejects review content with an empty option list', async () => {
+    const response = reviewResponse();
+    const items = response.items as Record<string, unknown>[];
+    items[0] = { ...items[0], options: [] };
+    const result = firstValueFrom(api.getExamSessionReview('session-9'));
+    httpMock.expectOne('/api/v1/exam-sessions/session-9/review').flush(response);
+
+    await expect(result).rejects.toThrow('Exam review response did not include usable review content.');
+  });
+});

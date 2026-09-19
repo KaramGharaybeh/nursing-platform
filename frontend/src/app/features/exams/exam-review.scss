@@ -1,0 +1,50 @@
+.np-exam-review {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-exam-review h1,
+.np-exam-review h2 {
+  margin: var(--np-space-16) 0 0;
+  line-height: 1.2;
+}
+
+.np-exam-review h1 {
+  font-size: 1.5rem;
+}
+
+.np-exam-review h2 {
+  font-size: 1.125rem;
+}
+
+.np-exam-review-options {
+  display: grid;
+  gap: var(--np-space-8);
+  margin: var(--np-space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.np-exam-review-options li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-8);
+  padding-block: var(--np-space-8);
+  padding-inline: var(--np-space-12);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+}
+
+.np-exam-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-8);
+  margin-block-start: var(--np-space-16);
+}

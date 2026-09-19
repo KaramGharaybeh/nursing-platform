@@ -1,0 +1,74 @@
+<section class="np-exam-review" aria-labelledby="exam-review-heading">
+  <a [routerLink]="backPath()" data-testid="exam-review-back">Back to result</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading answer review"
+    fallbackErrorTitle="We couldn't load this exam review. Try again."
+    retryLabel="Retry"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (unavailable()) {
+      <p role="status" data-testid="exam-review-unavailable">This exam review isn't available.</p>
+    } @else if (notFinalized()) {
+      <p role="status" data-testid="exam-review-not-finalized">
+        Finish the exam before reviewing answers.
+      </p>
+    } @else if (review(); as loaded) {
+      <h1 id="exam-review-heading" data-testid="exam-review-heading">Answer review</h1>
+      @if (loaded.examTitle !== null) {
+        <p data-testid="exam-review-title">{{ loaded.examTitle }}</p>
+      }
+      @if (isExpired()) {
+        <p role="status" data-testid="exam-review-expired">Time expired</p>
+      }
+      @if (currentQuestion(); as question) {
+        <article data-testid="exam-review-question" aria-labelledby="exam-review-prompt">
+          <p data-testid="exam-review-position">
+            Question {{ currentIndex() + 1 }} of {{ loaded.items.length }}
+          </p>
+          <h2 id="exam-review-prompt" data-testid="exam-review-prompt">{{ question.text }}</h2>
+          <p role="status" data-testid="exam-review-status">{{ questionStatus(question) }}</p>
+          <ul class="np-exam-review-options">
+            @for (option of question.options; track option.displayOrder) {
+              <li data-testid="exam-review-option">
+                <span>{{ option.text }}</span>
+                @if (option.isSelected) {
+                  <span>Your answer</span>
+                }
+                @if (option.isCorrect) {
+                  <span>Correct answer</span>
+                }
+              </li>
+            }
+          </ul>
+          @if (question.explanation !== null) {
+            <h3 data-testid="exam-review-explanation-title">Explanation</h3>
+            <p data-testid="exam-review-explanation">{{ question.explanation }}</p>
+          }
+          <p data-testid="exam-review-points">Points: {{ question.pointsEarned }} of {{ question.points }}</p>
+          <div class="np-exam-review-actions">
+            <button
+              type="button"
+              data-testid="exam-review-prev"
+              [disabled]="currentIndex() === 0"
+              (click)="previous()"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              data-testid="exam-review-next"
+              [disabled]="currentIndex() + 1 >= loaded.items.length"
+              (click)="next()"
+            >
+              Next
+            </button>
+          </div>
+        </article>
+      }
+    }
+  }
+</section>

@@ -1,4 +1,11 @@
 <div class="np-app-shell">
+  @if (navigating()) {
+    <np-loading-error-retry
+      data-testid="route-loading"
+      [state]="{ kind: 'loading' }"
+      loadingLabel="Loading page"
+    />
+  }
   <main id="main-content" tabindex="-1">
     <router-outlet />
   </main>

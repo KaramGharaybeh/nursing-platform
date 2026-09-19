@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
+import { routes } from './app.routes';
 // @ts-expect-error - Vitest runs in Node; node builtins resolve at runtime.
 import { readFileSync } from 'node:fs';
 // @ts-expect-error - Vitest runs in Node; node builtins resolve at runtime.
@@ -98,5 +99,48 @@ describe('App shell frame', () => {
     expect(css).not.toMatch(/^\s*right\s*:/m);
     expect(css).not.toMatch(/float\s*:\s*(left|right)/);
     expect(css).not.toMatch(/text-align\s*:\s*(left|right)/);
+  });
+});
+
+describe('App route loading state (T-FE-028)', () => {
+  it('announces route loading while navigation is in progress, then hides it', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [provideRouter([{ path: 'x', component: App }])],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    const navigation = router.navigateByUrl('/x');
+    fixture.detectChanges();
+    const loading = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="route-loading"]',
+    );
+    expect(loading).not.toBeNull();
+    expect(loading?.querySelector('[role="status"]')).not.toBeNull();
+    expect(loading?.textContent).toContain('Loading page');
+    await navigation;
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('[data-testid="route-loading"]'),
+    ).toBeNull();
+  });
+
+  it('hides route loading when navigation fails without adding a loading route', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [provideRouter([])],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/does-not-exist').catch(() => undefined);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('[data-testid="route-loading"]')).toBeNull();
+    expect(routes.every((entry) => !String(entry.path ?? '').includes('loading'))).toBe(true);
   });
 });

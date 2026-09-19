@@ -22,6 +22,9 @@ authorization: Decisions E61-1–E61-13 were approved
   Decisions E74-1–E74-14 were approved by the human technical lead on
   2026-09-19 as EXM-008/T-FE-074 product/design/source-ownership authority.
   Approval does not itself start T-FE-074 implementation.
+  Decisions E73-1–E73-12 were approved by the human technical lead on
+  2026-09-19 as EXM-010/T-FE-073 design/source-ownership authority. Approval
+  does not itself start T-FE-073 implementation.
 ```
 
 ## 1. Purpose
@@ -46,6 +49,7 @@ HUMAN_APPROVED below). Per the frontend ledger, GATE-FE-T061 requires an
 | Submit confirmation (EXM-006) | TRANSIENT WITHIN EXM-005, NO ROUTE | `T-FE-069` | `POST /api/v1/exam-sessions/{id}/submit` → `ExamSessionResultDto` | NOT STARTED | APPROVED (E61-12; transient summary only) |
 | Full result (EXM-007) | `/exams/:examId/sessions/:sessionId/result` (APPROVED_CANONICAL) | `T-FE-071` | `GET .../result` | NOT STARTED | HUMAN_APPROVED (E71-1–E71-9; source-agnostic aggregate result only; no review CTA) |
 | Analytics (EXM-008) | `/exams/analytics` (APPROVED_CANONICAL, AUTHENTICATED_ONLY) | `T-FE-074` | `GET /me/nurse-profile/exam-analytics/{summary,by-exam,by-category,trends}` | NOT STARTED | HUMAN_APPROVED (E74-1–E74-14; historical learner analytics only; no charts/bands/recommendations) |
+| Exam history (EXM-010) | `/exams/history` (APPROVED_CANONICAL, AUTHENTICATED_ONLY) | `T-FE-073` | `GET /me/nurse-profile/exam-attempts` (page/pageSize/status), `PaginatedResult<ExamAttemptDto>`, learner-owned, StartedAt DESC | NOT STARTED | HUMAN_APPROVED (E73-1–E73-12; source-agnostic attempt list only; no result/review/analytics duplication) |
 | Answer review (EXM-009) | `/exams/:examId/sessions/:sessionId/review` (SECURITY-sensitive) | `T-FE-072` | `GET .../review` | NOT STARTED | HUMAN_APPROVED (E72-1–E72-14; source-agnostic finalized per-question review only; no analytics) |
 
 ## 3. Exam catalog/detail contract (verified from source, T-FE-066 scope)
@@ -482,11 +486,115 @@ inputs or established accessible date controls, textual percentages, no
 color-only meaning, pagination labels, loading/error live announcements,
 visible focus, ≥44px interactive targets, WCAG 2.2 AA target.
 
-## 8. EXM-008 approved in §7C above (EXM-009 approved in §7B above)
+## 7D. EXM-010 exam history approval (T-FE-073 owns)
+
+**E73-1 — History ownership and boundaries. HUMAN_APPROVED.** T-FE-073 owns
+learner exam-attempt history: a concise per-attempt list only. It is not
+historical analytics, answer review, a package analytical report, or another
+exam catalog. It must not reproduce the full T-FE-071 result screen (no
+Score/Max score detail, no Correct/Question counts, no result presentation),
+must not fetch or render any T-FE-072 review content (no question/learner
+answers/correct answers/explanations/correctness/points, no Review data
+fetch), and must not render T-FE-074 analytics (no pass rate, averages,
+best/latest metrics, breakdowns, trends, charts, bands).
+
+**E73-2 — Source ownership. HUMAN_APPROVED.** Exam History is source-agnostic
+over the learner-owned attempts returned by `ListMyExamAttempts`. Never
+inspect/probe provenance, branch Standalone vs PackageAttempt UI, display
+source, add a source filter, or locally exclude PackageAttempt attempts.
+Package-specific analytical reporting remains T-FE-079; generic result/review
+routes may be used for finalized package attempts.
+
+**E73-3 — Heading, entry, and route. HUMAN_APPROVED.** Heading is "Exam
+history" with supporting copy "Review your current and completed exam
+attempts." Navigation-only entry "View history" lives on `EXAMS_CATALOG` and
+targets canonical `EXAMS_HISTORY` (`/exams/history`, AUTHENTICATED_ONLY,
+three guards, lazy screen, static-before-dynamic ordering). Never fetch
+history from the catalog screen and never redesign the catalog.
+
+**E73-4 — Visible fields and status labels. HUMAN_APPROVED.** Each row shows
+exam title, factual status, and started date/time. Map statuses verbatim:
+`InProgress` → "In progress", `Submitted` → "Completed", `Expired` → "Time
+expired", reachable `Abandoned` → "Abandoned"; unknown/unusable status fails
+safely and never displays raw enum text. For `InProgress` rows with a safe
+backend `ExpiresAt`, also show "Ends" with the formatted expiry. For finalized
+`Submitted`/`Expired` rows show backend-provided non-null values only:
+Percentage, and Passed → "Passed" / false → "Not passed" / null → omit Result
+entirely. Never calculate locally; never force `0%`/`Not passed` on Expired.
+Never display raw Score/MaxScore, CorrectCount/QuestionCount, GUIDs,
+provenance, review details, or explanations.
+
+**E73-5 — Row actions. HUMAN_APPROVED.** `InProgress` → "Resume exam" to
+canonical `EXAMS_SESSION` (existing session navigation only; never call
+StartExamSession or Package Start; list stays factual to the attempts endpoint
+and never locally rewrites status, polls per-row, or auto-finalizes).
+`Submitted` → "View result" (`EXAMS_RESULT`) and "Review answers"
+(`EXAMS_REVIEW`). `Expired` → "View result" and "Review answers". No
+source-specific branching.
+
+**E73-6 — Filter, pagination, and query params. HUMAN_APPROVED.** One Status
+filter: All (no status parameter), In progress (`InProgress`), Completed
+(`Submitted`), Time expired (`Expired`); no Abandoned/source/date/country/
+category/search/sort controls. Abandoned rows, if any, stay visible under All.
+Changing Status applies immediately, resets pagination to page 1, reloads with
+the backend status, and preserves the filter. Route query state is `status`
+(canonical backend identity) and 1-based `page`; invalid values normalize to
+All/page 1; filter change writes page 1; pageSize stays out of the URL.
+Pagination uses existing shared pagination at fixed pageSize 20 (subject to
+endpoint bounds); page change preserves the filter, reloads history only, and
+never navigates away.
+
+**E73-7 — Empty, error, and back behavior. HUMAN_APPROVED.** Unfiltered zero
+attempts: title "No exam attempts yet", body "Start an exam to see your
+history.", action "Browse exams" to `EXAMS_CATALOG` (not an error; no fake
+zero cards/tables). Filtered zero rows: title "No exam attempts match this
+filter", body "Try another status.", action "Clear filter" (resets to All/page
+1, normalized URL, unfiltered reload, no navigation away). Load failure: "We
+couldn't load your exam history. Try again." with Retry on the same
+status/page; never raw HTTP/backend/GUID/enum text. Stable "Back to exams"
+targets canonical `EXAMS_CATALOG`, never browser history.
+
+**E73-8 — Responsive, RTL, and accessibility. HUMAN_APPROVED.** Desktop, tablet,
+and mobile: stacked filters, stacking rows/cards, wrapping long titles,
+readable dates, safely wrapping actions/links, usable pagination, ≥44px
+interactive targets where applicable, zero horizontal overflow. RTL: logical
+properties only, preserved backend row order, stable dates/numerics,
+appropriate directional controls. Accessibility: semantic h1 and list/table/
+card structure, text status, associated Status filter label, accessible
+pagination, loading/error announcements, visible focus, keyboard-complete
+links/controls, no color-only meaning, WCAG 2.2 AA target.
+
+**E73-9 — Attempt/session identity. HUMAN_APPROVED.** Backend source proves
+`ExamAttemptDto.Id` is the `ExamSession.Id` row identity (same
+`ExamSessions`-table row addressed by the session endpoints), so row actions
+may navigate with existing canonical `EXAMS_SESSION`/`EXAMS_RESULT`/
+`EXAMS_REVIEW` builders. Never fabricate session IDs.
+
+**E73-10 — Status contract. HUMAN_APPROVED.** Domain statuses are
+`InProgress`/`Submitted`/`Expired`/`Abandoned` serialized as backend strings;
+the attempts endpoint accepts an optional status filter, defaults page 1 and
+pageSize 20, orders StartedAt DESC then Id, nulls score facts for
+non-terminal rows, and scopes rows to the current nurse profile. Adapt
+reachable statuses to safe factual presentation only; never invent
+transitions.
+
+**E73-11 — T-FE-079 coexistence. HUMAN_APPROVED.** PackageAttempt rows appear
+without source-specific UI; finalized package attempts may use the shared
+result/review routes; never display package source, link to the package
+analytical report from history, show package guidance, or infer
+entitlement/provenance. T-FE-079 remains unchanged.
+
+**E73-12 — Scope exclusions. HUMAN_APPROVED.** No global navigation/header,
+question navigator, design-token overhaul, auth/profile redesign, admin-table
+redesign, offline/maintenance framework, or global typography/container work.
+T-FE-073 only.
+
+## 8. EXM-008 approved in §7C above (EXM-009 approved in §7B above, EXM-010 approved in §7D above)
 
 Analytics (T-FE-074) is approved in §7C above and keeps its own gate. Nothing
 in T-FE-067/068/069 requires it. Answer review (T-FE-072) is approved in §7B
-above and keeps its own gate.
+above and keeps its own gate. Exam history (T-FE-073) is approved in §7D above
+and keeps its own gate.
 
 ## 9. Visual-foundation binding (all pages.pdf)
 
@@ -547,7 +655,7 @@ T-FE-061 approves presentation authority only (this packet). T-FE-067 owns
 EXM-001/002 implementation after GATE-FE-T061. T-FE-068 owns EXM-003(state)/
 EXM-004 after GATE-FE-T067. T-FE-069 owns EXM-005 + transient EXM-006 after
 GATE-FE-T068 (timer primitive built there). T-FE-071/072/074 own result/
-review/analytics. T-FE-079 consumes the shared session destination; package
+review/analytics/history. T-FE-073 owns EXM-010 implementation after GATE-FE-T073. T-FE-079 consumes the shared session destination; package
 starts reuse it without a package-specific session UI. No global navigation
 design is authorized here (separately deferred).
 

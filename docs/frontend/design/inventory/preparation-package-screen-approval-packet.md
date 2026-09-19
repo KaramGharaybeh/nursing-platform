@@ -33,8 +33,8 @@ boundaries for later-owned actions. Per the frontend ledger, GATE-FE-T070 requir
 | PP entitlements list | `/nurse/preparation-packages` (APPROVED_CANONICAL, ROLE Nurse) | `T-FE-076` | `GET /me/nurse-profile/preparation-packages/entitlements` (page/pageSize only), `PaginatedResult<PackageEntitlementListItemDto>` | NOT STARTED | APPROVED (HD-PP1–PP5) |
 | PP entitlement detail | `/nurse/preparation-packages/:entitlementId` (APPROVED_CANONICAL, ROLE Nurse) | `T-FE-076` | `GET /entitlements/{id}` → detail DTO (+ purchase snapshot), 404 when absent/foreign | NOT STARTED | APPROVED (information only; actions stay later-owned) |
 | PP practice | `/nurse/preparation-packages/:entitlementId/practice` (APPROVED_CANONICAL, ROLE Nurse) | `T-FE-078` | `GET/POST practice-progress…` | NOT STARTED | BLOCKED (design deferred to owning gate) |
-| PP exam start | NOT_ROUTABLE (action in entitlement context) | `T-FE-079` | `POST /entitlements/{id}/exam-session` (200/404/409) | NOT STARTED | BLOCKED (design deferred to owning gate) |
-| PP report | `/nurse/preparation-packages/reports/:sessionId` (APPROVED_CANONICAL, ROLE Nurse) | `T-FE-079` | `GET /exam-sessions/{sessionId}/report` (200/404/409) | NOT STARTED | BLOCKED (design deferred to owning gate) |
+| PP exam start | NOT_ROUTABLE (action in entitlement context) | `T-FE-079` | `POST /entitlements/{id}/exam-session` (200/404/409) | NOT STARTED | APPROVED (HD-PP6 state→CTA table + Start/Resume confirmations; entry lives on entitlement detail) |
+| PP report | `/nurse/preparation-packages/reports/:sessionId` (APPROVED_CANONICAL, ROLE Nurse) | `T-FE-079` | `GET /exam-sessions/{sessionId}/report` (200/404/409) | NOT STARTED | APPROVED (HD-PP6 report sections/copy; entry link on entitlement detail for finalized sessions) |
 | Material reader | — (no contract) | `T-FE-080` | none (backend gap, VERIFIED classification) | NOT STARTED | BLOCKED (no learner delivery contract) |
 
 ## 3. Entitlement contract (verified from source, T-FE-076 scope)
@@ -79,12 +79,49 @@ No purchase CTA linking to public offers — no cross-screen authority permits i
 internals (price, currency, snapshot reference ids), or storage keys in entitlement
 UI. Titles, dates, statuses, and availability facts are the display surface.
 
+**HD-PP6 — Package exam entry and report (T-FE-079). APPROVED 2026-09-18.**
+Entry lives on the existing entitlement detail screen as a bounded "Package exam"
+section; no new landing page; no global navigation changes. State→UI table from
+authoritative package-specific backend state only: eligible with no prior attempt
+→ "Start exam" primary action; existing unexpired same-package InProgress session
+→ "Resume exam" primary action; finalized Submitted → "Exam completed" + "View
+exam report", no Start/Resume; finalized Expired → "Exam expired" + "View exam
+report", no Start/Resume; consumed attempt with no safely identifiable finalized
+session → "Exam attempt used", no actions, no fabricated link; expired entitlement
+with no prior session → "Package expired", no actions. Package-specific session
+truth takes precedence over entitlement expiry (Resume/report stay when backend
+authorizes access; reports remain accessible after expiry). Start requires
+confirmation (title "Start exam?", body "This package includes one exam attempt.
+Starting the exam uses that attempt. The exam is timed, and the timer continues
+after you start. You can resume the same active session while it remains in
+progress.", actions Cancel/Start exam; Cancel sends zero POSTs). Resume requires
+confirmation (title "Resume exam?", body "Resume your existing timed exam
+session. The timer has continued since the session started.", actions
+Cancel/Resume exam; never re-warns single-attempt consumption). Both use the
+same package-start POST; duplicate activation blocked; 409 reconciles state
+without blind re-POST. Success navigates the shared canonical EXAMS_SESSION
+(`/exams/:examId/sessions/:sessionId`) from the POST response identity only;
+no package-specific taking UI. Report is a dedicated screen at canonical
+`/nurse/preparation-packages/reports/:sessionId` (never inline on detail),
+heading "Exam report": summary (correct/question/percentage counts, safe exam
+title when provided; no bands, no derived pass/fail), per-topic
+name/counts/percentage in backend order (no performance labels), "Recommended
+package content" guidance (safe study-material/practice-collection
+titles/names/type labels "Study material"/"Practice collection" only; empty
+copy "No additional package content recommendations are available for this
+report."); never question/answer/key/rationale/review/provenance/right/payment
+internals. Edge copy: unavailable "This exam report isn't available.",
+unfinalized-409 "Finish the exam before viewing this report.", recoverable
+"We couldn't load this exam report. Try again." + Retry. Back action "Back to
+preparation packages" → entitlements route, working from direct URL/reload.
+
 ## 5. Boundaries explicitly not owned here
 
 - Practice (T-FE-078): entitlement detail shows NO practice CTA until T-FE-078 ships
   (no dead buttons; benefit-right availability facts may render as information).
-- Exam start/report (T-FE-079): no start action, no report link/summary on detail
-  until T-FE-079 ships. Exam-start stays NOT_ROUTABLE as an entitlement-context action.
+- Exam start/report (T-FE-079): entry actions and report links live on entitlement
+  detail per HD-PP6 below. Exam-start stays NOT_ROUTABLE as an entitlement-context
+  action. Report uses its canonical route; it is never rendered inline on detail.
 - Commerce (T-FE-077/082/084): price display, purchase CTA, and checkout handoff live
   entirely under commerce tasks. Offers screens show catalog metadata only in this packet.
 - Material reader stays BLOCKED on the verified backend gap (T-FE-080).
@@ -115,6 +152,10 @@ likewise unblocked on the packet axis (its T018–020 + T038 deps already VERIFI
   APPROVED; practice/exam-start/report stay BLOCKED to owning gates; material
   reader stays BLOCKED on the backend gap. `T-FE-076` (and packet-wise `T-FE-075`)
   are thereby unblocked. `T-FE-076` remains NOT STARTED pending separate authorization.
+- 2026-09-18: Human owner approved HD-PP6 (T-FE-079 package exam entry/report,
+  recorded below). `T-FE-079` implementation remains technically blocked pending
+  the package-session-state contract from its owning prerequisite campaign; no
+  T-FE-075/076/078 authority is altered by this entry.
 - GATE-FE-T070 is closed as VERIFIED on the strength of: every PP screen having an
   explicit decision, contracts verified from source (not inferred), and boundaries
   pinned to owning tasks — consistent with the T-FE-040/T-FE-052/T-FE-113/T-FE-092

@@ -2584,7 +2584,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 ### `GATE-FE-T075`
 
 - status_result: `VERIFIED`
-- evidence_summary: PP offer tests + visual evidence satisfied: 16/16 focused tests, route registry 4/4, 68/610 full suite, stylelint/deps/build/Storybook green, 7 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for list/detail/direct-URL/reload/404/no-commerce states. Prerequisites GATE-FE-T018..T020, GATE-FE-T038, and GATE-FE-T070 were VERIFIED before closeout, per DAG. T-FE-079 remains NOT STARTED and unimplemented.
+- evidence_summary: PP offer tests + visual evidence satisfied: 16/16 focused tests, route registry 4/4, 68/610 full suite, stylelint/deps/build/Storybook green, 7 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for list/detail/direct-URL/reload/404/no-commerce states. Prerequisites GATE-FE-T018..T020, GATE-FE-T038, and GATE-FE-T070 were VERIFIED before closeout, per DAG. T-FE-079 is implemented and VERIFIED in its following section.
 
 ### `T-FE-078` — PP practice flow
 
@@ -2605,7 +2605,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 ### `GATE-FE-T078`
 
 - status_result: `VERIFIED`
-- evidence_summary: Practice tests + visual evidence satisfied: 27/27 focused tests, 70/629 full suite, stylelint/deps/build/Storybook green, 4 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for CTA/entry/answer/re-answer/feedback/completion/reload/404 states. Prerequisites GATE-FE-T076 and GATE-FE-T034 were VERIFIED before closeout, per DAG. T-FE-079 remains NOT STARTED and unimplemented.
+- evidence_summary: Practice tests + visual evidence satisfied: 27/27 focused tests, 70/629 full suite, stylelint/deps/build/Storybook green, 4 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for CTA/entry/answer/re-answer/feedback/completion/reload/404 states. Prerequisites GATE-FE-T076 and GATE-FE-T034 were VERIFIED before closeout, per DAG. T-FE-079 is implemented and VERIFIED in its following section.
 
 ### `T-FE-067` — EXM-001/002 exam catalog + detail
 
@@ -2626,7 +2626,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 ### `GATE-FE-T067`
 
 - status_result: `VERIFIED`
-- evidence_summary: Catalog/detail tests + visual evidence satisfied: 22/22 focused tests, 73/651 full suite, stylelint/deps/build/Storybook green, 7 Storybook stories (List Populated/Empty/FilteredNoResults/LoadError; Detail Startable/PurchaseRequired/Missing), responsive/RTL-safe evidence, and populated real-backend browser evidence for list/filters/detail/direct-URL/reload/404/no-commerce states. Prerequisites GATE-FE-T030, GATE-FE-T038, GATE-FE-T061, and GATE-FE-T066 were VERIFIED before closeout, per DAG. T-FE-068 becomes eligible for its next gate/implementation step; T-FE-079/071/072/074 remain NOT STARTED and unimplemented.
+- evidence_summary: Catalog/detail tests + visual evidence satisfied: 22/22 focused tests, 73/651 full suite, stylelint/deps/build/Storybook green, 7 Storybook stories (List Populated/Empty/FilteredNoResults/LoadError; Detail Startable/PurchaseRequired/Missing), responsive/RTL-safe evidence, and populated real-backend browser evidence for list/filters/detail/direct-URL/reload/404/no-commerce states. Prerequisites GATE-FE-T030, GATE-FE-T038, GATE-FE-T061, and GATE-FE-T066 were VERIFIED before closeout, per DAG. T-FE-068 becomes eligible for its next gate/implementation step; T-FE-079 is implemented and VERIFIED in its following section; T-FE-071/072/074 remain NOT STARTED and unimplemented.
 
 ### `T-FE-068` — EXM-003/004 instructions + start/resume
 
@@ -2647,7 +2647,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 ### `GATE-FE-T068`
 
 - status_result: `VERIFIED`
-- evidence_summary: Instructions/start tests + visual evidence satisfied: 27/27 focused tests, 74/673 full suite, stylelint/deps/build/Storybook green, 7 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for Start/confirm/POST/resume/re-POST/paid/404 states. Prerequisite GATE-FE-T067 was VERIFIED before closeout, per DAG. T-FE-069 is implemented and VERIFIED in the following section; T-FE-079/071/072/074 remain NOT STARTED and unimplemented.
+- evidence_summary: Instructions/start tests + visual evidence satisfied: 27/27 focused tests, 74/673 full suite, stylelint/deps/build/Storybook green, 7 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for Start/confirm/POST/resume/re-POST/paid/404 states. Prerequisite GATE-FE-T067 was VERIFIED before closeout, per DAG. T-FE-069 is implemented and VERIFIED in the following section; T-FE-079 is implemented and VERIFIED in its following section; T-FE-071/072/074 remain NOT STARTED and unimplemented.
 
 ### `T-FE-069` — EXM-005/006 exam session + transient submit
 
@@ -2668,7 +2668,28 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 ### `GATE-FE-T069`
 
 - status_result: `VERIFIED`
-- evidence_summary: Session/save/submit tests + visual evidence satisfied: 34/34 focused tests, 75/695 full suite, stylelint/deps/build/Storybook green, 4 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for session/taking/save/re-answer/submit/result/terminal states in both standalone and PackageAttempt sources. Prerequisite GATE-FE-T068 was VERIFIED before closeout, per DAG. Shared EXAMS_SESSION is now live. T-FE-079/071/072/074 remain NOT STARTED and unimplemented.
+- evidence_summary: Session/save/submit tests + visual evidence satisfied: 34/34 focused tests, 75/695 full suite, stylelint/deps/build/Storybook green, 4 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for session/taking/save/re-answer/submit/result/terminal states in both standalone and PackageAttempt sources. Prerequisite GATE-FE-T068 was VERIFIED before closeout, per DAG. Shared EXAMS_SESSION is now live. T-FE-079 is implemented and VERIFIED in the following section; T-FE-071/072/074 remain NOT STARTED and unimplemented.
+
+### `T-FE-079` — PP package exam entry + analytical report
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN` (resolved by HD-PP6 human approval), `CONTRACT_CLARIFICATION` (resolved by prerequisite `53d3718` package exam session-state contract)
+- evidence_date: 2026-09-19
+- scope_summary: Implemented package exam entry on entitlement detail plus the analytical report screen. Added `PackageExamSection` (`package-exam-section.{ts,html,scss}` + spec + 5 stories) mounted in `NurseEntitlementDetail` with entitlement id/rights/active inputs: loads package session state (no POST on load), reconciles stale-InProgress via `ExamsApi.getExamSession`, renders Start/Resume/Completed+report/Expired+report/Attempt-used/Package-expired per HD-PP6 precedence (finalized beats entitlement expiry), Start/Resume `TwoStepConfirmation` panels with approved copy, single POST with duplicate blocking, 409 reconcile without blind retry, canonical `EXAMS_SESSION` navigation from POST response identity only (never attempt.id). Added `PackageReport` (`package-report.{ts,html,scss}` + spec + 5 stories) at canonical `/nurse/preparation-packages/reports/:sessionId` (AUTHENTICATED_ONLY, three-guard, lazy): summary (correct/question/percentage), topics in backend order (name/counts/percentage, no labels), guidance with approved type labels + empty copy, approved 404/409/retry copy, back link to entitlements, direct URL/reload from sessionId alone. Extended `PreparationPackageEntitlementsApi` (session-state/start/report operations, start adapted to explicit `{sessionId, examId}` with missing-identity rejection). No per-question correctness/keys/explanations/review, no T-FE-071/072/074 scope, no commerce, no global nav. No backend/OpenAPI/migration changes beyond prerequisite `53d3718`. T-FE-071/072/074 untouched.
+- contract_conformance: Exactly GET session-state + POST start (exact entitlement id) + GET report (exact session id); authorized nurse session only. Entry display is CTA/labels per HD-PP6 state table; report display is summary/topics/guidance safe fields only; hidden surface is all Guids, provenance/right ids, payment internals, question/answer/correctness/key/rationale/review content.
+- verification_summary: Focused specs 3 files / 30 tests (facade exact paths/bodies/adaptation; section states/precedence/stale-reconcile/confirm-copy/Cancel-zero-POST/single-POST/navigation-identity/409-reconcile/no-leak; report route/load/summary/topics/guidance/empty/security/404/409/retry/back-link) plus T-FE-076 detail regression updated for the mounted section (package-exam stubs, no-purchase/material-actions test renamed to HD-PP6 reality). Full frontend suite 77 files / 723 tests green. Stylelint, dependency guard, production build, Storybook build green; `git diff --check` clean. `npm run lint` has one PRE-EXISTING error in untouched `nurse-contact-requests.spec.ts` (`byTestId` unused, last modified by `40cbe9c`); two same-class lint errors introduced in T-FE-079 files (unused stories param, `Array<T>` in specs) were fixed before commit; all T-FE-079 files lint-clean.
+- populated_e2e_summary: Real backend-backed browser proof as authenticated nurse on live data (no interception/mocks): eligible entitlement shows Start exam with state-GET-only network (zero POSTs); Start confirmation with approved copy; Cancel sends zero POST; confirm sends exactly one package-start POST; real session handoff renders unchanged T-FE-069 UI; a real 409 `exam-session-source-conflict` from a stale standalone session produced the factual notice with reconcile GET and no blind retry (then fixture cleared via supported submit); revisit shows Resume exam derived from package-state GET (network-verified returning the POST-created session); Resume confirmation with resume copy; confirm re-POSTs and backend idempotently returns the identical session id; canonical navigation uses POST identity; shared UI answer/save/submit finalize the session; detail flips to Exam completed + View exam report with canonical href; report renders backend-matching summary/topics/guidance with zero leakage (API cross-checked field-for-field, repeat GET idempotent); direct report URL + reload work; unfinalized session renders the approved 409 copy live; foreign id renders the approved unavailable copy; paid-exam detail fixture (supported admin chain) available for Requires-purchase cross-checks; mobile 390px entry/report sane with zero overflow (screenshot `.playwright-mcp/t-fe-079-report-mobile.png`); RTL mirrors with zero overflow (screenshot `.playwright-mcp/t-fe-079-report-rtl.png`); body-text scans show zero Guids and zero price/commerce terms. Post-expiry report proof explicitly not constructed (unsafe DB/time manipulation refused; covered by backend no-expiry-gate integration tests + finalized-beats-expiry unit tests).
+- prerequisite_commits: `88fa189 docs(frontend): approve preparation package exam flow` (HD-PP6) + `53d3718 feat(api): expose package exam session state` (read-only session-state GET, OpenAPI, regen; no runtime change, no migration).
+
+### `ST-FE-079` — Build PP package exam/report flow
+
+- status: `VERIFIED`
+- evidence_summary: Facade extension + package exam section + report screen/route + specs + 10 stories delivered within HD-PP6 authority; focused 30/30 and full 723/723 green; populated live E2E executed end-to-end (entry/confirm/POST/conflict/reconcile/Resume/re-POST/finalize/report/direct/reload/409/404/responsive/RTL) with network evidence throughout.
+
+### `GATE-FE-T079`
+
+- status_result: `VERIFIED`
+- evidence_summary: Package exam/report tests + visual evidence satisfied: 30/30 focused tests, 77/723 full suite, stylelint/deps/build/Storybook green, 10 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for Start/Resume/confirm/POST/conflict/report/direct/reload/404/409 states. Prerequisite GATE-FE-T076 was VERIFIED before closeout, per DAG; shared T-FE-069 destination availability confirmed live. No further package frontend tasks remain in this chain.
 
 ### `T-FE-065` — NUR-013 profile completion clarification (closed without implementation)
 

@@ -19,6 +19,9 @@ authorization: Decisions E61-1–E61-13 were approved
   Decisions E72-1–E72-14 were approved by the human technical lead on
   2026-09-19 as EXM-009/T-FE-072 design/source-ownership authority. Approval
   does not itself start T-FE-072 implementation.
+  Decisions E74-1–E74-14 were approved by the human technical lead on
+  2026-09-19 as EXM-008/T-FE-074 product/design/source-ownership authority.
+  Approval does not itself start T-FE-074 implementation.
 ```
 
 ## 1. Purpose
@@ -42,7 +45,7 @@ HUMAN_APPROVED below). Per the frontend ledger, GATE-FE-T061 requires an
 | Exam session (EXM-005) | `/exams/:examId/sessions/:sessionId` (APPROVED_CANONICAL, AUTHENTICATED_ONLY) | `T-FE-069` | `GET/PUT/POST /api/v1/exam-sessions/{id}[...]` session contracts | NOT STARTED | APPROVED (E61-9–E61-11, E61-13; single-question pager, explicit save, countdown) |
 | Submit confirmation (EXM-006) | TRANSIENT WITHIN EXM-005, NO ROUTE | `T-FE-069` | `POST /api/v1/exam-sessions/{id}/submit` → `ExamSessionResultDto` | NOT STARTED | APPROVED (E61-12; transient summary only) |
 | Full result (EXM-007) | `/exams/:examId/sessions/:sessionId/result` (APPROVED_CANONICAL) | `T-FE-071` | `GET .../result` | NOT STARTED | HUMAN_APPROVED (E71-1–E71-9; source-agnostic aggregate result only; no review CTA) |
-| Analytics (EXM-008) | `/exams/analytics` | `T-FE-074` | aggregate contracts | NOT STARTED | OUT OF SCOPE for this packet |
+| Analytics (EXM-008) | `/exams/analytics` (APPROVED_CANONICAL, AUTHENTICATED_ONLY) | `T-FE-074` | `GET /me/nurse-profile/exam-analytics/{summary,by-exam,by-category,trends}` | NOT STARTED | HUMAN_APPROVED (E74-1–E74-14; historical learner analytics only; no charts/bands/recommendations) |
 | Answer review (EXM-009) | `/exams/:examId/sessions/:sessionId/review` (SECURITY-sensitive) | `T-FE-072` | `GET .../review` | NOT STARTED | HUMAN_APPROVED (E72-1–E72-14; source-agnostic finalized per-question review only; no analytics) |
 
 ## 3. Exam catalog/detail contract (verified from source, T-FE-066 scope)
@@ -336,12 +339,154 @@ option `IsCorrect`. Never display aggregate `Score`/`MaxScore`/`Percentage`/
 owns analytics: no topic summaries, strengths/weaknesses, performance bands,
 recommendations, charts, longitudinal data, or package guidance on EXM-009.
 
-## 8. EXM-008 exclusion (EXM-009 approved in §7B above)
+## 7C. EXM-008 exam analytics approval (T-FE-074 owns)
 
-Analytics (T-FE-074) is outside this packet's minimum approved scope and keeps
-its own gate. Nothing in T-FE-067/068/069 requires it. (Its contracts, routes,
-and policies already exist; only its presentation awaits its owning approval.)
-Answer review (T-FE-072) is approved in §7B above and keeps its own gate.
+**E74-1 — Analytics ownership and boundaries. HUMAN_APPROVED.** T-FE-074 owns
+HISTORICAL LEARNER EXAM ANALYTICS: the authenticated Nurse's exam-attempt
+history summarized across multiple attempts, exams, categories, and time
+buckets. It is not a single-session result screen, per-question answer review,
+Preparation Package analytical report, recommendation engine, or answer-key
+surface. T-FE-071 remains one finalized session aggregate result; T-FE-072
+remains one finalized session per-question answer review; T-FE-079 remains one
+`PackageAttempt` session's package-specific analytical report and
+purchased-content guidance. T-FE-074 must not duplicate or absorb those
+surfaces.
+
+**E74-2 — Source ownership. HUMAN_APPROVED.** T-FE-074 is source-agnostic at
+the historical learner-analytics level: it uses whatever owned learner exam
+attempts the backend analytics contract legitimately includes (`Standalone`
+and `PackageAttempt` attempts alike). Never branch UI by attempt source, show
+source/provenance, add source filters, exclude `PackageAttempt` locally, or add
+package guidance. The backend analytics query is authoritative for membership.
+T-FE-079 remains the separate per-session package analysis.
+
+**E74-3 — Heading and entry. HUMAN_APPROVED.** Page heading is "Exam
+analytics" with supporting text "Review your exam performance over time." No
+dashboard marketing copy and no performance-judgment copy. The entry lives on
+the existing `EXAMS_CATALOG` screen as a "View analytics" navigation action to
+canonical `EXAMS_ANALYTICS`. No Analytics links are added to T-FE-071 result,
+T-FE-072 review, or the T-FE-079 package report.
+
+**E74-4 — Operations and sections. HUMAN_APPROVED.** T-FE-074 owns all four
+existing learner analytics operations: `GetMyExamAnalyticsSummary` (`GET
+/me/nurse-profile/exam-analytics/summary`), `ListMyExamAnalyticsByExam`
+(`.../by-exam`), `ListMyExamAnalyticsByCategory` (`.../by-category`), and
+`ListMyExamAnalyticsTrends` (`.../trends`). No fifth endpoint is added. The
+screen contains four bounded sections — Overview, Performance by exam,
+Performance by category, Performance over time — rendered as accessible cards /
+definition lists / lists / tables as appropriate. No charts are required or
+authorized.
+
+**E74-5 — Overview fields and nulls. HUMAN_APPROVED.** From
+`ExamAnalyticsSummaryDto` render: Total attempts (`AttemptCount`), Submitted
+(`SubmittedCount`), Expired (`ExpiredCount`), In progress (`InProgressCount`),
+Passed (`PassedCount`), Failed (`FailedCount`), Pass rate
+(`PassRatePercentage`), Average score (`AverageScorePercentage`), Best score
+(`BestScorePercentage`), Latest score (`LatestScorePercentage`). Percentages
+display as backend values with a `%` presentation suffix only, per existing
+numeric-formatting precedent; never recompute locally. Never render
+`AbandonedCount`, `CountedAttemptCount`, `AverageScore`, `AverageMaxScore`,
+`AverageCorrectCount`, `AverageQuestionCount`, `FirstAttemptStartedAt`, or
+`LatestAttemptStartedAt`. Nullable metrics with insufficient counted data
+render as "Not available" — never `0%`, `N/A`, `—`, or an invented value.
+
+**E74-6 — No performance bands. HUMAN_APPROVED.** T-FE-074 has no qualitative
+performance bands: never show Excellent/Good/Poor/Weak/Strong/Needs
+improvement/At risk/Mastered/grade/tier, and never define frontend thresholds.
+Only backend numerical facts are shown.
+
+**E74-7 — By-exam rows. HUMAN_APPROVED.** Visible semantic fields only, and
+only when the authoritative DTO provides them directly: human-readable exam
+title/name, attempt count, pass rate, average score percentage, best score
+percentage, latest score percentage. Never derive missing metrics, never
+display raw exam/version ids, preserve backend ordering, use the existing
+pagination pattern with fixed page size 20 (subject to the endpoint contract),
+no client-side sort.
+
+**E74-8 — By-category rows. HUMAN_APPROVED.** Visible semantic fields only,
+and only when directly supplied: human-readable category name, attempt count,
+pass rate, average score percentage, best score percentage
+(`LatestScorePercentage` is not required on category rows unless DTO/design
+semantics clearly define it). Never invent or derive it, never display raw
+category ids, existing pagination with fixed page size 20, no client-side
+sort.
+
+**E74-9 — Trends. HUMAN_APPROVED.** Approved bucket for the initial
+implementation is Month; no Day/Week/Month selector is exposed — call the
+backend with its existing monthly bucket value. Render trend points as an
+accessible chronological list/table, never a chart, preserving backend
+chronological ordering. Per point display only directly supplied safe fields
+for period/month, attempt count, average score percentage, and pass rate;
+omit any metric the DTO does not provide rather than deriving it. Use existing
+safe date/month formatting precedent.
+
+**E74-10 — Filters. HUMAN_APPROVED.** Initial filter set: From date, To date,
+Country, Exam category. No examId, attempt-source, status, trend-bucket, or
+sort controls. Reuse the existing Country and Exam Category lookup/filter
+foundations from T-FE-067; never duplicate lookup services. All four sections
+share one active filter set: Apply reloads the summary, resets by-exam and
+by-category to page 1, reloads trends (bucket stays Month); Clear filters
+clears from/to/country/category, returns pagination to page 1, and reloads
+unfiltered. No API calls on keystrokes — explicit "Apply filters" and "Clear
+filters" actions only. From/To are optional; when both exist and From is later
+than To, show "From date must be on or before To date." and call no analytics
+endpoints. No other local date constraints; backend remains server-side range
+authority.
+
+**E74-11 — Filter URL and reload. HUMAN_APPROVED.** Active applied filters
+persist as query parameters `from`, `to`, `countryId`, `categoryId` so direct
+reload preserves analytical context. Pagination state stays out of the route
+unless existing list-page precedent clearly requires it; the fixed trend
+bucket is never a query parameter. Raw ids may exist internally in query
+parameters but must never render visibly. Invalid/unparseable query filter
+input follows existing safe route/filter normalization precedent: never crash
+and never reflect raw malformed values into visible error copy.
+
+**E74-12 — Empty, sparse, error, and back behavior. HUMAN_APPROVED.** When the
+authoritative summary indicates `AttemptCount = 0`, show the page-level empty
+state titled "No exam analytics yet" with body "Complete an exam to see your
+analytics." and action "Back to exams" to `EXAMS_CATALOG`; never render empty
+metric cards with fabricated zeros and never call this an error. When
+`AttemptCount > 0` but a subsection has no rows/points under current filters,
+the Overview may still render and the empty subsection shows "No data is
+available for these filters." Page-level load failure: "We couldn't load your
+exam analytics. Try again." with Retry. Section-level failures after overview
+is available: "We couldn't load exam-level analytics. Try again.", "We
+couldn't load category analytics. Try again.", "We couldn't load
+performance-over-time data. Try again.", each with section-level Retry. Never
+expose HTTP status, backend exception text, GUIDs, permission keys, or
+internal analytics/query details. Stable navigation is "Back to exams" to
+canonical `EXAMS_CATALOG`, never browser history.
+
+**E74-13 — Separation from result, review, and package report. HUMAN_APPROVED.**
+T-FE-074 must not reproduce a selected session's Score/Max score block,
+Passed/Not passed presentation, or CorrectCount/QuestionCount result card
+except where historical backend analytics independently provides approved
+history metrics; no session-specific result navigation is required from
+analytics. It must never render question text, learner answers, correct
+answers, explanations, per-question correctness/points, or any Review answers
+functionality. It must never render package entitlement state,
+provenance/source, purchased-content guidance, Recommended package content,
+package topic guidance, or package-specific report links. T-FE-079 is never
+altered.
+
+**E74-14 — Presentation constraints. HUMAN_APPROVED.** Textual summary facts,
+cards/dl, accessible rows/tables/lists, and pagination only. No charts, no
+recommendations, no qualitative insights, no AI interpretation, no "You should
+study..." copy, no dashboard/sidebar. Established light platform foundation;
+desktop responsive grid for overview metrics with vertical stacking otherwise;
+mobile single-column summary, stacked filters, wrapping metrics, retained
+information, no horizontal overflow. Accessibility: semantic `h1` "Exam
+analytics" plus semantic section headings, labeled filters with native date
+inputs or established accessible date controls, textual percentages, no
+color-only meaning, pagination labels, loading/error live announcements,
+visible focus, ≥44px interactive targets, WCAG 2.2 AA target.
+
+## 8. EXM-008 approved in §7C above (EXM-009 approved in §7B above)
+
+Analytics (T-FE-074) is approved in §7C above and keeps its own gate. Nothing
+in T-FE-067/068/069 requires it. Answer review (T-FE-072) is approved in §7B
+above and keeps its own gate.
 
 ## 9. Visual-foundation binding (all pages.pdf)
 

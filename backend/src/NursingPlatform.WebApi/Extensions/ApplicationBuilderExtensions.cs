@@ -474,6 +474,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetExamSessionResult")
+        .Produces<ExamSessionResultDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/exam-sessions/{id:guid}/review", async (Guid id, ISender sender) =>

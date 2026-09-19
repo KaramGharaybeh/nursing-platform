@@ -1,0 +1,36 @@
+.np-exam-result {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-exam-result h1 {
+  margin: var(--np-space-16) 0 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-exam-result-summary {
+  display: grid;
+  gap: var(--np-space-8);
+  margin: var(--np-space-16) 0 0;
+}
+
+.np-exam-result-summary div {
+  display: grid;
+  gap: var(--np-space-4);
+}
+
+.np-exam-result-summary dt {
+  font-weight: 600;
+}
+
+.np-exam-result-summary dd {
+  margin: 0;
+}

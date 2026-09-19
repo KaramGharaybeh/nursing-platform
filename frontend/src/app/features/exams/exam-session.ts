@@ -7,7 +7,7 @@ import type { ExamSessionQuestion } from '../../core/api/exams-api';
 import type { ExamSessionResult } from '../../core/api/exams-api';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
-import { buildExamsDetailPath } from '../../core/routing/canonical-routes';
+import { buildExamsDetailPath, buildExamsResultPath } from '../../core/routing/canonical-routes';
 import { TwoStepConfirmation } from '../../shared/ui/confirmation';
 import { Announcer, NpLiveRegion } from '../../shared/ui/announcement';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
@@ -42,6 +42,10 @@ export class ExamSessionScreen implements OnInit, OnDestroy {
   protected readonly remainingDisplay = signal(0);
 
   protected backPath = '';
+
+  protected resultPath(): string {
+    return buildExamsResultPath(this.examId(), this.session()?.id ?? this.sessionId());
+  }
 
   ngOnInit(): void {
     void this.load();

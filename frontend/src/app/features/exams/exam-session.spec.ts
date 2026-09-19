@@ -429,6 +429,38 @@ describe('ExamSession screen (T-FE-069)', () => {
   });
 });
 
+describe('ExamSession transient result View full result entry (T-FE-071)', () => {
+  async function submitSuccessfully(): Promise<{
+    fixture: ComponentFixture<ExamSessionScreen>;
+  }> {
+    const { fixture } = await setup();
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (byTestId(fixture, 'session-confirm-go') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+    return { fixture };
+  }
+
+  it('keeps the transient result visible first and offers View full result', async () => {
+    const { fixture } = await submitSuccessfully();
+
+    expect(byTestId(fixture, 'session-result')).not.toBeNull();
+    expect(text(fixture)).toContain('Not passed');
+    expect(byTestId(fixture, 'session-view-result')?.textContent).toContain('View full result');
+  });
+
+  it('links View full result to the canonical EXAMS_RESULT path without auto-navigating', async () => {
+    const { fixture } = await submitSuccessfully();
+    const link = byTestId(fixture, 'session-view-result') as HTMLAnchorElement | null;
+
+    expect(link?.getAttribute('href')).toBe('/exams/exam-1/sessions/session-9/result');
+    expect(byTestId(fixture, 'session-result')).not.toBeNull();
+    expect(text(fixture)).not.toMatch(/Review answers/i);
+  });
+});
+
 describe('ExamSession route', () => {
   it('mounts /exams/:examId/sessions/:sessionId with the three-guard pattern and routeId', () => {
     const route = routes.find((entry) => entry.path === 'exams/:examId/sessions/:sessionId');

@@ -33,6 +33,7 @@
             <div><dt>Correct count</dt><dd>{{ transient.correctCount }}</dd></div>
             <div><dt>Questions</dt><dd>{{ transient.questionCount }}</dd></div>
           </dl>
+          <a [routerLink]="resultPath()" data-testid="session-view-result">View full result</a>
         } @else {
           <p role="status" data-testid="session-terminal-notice">
             @if (active.status === 'Expired') {

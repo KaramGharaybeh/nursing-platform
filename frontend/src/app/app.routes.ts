@@ -192,4 +192,10 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'EXAMS_SESSION' },
   },
+  {
+    path: 'exams/:examId/sessions/:sessionId/result',
+    loadComponent: () => import('./features/exams/exam-result').then((m) => m.ExamResultScreen),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'EXAMS_RESULT' },
+  },
 ];

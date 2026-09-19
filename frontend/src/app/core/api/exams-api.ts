@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 import { ApiConfiguration } from './generated/api-configuration';
 import { getExam } from './generated/fn/nursing-platform-web-api/get-exam';
 import { getExamSession } from './generated/fn/nursing-platform-web-api/get-exam-session';
+import { getExamSessionResult } from './generated/fn/nursing-platform-web-api/get-exam-session-result';
 import { listCountries } from './generated/fn/nursing-platform-web-api/list-countries';
 import { listExams } from './generated/fn/nursing-platform-web-api/list-exams';
 import { listMyExamAttempts } from './generated/fn/nursing-platform-web-api/list-my-exam-attempts';
@@ -92,6 +93,13 @@ export interface ExamSessionResult {
   readonly passed: boolean;
   readonly correctCount: number;
   readonly questionCount: number;
+}
+
+export interface ExamFullResult extends ExamSessionResult {
+  readonly sessionId: string;
+  readonly examId: string;
+  readonly examTitle: string | null;
+  readonly status: string;
 }
 
 export interface ExamCatalogQuery {
@@ -184,6 +192,12 @@ export class ExamsApi {
       map((response) => adaptExamSessionResult(response.body)),
     );
   }
+
+  getExamSessionResult(sessionId: string): Observable<ExamFullResult> {
+    return getExamSessionResult(this.http, this.config.rootUrl, { id: sessionId }).pipe(
+      map((response) => adaptExamFullResult(response.body)),
+    );
+  }
 }
 
 function isResumableMatch(attempt: ExamAttemptDto, examId: string, now: Date): boolean {
@@ -238,6 +252,18 @@ function adaptSessionOption(option: unknown): ExamSessionAnswerOption {
     examSessionAnswerOptionId: asString(record['id']),
     text: asString(record['text']),
     displayOrder: asNumber(record['displayOrder'], 0),
+  };
+}
+
+function adaptExamFullResult(body: unknown): ExamFullResult {
+  const record = asRecord(body);
+  const examTitle = asNullableString(record['examTitle']);
+  return {
+    sessionId: asString(record['id']),
+    examId: asString(record['examId']),
+    examTitle: examTitle === null || examTitle.trim() === '' ? null : examTitle,
+    status: asString(record['status']),
+    ...adaptExamSessionResult(body),
   };
 }
 

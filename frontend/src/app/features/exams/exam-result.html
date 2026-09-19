@@ -1,0 +1,55 @@
+<section class="np-exam-result" aria-labelledby="exam-result-heading">
+  <a [routerLink]="backPath" data-testid="exam-result-back">Back to exams</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading exam result"
+    fallbackErrorTitle="We couldn't load this exam result. Try again."
+    retryLabel="Retry"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (unavailable()) {
+      <p role="status" data-testid="exam-result-unavailable">This exam result isn't available.</p>
+    } @else if (notFinalized()) {
+      <p role="status" data-testid="exam-result-not-finalized">
+        Finish the exam before viewing the result.
+      </p>
+    } @else if (result(); as loaded) {
+      <h1 id="exam-result-heading" data-testid="exam-result-heading">Exam result</h1>
+      @if (loaded.examTitle !== null) {
+        <p data-testid="exam-result-title">{{ loaded.examTitle }}</p>
+      }
+      @if (statusLabel(); as status) {
+        <p role="status" data-testid="exam-result-status">{{ status }}</p>
+      }
+      <dl class="np-exam-result-summary">
+        <div>
+          <dt>Score</dt>
+          <dd data-testid="exam-result-score">{{ loaded.score }} of {{ loaded.maxScore }}</dd>
+        </div>
+        <div>
+          <dt>Max score</dt>
+          <dd data-testid="exam-result-max">{{ loaded.maxScore }}</dd>
+        </div>
+        <div>
+          <dt>Percentage</dt>
+          <dd data-testid="exam-result-percentage">{{ loaded.percentage }}%</dd>
+        </div>
+        <div>
+          <dt>Result</dt>
+          <dd data-testid="exam-result-outcome">{{ loaded.passed ? 'Passed' : 'Not passed' }}</dd>
+        </div>
+        <div>
+          <dt>Correct count</dt>
+          <dd data-testid="exam-result-correct">{{ loaded.correctCount }}</dd>
+        </div>
+        <div>
+          <dt>Questions</dt>
+          <dd data-testid="exam-result-questions">{{ loaded.questionCount }}</dd>
+        </div>
+      </dl>
+    }
+  }
+</section>

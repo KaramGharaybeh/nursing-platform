@@ -426,3 +426,91 @@ describe('exams-api exam session (T-FE-069)', () => {
     });
   });
 });
+
+/**
+ * T-FE-071 proving evidence: the result facade delegates to the generated
+ * GetExamSessionResult operation with the exact session id and adapts the
+ * body into an explicit frontend-owned full-result shape carrying identity
+ * (session/exam/title/status) plus backend-verbatim aggregates only.
+ * Timestamps and review/per-question fields never enter the presentation model.
+ */
+describe('exams-api exam result (T-FE-071)', () => {
+  let api: ExamsApi;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideApiConfig()],
+    });
+
+    api = TestBed.inject(ExamsApi);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  function resultResponse(overrides: Record<string, unknown> = {}) {
+    return {
+      id: 'session-9',
+      examId: 'exam-1',
+      examTitle: 'NCLEX Readiness',
+      status: 'Submitted',
+      startedAt: '2026-09-18T00:00:00Z',
+      expiresAt: '2026-09-18T01:00:00Z',
+      submittedAt: '2026-09-18T00:30:00Z',
+      finalizedAt: '2026-09-18T00:30:00Z',
+      score: 68,
+      maxScore: 75,
+      percentage: 90.67,
+      passed: true,
+      correctCount: 68,
+      questionCount: 75,
+      ...overrides,
+    };
+  }
+
+  it('gets a finalized result by exact session id with identity plus verbatim aggregates', async () => {
+    const result = firstValueFrom(api.getExamSessionResult('session-9'));
+    const request = httpMock.expectOne('/api/v1/exam-sessions/session-9/result');
+
+    expect(request.request.method).toBe('GET');
+    request.flush(resultResponse());
+    await expect(result).resolves.toEqual({
+      sessionId: 'session-9',
+      examId: 'exam-1',
+      examTitle: 'NCLEX Readiness',
+      status: 'Submitted',
+      score: 68,
+      maxScore: 75,
+      percentage: 90.67,
+      passed: true,
+      correctCount: 68,
+      questionCount: 75,
+    });
+  });
+
+  it('preserves an Expired status verbatim with backend aggregates unchanged', async () => {
+    const result = firstValueFrom(api.getExamSessionResult('session-9'));
+    httpMock
+      .expectOne('/api/v1/exam-sessions/session-9/result')
+      .flush(resultResponse({ status: 'Expired', passed: false, score: 40, percentage: 53.33 }));
+
+    await expect(result).resolves.toMatchObject({ status: 'Expired', passed: false, score: 40 });
+  });
+
+  it('normalizes a blank exam title to null and never exposes timestamps or review fields', async () => {
+    const result = firstValueFrom(api.getExamSessionResult('session-9'));
+    httpMock
+      .expectOne('/api/v1/exam-sessions/session-9/result')
+      .flush(resultResponse({ examTitle: '   ' }));
+
+    const adapted = await result;
+    expect(adapted.examTitle).toBeNull();
+    expect(JSON.stringify(adapted)).not.toContain('startedAt');
+    expect(JSON.stringify(adapted)).not.toContain('finalizedAt');
+    expect(JSON.stringify(adapted)).not.toContain('IsCorrect');
+    expect(JSON.stringify(adapted)).not.toContain('explanation');
+  });
+});

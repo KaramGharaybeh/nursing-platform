@@ -46,6 +46,9 @@ export type { ExamSessionAnswerOptionDto } from './models/exam-session-answer-op
 export type { ExamSessionDto } from './models/exam-session-dto';
 export type { ExamSessionQuestionDto } from './models/exam-session-question-dto';
 export type { ExamSessionResultDto } from './models/exam-session-result-dto';
+export type { ExamSessionReviewDto } from './models/exam-session-review-dto';
+export type { ExamSessionReviewOptionDto } from './models/exam-session-review-option-dto';
+export type { ExamSessionReviewQuestionDto } from './models/exam-session-review-question-dto';
 export type { ExamSessionStatus } from './models/exam-session-status';
 export type { ExamStatus } from './models/exam-status';
 export type { ForgotPasswordRequest } from './models/forgot-password-request';

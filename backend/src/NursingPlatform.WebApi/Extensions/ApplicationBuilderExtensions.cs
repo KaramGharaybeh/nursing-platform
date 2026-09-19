@@ -483,6 +483,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetExamSessionReview")
+        .Produces<ExamSessionReviewDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         var admin = api.MapGroup("/admin");

@@ -4591,7 +4591,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamSessionReviewDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -10100,6 +10107,138 @@
           "questionCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "ExamSessionReviewDto": {
+        "required": [
+          "id",
+          "examId",
+          "examTitle",
+          "status",
+          "score",
+          "maxScore",
+          "percentage",
+          "passed",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "examId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "examTitle": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxScore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamSessionReviewQuestionDto"
+            }
+          }
+        }
+      },
+      "ExamSessionReviewOptionDto": {
+        "required": [
+          "id",
+          "displayOrder",
+          "text",
+          "isCorrect"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          },
+          "isCorrect": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ExamSessionReviewQuestionDto": {
+        "required": [
+          "id",
+          "displayOrder",
+          "text",
+          "points",
+          "pointsEarned",
+          "correctAnswerOptionId",
+          "options"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          },
+          "explanation": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "points": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pointsEarned": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "selectedExamSessionAnswerOptionId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "correctAnswerOptionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamSessionReviewOptionDto"
+            }
           }
         }
       },

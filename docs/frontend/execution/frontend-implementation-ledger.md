@@ -3050,6 +3050,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Role CRUD classification evidence is recorded: OpenAPI absence of role/permission management routes/schemas, backend distinction between constants/seeds/projections and management contracts, negative route/command/query/DTO/test searches, no security policy decision, and no implementation performed.
 - closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; ADM-004 roles/permissions UI remains blocked.
 
+### `T-FE-077` — Commerce screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-19
+- scope_summary: Documentation/design-authority packet only: created `docs/frontend/design/inventory/commerce-screen-approval-packet.md` covering COM-001..008 with human-approved decisions HC-C1–HC-C15. No Angular components, routes, navigation UI, backend/OpenAPI mutation, package changes, screen implementation, or push occurred.
+- contract_summary: `T-FE-077` owns the `COM-001..008` packet review. COM-001/002/003/005/006/007/008 are APPROVED (transactional product/order truth with explicit boundaries); COM-004 stays DEFERRED pending provider-callback architecture (no route, no fake progress). Money semantics verified from source (`Currency` code + `UnitAmountMinor` long).
+- verification_summary: Docs-only verification: packet exists with per-screen decisions traceable to source evidence (payment product/order/checkout/sandbox endpoint mappings, `PaymentProductDto`/`PaymentOrderDto`/`PaymentOrderItemDto` fields, lifecycle statuses, cancel eligibility, canonical route identities copied from authority, recorded OpenAPI defects, responsive/RTL/accessibility bindings); no code changed.
+
+### `ST-FE-077` — Prepare Commerce screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Packet prepared and human-approved with HC-C1–HC-C15; per-screen decisions recorded; COM-004 explicitly deferred; provider/sandbox boundaries pinned; known OpenAPI defects recorded without unauthorized fixes.
+
+### `GATE-FE-T077`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence satisfies the family-packet requirement: `commerce-screen-approval-packet.md` exists with explicit APPROVED decisions for COM-001/002/003/005/006/007/008, explicit DEFERRED for COM-004 with owning architecture decision identified, and no invented provider/instrument/pricing behavior. Downstream Commerce tasks remain NOT STARTED pending separate authorization (including recorded OpenAPI metadata prerequisites where applicable).
+
 ### `T-FE-081` — Payment product contract clarification
 
 - status: `VERIFIED`

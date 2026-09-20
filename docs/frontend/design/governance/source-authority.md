@@ -26,10 +26,10 @@ Use sources in this order:
 4. Verified live backend behavior at a recorded Git commit.
 5. Approved shared frontend, design, and test contracts.
 6. Approved page-family patterns and page specifications.
-7. Penpot for approved visual geometry, composition, styling, and hierarchy.
+7. Stitch for approved system-wide redesign visual composition after human approval; legacy Penpot artifacts are reference evidence only unless explicitly re-approved.
 8. Agent inference is never authoritative.
 
-Current visual workflow authority after the 2026-09-10 technical-lead decision is separated by concern. Approved frontend visual foundations, approved design specifications, and task-required approved Penpot/design artifacts own visual intent. Storybook is adopted as the intended production visual development/review surface after separate tooling authorization, but it is not requirements authority and is not currently installed. Penpot remains the approved design-exploration/specification tool when materially new visual intent is unresolved; it is no longer mandatory merely as a procedural intermediate artifact for every component or routine screen composition. Figma remains non-authoritative unless Karam explicitly records a future decision changing that rule. Penpot and Storybook cannot override repository security, accessibility, privacy, backend-contract, or architecture rules. A live Penpot artifact is evidence until it passes the applicable manager gate and Karam explicitly grants visual approval.
+Current visual workflow authority is separated by concern. The 2026-09-20 human decision starts a system-wide visual redesign in Google Stitch. For this redesign, Stitch is the active visual-design workspace and will own new visual composition/screens only after those screens pass human approval. Explicit human product decisions remain highest authority; backend/API/security/privacy/accessibility contracts, repository screen/route/product contracts, and approved design-foundation rules remain authoritative constraints. Existing Penpot artifacts are legacy/reference evidence only unless a specific element is explicitly re-approved for the Stitch redesign. Existing Angular UI is implementation evidence, not visual authority. Storybook is adopted as the intended production visual development/review surface after separate tooling authorization, but it is not requirements authority and is not currently installed. Agent inference is never authoritative. Stitch, Penpot, and Storybook cannot override repository security, accessibility, privacy, backend-contract, or architecture rules. A live design artifact is evidence until it passes the applicable manager gate and Karam explicitly grants visual approval.
 
 Authority separation:
 
@@ -37,7 +37,7 @@ Authority separation:
 2. Backend/OpenAPI runtime, security, and business behavior authority.
 3. Approved functional/page/route/access contracts.
 4. Approved visual foundation: tokens, theme bridge, typography, spacing, shape, color rules, responsive helpers, accessibility requirements, RTL/LTR infrastructure, shared form controls, validation patterns, loading/error/retry patterns, and other approved reusable visual primitives.
-5. Approved Penpot/design artifact when novel visual intent is required.
+5. Approved Stitch redesign artifact when generated from the system design contract and human-approved; legacy Penpot/design artifacts only when explicitly re-approved.
 6. Production Angular source as the single implementation source.
 7. Storybook rendering production source as visual development/review evidence after separate tooling authorization.
 
@@ -65,7 +65,7 @@ The working tree already contained the following changes before the approved Pha
 ?? docs/frontend/design/
 ```
 
-These changes are uncommitted evidence. Phase 0 does not approve them automatically. The existing `docs/frontend/frontend-architecture.md` change reconciles prior historical Figma wording to Penpot-only authority and records the 44px actual-target minimum with a 48px preferred mobile/touch default; it remains an unstaged working-tree change pending normal review.
+These changes are uncommitted historical Phase 0 evidence. Phase 0 does not approve them automatically. Later governance superseded the prior Figma/Penpot-only wording for active implementation, and the 2026-09-20 human decision now makes Stitch the active visual-design workspace for the system-wide redesign while preserving Phase 0 records as historical evidence.
 
 ## Local runtime evidence
 

@@ -2,11 +2,11 @@
 
 ## Purpose and authority
 
-This document is the canonical textual implementation reference for the approved Penpot file `Frontend Design Foundation` (`01813f71-6684-8025-8008-5d0437a49666`).
+This document is the canonical textual implementation reference for the approved frontend visual foundation originally extracted from the Penpot file `Frontend Design Foundation` (`01813f71-6684-8025-8008-5d0437a49666`).
 
-This Markdown file records the repository-owned textual mapping for the approved Penpot-derived frontend foundation that Angular workers must consult before frontend UI, SCSS, Angular Material, component, or screen work. After the 2026-09-10 visual workflow decision, approved visual foundations and task-required approved Penpot/design artifacts own visual intent; Storybook is the intended future production visual development/review surface after separate tooling authorization, not requirements authority.
+This Markdown file records the repository-owned textual mapping for the approved frontend foundation that Angular workers must consult before frontend UI, SCSS, Angular Material, component, or screen work. After the 2026-09-20 human decision, Google Stitch is the active visual-design workspace for the system-wide redesign. Approved visual foundations remain constraints, approved Stitch screens own new visual composition after human approval, existing Penpot artifacts are legacy/reference evidence unless explicitly re-approved, and Storybook is the intended future production visual development/review surface after separate tooling authorization, not requirements authority.
 
-If this reference conflicts with the live approved Penpot file, implementation must STOP, record the discrepancy, obtain Penpot/design resolution, and update this reference before coding. Do not silently choose either source.
+If this reference conflicts with live Stitch redesign evidence, an explicitly re-approved Penpot element, or another approved design decision, implementation must STOP, record the discrepancy, obtain design resolution, and update this reference before coding. Do not silently choose either source.
 
 Backend source and canonical OpenAPI remain authoritative for routes, DTOs, nullability, validation, authentication, authorization, permissions, status codes, server errors, business behavior, sensitive-data exposure, and payment/exam/entitlement trust boundaries. A Penpot example never creates backend behavior.
 
@@ -24,7 +24,7 @@ Backend source and canonical OpenAPI remain authoritative for routes, DTOs, null
 
 - Angular 22 owns executable implementation.
 - Angular Material and CDK provide implementation primitives.
-- Project-owned Angular Material theme, SCSS, tokens, components, and patterns translate approved Penpot decisions.
+- Project-owned Angular Material theme, SCSS, tokens, components, and patterns translate approved foundation and Stitch/design decisions.
 - Do not copy arbitrary visual values.
 - Resolve design/implementation disagreements before implementation, never silently.
 - WCAG 2.2 AA is the accessibility baseline.

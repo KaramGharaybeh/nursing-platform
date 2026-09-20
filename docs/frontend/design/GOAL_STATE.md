@@ -6,7 +6,7 @@ version: 1.4
 updated_at: 2026-08-12
 timezone: Asia/Amman
 manager_model: openai/gpt-5.5
-design_authority: approved visual foundations plus task-required Penpot/design artifacts
+design_authority: approved visual foundations plus approved Stitch redesign artifacts; legacy Penpot/design artifacts only when explicitly re-approved
 viewport_scope: Desktop browser
 current_phase: PHASE-1-EVIDENCE-PACKET-AWAITING-AUTHORIZATION
 current_batch: none
@@ -15,7 +15,7 @@ overall_status: g0-accepted-governance-only-phase-1-not-authorized
 
 ## Goal
 
-Create evidence-backed Markdown specifications and approved Penpot Desktop designs for every canonical Nursing Platform browser page, with complete business, functional, non-functional, security, accessibility, API, permission, validation, functional-test, and visual-test traceability.
+Create evidence-backed Markdown specifications and, for the active system-wide redesign, human-approved Stitch designs for canonical Nursing Platform browser pages, with complete business, functional, non-functional, security, accessibility, API, permission, validation, functional-test, and visual-test traceability. Historical Penpot Desktop-program records remain preserved as evidence.
 
 ## Explicit exclusions
 
@@ -32,7 +32,7 @@ Create evidence-backed Markdown specifications and approved Penpot Desktop desig
 
 | ID | Decision | Status |
 |---|---|---|
-| DEC-001 | Penpot was the sole visual authority for the original Desktop design-documentation program; after the 2026-09-10 governance decision, approved visual foundations plus task-required Penpot/design artifacts own visual intent, and Storybook is the intended production visual development/review surface after separate tooling authorization | Superseded for current implementation governance; preserved as historical design-program baseline |
+| DEC-001 | Penpot was the sole visual authority for the original Desktop design-documentation program; after the 2026-09-20 human decision, approved visual foundations constrain visual intent, approved Stitch redesign artifacts own new visual composition after human approval, and Storybook is the intended production visual development/review surface after separate tooling authorization | Superseded for current implementation governance; preserved as historical design-program baseline unless explicitly re-approved |
 | DEC-002 | Desktop browser only for this design pass | Locked |
 | DEC-003 | One Markdown file per canonical route-level page | Locked |
 | DEC-004 | Page states stay inside the owning page spec unless independently routed | Locked |
@@ -43,6 +43,7 @@ Create evidence-backed Markdown specifications and approved Penpot Desktop desig
 | DEC-009 | Current repository orchestration is governed by `docs/development/model-orchestration.md`: `openai/gpt-5.5` is the sole OpenAI orchestrator/final gate, approved non-OpenAI workers may provide bounded execution/review evidence, and no delegated worker or alternate OpenAI model may approve or reject specifications, gates, or agent-produced artifacts | Locked |
 | DEC-010 | Karam/technical-lead approval remains required for final visual approval gates | Locked |
 | DEC-011 | Storybook may provide future production component/screen visual evidence after separate tooling authorization but never self-approves screens or creates requirements | Locked |
+| DEC-012 | The 2026-09-20 system-wide redesign uses Google Stitch as the active visual-design workspace. Human-approved Stitch screens own new visual composition; legacy Penpot/design artifacts remain reference evidence unless explicitly re-approved. | Locked |
 
 ## Phase 0 evidence reviewed
 
@@ -57,7 +58,7 @@ Create evidence-backed Markdown specifications and approved Penpot Desktop desig
 ## Current findings
 
 1. The live repository is the evidence source; the earlier uploaded documentation dump is historical and insufficient for page specifications.
-2. Current implementation governance uses separated authority: approved visual foundations and task-required approved Penpot/design artifacts own visual intent; Storybook is the intended future production visual development/review surface after separate tooling authorization; Figma is non-authoritative unless Karam records a future decision changing that rule.
+2. Current implementation governance uses separated authority: approved visual foundations constrain visual intent; approved Stitch redesign artifacts own new visual composition after human approval; legacy Penpot/design artifacts are reference evidence unless explicitly re-approved; Storybook is the intended future production visual development/review surface after separate tooling authorization; Figma is non-authoritative unless Karam records a future decision changing that rule.
 3. Angular 22, Angular Material/CDK where required, Signals, RxJS, SCSS, and a project-owned Material theme are approved architecture; the frontend workspace is not initialized.
 4. Karam accepted G0 on 2026-08-12 as a governance/re-entry baseline only. The current milestone and roadmap still do not authorize frontend implementation, Penpot writes, page specifications, or a route registry.
 5. Eleven live Penpot pages exist from `00` through `10`. Their presence and exports are evidence, not approval.

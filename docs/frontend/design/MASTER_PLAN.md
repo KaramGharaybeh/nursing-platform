@@ -6,7 +6,7 @@ version: 1.1
 status: phase-0-reentry-reconciliation
 created_at: 2026-07-23
 timezone: Asia/Amman
-design_authority: approved visual foundations plus task-required approved Penpot/design artifacts
+design_authority: approved visual foundations plus approved Stitch redesign artifacts; legacy Penpot/design artifacts only when explicitly re-approved
 design_scope: Desktop browser
 manager_model: openai/gpt-5.5
 ```
@@ -15,7 +15,7 @@ manager_model: openai/gpt-5.5
 
 Build a reliable, repeatable production system for Nursing Platform frontend design in which:
 
-- Approved visual foundations and task-required approved Penpot/design artifacts own visual intent.
+- Approved visual foundations constrain the active system-wide redesign, and human-approved Stitch redesign artifacts own new visual composition. Legacy Penpot/design artifacts are reference evidence unless explicitly re-approved.
 - Storybook is the intended future production visual development/review surface after separate tooling authorization, not requirements authority.
 - Desktop browser pages are designed first.
 - Every canonical routed page has one evidence-backed Markdown specification before visual production starts.
@@ -32,7 +32,7 @@ The following decisions are fixed unless Karam explicitly changes them:
 
 | ID | Decision |
 |---|---|
-| DEC-001 | Current implementation governance separates visual intent from review tooling: approved visual foundations and task-required approved Penpot/design artifacts own visual intent; Storybook is the intended future production visual development/review surface after separate tooling authorization and is not requirements authority. Historical Penpot-only decisions remain preserved as the original Desktop design-documentation baseline. |
+| DEC-001 | Current implementation governance separates visual intent from review tooling: approved visual foundations constrain visual intent; approved Stitch redesign artifacts own new visual composition after human approval; Storybook is the intended future production visual development/review surface after separate tooling authorization and is not requirements authority. Historical Penpot-only decisions remain preserved as the original Desktop design-documentation baseline unless a specific element is explicitly re-approved. |
 | DEC-002 | Current production scope is Desktop browser only. |
 | DEC-003 | One Markdown specification is created per canonical route-level page or independent route-level user task. |
 | DEC-004 | Loading, error, validation, empty, permission, and interaction states normally remain inside the owning page specification; they do not become separate page files. |
@@ -44,8 +44,9 @@ The following decisions are fixed unless Karam explicitly changes them:
 | DEC-010 | Human visual review by Karam is required before a Penpot page becomes visually approved. |
 | DEC-011 | An agent must never invent a route, permission, field, validation rule, state transition, business rule, API behavior, performance budget, or visual-diff threshold. |
 | DEC-012 | `claude-fable-5.md` is excluded from this program because it is unrelated to Nursing Platform requirements. |
-| DEC-013 | Penpot is no longer mandatory as a procedural intermediate artifact for every component or routine screen composition. Penpot remains required when materially new visual intent is unresolved. |
+| DEC-013 | Penpot is no longer mandatory as a procedural intermediate artifact for every component or routine screen composition. During the active system-wide redesign, Stitch/design authority is required when materially new visual intent is unresolved. |
 | DEC-014 | Storybook stories must render production Angular source and must not create duplicate components, duplicate SCSS, a parallel design system, screen authorization, product requirements, or automated visual-regression authority. |
+| DEC-015 | The 2026-09-20 system-wide redesign uses Google Stitch as the active visual-design workspace. Human-approved Stitch screens own new visual composition; legacy Penpot/design artifacts remain reference evidence unless explicitly re-approved. |
 
 ## 3. Authority hierarchy and conflict handling
 
@@ -64,7 +65,7 @@ When sources disagree, use this order:
 5. Approved shared frontend/design/test contracts.
 6. Page-family patterns.
 7. The individual page specification.
-8. Approved visual foundation and any task-required Penpot/design artifact for visual intent.
+8. Approved visual foundation, approved Stitch redesign artifact, and any explicitly re-approved legacy Penpot/design artifact for visual intent.
 9. Production Angular source as implementation authority.
 10. Storybook rendering production source as visual development/review evidence after separate tooling authorization.
 11. Agent inference is never authoritative.

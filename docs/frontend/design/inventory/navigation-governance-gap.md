@@ -64,7 +64,7 @@ mechanism. Placement for human authorization:
 1. Allocate the ledger task number(s) for navigation design and implementation work.
 2. Confirm scope: Navigation Toolbar / app navigation design pass + implementation, sequenced BEFORE the
    deferred `T-FE-084` checkout work.
-3. Confirm the design surface for navigation intent (dedicated Penpot/design pass vs. derivation from approved
+3. Confirm the design surface for navigation intent (dedicated Stitch/design pass vs. derivation from approved
    foundations + existing component patterns), resolving the §11 boundary items (sidebar vs toolbar, desktop vs
    mobile pattern, menu items, role grouping, icons, breakpoints, styling, active-route treatment).
 4. Confirm whether the page-registry §2.13 exclusion must be revisited (i.e., whether navigation metadata

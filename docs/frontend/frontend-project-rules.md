@@ -10,7 +10,7 @@ For frontend task execution, consult the following in order, together with expli
 2. `AGENTS.md`
 3. Current execution state and task/gate authority in `docs/frontend/execution/frontend-implementation-ledger.md`, with `PROGRESS.md` as concise current-session handoff.
 4. `docs/frontend/frontend-architecture.md`
-5. `docs/frontend/design/frontend-design-foundation-reference.md` for the canonical textual implementation mapping of the approved Penpot-derived foundation; approved visual foundations, approved design specifications, and task-required approved Penpot/design evidence remain visual-intent authority. Storybook is the intended future production visual development/review surface, not requirements authority, and is not installed until a separate tooling authorization.
+5. `docs/frontend/design/frontend-design-foundation-reference.md` for the canonical textual implementation mapping of the approved frontend foundation; the 2026-09-20 human decision makes Google Stitch the active visual-design workspace for the system-wide redesign. Approved Stitch screens own new visual composition after human approval; existing Penpot artifacts are legacy/reference evidence unless explicitly re-approved. Storybook is the intended future production visual development/review surface, not requirements authority, and is not installed until a separate tooling authorization.
 6. Implemented backend source and the generated Development OpenAPI contract for runtime API behavior.
 7. `docs/frontend/design/GOAL_STATE.md`
 8. `docs/frontend/design/MASTER_PLAN.md`
@@ -44,7 +44,7 @@ No Angular implementation, including scaffolding, may start until all of the fol
 - A route registry and route/actor/permission matrix are drafted and approved for the intended slice.
 - Design tokens and their source authority are accepted.
 - Component contracts are drafted for the intended slice.
-- Penpot/design source status and approval status are confirmed when materially new visual intent is unresolved; routine work may instead cite approved visual foundations and approved existing component/layout patterns.
+- Stitch/design source status and approval status are confirmed when materially new visual intent is unresolved; routine work may instead cite approved visual foundations and approved existing component/layout patterns.
 - The npm/package-manager policy and Angular project-creation command are explicitly approved.
 
 G0 was accepted on 2026-08-12 as a governance/re-entry baseline only, as recorded in `docs/frontend/design/governance/decision-log.md` (DEC-PH0-016) and `docs/frontend/design/GOAL_STATE.md`. A later implementation approval must not be inferred from this document, a running Penpot container, a draft board, or backend readiness.
@@ -55,7 +55,7 @@ Standing Implementation Authorization for ordinary eligible Low/Medium frontend 
 
 ## 3. Angular stack rules
 
-The approved planned stack is Angular 22, TypeScript strict mode, standalone architecture, Signals, RxJS, Angular Router, Angular Material, Angular CDK only where needed, SCSS, and one project-owned Angular Material theme mapped from approved Penpot tokens. The application must remain responsive for desktop, tablet, and mobile, preserve future Arabic/RTL readiness, and meet WCAG 2.2 AA.
+The approved planned stack is Angular 22, TypeScript strict mode, standalone architecture, Signals, RxJS, Angular Router, Angular Material, Angular CDK only where needed, SCSS, and one project-owned Angular Material theme mapped from approved design tokens. The application must remain responsive for desktop, tablet, and mobile, preserve future Arabic/RTL readiness, and meet WCAG 2.2 AA.
 
 - npm is the approved package manager; do not substitute another package manager.
 - Angular CLI, Angular Material, and Angular CDK must match the pinned Angular major.
@@ -145,16 +145,16 @@ This section defines rules only; it does not create the directory structure.
 ## 8. Design system rules
 
 - Use approved design tokens before implementation. Do not introduce arbitrary colors, spacing, radii, shadows, typography values, z-indexes, breakpoints, or motion values.
-- Before Angular UI, SCSS, Angular Material theme, component, or screen work, consult `docs/frontend/design/frontend-design-foundation-reference.md`. If live Penpot contradicts that reference, STOP and obtain design resolution before implementation.
+- Before Angular UI, SCSS, Angular Material theme, component, or screen work, consult `docs/frontend/design/frontend-design-foundation-reference.md`. If live Stitch redesign evidence, re-approved Penpot evidence, or that reference contradict each other, STOP and obtain design resolution before implementation.
 - Canonical keyboard focus ring: `focus.ring.width = 2px`, `focus.ring.offset = 4px`, and `focus.ring.shadow = 0 0 0 4 #006B66`. `border.focus = #4F46B8` is a distinct focused-border/accent token and MUST NOT be substituted for the keyboard focus ring unless a component contract explicitly uses it.
 - Canonical standard form-field/select foundation: `height = 64px`, `radius = 12px`, and minimum trailing action target `48 × 48px`. The 48px Preparation Package filter draft does not establish a compact control variant. A compact field/select variant may be created only through a later explicit design-system decision.
 - There are currently no approved canonical project motion duration/easing tokens. Do not invent or hard-code project-authored motion duration or easing values. Until canonical motion tokens are approved, prefer no custom decorative transition over arbitrary animation. Required state meaning must remain complete without animation. Framework-internal behavior is not visual authority and must not be copied into project tokens.
 - Do not invent a project numeric z-index scale. Angular CDK Overlay owns overlay stacking mechanics unless an evidenced implementation conflict requires an explicit project token. Project-owned elevation remains semantic: level-1 raised, level-2 menus/overlays, level-3 dialogs/modals, and scrim opacity `0.48`. Any custom z-index value requires an explicit architecture/design decision.
-- The project-owned Material theme and SCSS are executable mappings of approved visual intent, including approved visual foundations and task-required approved Penpot/design artifacts, not alternate visual authorities. Emit theme CSS once at the application boundary.
+- The project-owned Material theme and SCSS are executable mappings of approved visual intent, including approved visual foundations, approved Stitch redesign artifacts, and explicitly re-approved legacy Penpot/design artifacts, not alternate visual authorities. Emit theme CSS once at the application boundary.
 - Customize Angular Material only through supported theming APIs, approved tokens, CSS custom properties where appropriate, documented component APIs, and narrowly owned application classes. Do not use `::ng-deep`, undocumented Material DOM/classes, or a global `MaterialModule`.
 - Typography, spacing, radius, elevation, focus, disabled, and state values must follow accepted token contracts. Components use semantic token names rather than raw literals.
 - Component contracts must cover purpose, anatomy, allowed variants/sizes, inputs/outputs, semantic/ARIA behavior, responsive and RTL behavior, and hover, focus, active, disabled, error, loading, empty, and success states as applicable.
-- Implement only approved visual intent from approved visual foundations, approved design specifications, and task-required approved Penpot/design artifacts. Any necessary deviation requires explicit design/engineering approval and a corresponding decision-log entry; do not silently alter visual intent.
+- Implement only approved visual intent from approved visual foundations, approved design specifications, approved Stitch redesign artifacts, and any explicitly re-approved legacy Penpot/design artifacts. Any necessary deviation requires explicit design/engineering approval and a corresponding decision-log entry; do not silently alter visual intent.
 - Current design-system evidence is not yet implementation-ready: Utilities, canonical token registry, breakpoint authority, local Penpot components/colors/themes, Arabic validation, elevation/z-index, patterns, and component implementation contracts remain unresolved or deferred.
 
 ### 8.1 Spacing Grid and Utilities Rules
@@ -193,7 +193,7 @@ Storybook is adopted as the intended frontend visual development and review tool
 - A story may demonstrate an already-authorized component or screen state. It must not invent missing functionality, UX behavior, product intent, copy, route inventory, labels/groups/order/icons, navigation layout, or screen states.
 - Reusable production components may later expose meaningful approved states in Storybook, including default, hover, focus, disabled, loading, error, empty, success, validation, interaction, responsive, and RTL/LTR states where applicable. Story fixtures may provide inputs needed to demonstrate states but do not create business authority.
 - Production screen components may later have stories for approved screen states when it improves review. Screen stories may only represent states authorized by the screen's functional/design contract.
-- If a component or screen can be composed from approved functional contracts, route/access/API contracts, visual foundations, and existing component/layout patterns, Penpot is not required solely as a procedural duplicate. If materially new visual intent is unresolved, STOP for visual authority, normally through an explicit Penpot/design decision.
+- If a component or screen can be composed from approved functional contracts, route/access/API contracts, visual foundations, and existing component/layout patterns, a duplicate design artifact is not required solely as a procedural duplicate. If materially new visual intent is unresolved, STOP for visual authority, normally through an explicit Stitch/design decision during the active redesign program.
 - Storybook visual evidence may satisfy a future owning component/screen gate only after Storybook tooling is installed and verified. The owning gate and technical lead still approve; Storybook never self-approves.
 - Storybook does not replace unit tests, Angular component behavior tests, route/auth/permission tests, API/integration verification, accessibility checks, lint, quality checks, or production build verification.
 - Automated visual regression remains unapproved. Do not add screenshot regression services, image snapshot frameworks, browser/DPR matrices, pixel tolerance policy, hosted visual-review services, or CI visual-regression integration without separate technical-lead/tooling approval.
@@ -243,13 +243,13 @@ Hardcoded physical CSS directional properties are **STRICTLY BANNED** from the f
 
 Stylelint MUST be configured with `property-disallowed-list` to reject any code containing banned physical directional properties. Any exception requires an explicit architecture decision with justification and `stylelint-disable` annotation.
 
-## 11. Penpot and MCP rules
+## 11. Stitch, Legacy Penpot, and MCP rules
 
-- Penpot is the visual design authority only when its relevant evidence is approved. A running local service, export, geometry read, or tracker checkbox does not approve a design.
-- Approved Penpot artifacts are authoritative for visual decisions only. Backend source and the canonical OpenAPI are authoritative for routes, DTOs, nullability, enums, validation, authentication, authorization, permissions, status codes, server errors, business behavior, sensitive-data exposure, and payment/exam/entitlement trust boundaries. A design example never creates backend business behavior.
+- Stitch is the active visual-design workspace for the system-wide redesign. A Stitch screen becomes visual-composition authority only after human approval. Existing Penpot artifacts are legacy/reference evidence unless a specific element is explicitly re-approved. A running service, export, geometry read, generated screen, or tracker checkbox does not approve a design.
+- Approved Stitch redesign artifacts are authoritative for visual decisions only. Backend source and the canonical OpenAPI are authoritative for routes, DTOs, nullability, enums, validation, authentication, authorization, permissions, status codes, server errors, business behavior, sensitive-data exposure, and payment/exam/entitlement trust boundaries. A design example never creates backend business behavior.
 - No current product screen is automatically implementation-approved merely because it exists in Penpot or the PDF export. This explicitly includes Sign In, Preparation Package Offers, Preparation Package Details, and Checkout.
-- Before a product screen is implemented, its task MUST identify the approved Penpot/design reference, backend/OpenAPI contract, required states, responsive behavior, RTL behavior, accessibility acceptance criteria, and unresolved design/backend conflicts. If any required input is missing, STOP AND ESCALATE.
-- Do not modify Penpot, create boards, import/export files, or use MCP write operations without explicit task authorization and the applicable design gate. Use read-only inspection only when the task permits it.
+- Before a product screen is implemented, its task MUST identify the approved Stitch/design reference (or explicitly re-approved legacy Penpot/design reference), backend/OpenAPI contract, required states, responsive behavior, RTL behavior, accessibility acceptance criteria, and unresolved design/backend conflicts. If any required input is missing, STOP AND ESCALATE.
+- Do not modify Stitch, Penpot, create boards/projects/screens, import/export files, or use MCP write operations without explicit task authorization and the applicable design gate. Use read-only inspection only when the task permits it.
 - Record a design discrepancy in the applicable governance open-question or decision-log process; do not correct it by inference. Penpot never supplies backend/API facts.
 - Current observed local services are Penpot frontend at `http://localhost:9001`, Open Design at `127.0.0.1:7456`, and a running Penpot MCP container. These are local runtime facts, not approval or authorization.
 - Penpot execution requires an approved page specification, frozen supporting contracts, explicit target IDs, a bounded task packet, and the applicable Penpot gate. Existing Page 07, Page 09, Page 10, and AUTH-001 discrepancies remain governed evidence, not implementation input.
@@ -301,7 +301,7 @@ A frontend Task may be marked `VERIFIED` only when all applicable requirements p
 - backend/OpenAPI contract respected exactly;
 - no guessed response fields/contracts;
 - architecture/dependency rules respected;
-- approved visual foundation and any task-required Penpot/design contract respected;
+- approved visual foundation and any task-required Stitch/design contract respected;
 - relevant loading/error/empty/disabled/success states implemented;
 - desktop/tablet/mobile verified where applicable;
 - RTL behavior verified where applicable;

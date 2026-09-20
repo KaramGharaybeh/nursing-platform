@@ -1,0 +1,49 @@
+<section class="np-product-list" aria-labelledby="product-list-heading">
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading products"
+    fallbackErrorTitle="We couldn't load products. Try again."
+    retryLabel="Retry"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    <h1 id="product-list-heading" data-testid="product-list-heading">Products</h1>
+    @if ((page()?.items.length ?? 0) === 0) {
+      <div data-testid="product-list-empty">
+        <np-empty-state
+          kind="empty"
+          title="No products available"
+          description="There are no products available to purchase right now."
+        />
+      </div>
+    } @else {
+      <ul class="np-product-list-rows">
+        @for (product of page()?.items ?? []; track product.id) {
+          <li data-testid="product-row">
+            <h2>{{ product.name }}</h2>
+            @if (product.description !== null) {
+              <p>{{ product.description }}</p>
+            }
+            @if (product.examTitle !== null) {
+              <p>{{ product.examTitle }}</p>
+            }
+            <p>{{ priceOf(product) }}</p>
+            <a [routerLink]="detailPath(product.id)" data-testid="product-details-link">
+              View details
+            </a>
+          </li>
+        }
+      </ul>
+      <np-pagination
+        data-testid="product-list-pagination"
+        [page]="page()?.page ?? 1"
+        [totalPages]="page()?.totalPages ?? 0"
+        [totalCount]="page()?.totalCount ?? 0"
+        itemLabel="products"
+        ariaLabel="Product catalog pagination"
+        (pageRequested)="loadProductsPage($event)"
+      />
+    }
+  }
+</section>

@@ -1,0 +1,17 @@
+.np-product-detail {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-product-detail h1 {
+  margin: var(--np-space-16) 0 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}

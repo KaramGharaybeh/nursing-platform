@@ -1,0 +1,32 @@
+<section class="np-product-detail" aria-labelledby="product-detail-heading">
+  <a [routerLink]="backPath" data-testid="product-detail-back">Back to products</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading product"
+    fallbackErrorTitle="We couldn't load this product. Try again."
+    retryLabel="Retry"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (unavailable()) {
+      <p role="status" data-testid="product-detail-unavailable">
+        This product is no longer available. It may have been removed, or the link is
+        incorrect.
+      </p>
+    } @else if (product(); as detail) {
+      <h1 id="product-detail-heading" data-testid="product-detail-heading">{{ detail.name }}</h1>
+      @if (detail.description !== null) {
+        <p data-testid="product-detail-description">{{ detail.description }}</p>
+      }
+      @if (detail.examTitle !== null) {
+        <p>{{ detail.examTitle }}</p>
+      }
+      <p>{{ price() }}</p>
+      @if (!detail.isActive) {
+        <p role="status" data-testid="product-detail-unavailable">Unavailable</p>
+      }
+    }
+  }
+</section>

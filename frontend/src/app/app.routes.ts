@@ -216,4 +216,18 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'EXAMS_REVIEW' },
   },
+  {
+    path: 'commerce/products',
+    loadComponent: () =>
+      import('./features/commerce/product-list').then((m) => m.ProductListScreen),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'COMMERCE_PRODUCTS' },
+  },
+  {
+    path: 'commerce/products/:productId',
+    loadComponent: () =>
+      import('./features/commerce/product-detail').then((m) => m.ProductDetailScreen),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'COMMERCE_PRODUCT_DETAIL' },
+  },
 ];

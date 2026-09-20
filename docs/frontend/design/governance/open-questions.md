@@ -61,6 +61,30 @@ These questions are explicitly owned by Phase 1. Phase 0 does not answer them.
 | OPEN-008 | Employer and organization ownership model | Manager, Phase 1 evidence | Open |
 | OPEN-009 | Exact exam timer, resume, attempt, and rationale behavior | Manager, Phase 1 evidence | Open |
 
+## Phase 2 Stitch questions
+
+| ID | Question | Owner / target | Status |
+|---|---|---|---|
+| OPEN-STITCH-001 | Can the Stitch generation timeout for the first Phase 2 app-shell artifact be retried, or should generation proceed through another approved Stitch path? | Karam / Stitch tooling | Open; `stitch_generate_screen_from_text` timed out for `Shell / APP-SHELL / Nurse / Desktop`, repeated `stitch_list_screens` checks returned no screen IDs, and the tool instruction says not to retry a timeout without recovery. |
+| OPEN-STITCH-002 | Should the rejected `stitch_update_design_system` endpoint be investigated separately, or is the created design system sufficient because `stitch_create_design_system` stored the canonical DESIGN.md content? | Karam / Stitch tooling | Open; create succeeded and list confirmed stored content, but the required immediate update endpoint returned `Request contains an invalid argument`. |
+| OPEN-STITCH-003 | Why did `stitch_edit_screens` report successful DOM operations on the first Nurse desktop shell while the visible/browser artifact and downloaded HTML retained prohibited original content? | Karam / Stitch tooling | Open; edit-tool success is not accepted as persistence proof. Future recovery uses closed-world regeneration plus HTML/content validation rather than treating edit success as approval. |
+| OPEN-STITCH-004 | Should strict Stitch contract validation treat non-visible raw HTML comments, document titles, Tailwind configuration, JavaScript scaffolding, and material icon ligature scaffolding as prohibited internal annotations, or only visible/rendered content? | Karam / Stitch tooling | Resolved by human browser review evidence and validation-semantics correction: the product contract applies to user-visible and accessibility-exposed product content/behavior. Implementation-internal raw source scaffolding and preview metadata are reported but do not fail the product contract unless exposed to users, interactive, security-sensitive, or behavior-changing. |
+| OPEN-STITCH-005 | Why does `stitch_get_screen` retrieve replacement screen `projects/17116545761229201855/screens/96852332a6f048039bf76fc459d8f07e` while `stitch_list_screens` omits it and lists only the original invalid screen? | Karam / Stitch tooling | Open; direct screen retrieval and list API are inconsistent after the single authorized replacement generation. |
+
+## Phase 2 Stitch decisions resolved
+
+| ID | Decision | Evidence | Status |
+|---|---|---|---|
+| HD-STITCH-01 | Hybrid app shell: persistent top app bar, no permanent global sidebar, mobile accessible drawer/menu. | `docs/frontend/design/governance/decision-log.md` | Resolved |
+| HD-STITCH-02 | Navigation by user goals/product families; Nurse primary families are Exams, Preparation Packages, Commerce when available, and Profile. | `docs/frontend/design/governance/decision-log.md` | Resolved |
+| HD-STITCH-03 | Icons support labels; no icon-only primary navigation; directional icons mirror in RTL and status icons do not. | `docs/frontend/design/governance/decision-log.md` | Resolved |
+| HD-STITCH-04 | Root `/` is actor/state-driven; no fake universal dashboard. | `docs/frontend/design/governance/decision-log.md` | Resolved |
+| HD-STITCH-05 | Offline/maintenance visual states may be factual only and must not claim offline write/payment/exam safety without runtime proof. | `docs/frontend/design/governance/decision-log.md` | Resolved |
+| HD-STITCH-06 | Admin dense desktop data prefers semantic/native tables; mobile cards/lists unless cross-column comparison requires overflow. | `docs/frontend/design/governance/decision-log.md` | Resolved |
+| HD-STITCH-07 | Phase 2 design system defines missing token roles for icons, focus, motion, states, overlays, navigation, mobile spacing, and mixed-direction numeric/monetary content. | `docs/frontend/design/governance/decision-log.md` | Resolved |
+| HD-STITCH-08 | Closed-world Stitch generation baseline and validation-semantics correction. | `docs/frontend/design/governance/decision-log.md` | Superseded for exploratory generation by HD-STITCH-09; retained as historical strict-mode evidence. |
+| HD-STITCH-09 | Design-led feature discovery: unlisted generated functionality is classified, useful proposals enter a DPF backlog, unsupported factual claims remain prohibited, and first Nurse desktop shell is the preferred visual baseline. | `docs/frontend/design/governance/decision-log.md` | Resolved |
+
 ## Phase 0 review question
 
 | ID | Question | Owner | Status |

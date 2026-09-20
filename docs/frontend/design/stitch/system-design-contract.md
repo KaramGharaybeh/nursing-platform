@@ -2,10 +2,10 @@
 
 ```yaml
 document_id: NPS-DES-STITCH-SYSTEM-DESIGN-CONTRACT
-status: PHASE_1_CONTRACT_EXTRACTION_FOR_REVIEW
+status: PHASE_2_SHELL_NAVIGATION_GENERATION_ACTIVE
 created_at: 2026-09-20
 scope: system_wide_visual_redesign_input_contract
-stitch_write_authorization: false
+stitch_write_authorization: phase_2_shell_navigation_only
 implementation_authorization: false
 ```
 
@@ -70,6 +70,118 @@ Phase 2 strategy:
 7. Compare generated screens back to this contract before edits.
 8. Use `stitch_edit_screens` only for contract-comparison corrections.
 
+## 2A. Design-Led Feature Discovery Protocol
+
+Stitch may help discover useful product ideas during visual exploration, but design-discovered functionality must not silently become production functionality. Core Nursing Platform workflows remain the primary authority and visual focus.
+
+Future Stitch prompts may allow reasonable product-design exploration. After each generated screen, the agent must classify every user-visible or accessibility-exposed functional element into one of these categories:
+
+| Category | Definition | Governance effect |
+|---|---|---|
+| `AUTHORITATIVE_FEATURE` | Already supported by current product contracts, documentation, API, or implementation. | May be represented normally in designs. |
+| `DESIGN_PROPOSED_FEATURE` | Useful product functionality discovered or introduced during design. | May remain visible in the design, but is not implemented, backend/API authority, frontend implementation authority, or release approval. Must be recorded in `docs/frontend/design/stitch/design-proposed-features.md` before the screen is considered fully reviewed. |
+| `VISUAL_ONLY_ELEMENT` | Decorative or compositional element with no product functionality implied. | Does not require implementation planning unless it later gains behavior. |
+| `UNSUPPORTED_CLAIM` | Security, compliance, runtime, business, availability, state, or status claim that cannot be asserted from authoritative system evidence. | Must not be presented as factual user-facing truth unless separately verified and authorized. Do not convert unsupported factual claims into design-proposed features. |
+
+Examples of `UNSUPPORTED_CLAIM` include `HIPAA compliant`, `GDPR compliant`, `WCAG compliant`, `System Online`, `Token Verified`, security guarantees, service-health guarantees, and similar factual assurances.
+
+Design-proposed features are secondary. They must not redesign the application around speculative functionality, replace authoritative workflows, obscure core actions/data/navigation, distort screen purpose, or become dependencies for core workflows.
+
+Required per-screen manifest fields:
+
+| Field | Requirement |
+|---|---|
+| Screen ID / canonical name | Exact repository-approved screen identity and generated screen name. |
+| Actor / audience | Exact actor or audience; no additional audience inference. |
+| Route | Exact route if screen is routed; `not applicable` only when no route exists. |
+| Purpose | One bounded user/product purpose. |
+| REQUIRED | User-visible elements that must appear. |
+| ALLOWED | User-visible elements that may appear. |
+| FORBIDDEN | User-visible elements, data, actions, claims, and behaviors that must not appear. |
+| Navigation | Exact global/contextual destinations allowed. |
+| User-visible data | Exact data fields/copy allowed to appear. |
+| Actions | Exact actions allowed. |
+| States | Exact states allowed. |
+| Responsive requirements | Exact viewport/responsive requirements for the requested artifact. |
+| RTL requirements | Exact RTL requirements or `not in scope for this artifact`. |
+| Accessibility requirements | Exact accessibility requirements inherited from this contract and any screen-specific requirements. |
+| Explicit non-goals | Explicit exclusions and adjacent screens/behaviors that must not be designed. |
+
+Manifest semantics:
+
+- `REQUIRED` = must appear.
+- `ALLOWED` = may appear as an authoritative or visual element.
+- `FORBIDDEN` = must not appear.
+- `UNLISTED` = classify after generation as `AUTHORITATIVE_FEATURE`, `DESIGN_PROPOSED_FEATURE`, `VISUAL_ONLY_ELEMENT`, or `UNSUPPORTED_CLAIM`; do not automatically treat every unlisted design element as forbidden.
+
+Before calling Stitch for any screen, the agent must construct the exact manifest from repository authority. The Stitch prompt must be derived from that manifest and must not replace the manifest with a vague creative prompt.
+
+When a prompt is intended to be strict rather than exploratory, it must say so explicitly. Otherwise future Stitch prompts may allow bounded design exploration while requiring post-generation classification.
+
+Strict prompts may include this sentence before the manifest:
+
+> Closed-world rule: use only the user-visible elements and behaviors explicitly authorized below. Do not fill perceived gaps. Do not invent realistic sample content. Anything not listed is forbidden.
+
+Do not paste the full `DESIGN.md` into screen-generation prompts. The active design system owns visual language and design rules.
+
+## 2B. Post-Generation Classification And Validation Gate
+
+Generation success is not acceptance. After Stitch generates a screen, the agent must inspect the resulting screen metadata and available rendered/browser content artifacts before requesting human visual review. Raw source may be inspected to detect exposed product content, but the validator must distinguish rendered product UI from implementation source.
+
+After each generated screen, the agent must identify:
+
+1. authoritative features;
+2. newly proposed functional features;
+3. visual-only additions;
+4. unsupported factual claims.
+
+Any new `DESIGN_PROPOSED_FEATURE` must be added to `docs/frontend/design/stitch/design-proposed-features.md` before the screen is considered fully reviewed. Do not implement the proposed feature merely because Stitch generated it.
+
+Validation content categories:
+
+| Category | Definition | Contract effect |
+|---|---|---|
+| `USER_VISIBLE_PRODUCT_CONTENT` | Rendered visible text; visible icons with product meaning; buttons; links; navigation destinations; form controls; visible status indicators; visible user data; visible footer/header content; tooltips or labels exposed to the user; interactive behaviors available to the user. | Must obey `REQUIRED`, `ALLOWED`, `FORBIDDEN`, and `UNLISTED` rules. |
+| `ACCESSIBILITY_EXPOSED_CONTENT` | Accessible names, `aria-label`s, alt text, accessible descriptions, and semantic interactive roles exposed to assistive technology. | Must obey the product contract and must not expose invented product functionality or misleading content. |
+| `IMPLEMENTATION_INTERNAL` | HTML comments, Tailwind configuration, CSS implementation, JavaScript scaffolding, framework boilerplate, Material icon ligature implementation, generated class names, script/style internals, and non-rendered developer scaffolding. | Does not constitute a closed-world contract violation unless it becomes user-visible, interactive, security-sensitive, or changes product behavior. |
+| `PREVIEW_DOCUMENT_METADATA` | Generated document title, preview metadata, and Stitch-specific artifact metadata. | Report separately when useful, but do not fail the user-visible screen contract solely because of preview/tool metadata unless it leaks prohibited user-visible product information. |
+
+Validation requirements:
+
+1. Every `REQUIRED` element exists.
+2. No `FORBIDDEN` element exists.
+3. Every unlisted user-visible or accessibility-exposed product element is classified as `AUTHORITATIVE_FEATURE`, `DESIGN_PROPOSED_FEATURE`, `VISUAL_ONLY_ELEMENT`, or `UNSUPPORTED_CLAIM`.
+4. No fake PII or invented user identity appears.
+5. No unsupported security, compliance, availability, authentication, online/offline, or service-health claim appears.
+6. No internal design, route, CSS, token, viewport, debug, implementation, or developer annotation is rendered or exposed to the user.
+7. No invented navigation destination appears as implemented/authoritative unless it is already supported by repository authority; useful new destinations must be tracked as `DESIGN_PROPOSED_FEATURE`.
+8. Raw implementation scaffolding alone must not cause `CONTRACT_VIOLATION` when it remains implementation-internal and does not alter product behavior.
+9. Before first production release, every open design-proposed feature must receive one final disposition: `IMPLEMENT_BEFORE_RELEASE`, `HIDE_BEFORE_RELEASE`, `DEFER_POST_RELEASE`, or `REJECT`.
+
+Allowed validation statuses:
+
+| Status | Meaning |
+|---|---|
+| `CONTRACT_VALID` | Required content appears, forbidden content is absent, useful unimplemented functional additions are tracked as design-proposed features, and unsupported factual claims are excluded or explicitly marked not accepted. |
+| `CONTRACT_VIOLATION` | Any required item is missing, forbidden item appears, fake identity/debug content is accepted as product content, an unsupported factual claim remains presented as truth, or an unimplemented proposed feature is treated as implemented authority. |
+| `READY_FOR_HUMAN_VISUAL_REVIEW` | The artifact is `CONTRACT_VALID` and ready for human visual review. |
+| `HUMAN_APPROVED` | A human explicitly approves the artifact after visual review. |
+
+`CONTRACT_VALID` is required before `READY_FOR_HUMAN_VISUAL_REVIEW`. Stitch tool success does not imply `CONTRACT_VALID`. Human visual approval is always separate. If validation fails, stop downstream generation; do not edit, regenerate, or generate variants unless explicitly authorized.
+
+## 2C. Production Release Gate For Design-Proposed Features
+
+Before the first production release, every open item in `docs/frontend/design/stitch/design-proposed-features.md` must be reviewed. No `DESIGN_PROPOSED` feature may accidentally ship as a partially functional or misleading control.
+
+Each item must receive one final disposition:
+
+- `IMPLEMENT_BEFORE_RELEASE`
+- `HIDE_BEFORE_RELEASE`
+- `DEFER_POST_RELEASE`
+- `REJECT`
+
+If a feature remains visible in production, it must have the necessary product, frontend, backend/API, permission/security, accessibility, and testing authority appropriate to that feature.
+
 ## 3. Application Information Architecture
 
 | Family | Purpose | Primary actors | Entry routes | Primary screens | Major flows | Relationships | Status | Stitch generation |
@@ -93,21 +205,28 @@ Required model:
 - Actor-aware navigation uses authenticated user roles and permissions from `GET /api/v1/me` / `CurrentUserStore.ready`.
 - `anonymous` shell exposes public/auth destinations only: sign in, sign up, public preparation package offers, and safe terminal/system states when routed.
 - `authenticated` shell exposes account/profile affordance and a sign-out affordance.
-- Nurse primary families: Nurse profile, Exams, My preparation packages, Commerce products/orders when implemented.
+- Approved app shell architecture is hybrid: persistent top application bar on desktop, compact top bar plus accessible menu/drawer on mobile. Do not use a permanent global sidebar for every user; dense families such as Administration may use contextual secondary side navigation when justified.
+- Navigation is organized by user goals/product families, not raw route tree.
+- Nurse primary families: Exams, Preparation Packages, Commerce when applicable destinations are available, and Profile. Account belongs to the user/account affordance.
 - Employer primary families: Employer home, candidate search, recruitment requests.
 - Admin primary families: Admin entry, users, exams/reference/payment/PP admin areas according to exact permission policies.
 - Secondary/contextual destinations include detail pages, form/edit substates, result/review/report states, checkout outcome states, and direct resource routes.
 - Active route behavior must reflect exact route identity/ancestor family without path-prefix authorization decisions.
 - Sign-out placement is required in authenticated shell; exact placement is HUMAN_DECISION_REQUIRED.
 - Profile/account access is required in authenticated shell; exact grouping/order is HUMAN_DECISION_REQUIRED.
-- Mobile access requires a reachable navigation mechanism with route-change close behavior, focus management, and no hidden keyboard traps.
+- Mobile access requires a reachable navigation mechanism with route-change close behavior, focus entry/return, background interaction blocked while modal navigation is open, and no hidden keyboard traps.
 - RTL must use logical layout, mirrored directional affordances only where appropriate, stable numbers/dates/currency, and unchanged brand/status icons.
 - Skip link must jump to main content.
 - Route change closes transient mobile navigation and restores focus to a stable post-navigation target.
 
-Unresolved navigation decisions:
+Resolved Phase 2 navigation decisions:
 
-- HUMAN_DECISION_REQUIRED: exact menu item grouping/order, top nav vs sidebar vs hybrid, icon set, labels/copy, breadcrumb inclusion, desktop density, mobile drawer vs sheet vs bottom navigation, and whether navigation metadata lives in a new navigation contract file or remains generated from this system contract.
+- HD-STITCH-01 resolves hybrid shell architecture.
+- HD-STITCH-02 resolves primary family grouping for Nurse shell and excludes contextual/detail/transient routes from global primary navigation.
+- HD-STITCH-03 resolves icon role: supporting icons with visible text labels; icon-only primary navigation is not approved.
+- HD-STITCH-04 resolves root behavior boundary: state/actor-driven entry, no fake universal dashboard.
+
+Remaining later decisions: exact final product copy for every future actor menu item, optional breadcrumb policy beyond shell placeholder, and future implementation task/gate numbering.
 
 ## 5. App Shell Contract
 
@@ -129,11 +248,11 @@ Viable architectures for Phase 2 review:
 
 | Option | Description | Tradeoff | Status |
 |---|---|---|---|
-| Top header + responsive drawer | Header contains brand/account/sign-out; desktop primary nav in header; mobile drawer. | Simpler, good for moderate route sets; may become crowded for Admin. | HUMAN_DECISION_REQUIRED |
-| Sidebar + header hybrid | Header for brand/account; desktop sidebar for actor navigation; mobile drawer. | Scales for Admin and long families; heavier chrome for learner tasks. | HUMAN_DECISION_REQUIRED |
-| Contextual family tabs inside shell | Header primary actor switch/families; page-level subnav per family. | Reduces shell clutter; risks inconsistent discoverability. | HUMAN_DECISION_REQUIRED |
+| Top application bar + responsive drawer | Header contains brand, primary navigation, account/sign-out; mobile collapses to accessible drawer/menu. | Approved for Phase 2 Shell / App Navigation. | APPROVED_BY_HD-STITCH-01 |
+| Contextual secondary navigation | Optional inside dense families such as Administration, not global for every user. | Keeps learner shell light while supporting admin density. | APPROVED_WHEN_JUSTIFIED |
+| Permanent global sidebar | Sidebar present for every actor and page. | Consumes horizontal space and makes every page feel like admin dashboard. | NOT_APPROVED |
 
-Do not lock architecture in Phase 1.
+Architecture is locked for Phase 2 shell generation by HD-STITCH-01; later Angular implementation still requires a separate task/gate.
 
 ## 6. Role Screen Matrix
 
@@ -141,7 +260,7 @@ All canonical paths from `canonical-routes.ts` are represented. Public/entry rou
 
 | Screen ID | Route ID | Path/template | Family | Audience | Auth | Role | Permission | Ownership/resource | Entry points | Exit/next | Direct URL | Impl status | Design authority | Stitch readiness |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| ROOT | ROOT_ENTRY | `/` | Shared | All | Entry | — | — | Root redirect TBD | Browser/root | HUMAN_DECISION_REQUIRED | YES | Shell exists | Navigation gap | HUMAN_DECISION_REQUIRED |
+| ROOT | ROOT_ENTRY | `/` | Shared | All | Entry | — | — | State/actor-driven root; no fake dashboard | Browser/root | Public entry or actor/product entry according to route/product rules | YES | Shell exists | HD-STITCH-04 | READY_FOR_STITCH |
 | AUTH-001 | AUTH_SIGN_IN | `/auth/sign-in` | Auth | Anonymous/authenticated | Public | — | — | Token/session | Direct, auth redirects | Account/returnUrl/root | YES | Implemented | Legacy approved, redesign reset | READY_FOR_STITCH |
 | AUTH-002 | AUTH_SIGN_UP | `/auth/sign-up` | Auth | Anonymous | Public | — | — | Registration contract | Sign in/public | Check email | YES | Implemented | V1 contract | READY_FOR_STITCH |
 | AUTH-LEGACY-ROLE | AUTH_ROLE_SELECTION | `/auth/role-selection` | Auth | Legacy | Public | — | — | Redirect only | Old links | Sign up | YES | Redirect | No screen | NOT_APPLICABLE |
@@ -190,7 +309,7 @@ All canonical paths from `canonical-routes.ts` are represented. Public/entry rou
 | COM-006 | COMMERCE_PAYMENT_FAILURE | `/checkout/orders/:orderId/failure` | Commerce | Nurse | Authenticated | Nurse | — | Order ownership/payment truth | Provider/backend return | Order detail | YES | Future | HUMAN_APPROVED | CONTRACT_INCOMPLETE |
 | COM-007 | COMMERCE_ORDERS | `/commerce/orders` | Commerce | Nurse | Authenticated | Nurse | — | Owned orders | Shell/account/future | Order detail/products | YES | Future | HUMAN_APPROVED | CONTRACT_INCOMPLETE |
 | COM-008 | COMMERCE_ORDER_DETAIL | `/commerce/orders/:orderId` | Commerce | Nurse | Authenticated | Nurse | — | Order ownership | Orders/outcomes | Orders | YES | Future | HUMAN_APPROVED | CONTRACT_INCOMPLETE |
-| ADM-ENTRY | ADMIN_ENTRY | `/admin` | Admin | Admin | Authenticated | Admin | — | Admin entry | Shell | HUMAN_DECISION_REQUIRED | YES | Future | Route only | HUMAN_DECISION_REQUIRED |
+| ADM-ENTRY | ADMIN_ENTRY | `/admin` | Admin | Admin | Authenticated | Admin | — | Admin entry | Shell | Admin family workspace without fake dashboard metrics | YES | Future | HD-STITCH-06 for shell/dense-data treatment | READY_FOR_PHASE_2_REPRESENTATIVE_SHELL |
 | ADM-002 | ADMIN_USERS | `/admin/users` | Admin | Admin | Authenticated | Admin | Users.View | Backend users | Admin entry | User detail | YES | Implemented | Route/API | READY_FOR_STITCH |
 | ADM-003 | ADMIN_USER_DETAIL | `/admin/users/:userId` | Admin | Admin | Authenticated | Admin | Users.View | User detail | Users | Users | YES | Implemented | Route/API | READY_FOR_STITCH |
 | ADM-005 | ADMIN_REFERENCE_DATA | `/admin/reference-data` | Admin | Admin | Authenticated | Admin | Exams.View | Reference data | Admin entry | Admin entry | YES | Future | Route only | CONTRACT_INCOMPLETE |
@@ -262,7 +381,7 @@ Legend for page type: `list`, `detail`, `form`, `report`, `workflow`, `system st
 | SYS-001 | Route loading | System | non-routable | transient state | Indicate route transition loading. | loading text only. | Shell-level status. | entering/exiting routes. | None. | No fake progress. | READY_FOR_STITCH |
 | SYS-002 | Not found | System | wildcard future, no canonical path | system state | Present unmatched route. | no backend data. | h1 Not found, safe copy, safe action. | ready. | Safe route/account/home TBD. | Preserve unmatched URL; no resource disclosure. | READY_FOR_STITCH |
 | SYS-003 | Unexpected error | System | non-routable | system state | Present unexpected retryable failure. | error copy only. | h1/error heading, retry/safe action. | error/retry. | Contextual. | No raw backend text. | READY_FOR_STITCH |
-| SYS-004/005 | Offline/Maintenance | System | non-routable/deferred | system state | Runtime status if authority exists. | Runtime/deployment contract missing. | TBD. | offline/maintenance. | TBD. | Do not imply offline safety. | DEFERRED |
+| SYS-004/005 | Offline/Maintenance | System | non-routable/deferred | system state | Runtime/service state presentation only. | Runtime/deployment contract incomplete; HD-STITCH-05 allows factual shared visual states without workflow claims. | Calm factual notice, no queued-write or payment/exam safety claims. | offline/maintenance. | Safe retry/back where contract permits. | Do not imply offline storage, queued writes, payment continuation, or sync. | READY_FOR_SHARED_VISUAL_PATTERN_ONLY |
 | SYS-006/007 | Empty/No results | System | non-routable | system state | Reusable list absence states. | title/body/action per owning screen. | calm state; optional CTA for empty only, reset for no-results. | empty/no-results. | Contextual. | No false data claims. | READY_FOR_STITCH |
 
 ## 8. Form Contracts
@@ -571,12 +690,10 @@ Security/non-exposure:
 
 HUMAN_DECISION_REQUIRED:
 
-- Global navigation architecture, exact grouping/order/labels/icons, active state, mobile mechanism, sign-out/account placement, breadcrumb policy.
-- App shell top nav vs sidebar vs hybrid.
-- Root `/` behavior and actor-home routing beyond existing route contracts.
-- Offline/maintenance runtime behavior and copy.
-- Admin dense table vs mobile-card visual authority.
-- Exact future Stitch design-system token additions for iconography, motion, dividers, density, and focus conflict reconciliation.
+- Future implementation task number/gate for Angular shell/navigation.
+- Final optional breadcrumb policy beyond Phase 2 shell placeholder.
+- Workflow-specific offline/maintenance behavior beyond factual shared visual-state treatment.
+- Future actor-specific Employer shell once Employer screen contracts are complete.
 
 CONTRACT_INCOMPLETE screens:
 
@@ -596,7 +713,7 @@ BACKEND_BLOCKED / DEFERRED:
 - COM-004 payment processing route deferred pending provider-callback architecture.
 - Production payment release/provider-specific outcomes blocked by external/backend decision.
 - ADM-001 Dashboard, ADM-004 roles/permissions, ADM-009 payment orders, ADM-010 recruitment management: backend gaps.
-- SYS-004 Offline, SYS-005 Maintenance: runtime/deployment authority required.
+- SYS-004 Offline, SYS-005 Maintenance: shared visual states may be designed factually per HD-STITCH-05; workflow/runtime behavior remains deferred.
 
 ## 21. Phase 2 Batch Plan
 

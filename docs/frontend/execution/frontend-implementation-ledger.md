@@ -809,9 +809,9 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `EXM-008` | `T-FE-074` | `GATE-FE-T061` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EXAM-ANALYTICS` | required in owning gate evidence |
 | `EXM-009` | `T-FE-072` | `GATE-FE-T061` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`SECURITY` | `C-EXAM-RESULT-REVIEW` | required in owning gate evidence |
 | `EXM-010` | `T-FE-073` | `GATE-FE-T061` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EXAM-ANALYTICS` | required in owning gate evidence |
-| `COM-001` | `T-FE-082` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-PAY-PRODUCTS` | required in owning gate evidence |
-| `COM-002` | `T-FE-082` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-PAY-PRODUCTS` | required in owning gate evidence |
-| `COM-003` | `T-FE-084` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-PAY-ORDERS` | required in owning gate evidence |
+| `COM-001` | `T-FE-082` | `GATE-FE-T077` | `APPROVED` | `VERIFIED` | — | `C-PAY-PRODUCTS` | implementation, automated verification (29/29 focused, 840 full suite), 3 stories, responsive/RTL-safe evidence, and populated real-backend browser evidence complete; see `T-FE-082` record |
+| `COM-002` | `T-FE-082` | `GATE-FE-T077` | `APPROVED` | `VERIFIED` | — | `C-PAY-PRODUCTS` | implementation, automated verification, 5 stories, responsive/RTL-safe evidence, and populated real-backend browser evidence complete; browse-only detail with no Purchase control; see `T-FE-082` record |
+| `COM-003` | `T-FE-084` | `GATE-FE-T077` | `APPROVED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-PAY-ORDERS` | design HUMAN_APPROVED (commerce packet); implementation DEFERRED by human sequencing decision pending the Navigation Toolbar campaign — see `T-FE-084` record; not a predecessor/backend/security/contract failure |
 | `COM-004` | `T-FE-086` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-PAY-CHECKOUT` | required in owning gate evidence |
 | `COM-005` | `T-FE-087` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`BACKEND` | `C-PAY-ORDERS`,`C-PAY-CHECKOUT` | required in owning gate evidence |
 | `COM-006` | `T-FE-087` | `GATE-FE-T077` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`BACKEND` | `C-PAY-ORDERS`,`C-PAY-CHECKOUT` | required in owning gate evidence |
@@ -3145,6 +3145,15 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `CONTRACT_CLARIFICATION`
 - evidence_summary: Order schema evidence is recorded: routes, authorization, create variants, list/detail/cancel ownership and lifecycle, DTO fields, status values, Problem Details/error mappings, sensitive-field boundary, OpenAPI omissions, and no implementation performed.
 - closure_evidence: Gate is closed as `VERIFIED` for contract clarification; payment order UI remains subject to downstream task/screen approval gates.
+
+### `T-FE-084` — `COM-003` checkout/order creation (DEFERRED by human sequencing decision, NOT STARTED)
+
+- status: `NOT STARTED`
+- blocker_types: `DESIGN`,`CONTRACT_CLARIFICATION`
+- evidence_date: 2026-09-20
+- defer_summary: Human product/sequencing decision recorded 2026-09-20 from accepted HEAD `a60e3c9`: `T-FE-084` is DEFERRED, not cancelled and not verified. Before continuing Commerce checkout/order-creation implementation, the project prioritizes application navigation / Navigation Toolbar and related usability/design foundation work. This is intentional sequencing, explicitly NOT a predecessor failure (all four predecessors `GATE-FE-T082`, `GATE-FE-T083`, `GATE-FE-T034`, `GATE-FE-T077` are `VERIFIED`), NOT a backend blocker, NOT a security defect, NOT a contract defect, and NOT a rejection of the Commerce design packet (`COM-003` remains HUMAN_APPROVED future work; packet untouched). Status stays `NOT STARTED` because the canonical status model (`§2`) defines no task-level `DEFERRED` value; this NOT STARTED record is the truthful governance entry for the deferred scope (GATE-FE-T065 precedent), not an implementation-ready signal. `ST-FE-084` and `GATE-FE-T084` remain `NOT STARTED` with no execution performed.
+- downstream_effect: Direct DAG dependents on `GATE-FE-T084` — `T-FE-086` (`COM-004` checkout processing), `T-FE-087` (`COM-005/006` generic outcomes), `T-FE-088` (`COM-007/008` orders list/detail) — plus transitive dependents `T-FE-089` (via `GATE-FE-T086`) and `T-FE-137` (via `GATE-FE-T089`) remain NOT STARTED and NOT implementation-ready while the defer holds. No registry rewrite was needed: their existing `DESIGN`/`BACKEND`/`EXTERNAL` blocker types already prevent implementation, and the DAG dependency on `GATE-FE-T084` already encodes the ordering truth. No new blockers invented.
+- reopen_condition: Fresh explicit human authorization after the Navigation Toolbar campaign; no new design/contract prerequisite is implied by the defer itself (existing `DESIGN`,`CONTRACT_CLARIFICATION` blocker types still describe the task's own readiness axes).
 
 ### `T-FE-112` — ADM-009/010 admin orders/recruitment classification
 

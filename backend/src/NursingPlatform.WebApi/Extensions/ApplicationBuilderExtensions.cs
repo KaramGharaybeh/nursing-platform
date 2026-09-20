@@ -416,6 +416,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListPaymentProducts")
+        .Produces<PaginatedResult<PaymentProductDto>>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/payment/products/{id:guid}", async (Guid id, ISender sender) =>
@@ -424,6 +425,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetPaymentProduct")
+        .Produces<PaymentProductDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapPost("/exams/{id:guid}/sessions", async (Guid id, ISender sender) =>

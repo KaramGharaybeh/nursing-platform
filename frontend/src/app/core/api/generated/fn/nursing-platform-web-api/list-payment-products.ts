@@ -7,6 +7,7 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { PaginatedResultOfPaymentProductDto } from '../../models/paginated-result-of-payment-product-dto';
 
 export interface ListPaymentProducts$Params {
   page?: (number | null);
@@ -14,7 +15,7 @@ export interface ListPaymentProducts$Params {
   examId?: string;
 }
 
-export function listPaymentProducts(http: HttpClient, rootUrl: string, params?: ListPaymentProducts$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function listPaymentProducts(http: HttpClient, rootUrl: string, params?: ListPaymentProducts$Params, context?: HttpContext): Observable<StrictHttpResponse<PaginatedResultOfPaymentProductDto>> {
   const rb = new RequestBuilder(rootUrl, listPaymentProducts.PATH, 'get');
   if (params) {
     rb.query('page', params.page, {});
@@ -23,11 +24,11 @@ export function listPaymentProducts(http: HttpClient, rootUrl: string, params?: 
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<PaginatedResultOfPaymentProductDto>;
     })
   );
 }

@@ -101,6 +101,7 @@ export type { PaginatedResultOfExamAnalyticsByExamDto } from './models/paginated
 export type { PaginatedResultOfExamAttemptDto } from './models/paginated-result-of-exam-attempt-dto';
 export type { PaginatedResultOfExamCatalogItemDto } from './models/paginated-result-of-exam-catalog-item-dto';
 export type { PaginatedResultOfPackageEntitlementListItemDto } from './models/paginated-result-of-package-entitlement-list-item-dto';
+export type { PaginatedResultOfPaymentProductDto } from './models/paginated-result-of-payment-product-dto';
 export type { PaginatedResultOfPreparationPackageOfferListItemDto } from './models/paginated-result-of-preparation-package-offer-list-item-dto';
 export type { PaginatedResultOfReceivedContactRequestDto } from './models/paginated-result-of-received-contact-request-dto';
 export type { PaginatedResultOfUserListItemDto } from './models/paginated-result-of-user-list-item-dto';
@@ -111,6 +112,7 @@ export type { PaymentOrderItemDto } from './models/payment-order-item-dto';
 export type { PaymentOrderStatus } from './models/payment-order-status';
 export type { PaymentPackageEntitlementSummaryDto } from './models/payment-package-entitlement-summary-dto';
 export type { PaymentPackageSnapshotDto } from './models/payment-package-snapshot-dto';
+export type { PaymentProductDto } from './models/payment-product-dto';
 export type { PaymentProductType } from './models/payment-product-type';
 export type { PreparationPackageCatalogComponentSummaryDto } from './models/preparation-package-catalog-component-summary-dto';
 export type { PreparationPackageOfferDetailDto } from './models/preparation-package-offer-detail-dto';

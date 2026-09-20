@@ -3096,6 +3096,31 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Product schema evidence is recorded: routes, authorization, list params, source DTO fields, active/published visibility behavior, detail not-found behavior, Problem Details/error metadata, sensitive-field boundary, OpenAPI omissions, and no implementation performed.
 - closure_evidence: Gate is closed as `VERIFIED` for contract clarification; payment product UI remains subject to downstream task/screen approval gates.
 
+### `T-FE-082` — COM-001/002 payment products
+
+- status: `VERIFIED`
+- evidence_date: 2026-09-20
+- scope_summary: Implemented browse-only Commerce product discovery at canonical `/commerce/products` (AUTHENTICATED_ONLY, three-guard pattern, routeId `COMMERCE_PRODUCTS`, lazy `ProductListScreen`) and product detail at `/commerce/products/:productId` (routeId `COMMERCE_PRODUCT_DETAIL`, lazy `ProductDetailScreen`). Created reusable `shared/money` `formatMoney` utility (Intl/ECMA-402 currency fraction digits, BigInt integer handling, locale-aware, malformed-safe throws) and `core/api` `CommercePaymentsApi` facade (`listProducts` fixed pageSize 20, `getProduct`, defensive `CommerceProduct` adaptation with identity/name/currency/minor-unit validation, timestamps/provider data excluded). List renders backend-order rows with name, non-empty description, contextual exam title, Intl-formatted price, and View details canonical links; no Purchase/Pay now/Checkout on rows. Detail renders name, description, exam title, formatted price, Back to products, and factual Unavailable/inactive states; NO Purchase control (deferred to T-FE-084 primary COM-003 ownership; no dead navigation, no order POSTs). Pagination via existing shared component, fixed page size 20, section-only reloads. Approved empty/error/unavailable copy with same-state retry. No provider/instrument UI, no entitlement/package leakage, no T-FE-079 changes. No backend/OpenAPI/generated/DB changes beyond prerequisite `b31a26c`.
+- predecessor_summary: `GATE-FE-T030`, `GATE-FE-T077`, `GATE-FE-T081` all VERIFIED before implementation, per DAG; design authority `c7b5407` (HC-C4/C5); schema prerequisite `b31a26c`.
+- verification_summary: Focused specs 4 files / 29 tests (money 0/2/3-decimal, zero/large/malformed/locale/no-/100; facade exact-paths/pageSize/order/adaptation/malformed-rejection; list heading/rows/price/links/pagination/empty/retry/no-leak; detail direct-load/facts/inactive/unavailable/retry/back/no-leak) plus route-shape coverage in the same files. Neighbor regressions green (T-FE-079 package report, exams catalog). Full frontend suite 85 files / 840 tests green. Stylelint, dependency guard, production build, Storybook build green; `git diff --check` clean. `npm run lint` has one PRE-EXISTING error in untouched `nurse-contact-requests.spec.ts` (`byTestId` unused); all T-FE-082 files lint-clean.
+- populated_e2e_summary: Real backend-backed browser proof as authenticated learner on live data (no interception/mocks): disposable sign-up/MailPit-verify/UI-sign-in/profile/nurse-profile via supported APIs; two products created via supported admin API (USD 4999 with description, USD 1999 without) plus one inactive fixture; catalog route loads with real `?page=1&pageSize=20` GET; rows match backend order/data with `$49.99`/`$19.99` monetary display; View details canonical href; detail renders facts/price with zero order-creation POSTs monitored; no Purchase control anywhere; reload refetches; Back to products lands on catalog; unknown-id detail shows the approved unavailable state with zero GUIDs; desktop + 390px mobile + RTL with zero horizontal overflow and 44px row actions (screenshots `.playwright-mcp/t-fe-082-products-mobile.png`, `.playwright-mcp/t-fe-082-products-rtl.png`). Pagination/empty live limitations: 2-row fixtures (seeding >20 products disproportionate; pagination via focused specs) and non-empty catalog (empty state via focused specs + stories).
+- closure_evidence: Task accepted as complete from implementation + focused/full verification + populated live E2E evidence above. Purchase transition deferred to T-FE-084 by task ownership (intentional sequencing, not a failure). T-FE-084 NOT STARTED.
+
+### `ST-FE-082A` — Build `COM-001` Product Catalog
+
+- status: `VERIFIED`
+- evidence_summary: Typed facade + product list screen/route/pagination + specs + 3 stories delivered within HC-C4 authority; focused coverage and full 840/840 green; populated live E2E with real list GET, monetary display, canonical detail navigation, and zero order-creation side effects.
+
+### `ST-FE-082B` — Build `COM-002` Product Details
+
+- status: `VERIFIED`
+- evidence_summary: Typed facade + product detail screen/route + specs + 5 stories delivered within HC-C5 authority; facts/browse-only detail with no Purchase control; populated live E2E with real detail GET, reload, Back to products, and unavailable/404 behavior.
+
+### `GATE-FE-T082`
+
+- status_result: `VERIFIED`
+- evidence_summary: Product tests + per-screen visual evidence satisfied: focused 29/29 tests, 85/840 full suite, stylelint/deps/build/Storybook green, 8 product stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for catalog/list/detail/direct/reload/back/unavailable states with zero order-creation POSTs. Prerequisites GATE-FE-T030, GATE-FE-T077, and GATE-FE-T081 were VERIFIED before closeout, per DAG. T-FE-084 NOT STARTED.
+
 ### `T-FE-083` — Payment order contract clarification
 
 - status: `VERIFIED`

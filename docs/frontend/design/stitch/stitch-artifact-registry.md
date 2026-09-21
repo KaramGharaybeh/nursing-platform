@@ -2,7 +2,7 @@
 
 ```yaml
 document_id: NPS-DES-STITCH-ARTIFACT-REGISTRY
-status: PHASE_2_AUTHENTICATION_BATCH_APPROVED
+status: PHASE_2_AUTHENTICATED_SHELL_APPROVED
 created_at: 2026-09-20
 updated_at: 2026-09-21
 active_project: projects/17116545761229201855
@@ -72,6 +72,7 @@ The first generated product shell is the human-preferred visual direction for th
 |---|---|---|---|---|
 | Shell / APP-SHELL / Nurse / Desktop | Desktop | `projects/17116545761229201855/screens/fbcef626cae7450fa6f5cedbdbeae8ea` | PREFERRED_VISUAL_BASELINE / NOT HUMAN APPROVED | Human prefers this visual direction for the authenticated Nurse desktop shell. Authoritative shell/navigation retained: brand, top app bar, Exams, Preparation Packages, Products, Profile, account affordance, main content region. Design-proposed features retained for backlog review only: Notifications (`DPF-001`) and Help / Support Access (`DPF-002`). Not accepted as product features: fake user identity, fake clinical title, debug/design annotations, route/debug labels, auth/token/status claims, online/system-health claims, compliance/security claims, and unsupported footer claims. This is not exact as-is human approval. |
 | Shell / APP-SHELL / Nurse / Desktop v2 | Desktop | `projects/17116545761229201855/screens/96852332a6f048039bf76fc459d8f07e` | CONTRACT_VALID / READY_FOR_HUMAN_VISUAL_REVIEW / NOT HUMAN APPROVED / SECONDARY_REFERENCE | Generated exactly once from the prior strict manifest using `assets/6536256059106605307`. It remains a valid reduced reference, but it is not the preferred visual baseline. Human approval has not been granted. |
+| Shell / APP-SHELL / Nurse / Desktop v3 — Human Review Candidate | Desktop | `projects/17116545761229201855/screens/764a9361e16948b0be831e4bf28f584b` | HUMAN_APPROVED_AUTHENTICATED_VISUAL_BASELINE | Human approved the authenticated App Shell visual chrome on 2026-09-21. Approved aspects: top application bar, Nursing Platform branding, primary navigation composition, active-navigation treatment, account affordance/dropdown, spacing/density, visual language, Notifications icon as `DPF-001`, and Help icon as `DPF-002`. Representative Exams content in the content region is non-authoritative and must not be treated as approved Exam behavior. DPF-001/002 remain design-proposed features and receive no implementation authority from this approval. |
 | Shell / APP-SHELL / Nurse / Mobile | Mobile | Not created | PENDING_HUMAN_APPROVAL | Not attempted during foundation reset. |
 | Shell / APP-SHELL / Nurse / Desktop RTL | Desktop | Not created | PENDING_HUMAN_APPROVAL | Not attempted during foundation reset. |
 | Shell / APP-SHELL / Nurse / Mobile RTL | Mobile | Not created | PENDING_HUMAN_APPROVAL | Not attempted during foundation reset. |
@@ -134,6 +135,9 @@ Rejected/superseded Authentication generation attempts from session/tool evidenc
 | First shell excluded content | Fake identity, fake professional title, debug annotations, route/debug labels, auth/session/status claims, online/system-health claims, compliance/security claims, and unsupported footer claims are not accepted as product features and are not backlog items. |
 | Authentication Batch 1 generation | Generated and directly validated accepted visual references for `AUTH-001`, `AUTH-002`, `AUTH-005`, `AUTH-006`, `AUTH-007`, and `AUTH-008` in the active v2 workspace. |
 | Authentication Batch 1 human approval | Human visually approved the six accepted Authentication artifacts on 2026-09-21 as visual references. Rejected attempts listed above are not authoritative. |
+| App Shell v3 generation | Generated exactly one fresh shell candidate: `projects/17116545761229201855/screens/764a9361e16948b0be831e4bf28f584b`, titled `Shell / APP-SHELL / Nurse / Desktop v3 — Human Review Candidate`, using `assets/6536256059106605307`. |
+| App Shell v3 direct validation | Direct artifact inspection found required brand, top application bar, Nurse primary navigation (`Exams`, `Preparation Packages`, `Products`, `Profile`), neutral `Account`, `Sign out`, DPF-001 Notifications icon, DPF-002 Help icon, and a clear content region. No fake user identity, unsupported system/security/compliance claims, service-health claims, token/session status, or permanent universal sidebar were found. |
+| App Shell v3 human approval | Human approved App Shell v3 visual chrome as the authenticated visual baseline on 2026-09-21. Representative Exams content (`All modules`, `Active`, `Archived`, `Filter views...`, placeholder cards, `Destination Content Region`) is shell demonstration content only and is explicitly non-authoritative for Exam product behavior. |
 
 ## Design-Led Feature Discovery Protocol
 
@@ -161,4 +165,4 @@ All future Stitch generation must follow `docs/frontend/design/stitch/system-des
 
 ## Review Status
 
-Authentication Batch 1 (`AUTH-001`, `AUTH-002`, `AUTH-005`, `AUTH-006`, `AUTH-007`, `AUTH-008`) is `HUMAN_APPROVED_VISUAL_REFERENCE` as of 2026-09-21. The original Nurse desktop shell is the `PREFERRED_VISUAL_BASELINE` for authenticated shell visual direction but is not exact as-is `HUMAN_APPROVED`. The replacement v2 shell remains a valid reduced reference, not the preferred baseline. Notifications and Help / Support Access are design-proposed features only. Fake identity/debug content and unsupported security/compliance/status claims are not accepted. Do not treat visual approval as implementation completion. Stop downstream authenticated screen-family generation until the authenticated app shell receives human visual approval.
+Authentication Batch 1 (`AUTH-001`, `AUTH-002`, `AUTH-005`, `AUTH-006`, `AUTH-007`, `AUTH-008`) is `HUMAN_APPROVED_VISUAL_REFERENCE` as of 2026-09-21. App Shell v3 (`projects/17116545761229201855/screens/764a9361e16948b0be831e4bf28f584b`) is `HUMAN_APPROVED_AUTHENTICATED_VISUAL_BASELINE` for authenticated shell chrome as of 2026-09-21. The representative Exams content inside that artifact is non-authoritative demonstration content only. Notifications and Help / Support Access remain `DESIGN_PROPOSED_FEATURE` only and are not implementation authority. Fake identity/debug content and unsupported security/compliance/status claims remain rejected. Do not treat visual approval as implementation completion.

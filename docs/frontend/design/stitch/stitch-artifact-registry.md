@@ -331,6 +331,26 @@ Rejected/superseded Administration generation attempts from this checkpoint:
 | `ADM-PP-DEFINITIONS` | `projects/17116545761229201855/screens/d5095be8407c48cfb1bae66c70b9ad4d` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First retrievable Package Definitions attempt included learner/enrollment/purchase, audit-record, URL/routing, and entitlement-adjacent claims. Replacement timed out and no accepted artifact remains from this checkpoint. |
 | `ADM-PP-OFFERS` | `projects/17116545761229201855/screens/635ae0b32c354fecb7e7fa6e97124008` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Package Offers attempt included catalog discovery/public catalog/storefront/routing, enrollment/learner access, transaction, and candidate-discoverability claims. Replacement timed out and no accepted artifact remains from this checkpoint. |
 
+## Shared/System Generated Candidates
+
+Generation checkpoint: 2026-09-21. These artifacts were generated from the Shared/System `CONTRACT_READY` reusable state contracts in the active v2 Stitch workspace and directly validated through generated HTML. They are contract-validated design candidates pending human visual review. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize implementation work. `SYS-004` and `SYS-005` were not generated because they remain deferred.
+
+Active workspace used for these candidates:
+
+| Field | Value |
+|---|---|
+| Stitch project | `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`) |
+| Stitch design system | `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`) |
+| Canonical design source | `docs/frontend/design/stitch/DESIGN.md` |
+
+| Canonical screen ID | Screen name | Stitch screen | Validation status | Notes |
+|---|---|---|---|---|
+| `SYS-001` | Route Loading | `projects/17116545761229201855/screens/9dad6fd2167b407dbb0541d627b62657` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found authenticated shell chrome with `Loading page` and `Please wait while the page loads.` No fake progress, raw paths, route IDs, token/session/status claims, service-health/system-online claims, Help, Notifications, footer, compliance/security claims, or debug annotations found. |
+| `SYS-002` | Not Found | `projects/17116545761229201855/screens/e526a2a6ae544a3ea4235ae6cb419f19` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found privacy-safe `Not found` state with required body copy and safe `Go to home`/`Back to previous page` actions. No raw paths, route IDs, hidden resource implication, protected-resource details, Help, Notifications, footer, unsupported claims, or debug annotations found. |
+| `SYS-003` | Unexpected Error | `projects/17116545761229201855/screens/e1058447e57b4dcdb972e4275f075008` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found retryable `Something went wrong` state with required body copy and `Try again`/`Go to home` actions. No backend exception text, stack traces, request IDs, route IDs, protected-resource details, token/session/status claims, service-health/system-online claims, Help, Notifications, footer, compliance/security claims, or debug annotations found. |
+| `SYS-006` | Empty | `projects/17116545761229201855/screens/d211ba5ad02945c6bb60b3eee557a714` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found reusable empty state with `Nothing here yet`, required body copy, and `Refresh` only. No create/add/new CTA, fake records, counts, owner-specific entity names, raw paths, route IDs, hidden data implication, Help, Notifications, footer, unsupported claims, or debug annotations found. |
+| `SYS-007` | No Results | `projects/17116545761229201855/screens/9442d040634240c797d2a89eddd9575e` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found filtered-empty `No results found` state with required body copy, generic Search/Status criteria placeholders, and `Clear filters`/`Refresh` actions. No create/add/new CTA, fake records, counts, owner-specific entity names, raw paths, route IDs, hidden data implication, Help, Notifications, footer, unsupported claims, or debug annotations found. |
+
 ## Tool Evidence
 
 | Step | Result |

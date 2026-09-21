@@ -209,6 +209,36 @@ Rejected/superseded Exams generation attempts from this checkpoint:
 | `EXM-007` | `projects/17116545761229201855/screens/78d041cb77d143debaf3a1327e9e35d3` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Exam Result attempt included unsupported blueprint/finalized-attempt/system status/synchronization wording. Superseded by accepted `4b15edf6f4cb43fbbc27fa73b3a99632`. |
 | `EXM-010` | `projects/17116545761229201855/screens/a399ac9c21dd459fb32ec315a756fa00` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Exam History attempt rendered a visible `System status views` section and sync-related content. Superseded by accepted `3e5f4653630446678736491c05b12117`. |
 
+## Preparation Packages Generated Candidates
+
+Generation checkpoint: 2026-09-21. These artifacts were generated from the Preparation Packages `CONTRACT_READY` screen contracts in the active v2 Stitch workspace and directly validated through generated HTML. They are contract-validated design candidates pending human visual review. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize implementation work. `PP-MATERIAL-READER` was not generated because its canonical status remains `BACKEND_BLOCKED`.
+
+Active workspace used for these candidates:
+
+| Field | Value |
+|---|---|
+| Stitch project | `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`) |
+| Stitch design system | `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`) |
+| Canonical design source | `docs/frontend/design/stitch/DESIGN.md` |
+
+| Canonical screen ID | Screen name | Stitch screen | Validation status | Notes |
+|---|---|---|---|---|
+| `PP-001` | Package Offers | `projects/17116545761229201855/screens/46142e7ae7e047d8b83ccb0607d254ed` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found the public anonymous shell, package-offer filters, two authorized offer cards, and pagination. No purchase/payment/entitlement/progress/material-reader/offline/status-reference/footer content found. |
+| `PP-002` | Package Offer Detail | `projects/17116545761229201855/screens/cddd02cf617645d8be2ad0b4b9c04365` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found public package-offer detail facts, included content summary, access duration, and Back to offers actions only. No commerce/payment/material-reader/offline/start/practice/report-result/raw-ID/footer content found. |
+| `PP-003` | My Preparation Packages | `projects/17116545761229201855/screens/3f464587aa57403c8e81d4d7a94f020e` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found authenticated Preparation Packages shell, owned entitlement cards, backend-style status/access/rights/attempt/report indicators, and pagination. No price/order/provider/raw-ID/material-reader/download/offline/reference/footer content found. |
+| `PP-004` | Entitlement Detail | `projects/17116545761229201855/screens/0d56286fc5114969a4227c1d24b0759c` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found entitlement summary, rights, purchase snapshot dates, practice facts, package exam/report availability, and approved actions only. No invented duration/modules/report-analysis copy, price/payment/provider/raw IDs/material-reader/download/offline/percentage/reference/footer content found. |
+| `PP-005` | Practice | `projects/17116545761229201855/screens/41f5fc1fd7db4ab4b5b70f73e946fd98` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found package practice progress counts, practice collections, active practice item, option selection, Save answer, and Back to entitlement. No material reader/download/offline/official-exam/answer-key/rationale/adaptive/percentage/report-result/reference/footer content found. |
+| `PP-EXAM-START` | Package Exam Start Confirmation | `projects/17116545761229201855/screens/6f74c1d6b21d45ceaffe8a7dfe7dadb0` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found package exam start confirmation with package/exam context, attempt availability, attempt-consumption message, Cancel, Start package exam, Resume package exam, and Back to entitlement. No exam questions/answers/results/timer/payment/provider/raw-ID/system-status/reference/footer content found. |
+| `PP-007` | Package Report | `projects/17116545761229201855/screens/3d75a0c5ad0b4d41aee81c41cb16ea77` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found Summary, Per-topic report, and Recommended package content with only approved metrics, rows, names, and types. No recommendation actions, question text, answers/answer keys, rationales, provenance, payment/provider/raw-ID/material-reader/download/offline/reference/footer content found. |
+
+Rejected/superseded Preparation Packages generation attempts from this checkpoint:
+
+| Canonical screen ID | Stitch screen | Disposition | Reason |
+|---|---|---|---|
+| `PP-001` | `projects/17116545761229201855/screens/46c2322d886442d699495f863e21ff63` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Package Offers attempt rendered visible `System Status Reference Views` and a `verified` icon ligature. Superseded by accepted `46142e7ae7e047d8b83ccb0607d254ed`. |
+| `PP-004` | `projects/17116545761229201855/screens/9488cd80433344d69d7105cb7b4772a6` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Entitlement Detail attempt added unauthorized `Self-paced modules`, `NMC CBT Adult Nursing standard duration`, and report-analysis lock copy. Superseded by accepted `0d56286fc5114969a4227c1d24b0759c`. |
+| `PP-007` | `projects/17116545761229201855/screens/0ac8a9848a624c88ba41828d6b57a3e8` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Package Report attempt added extra presentation labels/actions (`overall score`, `Start practice`, `View summary`) beyond the report contract. Superseded by accepted `3d75a0c5ad0b4d41aee81c41cb16ea77`. |
+
 ## Tool Evidence
 
 | Step | Result |

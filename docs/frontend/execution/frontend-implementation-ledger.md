@@ -791,14 +791,14 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `NUR-011` | `T-FE-062` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-SKILLS-LANG` | complete |
 | `NUR-012` | `T-FE-064` | `GATE-FE-T052` | `APPROVED` | `VERIFIED` | — | `C-NUR-CV` | complete |
 | `NUR-013` | `T-FE-065` | `GATE-FE-T052` | `DEFERRED` | `NOT STARTED` | — | `C-NUR-PROFILE` | intentionally not implemented under HD-P1 Option B; reopen needs fresh product authority |
-| `EMP-001` | `T-FE-090` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-PROFILE` | required in owning gate evidence |
-| `EMP-002` | `T-FE-091` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-CANDIDATES` | required in owning gate evidence |
-| `EMP-003` | `T-FE-091` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-CANDIDATES` | required in owning gate evidence |
-| `EMP-004` | `T-FE-091` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-CANDIDATES` | required in owning gate evidence |
-| `EMP-005` | `T-FE-094` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND` | `C-EMP-CANDIDATES` | required if implemented |
-| `EMP-006` | `T-FE-094` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-REQUESTS` | required in owning gate evidence |
-| `EMP-007` | `T-FE-095` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-REQUESTS` | required in owning gate evidence |
-| `EMP-008` | `T-FE-095` | `GATE-FE-T085` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EMP-REQUESTS` | required in owning gate evidence |
+| `EMP-001` | `T-FE-090` | `GATE-FE-T085` | `APPROVED` | `VERIFIED` | — | `C-EMP-PROFILE` | design contract approved by `employer-screen-approval-packet.md`; implementation remains NOT STARTED in owning task |
+| `EMP-002` | `T-FE-091` | `GATE-FE-T085` | `APPROVED` | `VERIFIED` | — | `C-EMP-CANDIDATES` | design contract approved using current API-backed filters; implementation remains NOT STARTED in owning task |
+| `EMP-003` | `T-FE-091` | `GATE-FE-T085` | `APPROVED` | `VERIFIED` | — | `C-EMP-CANDIDATES` | design contract approved using safe candidate-list DTO fields only; implementation remains NOT STARTED in owning task |
+| `EMP-004` | `T-FE-091` | `GATE-FE-T085` | `APPROVED` | `VERIFIED` | — | `C-EMP-CANDIDATES` | design contract approved for initial/no-results/filtered-empty states; implementation remains NOT STARTED in owning task |
+| `EMP-005` | `T-FE-094` | `GATE-FE-T085` | `DEFERRED` | `NOT STARTED` | `BACKEND` | `C-EMP-CANDIDATES` | candidate detail intentionally deferred/backend-blocked for v1; `T-FE-093` remains the candidate-detail backend-gap authority |
+| `EMP-006` | `T-FE-094` | `GATE-FE-T085` | `APPROVED` | `VERIFIED` | — | `C-EMP-REQUESTS` | design contract approved for list-originated request + confirmation; implementation remains NOT STARTED in owning task |
+| `EMP-007` | `T-FE-095` | `GATE-FE-T085` | `APPROVED` | `VERIFIED` | — | `C-EMP-REQUESTS` | design contract approved for current DTO-backed request list; implementation remains NOT STARTED in owning task |
+| `EMP-008` | `T-FE-095` | `GATE-FE-T085` | `APPROVED` | `VERIFIED` | — | `C-EMP-REQUESTS` | design contract approved for current DTO-backed request detail; implementation remains NOT STARTED in owning task |
 | `EXM-001` | `T-FE-067` | `GATE-FE-T061` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-EXAM-CATALOG` | required in owning gate evidence |
 | `EXM-002` | `T-FE-067` | `GATE-FE-T061` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-EXAM-CATALOG` | required in owning gate evidence |
 | `EXM-003` | `T-FE-068` | `GATE-FE-T061` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-EXAM-START`,`C-PAY-PRODUCTS` | required in owning gate evidence |
@@ -3070,6 +3070,27 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status_result: `VERIFIED`
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence satisfies the family-packet requirement: `commerce-screen-approval-packet.md` exists with explicit APPROVED decisions for COM-001/002/003/005/006/007/008, explicit DEFERRED for COM-004 with owning architecture decision identified, and no invented provider/instrument/pricing behavior. Downstream Commerce tasks remain NOT STARTED pending separate authorization (including recorded OpenAPI metadata prerequisites where applicable).
+
+### `T-FE-085` — Employer screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-21
+- scope_summary: Documentation/design-authority packet only: created `docs/frontend/design/inventory/employer-screen-approval-packet.md` covering `EMP-001..008` with human-approved decisions `HD-EMP-01..04`. No Stitch generation, Angular components/routes/navigation UI, backend/OpenAPI/generated/database/package/Storybook implementation, or push occurred.
+- contract_summary: `T-FE-085` owns the `EMP-001..008` packet review. `EMP-001/002/003/004/006/007/008` are APPROVED as v1 design contracts. `EMP-005` Candidate Detail is explicitly DEFERRED/BACKEND_BLOCKED until a candidate-detail API/DTO/privacy contract exists. Candidate Search uses current API-backed filters and safe list DTO fields only. Candidate Request starts from candidate results with simple confirmation and no added form fields. Employer Requests use current `ContactRequestDto`, statuses `Pending`/`Approved`/`Rejected`/`Cancelled`, and pending-only cancel with confirmation.
+- verification_summary: Docs-only verification: packet exists with decisions per screen, backend/API authority boundaries, privacy/non-exposure rules, responsive/RTL/accessibility requirements, explicit non-goals, `EMP-005` deferral, and remaining backend gaps recorded. Screen contracts and screen index are reconciled to `CONTRACT_READY` for approved v1 design contracts and `DEFERRED` for `EMP-005`. Implementation tasks remain governed by their own predecessor gates and verification requirements.
+
+### `ST-FE-085` — Prepare Employer screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Packet prepared and human-approved with `HD-EMP-01..04`; per-screen decisions recorded; candidate detail explicitly deferred; request initiation/status/cancel/search boundaries pinned to current backend authority without inventing new backend behavior.
+
+### `GATE-FE-T085`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence satisfies the family-packet requirement: `employer-screen-approval-packet.md` exists with explicit APPROVED decisions for `EMP-001/002/003/004/006/007/008`, explicit DEFERRED/BACKEND_BLOCKED decision for `EMP-005`, backend/API and privacy boundaries recorded, and no invented metrics, candidate detail, private candidate fields, request actions, or unsupported search features. `T-FE-090` becomes the first downstream Employer implementation candidate subject to its own predecessor gates and implementation authorization; `T-FE-091`, `T-FE-094`, and `T-FE-095` remain blocked by their declared predecessor gates.
 
 ### `T-FE-081` — Payment product contract clarification
 

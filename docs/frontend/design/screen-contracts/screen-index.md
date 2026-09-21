@@ -92,14 +92,14 @@ Notes:
 | Commerce | COM-006 | `COMMERCE_PAYMENT_FAILURE` | `/checkout/orders/:orderId/failure` | AUTHORITY_GAP | `commerce.md#com-006-payment-failure` |
 | Commerce | COM-007 | `COMMERCE_ORDERS` | `/commerce/orders` | AUTHORITY_GAP | `commerce.md#com-007-order-history` |
 | Commerce | COM-008 | `COMMERCE_ORDER_DETAIL` | `/commerce/orders/:orderId` | AUTHORITY_GAP | `commerce.md#com-008-order-detail` |
-| Employer | EMP-001 | `EMPLOYER_HOME` | `/employer` | AUTHORITY_GAP | `employer.md#emp-001-employer-home` |
-| Employer | EMP-002 | `EMPLOYER_CANDIDATES` | `/employer/candidates` | AUTHORITY_GAP | `employer.md#emp-002-candidate-search` |
-| Employer | EMP-003 | `EMPLOYER_CANDIDATES` | `/employer/candidates` | AUTHORITY_GAP | `employer.md#emp-003-candidate-results` |
-| Employer | EMP-004 | `EMPLOYER_CANDIDATES` | `/employer/candidates` | AUTHORITY_GAP | `employer.md#emp-004-candidate-empty-filtered-states` |
-| Employer | EMP-005 | NOT_ROUTABLE | candidate detail concept | BACKEND_BLOCKED | `employer.md#emp-005-candidate-detail` |
-| Employer | EMP-006 | NOT_ROUTABLE | candidate request concept | BACKEND_BLOCKED | `employer.md#emp-006-candidate-request` |
-| Employer | EMP-007 | `EMPLOYER_REQUESTS` | `/employer/requests` | AUTHORITY_GAP | `employer.md#emp-007-employer-requests` |
-| Employer | EMP-008 | `EMPLOYER_REQUEST_DETAIL` | `/employer/requests/:requestId` | AUTHORITY_GAP | `employer.md#emp-008-employer-request-detail` |
+| Employer | EMP-001 | `EMPLOYER_HOME` | `/employer` | CONTRACT_READY | `employer.md#emp-001-employer-home` |
+| Employer | EMP-002 | `EMPLOYER_CANDIDATES` | `/employer/candidates` | CONTRACT_READY | `employer.md#emp-002-candidate-search` |
+| Employer | EMP-003 | `EMPLOYER_CANDIDATES` | `/employer/candidates` | CONTRACT_READY | `employer.md#emp-003-candidate-results` |
+| Employer | EMP-004 | `EMPLOYER_CANDIDATES` | `/employer/candidates` | CONTRACT_READY | `employer.md#emp-004-candidate-empty-filtered-states` |
+| Employer | EMP-005 | NOT_ROUTABLE | candidate detail concept | DEFERRED | `employer.md#emp-005-candidate-detail` |
+| Employer | EMP-006 | NOT_ROUTABLE | candidate request concept | CONTRACT_READY | `employer.md#emp-006-candidate-request` |
+| Employer | EMP-007 | `EMPLOYER_REQUESTS` | `/employer/requests` | CONTRACT_READY | `employer.md#emp-007-employer-requests` |
+| Employer | EMP-008 | `EMPLOYER_REQUEST_DETAIL` | `/employer/requests/:requestId` | CONTRACT_READY | `employer.md#emp-008-employer-request-detail` |
 | Administration | ADM-ENTRY | `ADMIN_ENTRY` | `/admin` | AUTHORITY_GAP | `administration.md#adm-entry-admin-entry` |
 | Administration | ADM-002 | `ADMIN_USERS` | `/admin/users` | CONTRACT_READY | `administration.md#adm-002-admin-users` |
 | Administration | ADM-003 | `ADMIN_USER_DETAIL` | `/admin/users/:userId` | CONTRACT_READY | `administration.md#adm-003-admin-user-detail` |

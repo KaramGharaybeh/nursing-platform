@@ -256,6 +256,36 @@ Active workspace used for these candidates:
 | `COM-001` | Product Catalog | `projects/17116545761229201855/screens/21862f11a45049cb9f95f4af1ad65361` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found authenticated Products shell, two product cards with safe title/description/type/availability/price/currency fields, View details actions, and pagination. No Purchase/Buy/Checkout/order/payment/provider/search/filter/raw-ID/reference/footer content found. |
 | `COM-002` | Product Detail | `projects/17116545761229201855/screens/31c3beeed6ee4a6abf5a147b1c27880e` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found authenticated Products shell, product detail heading/context, safe product type/availability/name/description/price/currency facts, and Back to Products only. No Purchase/Buy/Checkout/order/payment/provider/raw-ID/invented-benefit/reference/footer content found. |
 
+## Employer Generated Candidates
+
+Generation checkpoint: 2026-09-21. These artifacts were generated from the Employer `CONTRACT_READY` screen contracts in the active v2 Stitch workspace and directly validated through generated HTML. They are contract-validated design candidates pending human visual review. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize implementation work. `EMP-005` was not generated because Candidate Detail remains deferred/backend-blocked.
+
+Active workspace used for these candidates:
+
+| Field | Value |
+|---|---|
+| Stitch project | `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`) |
+| Stitch design system | `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`) |
+| Canonical design source | `docs/frontend/design/stitch/DESIGN.md` |
+
+| Canonical screen ID | Screen name | Stitch screen | Validation status | Notes |
+|---|---|---|---|---|
+| `EMP-001` | Employer Home | `projects/17116545761229201855/screens/f8e292e2af1e4dccb75214f063680f97` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found focused Employer workspace entries for Candidate Search and Employer Requests plus factual profile readiness guidance. No metrics/KPIs/counts/activity-feed/private-candidate/reference/footer content found. |
+| `EMP-002` | Candidate Search | `projects/17116545761229201855/screens/5c50950bee4243bf80f66486eb1ba07f` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found approved candidate search filters, Apply/Clear actions, and pagination only. No candidate cards, Candidate Detail/View profile/request action, sorting, counts, recommendations, private data, reference, or footer content found. |
+| `EMP-003` | Candidate Results | `projects/17116545761229201855/screens/e0639590cf4e40b381aa00e5e0c83494` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement after one unrecovered timeout; direct HTML validation found safe candidate-list fields, Request contact actions, and pagination. No Candidate Detail/View profile/private data/raw IDs/scores/recommendations/counts/footer content found. |
+| `EMP-004` | Candidate Empty / Filtered States | `projects/17116545761229201855/screens/27de589b1de64f3da5ff7dbc6bdfec81` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement after one unrecovered timeout; direct HTML validation found approved filters, filtered-empty copy, Clear filters action, and pagination. No hidden counts/recommendations/saved-search/alerts/Candidate Detail/private data/reference/footer content found. |
+| `EMP-006` | Candidate Request | `projects/17116545761229201855/screens/797c6e47de2f42628ba1250cc3bbe723` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found one safe candidate summary and request confirmation with Cancel/Send request only. No extra candidate rows, success banners, message/note/reason fields, Candidate Detail/View profile/private data/raw IDs/footer content found. |
+| `EMP-007` | Employer Requests | `projects/17116545761229201855/screens/faabbe70e39a4a1fb7ad181abbc57f3e` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found safe request-list fields, approved status filter, Pending/Approved/Cancelled statuses, View request, Pending-only Cancel request, and pagination. No private data, bulk/approve/reject actions, notes/messages/reasons/raw IDs/reference/footer content found. |
+| `EMP-008` | Employer Request Detail | `projects/17116545761229201855/screens/11ab2f9c11b4435faf48ed4ef7c57e97` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found request detail fields, Pending status, Back to Requests, and cancel confirmation with Keep request/Cancel request. No Target Candidate label, Candidate Detail/View profile/private data/message/reason/raw IDs/reference/footer content found. |
+
+Rejected/superseded Employer generation attempts from this checkpoint:
+
+| Canonical screen ID | Stitch screen | Disposition | Reason |
+|---|---|---|---|
+| `EMP-002` | `projects/17116545761229201855/screens/24be350af13649b487e472fe58f45ce9` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Candidate Search attempt merged candidate result cards and `View profile`, implying deferred Candidate Detail. Superseded by accepted `5c50950bee4243bf80f66486eb1ba07f`. |
+| `EMP-006` | `projects/17116545761229201855/screens/b9a2e404be26447090824205a8006eef` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Candidate Request attempt added an extra candidate row, invented `Candidate direct communication inquiry`, and split success action text into `View`. Superseded by accepted `797c6e47de2f42628ba1250cc3bbe723`. |
+| `EMP-008` | `projects/17116545761229201855/screens/4f1c7d062266451793e640438c16ea57` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Request Detail attempt added an extra `Target Candidate` label beyond the approved field list. Superseded by accepted `11ab2f9c11b4435faf48ed4ef7c57e97`. |
+
 ## Tool Evidence
 
 | Step | Result |

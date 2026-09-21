@@ -100,21 +100,21 @@ Notes:
 | Employer | EMP-006 | NOT_ROUTABLE | candidate request concept | CONTRACT_READY | `employer.md#emp-006-candidate-request` |
 | Employer | EMP-007 | `EMPLOYER_REQUESTS` | `/employer/requests` | CONTRACT_READY | `employer.md#emp-007-employer-requests` |
 | Employer | EMP-008 | `EMPLOYER_REQUEST_DETAIL` | `/employer/requests/:requestId` | CONTRACT_READY | `employer.md#emp-008-employer-request-detail` |
-| Administration | ADM-ENTRY | `ADMIN_ENTRY` | `/admin` | AUTHORITY_GAP | `administration.md#adm-entry-admin-entry` |
+| Administration | ADM-ENTRY | `ADMIN_ENTRY` | `/admin` | CONTRACT_READY | `administration.md#adm-entry-admin-entry` |
 | Administration | ADM-002 | `ADMIN_USERS` | `/admin/users` | CONTRACT_READY | `administration.md#adm-002-admin-users` |
 | Administration | ADM-003 | `ADMIN_USER_DETAIL` | `/admin/users/:userId` | CONTRACT_READY | `administration.md#adm-003-admin-user-detail` |
-| Administration | ADM-005 | `ADMIN_REFERENCE_DATA` | `/admin/reference-data` | AUTHORITY_GAP | `administration.md#adm-005-reference-data` |
-| Administration | ADM-006 | `ADMIN_EXAMS` | `/admin/exams` | AUTHORITY_GAP | `administration.md#adm-006-admin-exams` |
-| Administration | ADM-007 | `ADMIN_EXAM_DETAIL` | `/admin/exams/:examId` | AUTHORITY_GAP | `administration.md#adm-007-admin-exam-detail` |
-| Administration | ADM-008 | `ADMIN_EXAM_VERSIONS` | `/admin/exams/:examId/versions` | AUTHORITY_GAP | `administration.md#adm-008-admin-exam-versions` |
-| Administration | ADM-QUESTIONS | `ADMIN_EXAM_QUESTIONS` | `/admin/exams/:examId/questions` | AUTHORITY_GAP | `administration.md#adm-questions-admin-exam-questions` |
-| Administration | ADM-PAY-PRODUCTS | `ADMIN_PAYMENT_PRODUCTS` | `/admin/payment-products` | AUTHORITY_GAP | `administration.md#adm-pay-products-admin-payment-products` |
-| Administration | ADM-PP-TOPICS | `ADMIN_PREPARATION_PACKAGE_TOPICS` | `/admin/preparation-packages/topics` | AUTHORITY_GAP | `administration.md#adm-pp-topics-reporting-topics` |
-| Administration | ADM-PP-PROFILES | `ADMIN_PREPARATION_PACKAGE_PROFILES` | `/admin/preparation-packages/profiles` | AUTHORITY_GAP | `administration.md#adm-pp-profiles-reporting-profiles` |
-| Administration | ADM-PP-MATERIALS | `ADMIN_PREPARATION_PACKAGE_MATERIALS` | `/admin/preparation-packages/materials` | AUTHORITY_GAP | `administration.md#adm-pp-materials-study-materials` |
-| Administration | ADM-PP-PRACTICE | `ADMIN_PREPARATION_PACKAGE_PRACTICE_COLLECTIONS` | `/admin/preparation-packages/practice-collections` | AUTHORITY_GAP | `administration.md#adm-pp-practice-practice-collections` |
-| Administration | ADM-PP-DEFINITIONS | `ADMIN_PREPARATION_PACKAGE_DEFINITIONS` | `/admin/preparation-packages/definitions` | AUTHORITY_GAP | `administration.md#adm-pp-definitions-package-definitions` |
-| Administration | ADM-PP-OFFERS | `ADMIN_PREPARATION_PACKAGE_OFFERS` | `/admin/preparation-packages/offers` | AUTHORITY_GAP | `administration.md#adm-pp-offers-package-offers` |
+| Administration | ADM-005 | `ADMIN_REFERENCE_DATA` | `/admin/reference-data` | CONTRACT_READY | `administration.md#adm-005-reference-data--exam-categories` |
+| Administration | ADM-006 | `ADMIN_EXAMS` | `/admin/exams` | CONTRACT_READY | `administration.md#adm-006-admin-exams` |
+| Administration | ADM-007 | `ADMIN_EXAM_DETAIL` | `/admin/exams/:examId` | CONTRACT_READY | `administration.md#adm-007-admin-exam-detail` |
+| Administration | ADM-008 | `ADMIN_EXAM_VERSIONS` | `/admin/exams/:examId/versions` | CONTRACT_READY | `administration.md#adm-008-admin-exam-versions` |
+| Administration | ADM-QUESTIONS | `ADMIN_EXAM_QUESTIONS` | `/admin/exams/:examId/questions` | CONTRACT_READY | `administration.md#adm-questions-admin-exam-questions` |
+| Administration | ADM-PAY-PRODUCTS | `ADMIN_PAYMENT_PRODUCTS` | `/admin/payment-products` | CONTRACT_READY | `administration.md#adm-pay-products-admin-payment-products` |
+| Administration | ADM-PP-TOPICS | `ADMIN_PREPARATION_PACKAGE_TOPICS` | `/admin/preparation-packages/topics` | CONTRACT_READY | `administration.md#adm-pp-topics-reporting-topics` |
+| Administration | ADM-PP-PROFILES | `ADMIN_PREPARATION_PACKAGE_PROFILES` | `/admin/preparation-packages/profiles` | CONTRACT_READY | `administration.md#adm-pp-profiles-reporting-profiles` |
+| Administration | ADM-PP-MATERIALS | `ADMIN_PREPARATION_PACKAGE_MATERIALS` | `/admin/preparation-packages/materials` | CONTRACT_READY | `administration.md#adm-pp-materials-study-materials` |
+| Administration | ADM-PP-PRACTICE | `ADMIN_PREPARATION_PACKAGE_PRACTICE_COLLECTIONS` | `/admin/preparation-packages/practice-collections` | CONTRACT_READY | `administration.md#adm-pp-practice-practice-collections` |
+| Administration | ADM-PP-DEFINITIONS | `ADMIN_PREPARATION_PACKAGE_DEFINITIONS` | `/admin/preparation-packages/definitions` | CONTRACT_READY | `administration.md#adm-pp-definitions-package-definitions` |
+| Administration | ADM-PP-OFFERS | `ADMIN_PREPARATION_PACKAGE_OFFERS` | `/admin/preparation-packages/offers` | CONTRACT_READY | `administration.md#adm-pp-offers-package-offers` |
 | Administration | ADM-DASHBOARD | NOT_ROUTABLE | admin dashboard concept | BACKEND_BLOCKED | `administration.md#adm-dashboard` |
 | Administration | ADM-004 | NOT_ROUTABLE | roles/permissions management concept | BACKEND_BLOCKED | `administration.md#adm-004-roles-and-permissions` |
 | Administration | ADM-009 | NOT_ROUTABLE | admin payment orders concept | BACKEND_BLOCKED | `administration.md#adm-009-admin-payment-orders` |

@@ -410,20 +410,20 @@ All Tasks have initial `status: NOT STARTED`.
 | `T-FE-095` | `M-FE-014` | `EMP-007/008` employer requests | `GATE-FE-T094`,`GATE-FE-T038`,`GATE-FE-T085` | list/detail/cancel | `DESIGN` |
 | `T-FE-096` | `M-FE-014` | Nurse received contact requests | `GATE-FE-T056`,`GATE-FE-T038` | not EMP canonical owner | `DESIGN` |
 | `T-FE-097` | `M-FE-015` | `ACC-001/002` account overview/details | `GATE-FE-T138`,`GATE-FE-T033`,`GATE-FE-T092` | `/me` only | `DESIGN` |
-| `T-FE-098` | `M-FE-016` | Admin screen approval packet | design/backend/state review | `ADM-001..010` packet review | `DESIGN` |
+| `T-FE-098` | `M-FE-016` | Admin screen approval packet | design/backend/state review | expanded Admin packet review (`ADM-ENTRY`, `ADM-002/003/005/006/007/008`, `ADM-QUESTIONS`, `ADM-PAY-PRODUCTS`, `ADM-PP-*`, blocked Admin concepts) | `DESIGN` |
 | `T-FE-099` | `M-FE-015` | `ACC-003` change password classification | local contract check | backend gap unless found | `BACKEND` |
 | `T-FE-100` | `M-FE-015` | `ACC-004` sessions classification | local contract check | backend gap unless found | `BACKEND` |
 | `T-FE-101` | `M-FE-015` | `ACC-005` notification preferences classification | local contract check | backend gap unless found | `BACKEND` |
 | `T-FE-102` | `M-FE-015` | `ACC-006` account status classification | local contract check | coded state only if found | `BACKEND`,`CONTRACT_CLARIFICATION` |
-| `T-FE-103` | `M-FE-016` | `ADM-001` dashboard classification | local contract check + approval | metrics absent | `BACKEND`,`DESIGN` |
+| `T-FE-103` | `M-FE-016` | `ADM-DASHBOARD` dashboard classification / `ADM-ENTRY` workspace if authorized | local contract check + approval | metrics absent; static workspace only when approved | `BACKEND`,`DESIGN` |
 | `T-FE-104` | `M-FE-016` | `ADM-002/003` users | `GATE-FE-T030`,`GATE-FE-T038`,`GATE-FE-T098` | raw JSON sensitive checks | `SECURITY`,`DESIGN`,`CONTRACT_CLARIFICATION` |
 | `T-FE-105` | `M-FE-016` | `ADM-004` roles/permissions classification | local contract check | backend gap unless found | `BACKEND` |
-| `T-FE-106` | `M-FE-016` | `ADM-005` exam categories/reference data | `GATE-FE-T034`,`GATE-FE-T038`,`GATE-FE-T098` | exam categories only | `DESIGN` |
+| `T-FE-106` | `M-FE-016` | `ADM-005` exam categories/reference data | `GATE-FE-T034`,`GATE-FE-T038`,`GATE-FE-T098` | exam categories only; not generic reference data | `DESIGN` |
 | `T-FE-107` | `M-FE-016` | `ADM-006` admin exam lifecycle | `GATE-FE-T106`,`GATE-FE-T098` | split | `DESIGN`,`CONTRACT_CLARIFICATION` |
-| `T-FE-108` | `M-FE-016` | Admin exam version lifecycle | `GATE-FE-T107` | split | `DESIGN` |
-| `T-FE-109` | `M-FE-016` | `ADM-007` question lifecycle | `GATE-FE-T108` | split | `DESIGN` |
+| `T-FE-108` | `M-FE-016` | `ADM-008` admin exam version lifecycle | `GATE-FE-T107`,`GATE-FE-T098` | split | `DESIGN` |
+| `T-FE-109` | `M-FE-016` | `ADM-QUESTIONS` question lifecycle | `GATE-FE-T108`,`GATE-FE-T098` | split | `DESIGN` |
 | `T-FE-110` | `M-FE-016` | Answer option lifecycle | `GATE-FE-T109` | split | `DESIGN` |
-| `T-FE-111` | `M-FE-016` | `ADM-008` admin payment products | `GATE-FE-T034`,`GATE-FE-T038`,`GATE-FE-T098` | no orders | `DESIGN`,`CONTRACT_CLARIFICATION` |
+| `T-FE-111` | `M-FE-016` | `ADM-PAY-PRODUCTS` admin payment products | `GATE-FE-T034`,`GATE-FE-T038`,`GATE-FE-T098` | no orders | `DESIGN`,`CONTRACT_CLARIFICATION` |
 | `T-FE-112` | `M-FE-016` | `ADM-009/010` admin orders/recruitment classification | local contract check | backend gap unless found | `BACKEND` |
 | `T-FE-113` | `M-FE-017` | Shared System screen approval packet | design/backend/runtime review | `SYS-001..007` packet review | `DESIGN` |
 | `T-FE-114` | `M-FE-016` | Admin PP reporting topics | `GATE-FE-T034`,`GATE-FE-T038`,`GATE-FE-T098` | split | `DESIGN` |
@@ -576,16 +576,16 @@ All Subtasks initially have `status: NOT STARTED`. Each Subtask inherits its par
 | `ST-FE-100` | `T-FE-100` | Classify `ACC-004` Security/Sessions. |
 | `ST-FE-101` | `T-FE-101` | Classify `ACC-005` Notification Preferences. |
 | `ST-FE-102` | `T-FE-102` | Classify `ACC-006` Account Status. |
-| `ST-FE-103` | `T-FE-103` | Classify/build `ADM-001` dashboard/static landing. |
+| `ST-FE-103` | `T-FE-103` | Classify dashboard gap / build `ADM-ENTRY` static workspace only if separately authorized. |
 | `ST-FE-104A` | `T-FE-104` | Build `ADM-002` Users. |
 | `ST-FE-104B` | `T-FE-104` | Build `ADM-003` User Details. |
 | `ST-FE-105` | `T-FE-105` | Classify `ADM-004` Roles/Permissions. |
 | `ST-FE-106` | `T-FE-106` | Build `ADM-005` exam categories/reference data. |
 | `ST-FE-107` | `T-FE-107` | Build `ADM-006` admin exam lifecycle. |
-| `ST-FE-108` | `T-FE-108` | Build admin exam version lifecycle. |
-| `ST-FE-109` | `T-FE-109` | Build `ADM-007` question lifecycle. |
+| `ST-FE-108` | `T-FE-108` | Build `ADM-008` admin exam version lifecycle. |
+| `ST-FE-109` | `T-FE-109` | Build `ADM-QUESTIONS` question lifecycle. |
 | `ST-FE-110` | `T-FE-110` | Build answer option lifecycle. |
-| `ST-FE-111` | `T-FE-111` | Build `ADM-008` admin payment products. |
+| `ST-FE-111` | `T-FE-111` | Build `ADM-PAY-PRODUCTS` admin payment products. |
 | `ST-FE-112` | `T-FE-112` | Classify `ADM-009/010` admin orders/recruitment. |
 | `ST-FE-113` | `T-FE-113` | Prepare Shared System screen approval packet. |
 | `ST-FE-114` | `T-FE-114` | Build admin PP reporting topics. |
@@ -727,8 +727,8 @@ All Gates initially have `status_result: NOT STARTED`. Every Gate must use the c
 | `GATE-FE-T105` | `T-FE-105` | local inspection | role CRUD classification | `BACKEND` |
 | `GATE-FE-T106` | `T-FE-106` | `GATE-FE-T034`, `GATE-FE-T038`, `GATE-FE-T098` | category tests + visual | `DESIGN` |
 | `GATE-FE-T107` | `T-FE-107` | `GATE-FE-T106`, `GATE-FE-T098` | admin exam lifecycle tests + visual | `DESIGN` |
-| `GATE-FE-T108` | `T-FE-108` | `GATE-FE-T107` | version lifecycle tests + visual | `DESIGN` |
-| `GATE-FE-T109` | `T-FE-109` | `GATE-FE-T108` | question lifecycle tests + visual | `DESIGN` |
+| `GATE-FE-T108` | `T-FE-108` | `GATE-FE-T107`, `GATE-FE-T098` | version lifecycle tests + visual | `DESIGN` |
+| `GATE-FE-T109` | `T-FE-109` | `GATE-FE-T108`, `GATE-FE-T098` | question lifecycle tests + visual | `DESIGN` |
 | `GATE-FE-T110` | `T-FE-110` | `GATE-FE-T109` | answer option tests + visual | `DESIGN` |
 | `GATE-FE-T111` | `T-FE-111` | `GATE-FE-T034`, `GATE-FE-T038`, `GATE-FE-T098` | payment product admin tests + visual | `DESIGN` |
 | `GATE-FE-T112` | `T-FE-112` | local inspection | admin orders/recruitment classification | `BACKEND` |
@@ -823,16 +823,25 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 | `ACC-004` | `T-FE-100` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
 | `ACC-005` | `T-FE-101` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
 | `ACC-006` | `T-FE-102` | `GATE-FE-T092` | `BLOCKED` | `NOT STARTED` | `CONTRACT_CLARIFICATION`,`BACKEND` | `C-AUTH-LOGIN`,`C-ME` | required if implemented |
-| `ADM-001` | `T-FE-103` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `BACKEND`,`DESIGN` | none found | required if implemented |
-| `ADM-002` | `T-FE-104` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-ADM-USERS` | required in owning gate evidence |
-| `ADM-003` | `T-FE-104` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-ADM-USERS` | required in owning gate evidence |
-| `ADM-004` | `T-FE-105` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
-| `ADM-005` | `T-FE-106` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `DESIGN` | `C-ADM-EXAM-CATEGORIES` | required in owning gate evidence |
-| `ADM-006` | `T-FE-107` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-ADM-EXAMS` | required in owning gate evidence |
-| `ADM-007` | `T-FE-109` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-ADM-EXAMS` | required in owning gate evidence |
-| `ADM-008` | `T-FE-111` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `DESIGN`,`CONTRACT_CLARIFICATION` | `C-ADM-PAY-PRODUCTS` | required in owning gate evidence |
-| `ADM-009` | `T-FE-112` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
-| `ADM-010` | `T-FE-112` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | required if implemented |
+| `ADM-ENTRY` | `T-FE-103` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | route/permission only; no data API required | approved functional Admin workspace/navigation hub only; metrics/dashboard remains `ADM-DASHBOARD` backend-blocked |
+| `ADM-002` | `T-FE-104` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-USERS` | design contract approved by `admin-screen-approval-packet.md`; implementation still requires raw JSON sensitive-field checks and owning gate evidence |
+| `ADM-003` | `T-FE-104` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-USERS` | design contract approved; role-update choices are source-backed by validator/handler (`Admin`,`Employer`,`Expert`,`Nurse`); full role management remains blocked |
+| `ADM-004` | `T-FE-105` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | full roles/permissions management remains backend-blocked; `ADM-003` role update does not resolve this gap |
+| `ADM-005` | `T-FE-106` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-EXAM-CATEGORIES` | design contract approved for Exam Category administration only, not generic reference data |
+| `ADM-006` | `T-FE-107` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-EXAMS` | design contract approved for Admin exam list/lifecycle within current backend authority |
+| `ADM-007` | `T-FE-107` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-EXAMS` | design contract approved for Admin exam detail/update/lifecycle within current backend authority |
+| `ADM-008` | `T-FE-108` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-EXAMS` | design contract approved for Admin exam version lifecycle; implementation remains gated by `GATE-FE-T107` |
+| `ADM-QUESTIONS` | `T-FE-109` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-EXAMS` | design contract approved for question lifecycle; implementation must preserve backend `versionId` relationship |
+| `ADM-PAY-PRODUCTS` | `T-FE-111` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-PAY-PRODUCTS` | design contract approved for Admin payment products only; no orders/transactions/refunds/provider controls/analytics |
+| `ADM-PP-TOPICS` | `T-FE-114` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-PP-TOPICS` | design contract approved; implementation must map frontend canonical route to current backend `/admin/preparation-package/reporting-topics` operations |
+| `ADM-PP-PROFILES` | `T-FE-115` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-PP-PROFILES` | design contract approved; implementation must map frontend canonical route to current backend `/admin/preparation-package/reporting-profiles` operations |
+| `ADM-PP-MATERIALS` | `T-FE-118` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-PP-MATERIALS` | design contract approved; learner material reader/storage delivery remains outside scope |
+| `ADM-PP-PRACTICE` | `T-FE-119` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-PP-PRACTICE` | design contract approved; learner practice attempt/adaptive behavior remains outside scope |
+| `ADM-PP-DEFINITIONS` | `T-FE-120` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-PP-PACKAGES` | design contract approved for package definitions/versions/validation/publish/retire |
+| `ADM-PP-OFFERS` | `T-FE-121` | `GATE-FE-T098` | `APPROVED` | `NOT STARTED` | — | `C-ADM-PP-OFFERS` | design contract approved for offer lifecycle only; no checkout/order/entitlement management |
+| `ADM-DASHBOARD` | `T-FE-103` | `GATE-FE-T098` | `DEFERRED` | `NOT STARTED` | `BACKEND` | none found | metrics/dashboard concept remains backend-blocked and must not appear as active v1 Admin destination |
+| `ADM-009` | `T-FE-112` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | admin payment-order management remains backend-blocked |
+| `ADM-010` | `T-FE-112` | `GATE-FE-T098` | `BLOCKED` | `NOT STARTED` | `BACKEND` | none found | admin recruitment management remains backend-blocked |
 | `SYS-001` | `T-FE-028` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | none | NOT_ROUTABLE; compose verified T-FE-033 pattern; implementation stays with T-FE-028 |
 | `SYS-002` | `T-FE-031` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | `C-ERROR` | presentation contract ratified; wildcard wiring later, URL preserved |
 | `SYS-003` | `T-FE-031` | `GATE-FE-T113` | `APPROVED` | `NOT STARTED` | — | `C-ERROR` | compose verified T-FE-033 error presentation; no V1 destination |
@@ -3002,29 +3011,50 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Account-status classification evidence is recorded: T-FE-054 consistency, OpenAPI route/schema limitations, backend `User.IsActive` passive field distinction, generic login/refresh unauthorized behavior, exception mapping without coded status, tests proving generic inactive login handling, and no implementation performed.
 - closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; ACC-006 account status UI remains blocked.
 
-### `T-FE-103` — ADM-001 dashboard classification
+### `T-FE-098` — Admin screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-21
+- scope_summary: Documentation/design-authority packet only: created `docs/frontend/design/inventory/admin-screen-approval-packet.md` covering `ADM-ENTRY`, `ADM-002`, `ADM-003`, `ADM-005`, `ADM-006`, `ADM-007`, `ADM-008`, `ADM-QUESTIONS`, `ADM-PAY-PRODUCTS`, `ADM-PP-TOPICS`, `ADM-PP-PROFILES`, `ADM-PP-MATERIALS`, `ADM-PP-PRACTICE`, `ADM-PP-DEFINITIONS`, `ADM-PP-OFFERS`, and backend-blocked `ADM-DASHBOARD`, `ADM-004`, `ADM-009`, `ADM-010` with human-approved decisions `HD-ADM-01..06`. No Stitch generation, Angular components/routes/navigation UI, backend/OpenAPI/generated/database/package/Storybook implementation, or push occurred.
+- contract_summary: `T-FE-098` owns the Admin approval packet review. `ADM-ENTRY` is approved as a functional Admin workspace/navigation hub without metrics. `ADM-002/003` are approved using current Admin Users authority, including source-backed role-update choices `Admin`, `Employer`, `Expert`, `Nurse`. `ADM-005` is approved for Exam Category administration only. `ADM-006/007/008/ADM-QUESTIONS` are approved for current Admin exam/version/question/answer-option lifecycle authority. `ADM-PAY-PRODUCTS` is approved for payment-product administration only, with no orders/transactions/refunds/provider controls/analytics. `ADM-PP-*` screens are approved as separate domain-specific Preparation Package Admin surfaces. `ADM-DASHBOARD`, `ADM-004`, `ADM-009`, and `ADM-010` remain backend-blocked/deferred future concepts.
+- verification_summary: Docs-only verification: packet exists with decisions per screen, backend/API authority boundaries, role-source disposition, privacy/non-exposure rules, responsive/RTL/accessibility requirements, explicit non-goals, route/backend naming caveat for Preparation Package Admin operations, and remaining backend gaps BG-ADM-01..04 preserved. Screen contracts and screen index are reconciled to `CONTRACT_READY` for approved v1 design contracts and `BACKEND_BLOCKED`/`DEFERRED` for blocked concepts. Implementation tasks remain governed by their own predecessor gates, generated-client checks, tests, and implementation authorization.
+
+### `ST-FE-098` — Prepare Administration screen approval packet
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Packet prepared and human-approved with `HD-ADM-01..06`; per-screen decisions recorded; Admin Home/workspace, Exam Category scope, Exam Admin IA/lifecycle, Payment Product Admin scope, and Preparation Package Admin IA/lifecycles pinned to current backend authority; dashboard/roles/orders/recruitment backend gaps preserved without invention.
+
+### `GATE-FE-T098`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Gate evidence satisfies the family-packet requirement: `admin-screen-approval-packet.md` exists with explicit APPROVED decisions for backend-backed v1 Admin screens, explicit BACKEND_BLOCKED/DEFERRED decisions for `ADM-DASHBOARD`, `ADM-004`, `ADM-009`, and `ADM-010`, backend/API and privacy boundaries recorded, and no invented dashboard metrics, generic reference-data CRUD, unsupported authoring behavior, payment/order functionality, recruitment management, or generic Preparation Package CRUD collapse. Downstream Admin implementation tasks become eligible only where their own predecessor gates and implementation authorization are satisfied; blocked concepts remain unavailable.
+
+### `T-FE-103` — ADM-DASHBOARD classification / ADM-ENTRY workspace boundary
 
 - status: `VERIFIED`
 - blocker_types: `BACKEND`,`DESIGN`
 - evidence_date: 2026-09-07
-- scope_summary: Approved free-worker read-only scouting inspected admin dashboard/metrics/summary/landing data contracts in canonical OpenAPI and backend source/tests. No ADM-001 UI implementation was authorized because `GATE-FE-T098` is not verified. No frontend implementation, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
-- classification_summary: ADM-001 admin dashboard/static landing is a backend gap for data-backed dashboard behavior. No stable coded backend/OpenAPI admin dashboard, metrics, statistics, overview, summary, analytics, chart, alert, activity, revenue, orders, users, exams, package, or recruitment aggregate contract exists.
+- scope_summary: Approved free-worker read-only scouting inspected admin dashboard/metrics/summary/landing data contracts in canonical OpenAPI and backend source/tests. No dashboard/metrics UI implementation was authorized by this classification. Later `T-FE-098` approves `ADM-ENTRY` as a static functional workspace only; it does not resolve the dashboard/metrics backend gap. No frontend implementation, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- classification_summary: `ADM-DASHBOARD` admin metrics/dashboard behavior is a backend gap. No stable coded backend/OpenAPI admin dashboard, metrics, statistics, overview, summary, analytics, chart, alert, activity, revenue, orders, users, exams, package, or recruitment aggregate contract exists. `ADM-ENTRY` is separately approved by `T-FE-098` as a static functional workspace/navigation hub only.
 - evidence_summary: Canonical OpenAPI dashboard/metrics/statistics/overview/chart/landing searches found only nurse-owned exam analytics under `/api/v1/me/nurse-profile/exam-analytics/*` and a public preparation-package catalog component summary DTO, neither of which is an admin dashboard contract. Admin OpenAPI paths are CRUD/list contracts for users, exam categories/exams, payment products, preparation-package administration, and recruitment candidate search; no `/api/v1/admin/dashboard`, metrics, overview, summary, statistics, analytics, or landing route exists. Backend source searches found no `Dashboard`, `Metrics`, `Statistics`, or `Overview` Application/Domain/Infrastructure contracts, and no admin dashboard WebApi group. Analytics source is nurse-owned `My*` exam analytics guarded to nurse profiles. Backend tests have no admin dashboard/metrics tests; existing dashboard strings are negative 404 scope guards for a non-existent nurse preparation-package workspace/dashboard route.
-- closure_evidence: Classification is complete and verified as backend gap / no implementation. `ADM-001` remains blocked until backend provides a dashboard/landing contract and Administration screen approval (`GATE-FE-T098`) is verified. Do not infer dashboard metrics from admin CRUD/list endpoints, nurse exam analytics, preparation-package catalog summaries, database table counts, revenue/payment/order lists, recruitment lists, or design expectations.
+- closure_evidence: Classification is complete and verified as backend gap / no implementation. `ADM-DASHBOARD` remains blocked until backend provides a dashboard/metrics contract. `ADM-ENTRY` static workspace approval under `GATE-FE-T098` does not authorize metrics. Do not infer dashboard metrics from admin CRUD/list endpoints, nurse exam analytics, preparation-package catalog summaries, database table counts, revenue/payment/order lists, recruitment lists, or design expectations.
 
-### `ST-FE-103` — Classify/build `ADM-001` dashboard/static landing
+### `ST-FE-103` — Classify `ADM-DASHBOARD` / bound `ADM-ENTRY` workspace
 
 - status: `VERIFIED`
 - blocker_types: `BACKEND`,`DESIGN`
-- evidence_summary: Classification branch completed: admin dashboard/metrics contract is absent; UI build branch remains unauthorized because `GATE-FE-T098` is not verified.
+- evidence_summary: Classification branch completed: admin dashboard/metrics contract is absent; metrics/dashboard UI remains unauthorized. `ADM-ENTRY` static workspace approval is tracked separately by `T-FE-098`.
 - closure_evidence: Subtask accepted as complete for backend-gap classification from source/OpenAPI/test-search evidence.
 
 ### `GATE-FE-T103`
 
 - status_result: `VERIFIED`
 - blocker_types: `BACKEND`,`DESIGN`
-- evidence_summary: Admin dashboard classification evidence is recorded: OpenAPI absence of admin dashboard/metrics routes, distinction from nurse exam analytics and public package summary DTOs, backend negative dashboard/metrics contract searches, negative admin dashboard test searches, explicit no-UI relationship to unverified `GATE-FE-T098`, and no implementation performed.
-- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; ADM-001 dashboard/static landing UI remains blocked.
+- evidence_summary: Admin dashboard classification evidence is recorded: OpenAPI absence of admin dashboard/metrics routes, distinction from nurse exam analytics and public package summary DTOs, backend negative dashboard/metrics contract searches, negative admin dashboard test searches, separation from `ADM-ENTRY` static workspace approval, and no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend-gap classification; `ADM-DASHBOARD` remains blocked. `ADM-ENTRY` may be implemented only as the static workspace approved by `T-FE-098`, with no metrics/dashboard behavior.
 
 ### `T-FE-105` — ADM-004 roles/permissions classification
 

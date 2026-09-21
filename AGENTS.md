@@ -189,6 +189,24 @@ Frontend agents must follow the styling, theming, and user-feedback rules in `do
 
 Frontend agents must consult `docs/frontend/design/frontend-design-foundation-reference.md` before Angular UI, SCSS, Angular Material theme, component, or screen work. Approved visual foundations and task-required approved Penpot/design artifacts own visual intent; Storybook is the intended future production visual development/review surface after separate tooling authorization, not requirements authority. If live Penpot contradicts the reference for a Penpot-required scope, stop for design resolution instead of guessing.
 
+Frontend screen, Stitch, Storybook, and Angular UI agents must also consult `docs/frontend/design/screen-contracts/` before creating, editing, reviewing, or implementing screen-level work. Screen contracts map route IDs, screen IDs, access rules, approved states, blocked/deferred concepts, and design-proposed features. They do not create backend behavior, product authority, visual approval, or implementation authorization. Backend/OpenAPI/security/privacy/accessibility contracts, canonical route/permission source, approved screen packets, `docs/frontend/design/stitch/DESIGN.md`, and human-approved Stitch artifacts remain higher authority. If a screen contract conflicts with those sources, stop and resolve the conflict instead of guessing.
+
+Canonical screen/design source map for future agents:
+
+- Visual authority: `docs/frontend/design/stitch/DESIGN.md`.
+- System-level design contract: `docs/frontend/design/stitch/system-design-contract.md`.
+- Master screen map: `docs/frontend/design/screen-contracts/screen-index.md`.
+- Screen contract schema: `docs/frontend/design/screen-contracts/contract-schema.md`.
+- Shared patterns: `docs/frontend/design/screen-contracts/shared-patterns.md`.
+- Family contracts: `docs/frontend/design/screen-contracts/authentication.md`, `account.md`, `nurse-profile.md`, `exams.md`, `preparation-packages.md`, `commerce.md`, `employer.md`, `administration.md`, and `shared-system.md`.
+- Design-proposed feature register: `docs/frontend/design/stitch/design-proposed-features.md`.
+- Stitch artifact mapping: `docs/frontend/design/stitch/stitch-artifact-registry.md`.
+- Governance/source authority: `docs/frontend/design/governance/`.
+
+Required future-agent screen workflow: find the target in `screen-index.md`; read the exact family screen section; read `shared-patterns.md`; read `DESIGN.md`; check `system-design-contract.md` when system/flow context is needed; check DPF references; check route, permission, API, and backend authority; stop on unresolved authority gaps; never invent missing business behavior.
+
+Active Stitch v2 mapping: active project `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`); active design system `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`); preferred visual baseline `projects/17116545761229201855/screens/fbcef626cae7450fa6f5cedbdbeae8ea` (`Shell / APP-SHELL / Nurse / Desktop`) is preferred visual direction but not exact as-is human approval. Earlier Stitch project `projects/14739979548635957177` and design system `assets/8866686723686557578` are superseded and are not active authority.
+
 Frontend agents must also enforce the Angular component separation rule in `docs/frontend/frontend-architecture.md` and `docs/frontend/frontend-project-rules.md`. Angular allowing inline templates or inline styles is not project authority to use them. For every new or modified ordinary production Angular component, workers and final-gate review must verify: no inline component `template:`, no inline component `styles:`, no template-local `<style>` block, a colocated external `.html` referenced by `templateUrl`, a colocated external `.scss` referenced by approved external style metadata unless an approved styleless-component exception is recorded, and a focused colocated `.spec.ts` where behavior or rendering is testable. If an exception is not covered by the frontend project rules, stop instead of inventing one.
 
 ---

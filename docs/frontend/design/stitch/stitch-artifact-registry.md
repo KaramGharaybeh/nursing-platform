@@ -239,6 +239,23 @@ Rejected/superseded Preparation Packages generation attempts from this checkpoin
 | `PP-004` | `projects/17116545761229201855/screens/9488cd80433344d69d7105cb7b4772a6` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Entitlement Detail attempt added unauthorized `Self-paced modules`, `NMC CBT Adult Nursing standard duration`, and report-analysis lock copy. Superseded by accepted `0d56286fc5114969a4227c1d24b0759c`. |
 | `PP-007` | `projects/17116545761229201855/screens/0ac8a9848a624c88ba41828d6b57a3e8` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Package Report attempt added extra presentation labels/actions (`overall score`, `Start practice`, `View summary`) beyond the report contract. Superseded by accepted `3d75a0c5ad0b4d41aee81c41cb16ea77`. |
 
+## Commerce Generated Candidates
+
+Generation checkpoint: 2026-09-21. These artifacts were generated from the Commerce `CONTRACT_READY` product discovery/detail screen contracts in the active v2 Stitch workspace and directly validated through generated HTML. They are contract-validated design candidates pending human visual review. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize checkout/payment/order implementation work. `COM-003` through `COM-008` were not generated in this checkpoint.
+
+Active workspace used for these candidates:
+
+| Field | Value |
+|---|---|
+| Stitch project | `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`) |
+| Stitch design system | `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`) |
+| Canonical design source | `docs/frontend/design/stitch/DESIGN.md` |
+
+| Canonical screen ID | Screen name | Stitch screen | Validation status | Notes |
+|---|---|---|---|---|
+| `COM-001` | Product Catalog | `projects/17116545761229201855/screens/21862f11a45049cb9f95f4af1ad65361` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found authenticated Products shell, two product cards with safe title/description/type/availability/price/currency fields, View details actions, and pagination. No Purchase/Buy/Checkout/order/payment/provider/search/filter/raw-ID/reference/footer content found. |
+| `COM-002` | Product Detail | `projects/17116545761229201855/screens/31c3beeed6ee4a6abf5a147b1c27880e` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found authenticated Products shell, product detail heading/context, safe product type/availability/name/description/price/currency facts, and Back to Products only. No Purchase/Buy/Checkout/order/payment/provider/raw-ID/invented-benefit/reference/footer content found. |
+
 ## Tool Evidence
 
 | Step | Result |

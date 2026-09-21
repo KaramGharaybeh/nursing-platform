@@ -136,6 +136,79 @@ Rejected/superseded generation attempts from this checkpoint:
 |---|---|---|---|
 | `ACC-001` | `projects/17116545761229201855/screens/09a6f96af6b9474cb95bfa236bf7a977` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Account Overview attempt used out-of-scope `credentials` wording in direct HTML. Superseded by accepted identity-only replacement `004ff3b651fb42aca5244b3fbd1d25e1`. |
 
+## Nurse Profile Generated Candidates
+
+Generation checkpoint: 2026-09-21. These artifacts were generated from the Nurse Profile `CONTRACT_READY` screen contracts in the active v2 Stitch workspace and directly validated through generated HTML. They are contract-validated design candidates pending human visual review. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize implementation work.
+
+Active workspace used for these candidates:
+
+| Field | Value |
+|---|---|
+| Stitch project | `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`) |
+| Stitch design system | `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`) |
+| Canonical design source | `docs/frontend/design/stitch/DESIGN.md` |
+
+| Canonical screen ID | Screen name | Stitch screen | Validation status | Notes |
+|---|---|---|---|---|
+| `NUR-001` | Profile Overview | `projects/17116545761229201855/screens/d2d3ea96cca0405a9622b73acaeb6e35` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Previously accepted direct HTML validation found approved profile overview composition with professional identity, supported base-profile facts, section summaries, no completion score/status, no fake identity, and no unsupported profile/share/recruiter claims. Preserved without regeneration in this checkpoint. |
+| `NUR-002` | Profile Summary State | `projects/17116545761229201855/screens/6d7f13d7750c47fd825e1836fdb3f110` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Previously accepted direct HTML validation found profile summary/first-time state aligned to the no-profile/sparse-profile contract, without completion percentage or unsupported profile status. Preserved without regeneration in this checkpoint. |
+| `NUR-003` | Personal Information | Not accepted | STITCH_GENERATION_BLOCKED_TEMPORARY | Recovery pass exhausted the authorized two fresh attempts. Delayed recovered artifact and first fresh replacement both had material validation defects; the second fresh attempt timed out and did not recover through delayed direct checks. Canonical screen contract remains `CONTRACT_READY`; this is a temporary Stitch artifact-generation status only. |
+| `NUR-004` | Experience List | `projects/17116545761229201855/screens/06c2092a51bd4fd08b65aa74903dbc13` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Previously accepted direct HTML validation found approved experience list content/actions and no visible design annotations after replacement. Preserved without regeneration in this checkpoint. |
+| `NUR-005` | Experience Form State | `projects/17116545761229201855/screens/da2c04d28c8548be896dc897a5b0ae89` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Previously accepted direct HTML validation found approved experience form/delete-confirmation state with no unsupported uniqueness, employment-type, or profile-completion claims. Preserved without regeneration in this checkpoint. |
+| `NUR-006` | Education List | `projects/17116545761229201855/screens/6a0f2d2f5bae4a1e8ddfd370b46f765f` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found Education list with three education records, approved date-line formats, Add/Edit/Delete actions, inline delete confirmation, and no state-example gallery, certificate content, completion score, raw IDs, or unsupported status claims. |
+| `NUR-007` | Education Form State | `projects/17116545761229201855/screens/e64e103caf4942b68dc83a1043dcbf25` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found Education form state with institution, degree, field of study, country, optional dates, details/description, validation summary, end-date error, Save education, and Cancel. No state gallery, modal/delete confirmation, route IDs, fake identity, or unrelated profile sections found. |
+| `NUR-008` | Certificates List | `projects/17116545761229201855/screens/f2ca29048bd14819814271042949e30b` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found certificate list cards with plain issuer text, issue/optional expiration dates, credential ID, `Open credential link`, Edit/Delete, and inline delete confirmation. No verified/official/trusted status, Active/Expired/Valid/Expiring-soon labels, state examples, or unrelated sections found. |
+| `NUR-009` | Certificate Form State | `projects/17116545761229201855/screens/942bcff423aa4bdeac43b0ad6de1868b` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found certificate form fields, URL validation summary/error, Save certificate, and Cancel. No verification/status wording, modal/drawer, route IDs, fake identity, footer, or unsupported claims found. |
+| `NUR-010` | Skills | `projects/17116545761229201855/screens/51eab55569ab49909c69279ec9fa706b` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found feature-local chip editor with skill input, duplicate validation, required rules helper, removable chips, Save skills, and Cancel. No taxonomy/autocomplete, drag/reorder, proficiency, route IDs, footer, or unrelated profile sections found. |
+| `NUR-011` | Languages | `projects/17116545761229201855/screens/f77e083faedd42cea3a78b071fb489ec` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found row-based language/proficiency editor, exact proficiency options, duplicate-language validation, Add language, Save languages, and Cancel. No unsupported proficiency values, drag/reorder, unrelated sections, raw IDs, or footer claims found. |
+| `NUR-CONTACT` | Contact Requests | `projects/17116545761229201855/screens/31473847b8eb4c3185a0f58777e28c80` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found status filter, safe employer/request facts, plain-text statuses, pending Approve/Reject actions, inline Reject confirmation, terminal rows without actions, and pagination. No raw request IDs, employer private internals, messages/reasons/reply fields, permission keys, role claims, urgency/priority, or semantic status badges found. |
+
+Rejected/superseded Nurse Profile generation attempts from this checkpoint:
+
+| Canonical screen ID | Stitch screen | Disposition | Reason |
+|---|---|---|---|
+| `NUR-001` | `projects/17116545761229201855/screens/738fd82f37634b869eda8e7cf3889521` | REJECTED_SUPERSEDED_NOT_AUTHORITY | Debug/reference content and unsupported validity wording. Superseded by accepted `d2d3ea96cca0405a9622b73acaeb6e35`. |
+| `NUR-001` | `projects/17116545761229201855/screens/9202650b067e4a8599f91bc8adce1a3a` | REJECTED_SUPERSEDED_NOT_AUTHORITY | Document-title/forbidden icon-ligature issue from prior validation. Superseded by accepted `d2d3ea96cca0405a9622b73acaeb6e35`. |
+| `NUR-003` | `projects/17116545761229201855/screens/1cfe7b9fa79842bf9d47baf3e3baaad2` | REJECTED_SUPERSEDED_NOT_AUTHORITY | Delayed recovered timeout artifact used unsupported `Max 120 characters` headline constraint and did not match authoritative optional/required semantics. |
+| `NUR-003` | `projects/17116545761229201855/screens/64124d9dca29481bbed501d53e6aaca4` | REJECTED_SUPERSEDED_NOT_AUTHORITY | Fresh replacement fixed the headline length but incorrectly marked optional profile fields/country controls as required. Second fresh retry timed out and did not recover, so `NUR-003` remains `STITCH_GENERATION_BLOCKED_TEMPORARY` for this pass. |
+| `NUR-004` | `projects/17116545761229201855/screens/73822cb69a0d442bb9855e804dbe0bdb` | REJECTED_SUPERSEDED_NOT_AUTHORITY | Visible design annotation labels. Superseded by accepted `06c2092a51bd4fd08b65aa74903dbc13`. |
+| `NUR-006` | `projects/17116545761229201855/screens/98b508ca88c948d5bb33772f2a94a411` | REJECTED_SUPERSEDED_NOT_AUTHORITY | Delayed recovered timeout artifact rendered visible `Education State Examples` and separate state panels on the product screen. Superseded by accepted `6a0f2d2f5bae4a1e8ddfd370b46f765f`. |
+| `NUR-008` | `projects/17116545761229201855/screens/fab0bd4e943d4acfaa00ea2980271db9` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Certificates List attempt used `verified_user` iconography beside issuing organizations, implying verification/trust despite the no-verified/official-badge rule. Superseded by accepted `f2ca29048bd14819814271042949e30b`. |
+
+## Exams Generated Candidates
+
+Generation checkpoint: 2026-09-21. These artifacts were generated from the Exams `CONTRACT_READY` screen contracts in the active v2 Stitch workspace and directly validated through generated HTML. They are contract-validated design candidates pending human visual review. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize implementation work.
+
+Active workspace used for these candidates:
+
+| Field | Value |
+|---|---|
+| Stitch project | `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`) |
+| Stitch design system | `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`) |
+| Canonical design source | `docs/frontend/design/stitch/DESIGN.md` |
+
+| Canonical screen ID | Screen name | Stitch screen | Validation status | Notes |
+|---|---|---|---|---|
+| `EXM-001` | Exam Catalog | `projects/17116545761229201855/screens/232c5af699c44991acee25ede383ce3a` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found authenticated Exams catalog with filters, exam cards, analytics/history entries, pagination/no-results behavior, and no raw IDs, answers, correctness, purchase CTA, footer, or unsupported claims. |
+| `EXM-002` | Exam Detail | `projects/17116545761229201855/screens/10e1ba4fa8b04b6995e0e8ce97556eb4` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found exam detail facts and instructions-preview/fallback treatment without invented unsupported instructions/rules, questions, answers, raw IDs, footer, or unsupported claims. |
+| `EXM-004` | Exam Instructions | `projects/17116545761229201855/screens/2e8a32ace14c432e8289bb2314126158` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found backend-supplied instructions with duration/question/passing facts, start/resume confirmation treatment, and no simultaneous empty fallback, invented instructions, raw IDs, footer, or unsupported claims. |
+| `EXM-005` | Exam Session | `projects/17116545761229201855/screens/cdc9aad819524ac09d0060855349aa09` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found one-question-at-a-time exam session with timer, near-expiry warning, save error/retry, option selection, Save answer, Previous/Next/Submit controls, and no correctness, answer key, explanations, result metrics, raw IDs, or all-question navigator. |
+| `EXM-006` | Submit Confirmation | `projects/17116545761229201855/screens/f8e10c91253f4540a0716f199e2f8271` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found minimal submit confirmation with exam title, `Question 120 of 120`, total/answered/unanswered counts, cancellation action, disabled/loading `Submitting...` action, and no question text, answer options, correctness, result metrics, preview/state annotations, raw IDs, or unsupported claims. |
+| `EXM-007` | Exam Result | `projects/17116545761229201855/screens/4b15edf6f4cb43fbbc27fa73b3a99632` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found aggregate finalized result with heading/context, terminal status, score/max/percentage/passed/correct answers/questions, Back to exams, and Review answers. No provenance, timestamps, review content, analytics, system/sync language, raw IDs, or unsupported claims found. |
+| `EXM-008` | Exam Analytics | `projects/17116545761229201855/screens/b070909c744b4d1483042d2acb6d40e2` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found approved heading/copy, filters, Overview, Performance by exam, Performance by category, and Performance over time sections rendered as textual metrics/tables/lists. No charts, bands, recommendations, provenance, raw IDs, or local-derivation claims found. |
+| `EXM-009` | Answer Review | `projects/17116545761229201855/screens/da514a9409434b03af140fbefe1ac91d` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found one-question finalized answer review with pager, factual status, read-only option rows, `Your answer`, `Correct answer`, explanation, points, Previous/Next, and Back to result. No active inputs, aggregate result metrics, analytics, raw IDs, package guidance, or unsupported claims found. |
+| `EXM-010` | Exam History | `projects/17116545761229201855/screens/3e5f4653630446678736491c05b12117` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found status filter, attempt history rows with approved status/date/percentage/result/action fields, and pagination. No optional state/reference section, analytics, score/max/correct counts, provenance, raw IDs, sync/system language, footer, or unsupported claims found. |
+
+Rejected/superseded Exams generation attempts from this checkpoint:
+
+| Canonical screen ID | Stitch screen | Disposition | Reason |
+|---|---|---|---|
+| `EXM-002` | `projects/17116545761229201855/screens/6b23383e4aec4a5aa6c8e2664619cc96` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Exam Detail attempt invented unsupported exam instructions/rules. Superseded by accepted `10e1ba4fa8b04b6995e0e8ce97556eb4`. |
+| `EXM-004` | `projects/17116545761229201855/screens/c51af566d4b044299821e81765649f9a` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Exam Instructions attempt showed supplied instructions and empty fallback simultaneously. Superseded by accepted `2e8a32ace14c432e8289bb2314126158`. |
+| `EXM-006` | `projects/17116545761229201855/screens/8f8d0a60978c4597a552e5aed0d94a7e` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Submit Confirmation attempt rendered a visible duplicate-submit preview annotation and active-question background content. Superseded by accepted `f8e10c91253f4540a0716f199e2f8271`. |
+| `EXM-007` | `projects/17116545761229201855/screens/78d041cb77d143debaf3a1327e9e35d3` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Exam Result attempt included unsupported blueprint/finalized-attempt/system status/synchronization wording. Superseded by accepted `4b15edf6f4cb43fbbc27fa73b3a99632`. |
+| `EXM-010` | `projects/17116545761229201855/screens/a399ac9c21dd459fb32ec315a756fa00` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Exam History attempt rendered a visible `System status views` section and sync-related content. Superseded by accepted `3e5f4653630446678736491c05b12117`. |
+
 ## Tool Evidence
 
 | Step | Result |

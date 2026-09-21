@@ -2,7 +2,7 @@
 
 ```yaml
 document_id: NPS-DES-STITCH-ARTIFACT-REGISTRY
-status: PHASE_2_AUTHENTICATED_SHELL_APPROVED
+status: PHASE_2_SCREEN_GENERATION_ACTIVE
 created_at: 2026-09-20
 updated_at: 2026-09-21
 active_project: projects/17116545761229201855
@@ -108,6 +108,33 @@ Rejected/superseded Authentication generation attempts from session/tool evidenc
 |---|---|---|---|
 | `AUTH-001` | `projects/17116545761229201855/screens/35d14c2c1e614c4f9bb236227f86cb7b` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First generation attempt showed out-of-contract footer/support/legal/portal-claim content. Superseded by accepted `6427cabcd8b549eb845c85d6b8a0413a`. |
 | `AUTH-006` | `projects/17116545761229201855/screens/f3ff01bf143449fa879bf13736c9d547` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First generation attempt showed a help/question-style icon in the missing-token state. Superseded by accepted `76bae8f5c9a94284a919bf81b9c8e15c`. |
+
+## Authentication, Shared System, And Account Generated Candidates
+
+Generation checkpoint: 2026-09-21. These artifacts were generated family-by-family from `CONTRACT_READY` screen contracts in the active v2 Stitch workspace and directly validated through generated HTML. They are contract-validated design candidates pending human visual review. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize implementation work.
+
+Active workspace used for these candidates:
+
+| Field | Value |
+|---|---|
+| Stitch project | `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`) |
+| Stitch design system | `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`) |
+| Canonical design source | `docs/frontend/design/stitch/DESIGN.md` |
+
+| Canonical screen ID | Screen name | Stitch screen | Validation status | Notes |
+|---|---|---|---|---|
+| `AUTH-009` | Reset Password Success | `projects/17116545761229201855/screens/ef4d555b00d54f68870318e12d251780` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found anonymous auth shell, required reset-success heading/copy, and `Sign in` action. No password/token/session data, unsupported claims, footer, fake identity, or authenticated navigation found. |
+| `AUTH-010` | Session Expired | `projects/17116545761229201855/screens/43b0f224781949ad8be651df1991a257` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found required `Session expired` heading, body copy, `Sign in`, and safe `Go to home` action. No token/session/JWT details, protected-resource data, unsupported claims, footer, fake identity, or authenticated navigation found. |
+| `AUTH-011` | Access Denied | `projects/17116545761229201855/screens/e869c0c2568444b5bc2638036f5fa8c0` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found privacy-safe denial copy and safe `Go to home`/`Sign in` actions. No role names, permission keys, protected-resource details, route IDs, tokens, support/help/notifications content actions, footer, or unsupported claims found. |
+| `ONB-001` | Profile Onboarding | `projects/17116545761229201855/screens/a4bdbce7fc104ceab34581f21e86a1b3` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found authenticated shell, required `Complete your profile` heading/copy, `First name` and `Last name` required fields with max-length helper text, `Save`, and shell `Sign out`. No nurse/employer profile fields, tokens, raw IDs, `isProfileComplete`, footer, or unsupported claims found. |
+| `ACC-001` | Account Overview | `projects/17116545761229201855/screens/004ff3b651fb42aca5244b3fbd1d25e1` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found identity-only account overview with `Email`, `Username`, `First name`, `Last name`, `Email verification`, `Edit personal details`, and approved shell chrome. No password/security/session/settings/credentials wording, permissions, raw IDs, timestamps, `isProfileComplete`, footer, or unsupported claims found. |
+| `ACC-002` | Personal Details Edit State | `projects/17116545761229201855/screens/f397d94810034593baa0793e87f36f15` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found same-route edit-state design with `Edit personal details`, `First name`, `Last name`, max-length helper text, `Save`, and `Cancel`. No email/username editing, password/security/session/device/notification/deletion controls, raw IDs, tokens, footer, or unsupported claims found. |
+
+Rejected/superseded generation attempts from this checkpoint:
+
+| Canonical screen ID | Stitch screen | Disposition | Reason |
+|---|---|---|---|
+| `ACC-001` | `projects/17116545761229201855/screens/09a6f96af6b9474cb95bfa236bf7a977` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Account Overview attempt used out-of-scope `credentials` wording in direct HTML. Superseded by accepted identity-only replacement `004ff3b651fb42aca5244b3fbd1d25e1`. |
 
 ## Tool Evidence
 

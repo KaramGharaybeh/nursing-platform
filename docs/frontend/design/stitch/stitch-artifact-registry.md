@@ -286,6 +286,36 @@ Rejected/superseded Employer generation attempts from this checkpoint:
 | `EMP-006` | `projects/17116545761229201855/screens/b9a2e404be26447090824205a8006eef` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Candidate Request attempt added an extra candidate row, invented `Candidate direct communication inquiry`, and split success action text into `View`. Superseded by accepted `797c6e47de2f42628ba1250cc3bbe723`. |
 | `EMP-008` | `projects/17116545761229201855/screens/4f1c7d062266451793e640438c16ea57` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Request Detail attempt added an extra `Target Candidate` label beyond the approved field list. Superseded by accepted `11ab2f9c11b4435faf48ed4ef7c57e97`. |
 
+## Administration Generated Candidates
+
+Generation checkpoint: 2026-09-21. These artifacts were generated from the Administration `CONTRACT_READY` screen contracts in the active v2 Stitch workspace and directly validated through generated HTML. They are contract-validated design candidates pending human visual review. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize implementation work. `ADM-DASHBOARD`, `ADM-004`, `ADM-009`, and `ADM-010` were not generated because they remain `BACKEND_BLOCKED`/deferred. This checkpoint is a partial first Administration sub-batch; temporary Stitch generation blockers do not change the canonical screen-contract status of blocked rows.
+
+Active workspace used for these candidates:
+
+| Field | Value |
+|---|---|
+| Stitch project | `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`) |
+| Stitch design system | `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`) |
+| Canonical design source | `docs/frontend/design/stitch/DESIGN.md` |
+
+| Canonical screen ID | Screen name | Stitch screen | Validation status | Notes |
+|---|---|---|---|---|
+| `ADM-ENTRY` | Admin Workspace | `projects/17116545761229201855/screens/c89c44bfe7e543bb8448604533b89886` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found approved Admin workspace destination cards and permission-aware guidance. No dashboard metrics, KPI/stat/activity/system-health/recruitment/payment-order content, roles/permissions management, Admin payment orders, Admin recruitment, fake account identity, Help, Notifications, unsupported security/compliance/status claims, raw IDs, or debug annotations found. |
+| `ADM-002` | Admin Users | Not accepted | STITCH_GENERATION_BLOCKED_TEMPORARY | Initial generation and one fresh retry timed out. Delayed list recovery checks found no retrievable `ADM-002` artifact. Canonical screen contract remains `CONTRACT_READY`; this is a temporary Stitch artifact-generation status only. |
+| `ADM-003` | Admin User Detail | Not accepted | STITCH_GENERATION_BLOCKED_TEMPORARY | First generated artifact failed direct HTML validation because role-update copy mentioned `Session tokens`; replacement attempt returned no retrievable screen ID after delayed list recovery. Canonical screen contract remains `CONTRACT_READY`; this is a temporary Stitch artifact-generation status only. |
+| `ADM-005` | Exam Category Administration | Not accepted | STITCH_GENERATION_BLOCKED_TEMPORARY | Initial generation timed out. Delayed list recovery checks found no retrievable `ADM-005` artifact. Canonical screen contract remains `CONTRACT_READY`; this is a temporary Stitch artifact-generation status only. |
+| `ADM-006` | Admin Exams | `projects/17116545761229201855/screens/d81c321809974164a6f81938aeeb356d` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Replacement direct HTML validation found Admin exams filters, dense table, approved lifecycle actions, pagination, and archive/delete confirmations. No learner catalog/session/result behavior, attempts, candidate enrollments/history, analytics, question/answer content, raw IDs, route IDs, permission keys, footer, Help, Notifications, or unsupported security/compliance/status claims found. |
+| `ADM-007` | Exam Detail | Not accepted | STITCH_GENERATION_BLOCKED_TEMPORARY | First generated artifact failed direct HTML validation because it invented learner/test-taking instruction behavior and a URL-path-like slug helper. Replacement fixed those issues but added an unsupported audit-record claim, so it was also rejected. Canonical screen contract remains `CONTRACT_READY`; this is a temporary Stitch artifact-generation status only. |
+
+Rejected/superseded Administration generation attempts from this checkpoint:
+
+| Canonical screen ID | Stitch screen | Disposition | Reason |
+|---|---|---|---|
+| `ADM-003` | `projects/17116545761229201855/screens/d86e379d99834a948563fc626daca309` | REJECTED_SUPERSEDED_NOT_AUTHORITY | Role-update copy mentioned `Session tokens`, violating token/session non-exposure. Replacement did not yield a retrievable accepted artifact. |
+| `ADM-006` | `projects/17116545761229201855/screens/384f2e70f4b741b6b67a8c240b757569` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Admin Exams attempt referenced learner/candidate history and session integrity in lifecycle copy. Superseded by accepted `d81c321809974164a6f81938aeeb356d`. |
+| `ADM-007` | `projects/17116545761229201855/screens/d61caead20754814b35ff38525e9717c` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First Exam Detail attempt invented learner/test-taking behavior, including question navigation, calculator, timer, automated submission, and URL-path-like slug helper text. |
+| `ADM-007` | `projects/17116545761229201855/screens/1b0a93f57f594793ac13bf4e79e5f78e` | REJECTED_SUPERSEDED_NOT_AUTHORITY | Replacement removed learner/test-taking behavior but added unsupported audit-record copy. No accepted `ADM-007` artifact remains from this checkpoint. |
+
 ## Tool Evidence
 
 | Step | Result |

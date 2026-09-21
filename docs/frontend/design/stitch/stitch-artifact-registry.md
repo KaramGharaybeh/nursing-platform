@@ -2,9 +2,9 @@
 
 ```yaml
 document_id: NPS-DES-STITCH-ARTIFACT-REGISTRY
-status: PHASE_2_DESIGN_LED_BASELINE_CAPTURED
+status: PHASE_2_AUTHENTICATION_BATCH_APPROVED
 created_at: 2026-09-20
-updated_at: 2026-09-20
+updated_at: 2026-09-21
 active_project: projects/17116545761229201855
 active_design_system: assets/6536256059106605307
 canonical_source: docs/frontend/design/stitch/DESIGN.md
@@ -26,7 +26,7 @@ canonical_source: docs/frontend/design/stitch/DESIGN.md
 | Visibility | Private |
 | Origin | Stitch |
 | Status | ACTIVE_WITH_DESIGN_LED_FEATURE_DISCOVERY |
-| Current screen count | One invalid original shell candidate is listed by `stitch_list_screens`; one replacement shell candidate is directly retrievable by ID but is omitted from `stitch_list_screens`. |
+| Current screen count | `stitch_list_screens` has shown known inconsistencies. Shell artifacts and Authentication Batch 1 artifacts are directly retrievable/validated by IDs recorded below; list output must not be the only source of artifact verification. |
 
 ## Active Design System
 
@@ -80,6 +80,34 @@ The first generated product shell is the human-preferred visual direction for th
 | Shell / APP-SHELL / Admin / Desktop | Desktop | Not created | PENDING_HUMAN_APPROVAL | Not attempted during foundation reset. |
 | Design System / CORE / Component Overview / Desktop | Desktop | Not created | PENDING_HUMAN_APPROVAL | Not attempted during foundation reset. |
 
+## Authentication Batch 1 Human-Approved Visual References
+
+Human approval checkpoint: 2026-09-21. The human visually reviewed Authentication Batch 1 and approved its visual direction, visual system, form/layout treatment, warning/error/state presentation, and family fit for Nursing Platform. These artifacts are approved visual references only. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize additional Authentication screens or later authenticated screen-family batches.
+
+Active workspace used for these references:
+
+| Field | Value |
+|---|---|
+| Stitch project | `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`) |
+| Stitch design system | `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`) |
+| Canonical design source | `docs/frontend/design/stitch/DESIGN.md` |
+
+| Canonical screen ID | Screen name | Stitch screen | Visual approval status | Notes |
+|---|---|---|---|---|
+| `AUTH-001` | Sign In | `projects/17116545761229201855/screens/6427cabcd8b549eb845c85d6b8a0413a` | HUMAN_APPROVED_VISUAL_REFERENCE | Accepted Authentication Batch 1 visual reference. Implementation remains separate. |
+| `AUTH-002` | Sign Up | `projects/17116545761229201855/screens/300823b7306f4924a947eb3a80848e63` | HUMAN_APPROVED_VISUAL_REFERENCE | Accepted Authentication Batch 1 visual reference. Implementation remains separate. |
+| `AUTH-005` | Check Email | `projects/17116545761229201855/screens/265d92edd39248269e867d6d72d44962` | HUMAN_APPROVED_VISUAL_REFERENCE | Accepted Authentication Batch 1 visual reference. Implementation remains separate. |
+| `AUTH-006` | Verify Email | `projects/17116545761229201855/screens/76bae8f5c9a94284a919bf81b9c8e15c` | HUMAN_APPROVED_VISUAL_REFERENCE | Accepted Authentication Batch 1 visual reference. Implementation remains separate. |
+| `AUTH-007` | Forgot Password | `projects/17116545761229201855/screens/55522993d9514ed9ac67586fb552cb1a` | HUMAN_APPROVED_VISUAL_REFERENCE | Accepted Authentication Batch 1 visual reference. Implementation remains separate. |
+| `AUTH-008` | Reset Password | `projects/17116545761229201855/screens/5782187204dc4229a5970ddf2cc0012f` | HUMAN_APPROVED_VISUAL_REFERENCE | Accepted Authentication Batch 1 visual reference. Implementation remains separate. |
+
+Rejected/superseded Authentication generation attempts from session/tool evidence:
+
+| Canonical screen ID | Stitch screen | Disposition | Reason |
+|---|---|---|---|
+| `AUTH-001` | `projects/17116545761229201855/screens/35d14c2c1e614c4f9bb236227f86cb7b` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First generation attempt showed out-of-contract footer/support/legal/portal-claim content. Superseded by accepted `6427cabcd8b549eb845c85d6b8a0413a`. |
+| `AUTH-006` | `projects/17116545761229201855/screens/f3ff01bf143449fa879bf13736c9d547` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First generation attempt showed a help/question-style icon in the missing-token state. Superseded by accepted `76bae8f5c9a94284a919bf81b9c8e15c`. |
+
 ## Tool Evidence
 
 | Step | Result |
@@ -104,6 +132,8 @@ The first generated product shell is the human-preferred visual direction for th
 | Human design decision after replacement | First shell visual direction is preferred over the strictly reduced replacement. Do not delete or regenerate the first shell. |
 | First shell design-proposed features | Notifications recorded as `DPF-001`; Help / Support Access recorded as `DPF-002` in `docs/frontend/design/stitch/design-proposed-features.md`. |
 | First shell excluded content | Fake identity, fake professional title, debug annotations, route/debug labels, auth/session/status claims, online/system-health claims, compliance/security claims, and unsupported footer claims are not accepted as product features and are not backlog items. |
+| Authentication Batch 1 generation | Generated and directly validated accepted visual references for `AUTH-001`, `AUTH-002`, `AUTH-005`, `AUTH-006`, `AUTH-007`, and `AUTH-008` in the active v2 workspace. |
+| Authentication Batch 1 human approval | Human visually approved the six accepted Authentication artifacts on 2026-09-21 as visual references. Rejected attempts listed above are not authoritative. |
 
 ## Design-Led Feature Discovery Protocol
 
@@ -131,4 +161,4 @@ All future Stitch generation must follow `docs/frontend/design/stitch/system-des
 
 ## Review Status
 
-The original Nurse desktop shell is the `PREFERRED_VISUAL_BASELINE` for visual direction but is not exact as-is `HUMAN_APPROVED`. The replacement v2 shell remains a valid reduced reference, not the preferred baseline. Notifications and Help / Support Access are design-proposed features only. Fake identity/debug content and unsupported security/compliance/status claims are not accepted. Stop downstream generation; do not edit, regenerate, or create variants without explicit human authorization.
+Authentication Batch 1 (`AUTH-001`, `AUTH-002`, `AUTH-005`, `AUTH-006`, `AUTH-007`, `AUTH-008`) is `HUMAN_APPROVED_VISUAL_REFERENCE` as of 2026-09-21. The original Nurse desktop shell is the `PREFERRED_VISUAL_BASELINE` for authenticated shell visual direction but is not exact as-is `HUMAN_APPROVED`. The replacement v2 shell remains a valid reduced reference, not the preferred baseline. Notifications and Help / Support Access are design-proposed features only. Fake identity/debug content and unsupported security/compliance/status claims are not accepted. Do not treat visual approval as implementation completion. Stop downstream authenticated screen-family generation until the authenticated app shell receives human visual approval.

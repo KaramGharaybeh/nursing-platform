@@ -282,7 +282,7 @@ Rejected/superseded Preparation Packages generation attempts from this checkpoin
 
 ## Commerce Generated Candidates
 
-Generation checkpoint: 2026-09-21. These artifacts were generated from the Commerce `CONTRACT_READY` product discovery/detail screen contracts in the active v2 Stitch workspace and directly validated through generated HTML. They are contract-validated design candidates pending human visual review. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize checkout/payment/order implementation work. `COM-003` through `COM-008` were not generated in this checkpoint.
+Generation checkpoint: 2026-09-21. Shell-normalization checkpoint: 2026-09-22. These artifacts were generated from the Commerce `CONTRACT_READY` product discovery/detail screen contracts in the active v2 Stitch workspace and directly validated through generated HTML. They are contract-validated design candidates pending human visual review. They do not mark Angular implementation complete, do not create backend/API behavior, do not change screen-contract statuses, and do not authorize checkout/payment/order implementation work. `COM-003` through `COM-008` were not generated in this checkpoint.
 
 Active workspace used for these candidates:
 
@@ -294,8 +294,17 @@ Active workspace used for these candidates:
 
 | Canonical screen ID | Screen name | Stitch screen | Validation status | Notes |
 |---|---|---|---|---|
-| `COM-001` | Product Catalog | `projects/17116545761229201855/screens/21862f11a45049cb9f95f4af1ad65361` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found authenticated Products shell, two product cards with safe title/description/type/availability/price/currency fields, View details actions, and pagination. No Purchase/Buy/Checkout/order/payment/provider/search/filter/raw-ID/reference/footer content found. |
-| `COM-002` | Product Detail | `projects/17116545761229201855/screens/31c3beeed6ee4a6abf5a147b1c27880e` | GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW | Direct HTML validation found authenticated Products shell, product detail heading/context, safe product type/availability/name/description/price/currency facts, and Back to Products only. No Purchase/Buy/Checkout/order/payment/provider/raw-ID/invented-benefit/reference/footer content found. |
+| `COM-001` | Product Catalog | `projects/17116545761229201855/screens/7a1a37127a50495f9f7ec5431e42c905` | REGENERATED_NORMALIZED_AND_VALID_PENDING_HUMAN_REVIEW | Shell-normalization replacement for prior artifact `21862f11a45049cb9f95f4af1ad65361`. Recovery direct HTML validation found App Shell v3-aligned authenticated Products chrome, two product cards with safe title/description/type/availability/price/currency fields, View details actions, and pagination. No Purchase/Buy/Checkout/cart/order/payment/provider/search/filter/raw-ID/reference-state/footer content found. |
+| `COM-002` | Product Detail | `projects/17116545761229201855/screens/18a9dcf5428a49b8a51ecf3043e05bde` | REGENERATED_NORMALIZED_AND_VALID_PENDING_HUMAN_REVIEW | Shell-normalization replacement for prior artifact `31c3beeed6ee4a6abf5a147b1c27880e`. Recovery direct HTML validation found App Shell v3-aligned authenticated Products chrome, product detail heading/context, safe product type/availability/name/description/price/currency facts, product facts, and Back to Products only. No Purchase/Buy/Checkout/cart/order/payment/provider/raw-ID/invented-benefit/reference-state/footer content found. |
+
+Rejected/superseded Commerce shell-normalization attempts from this checkpoint:
+
+| Canonical screen ID | Stitch screen | Disposition | Reason |
+|---|---|---|---|
+| `COM-001` | `projects/17116545761229201855/screens/21862f11a45049cb9f95f4af1ad65361` | SUPERSEDED_BY_SHELL_NORMALIZATION | Prior contract-valid artifact superseded by shell-normalized replacement `7a1a37127a50495f9f7ec5431e42c905`; product body remains unchanged. |
+| `COM-001` | `projects/17116545761229201855/screens/a71e52f4b0de4ebd902fa78a45cbb32d` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First shell-normalized replacement exposed visible catalog-reference/no-products state content. Superseded by accepted replacement `7a1a37127a50495f9f7ec5431e42c905`. |
+| `COM-002` | `projects/17116545761229201855/screens/31c3beeed6ee4a6abf5a147b1c27880e` | SUPERSEDED_BY_SHELL_NORMALIZATION | Prior contract-valid artifact superseded by shell-normalized replacement `18a9dcf5428a49b8a51ecf3043e05bde`; product body remains unchanged. |
+| `COM-002` | `projects/17116545761229201855/screens/e809e585b56f44ca8446b2a15a8e8b8a` | REJECTED_SUPERSEDED_NOT_AUTHORITY | First shell-normalized replacement exposed visible contextual-state/system-fallback panels and invented commercial/syllabus/admin-definition wording. Superseded by accepted replacement `18a9dcf5428a49b8a51ecf3043e05bde`. |
 
 ## Employer Generated Candidates
 

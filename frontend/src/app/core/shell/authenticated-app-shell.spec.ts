@@ -69,6 +69,63 @@ describe('AuthenticatedAppShell', () => {
     expect(document.activeElement).toBe(trigger);
   });
 
+  it('contains keyboard focus within mobile navigation and redirects background focus', async () => {
+    const fixture = TestBed.createComponent(AuthenticatedAppShell);
+    fixture.componentRef.setInput('navigationItems', [
+      { routeId: 'EXAMS_CATALOG', label: 'Exams', path: '/exams', active: false },
+      { routeId: 'NURSE_PROFILE_OVERVIEW', label: 'Profile', path: '/nurse/profile', active: false },
+    ]);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    compiled.querySelector<HTMLButtonElement>('[data-testid="app-shell-menu-trigger"]')?.click();
+    fixture.detectChanges();
+
+    const panel = compiled.querySelector<HTMLElement>('[data-testid="app-shell-mobile-panel"]');
+    expect(panel).not.toBeNull();
+    expect(panel?.hasAttribute('cdkTrapFocus') || panel?.hasAttribute('cdktrapfocus')).toBe(true);
+
+    const backgroundButton = document.createElement('button');
+    backgroundButton.textContent = 'background';
+    backgroundButton.setAttribute('data-testid', 'background-control');
+    document.body.appendChild(backgroundButton);
+    try {
+      backgroundButton.focus();
+      expect(document.activeElement).toBe(backgroundButton);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(panel?.contains(document.activeElement)).toBe(true);
+    } finally {
+      backgroundButton.remove();
+    }
+  });
+
+  it('disables header background interaction while mobile navigation is open', () => {
+    const fixture = TestBed.createComponent(AuthenticatedAppShell);
+    fixture.componentRef.setInput('navigationItems', [
+      { routeId: 'EXAMS_CATALOG', label: 'Exams', path: '/exams', active: false },
+    ]);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const header = compiled.querySelector('[data-testid="app-shell-header"]');
+    expect(header?.hasAttribute('inert')).toBe(false);
+
+    compiled.querySelector<HTMLButtonElement>('[data-testid="app-shell-menu-trigger"]')?.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('[data-testid="app-shell-mobile-panel"]')).not.toBeNull();
+    expect(compiled.querySelector('[data-testid="app-shell-mobile-backdrop"]')).not.toBeNull();
+    expect(header?.hasAttribute('inert')).toBe(true);
+
+    compiled.querySelector<HTMLButtonElement>('[data-testid="app-shell-mobile-close"]')?.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('[data-testid="app-shell-mobile-panel"]')).toBeNull();
+    expect(header?.hasAttribute('inert')).toBe(false);
+  });
+
   it('closes mobile navigation on route change', async () => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({

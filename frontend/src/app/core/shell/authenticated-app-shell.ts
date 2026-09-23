@@ -1,4 +1,5 @@
 import { Component, DestroyRef, ElementRef, ViewChild, inject, input, signal } from '@angular/core';
+import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { LocalLogout } from '../auth/local-logout';
@@ -7,7 +8,7 @@ import type { PrimaryNavigationItem } from './primary-navigation';
 
 @Component({
   selector: 'np-authenticated-app-shell',
-  imports: [RouterLink],
+  imports: [RouterLink, CdkTrapFocus],
   templateUrl: './authenticated-app-shell.html',
   styleUrl: './authenticated-app-shell.scss',
   host: {

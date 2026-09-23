@@ -122,6 +122,42 @@ describe('App shell frame', () => {
     expect(compiled.querySelector('[data-testid="app-shell-primary-nav"]')?.textContent).toContain('Exams');
   });
 
+  it('does not show authenticated shell for authenticated users on public routes', async () => {
+    TestBed.resetTestingModule();
+    authState.set('authenticated');
+    currentUserStatus.set('ready');
+    currentUser.set({
+      id: 'user-1',
+      email: 'nurse@example.test',
+      username: 'nurse-user',
+      firstName: 'Nurse',
+      lastName: 'Example',
+      isActive: true,
+      emailVerified: true,
+      isProfileComplete: true,
+      roles: ['Nurse'],
+      permissions: [],
+      createdAt: '2026-01-01T00:00:00Z',
+      lastLoginAt: undefined,
+    });
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [
+        provideRouter([{ path: 'auth/sign-in', component: App }]),
+        { provide: AuthSessionBootstrap, useValue: { state: authState.asReadonly() } },
+        { provide: CurrentUserStore, useValue: { status: currentUserStatus.asReadonly(), currentUser: currentUser.asReadonly() } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/auth/sign-in');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('[data-testid="app-shell-header"]')).toBeNull();
+    expect(compiled.querySelector('[data-testid="app-shell-primary-nav"]')).toBeNull();
+  });
+
   it('keeps component separation with external template and style metadata', () => {
     const source = readAppFile('app.ts');
     expect(source).toMatch(/templateUrl\s*:\s*['"]\.\/app\.html['"]/);

@@ -1,4 +1,4 @@
-<header class="np-auth-shell" data-testid="app-shell-header">
+<header class="np-auth-shell" data-testid="app-shell-header" [attr.inert]="mobileNavigationOpen() ? '' : null">
   <a class="np-auth-shell-brand" data-testid="app-shell-brand" [routerLink]="'/'">
     Nursing Platform
   </a>
@@ -53,6 +53,8 @@
     role="dialog"
     aria-modal="true"
     aria-label="Navigation menu"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
   >
     <button
       #mobileClose

@@ -1,0 +1,22 @@
+<section class="np-admin-entry" aria-labelledby="admin-entry-title">
+  <header class="np-admin-entry-hero">
+    <p class="np-admin-entry-kicker">Administration</p>
+    <h1 id="admin-entry-title">Admin workspace</h1>
+    <p>Choose an approved administrative workspace.</p>
+  </header>
+
+  @if (destinations().length === 0) {
+    <p class="np-admin-entry-empty">No approved administrative workspaces are available for this account.</p>
+  } @else {
+    <div class="np-admin-entry-grid" aria-label="Admin workspaces">
+      @for (destination of destinations(); track destination.routeId) {
+        <article class="np-admin-entry-card">
+          <p class="np-admin-entry-card-group">{{ destination.group }}</p>
+          <h2>{{ destination.title }}</h2>
+          <p>{{ destination.description }}</p>
+          <a mat-button [routerLink]="destinationPath(destination.routeId)">Open</a>
+        </article>
+      }
+    </div>
+  }
+</section>

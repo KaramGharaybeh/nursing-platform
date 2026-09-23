@@ -64,6 +64,12 @@ export const routes: Routes = [
     data: { routeId: 'ONBOARDING_PROFILE' },
   },
   {
+    path: 'admin',
+    loadComponent: () => import('./features/admin/entry/admin-entry').then((m) => m.AdminEntry),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'ADMIN_ENTRY' },
+  },
+  {
     path: 'admin/users',
     loadComponent: () => import('./features/admin/users/admin-users').then((m) => m.AdminUsers),
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],

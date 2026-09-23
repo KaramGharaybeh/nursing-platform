@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { routes } from '../../../app.routes';
 import { CurrentUserStore } from '../../../core/auth/current-user-store';
 import type { CurrentUser } from '../../../core/auth/current-user';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
@@ -31,6 +32,14 @@ class CurrentUserStoreStub {
   readonly currentUser = vi.fn(() => READY_ADMIN);
 }
 
+function mountedConcreteAdminPaths(): string[] {
+  return routes
+    .map((route) => route.path)
+    .filter((path): path is string => path !== undefined)
+    .filter((path) => path.startsWith('admin/') && !path.includes(':'))
+    .map((path) => `/${path}`);
+}
+
 async function setup(store = new CurrentUserStoreStub()) {
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
@@ -55,24 +64,41 @@ describe('AdminEntry', () => {
     expect(text).toContain('Choose an approved administrative workspace.');
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       canonicalRoutePath('ADMIN_USERS'),
-      canonicalRoutePath('ADMIN_REFERENCE_DATA'),
-      canonicalRoutePath('ADMIN_EXAMS'),
-      canonicalRoutePath('ADMIN_EXAM_QUESTIONS'),
-      canonicalRoutePath('ADMIN_PAYMENT_PRODUCTS'),
-      canonicalRoutePath('ADMIN_PREPARATION_PACKAGE_TOPICS'),
-      canonicalRoutePath('ADMIN_PREPARATION_PACKAGE_PRACTICE_COLLECTIONS'),
     ]);
     expect(text).toContain('Users');
-    expect(text).toContain('Exam categories');
-    expect(text).toContain('Exams');
-    expect(text).toContain('Questions');
-    expect(text).toContain('Payment products');
-    expect(text).toContain('Reporting topics');
-    expect(text).toContain('Practice collections');
+    expect(text).not.toContain('Exam categories');
+    expect(text).not.toContain('Exams');
+    expect(text).not.toContain('Questions');
+    expect(text).not.toContain('Payment products');
+    expect(text).not.toContain('Reporting topics');
+    expect(text).not.toContain('Practice collections');
     expect(text).not.toContain('Reporting profiles');
     expect(text).not.toContain('Study materials');
     expect(text).not.toContain('Package definitions');
     expect(text).not.toContain('Package offers');
+  });
+
+  it('only renders active workspace links for currently mounted concrete Admin routes', async () => {
+    const { fixture } = await setup();
+    const element = fixture.nativeElement as HTMLElement;
+    const text = element.textContent ?? '';
+    const mountedAdminPaths = mountedConcreteAdminPaths();
+    const activeHrefs = Array.from(element.querySelectorAll<HTMLAnchorElement>('a'))
+      .map((link) => link.getAttribute('href'))
+      .filter((href): href is string => href !== null);
+
+    expect(activeHrefs).toEqual([canonicalRoutePath('ADMIN_USERS')]);
+    expect(activeHrefs.every((href) => mountedAdminPaths.includes(href))).toBe(true);
+    expect(activeHrefs.every((href) => !href.includes(':'))).toBe(true);
+    expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_REFERENCE_DATA'));
+    expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_EXAMS'));
+    expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_EXAM_QUESTIONS'));
+    expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_PAYMENT_PRODUCTS'));
+    expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_PREPARATION_PACKAGE_TOPICS'));
+    expect(text).not.toContain('Exam categories');
+    expect(text).not.toContain('Questions');
+    expect(text).not.toContain('Payment products');
+    expect(text).not.toContain('Reporting topics');
   });
 
   it('filters Admin destinations through the navigation permission policy without admin bypass', async () => {

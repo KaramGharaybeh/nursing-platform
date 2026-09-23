@@ -157,7 +157,7 @@ Milestones are organizational groupings. Task/Gate dependency declarations are a
 | `M-FE-004` | API client foundation | Generator spike, generator approval, generated client. | `T-FE-015..T-FE-017` | `GATE-FE-T003` | member gates `VERIFIED` |
 | `M-FE-005` | API infrastructure | API config, Problem Details mapping, DTO adapter boundary. | `T-FE-018..T-FE-020` | `GATE-FE-T017` | member gates `VERIFIED` |
 | `M-FE-006` | Auth/session foundation | Auth transport, tokens, token-session bootstrap, refresh, bearer, current-user hydration, logout. | `T-FE-021..T-FE-026`, `T-FE-138` | `GATE-FE-T018..T020` | member gates `VERIFIED` |
-| `M-FE-007` | Shell/routing/permission architecture | Shell, loading state, route registry, guards, route UX permission policy, navigation. | `T-FE-027..T-FE-032` | task-level gates only | member gates `VERIFIED` |
+| `M-FE-007` | Shell/routing/permission architecture | Shell, loading state, route registry, guards, route UX permission policy, navigation. | `T-FE-027..T-FE-032`, `T-FE-140` | task-level gates only | member gates `VERIFIED` |
 | `M-FE-008` | Shared UX patterns | Loading/errors, validation, empty/restricted, feedback, upload, pagination, visual method. | `T-FE-033..T-FE-039` | task-level gates only | member gates `VERIFIED` |
 | `M-FE-009` | Auth screens | Approval packet and auth screen implementations/classifications. | `T-FE-040..T-FE-055` | task-level gates only | family packet `VERIFIED`; applicable screen tasks `VERIFIED` or `BLOCKED` with blocker types |
 | `M-FE-010` | Nurse profile | Nurse approval and nurse profile screens. | `T-FE-052`, `T-FE-056..T-FE-065` | task-level gates only | applicable member gates `VERIFIED` or `BLOCKED` with blocker types |
@@ -452,6 +452,7 @@ All Tasks have initial `status: NOT STARTED`.
 | `T-FE-137` | `M-FE-019` | Production payment release decision | `GATE-FE-T089` | no provider invention | `BACKEND`,`EXTERNAL` |
 | `T-FE-138` | `M-FE-006` | Authenticated current-user hydration | `GATE-FE-T025` | `GET /api/v1/me` via normal transport; relies on bearer interceptor; current-user/session identity state only | `CONTRACT_CLARIFICATION`,`SECURITY` |
 | `T-FE-139` | `M-FE-008` | Component separation remediation | component-separation governance acceptance, `GATE-FE-T033` | structural-only remediation for recorded inline template/style violations; no UI redesign | `SCOPE` |
+| `T-FE-140` | `M-FE-007` | Shared authenticated app shell/navigation | `GATE-FE-T027..T032`,`GATE-FE-T026`,`GATE-FE-T138` | implement approved App Shell v3 authenticated shell chrome, actor-aware primary navigation, account/sign-out affordance, active state, mobile drawer/menu, and mounted-route-aware destination inventory; no product-screen body changes | `DESIGN`,`SECURITY`,`SCOPE` |
 
 ## 12. Subtask Registry
 
@@ -613,6 +614,7 @@ All Subtasks initially have `status: NOT STARTED`. Each Subtask inherits its par
 | `ST-FE-136` | `T-FE-136` | Run final responsive audit. |
 | `ST-FE-137` | `T-FE-137` | Record production payment release decision. |
 | `ST-FE-139` | `T-FE-139` | Move recorded inline production component template and template-local style block to colocated external files without behavior or visual redesign. |
+| `ST-FE-140` | `T-FE-140` | Build the shared authenticated shell/navigation UI from approved App Shell v3 authority with mounted-route-aware primary navigation, account/sign-out affordance, mobile drawer/menu, active state, and focused shell/navigation tests. |
 
 ## 13. Verification Gate Registry
 
@@ -759,6 +761,7 @@ All Gates initially have `status_result: NOT STARTED`. Every Gate must use the c
 | `GATE-FE-T137` | `T-FE-137` | `GATE-FE-T089` | payment release decision | `BACKEND`,`EXTERNAL` |
 | `GATE-FE-T138` | `T-FE-138` | `GATE-FE-T025` | current-user hydration tests proving `GET /api/v1/me` is called through normal auth transport/generation path, bearer injection is supplied by `T-FE-025`, current-user/session identity state is established, and no token refresh/storage/interceptor behavior is duplicated | `CONTRACT_CLARIFICATION`,`SECURITY` |
 | `GATE-FE-T139` | `T-FE-139` | component-separation governance acceptance, `GATE-FE-T033` | structural compliance audit, focused component tests, full frontend quality, git scope evidence | `SCOPE` |
+| `GATE-FE-T140` | `T-FE-140` | `GATE-FE-T027..T032`, `GATE-FE-T026`, `GATE-FE-T138` | shell/navigation component tests, mounted-route inventory tests, actor/permission visibility tests, active-route tests, account/sign-out tests, mobile drawer focus/close tests, RTL/logical-style evidence, DPF exclusion checks, full frontend quality/build, and git scope evidence | `DESIGN`,`SECURITY`,`SCOPE` |
 
 ## 14. Screen Ownership Matrix
 
@@ -766,6 +769,9 @@ Every screen has exactly one primary owner Task. `approval_decision` is initiall
 
 | screen_id | primary_owner_task | family_approval_gate | approval_decision | execution_status | blocker_types | contract_dependency | post_implementation_visual_verification |
 |---|---|---|---|---|---|---|---|
+| `APP-SHELL` | `T-FE-140` | `HD-STITCH-11` | `APPROVED` | `NOT STARTED` | `DESIGN`,`SECURITY`,`SCOPE` | `T-FE-027`,`T-FE-028`,`T-FE-030`,`T-FE-031`,`T-FE-032`,`T-FE-138` | human-approved App Shell v3 visual baseline exists; Angular implementation authority now belongs to T-FE-140 and has not started |
+| `NAV-PRIMARY` | `T-FE-140` | `HD-STITCH-11` | `APPROVED` | `NOT STARTED` | `DESIGN`,`SECURITY`,`SCOPE` | `T-FE-029`,`T-FE-031`,`T-FE-032`,`frontend/src/app/app.routes.ts` | global primary navigation must combine canonical route authority, current-user actor/permission eligibility, concrete mounted Angular route availability, and global/contextual classification; not started |
+| `ACCOUNT-AFFORDANCE` | `T-FE-140` | `HD-STITCH-11` | `APPROVED` | `NOT STARTED` | `DESIGN`,`SECURITY`,`SCOPE` | `T-FE-026`,`T-FE-138` | account access and sign-out affordance implementation authority now belongs to T-FE-140; fake identity/title/avatar/token/session status remain forbidden |
 | `AUTH-001` | `T-FE-041` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-LOGIN`,`C-ME` | implementation, automated verification, bounded `email_verification_required` regression, visual calibration, and human visual approval complete |
 | `AUTH-002` | `T-FE-043` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-REGISTER-NURSE`,`C-AUTH-REGISTER-EMPLOYER` | implementation, automated verification, and render-ready Storybook evidence complete; public pre-registration role-selection UI only; Nurse -> `/auth/register/nurse`, Employer -> `/auth/register/employer`; no backend call, account creation, role/session/token/current-user behavior |
 | `AUTH-003` | `T-FE-044` | `GATE-FE-T040` | `APPROVED` | `VERIFIED` | — | `C-AUTH-REGISTER-NURSE` | implementation, automated verification, and Storybook build evidence complete; public nurse registration at `/auth/register/nurse` over generated `publicRegisterNurse` with exact four fields, success-without-authentication, and canonical verify-email navigation |
@@ -3203,9 +3209,9 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - status: `NOT STARTED`
 - blocker_types: `DESIGN`,`CONTRACT_CLARIFICATION`
 - evidence_date: 2026-09-20
-- defer_summary: Human product/sequencing decision recorded 2026-09-20 from accepted HEAD `a60e3c9`: `T-FE-084` is DEFERRED, not cancelled and not verified. Before continuing Commerce checkout/order-creation implementation, the project prioritizes application navigation / Navigation Toolbar and related usability/design foundation work. This is intentional sequencing, explicitly NOT a predecessor failure (all four predecessors `GATE-FE-T082`, `GATE-FE-T083`, `GATE-FE-T034`, `GATE-FE-T077` are `VERIFIED`), NOT a backend blocker, NOT a security defect, NOT a contract defect, and NOT a rejection of the Commerce design packet (`COM-003` remains HUMAN_APPROVED future work; packet untouched). Status stays `NOT STARTED` because the canonical status model (`§2`) defines no task-level `DEFERRED` value; this NOT STARTED record is the truthful governance entry for the deferred scope (GATE-FE-T065 precedent), not an implementation-ready signal. `ST-FE-084` and `GATE-FE-T084` remain `NOT STARTED` with no execution performed.
+- defer_summary: Human product/sequencing decision recorded 2026-09-20 from accepted HEAD `a60e3c9`: `T-FE-084` is DEFERRED, not cancelled and not verified. Before continuing Commerce checkout/order-creation implementation, the project prioritizes application navigation / Navigation Toolbar and related usability/design foundation work; the concrete owning prerequisite for that navigation foundation is now `T-FE-140` / `GATE-FE-T140`. This is intentional sequencing, explicitly NOT a predecessor failure (all four predecessors `GATE-FE-T082`, `GATE-FE-T083`, `GATE-FE-T034`, `GATE-FE-T077` are `VERIFIED`), NOT a backend blocker, NOT a security defect, NOT a contract defect, and NOT a rejection of the Commerce design packet (`COM-003` remains HUMAN_APPROVED future work; packet untouched). Status stays `NOT STARTED` because the canonical status model (`§2`) defines no task-level `DEFERRED` value; this NOT STARTED record is the truthful governance entry for the deferred scope (GATE-FE-T065 precedent), not an implementation-ready signal. `ST-FE-084` and `GATE-FE-T084` remain `NOT STARTED` with no execution performed.
 - downstream_effect: Direct DAG dependents on `GATE-FE-T084` — `T-FE-086` (`COM-004` checkout processing), `T-FE-087` (`COM-005/006` generic outcomes), `T-FE-088` (`COM-007/008` orders list/detail) — plus transitive dependents `T-FE-089` (via `GATE-FE-T086`) and `T-FE-137` (via `GATE-FE-T089`) remain NOT STARTED and NOT implementation-ready while the defer holds. No registry rewrite was needed: their existing `DESIGN`/`BACKEND`/`EXTERNAL` blocker types already prevent implementation, and the DAG dependency on `GATE-FE-T084` already encodes the ordering truth. No new blockers invented.
-- reopen_condition: Fresh explicit human authorization after the Navigation Toolbar campaign; no new design/contract prerequisite is implied by the defer itself (existing `DESIGN`,`CONTRACT_CLARIFICATION` blocker types still describe the task's own readiness axes).
+- reopen_condition: Fresh explicit human authorization after `GATE-FE-T140` verifies the shared authenticated app shell/navigation task; no new design/contract prerequisite is implied by the defer itself (existing `DESIGN`,`CONTRACT_CLARIFICATION` blocker types still describe the task's own readiness axes).
 
 ### `T-FE-112` — ADM-009/010 admin orders/recruitment classification
 
@@ -3256,3 +3262,26 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `SCOPE`
 - evidence_summary: Gate evidence is recorded: structural component-separation audit PASS, focused LoadingErrorRetry 1 file / 8 tests PASS, full frontend 15 files / 149 tests PASS, lint/stylelint/quality/build PASS, `git diff --check` PASS, staged area empty, git-guardian scope review PASS, and `docs.zip` remained untracked/out of scope.
 - closure_evidence: Gate is closed as `VERIFIED`; T-FE-033 remains historically `VERIFIED` with no retroactive invalidation. Stop for review; do not stage, commit, push, or start the next task without explicit instruction.
+
+### `T-FE-140` — Shared authenticated app shell/navigation
+
+- status: `NOT STARTED`
+- blocker_types: `DESIGN`,`SECURITY`,`SCOPE`
+- evidence_date: 2026-09-23
+- authority_summary: Documentation/governance authority only. `T-FE-027` owns the verified neutral structural shell frame and explicitly does not own the visual header/navigation/sidebar/mobile/account chrome. `T-FE-032` owns verified permission-aware navigation eligibility/filtering and explicitly does not own visual navigation inventory, labels, icons, order, active state, or shell chrome. Human-approved App Shell v3 (`projects/17116545761229201855/screens/764a9361e16948b0be831e4bf28f584b`) provides the approved visual baseline for the authenticated app shell, but did not itself authorize Angular implementation until this task record.
+- scope_summary: Future implementation scope is the shared authenticated app shell/navigation only: App Shell v3 chrome, actor-aware primary navigation, mounted-route-aware destination inventory, active route state, account/sign-out affordance, responsive/mobile drawer or menu behavior, accessibility/focus handling, logical/RTL-safe layout, and focused shell/navigation tests. It may integrate existing verified auth/session/current-user, logout, route registry, guards, and permission-navigation policy. Product screen bodies remain owned by their screen tasks.
+- exclusion_summary: This task does not authorize backend/OpenAPI/generated-client/database/package/dependency changes, new product screens, product-screen body redesign, checkout/order/payment behavior, DPF-001 notifications workflow, DPF-002 help/support workflow, fake identity/title/avatar/token/session data, links to unmounted routes, links with unresolved route parameters, invented coming-soon/unavailable navigation states, or `T-FE-084` checkout/order implementation.
+- sequencing_summary: `GATE-FE-T140` is the concrete navigation-foundation prerequisite named by the existing `T-FE-084` defer record. `T-FE-084` remains `NOT STARTED`; this docs-only record does not start either task.
+- verification_summary: Future gate evidence must include shell/navigation component tests, mounted-route inventory tests, actor/permission visibility tests, active-route tests, account/sign-out tests, mobile drawer/menu focus and close behavior, RTL/logical-style evidence, explicit DPF exclusion checks, full frontend quality/build evidence, and git scope evidence.
+
+### `ST-FE-140` — Build shared authenticated shell/navigation UI
+
+- status: `NOT STARTED`
+- blocker_types: `DESIGN`,`SECURITY`,`SCOPE`
+- evidence_summary: Not implemented. Future work must consume approved App Shell v3 visual authority and existing verified auth/routing/navigation policy without expanding product-screen scope.
+
+### `GATE-FE-T140`
+
+- status_result: `NOT STARTED`
+- blocker_types: `DESIGN`,`SECURITY`,`SCOPE`
+- evidence_summary: Gate not run. Future verification must prove authenticated shell chrome, navigation inventory/visibility, account/logout affordance, responsive/mobile behavior, accessibility, RTL/logical styling, DPF exclusions, and no broken/unmounted/parameterized links.

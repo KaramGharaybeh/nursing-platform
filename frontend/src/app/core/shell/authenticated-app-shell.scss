@@ -1,0 +1,115 @@
+.np-auth-shell {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-16);
+  min-block-size: var(--np-space-64);
+  padding-block: var(--np-space-8);
+  padding-inline: var(--np-page-gutter);
+  border-block-end: 1px solid var(--np-color-brand-1);
+  background: var(--np-color-surface);
+  color: var(--np-color-brand-2);
+}
+
+.np-auth-shell-brand,
+.np-auth-shell-nav-link,
+.np-auth-shell-account,
+.np-auth-shell-mobile-link {
+  min-block-size: var(--np-space-44);
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--np-space-12);
+  color: inherit;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.np-auth-shell-brand {
+  color: var(--np-color-brand-1);
+  font-size: 1.125rem;
+}
+
+.np-auth-shell-nav {
+  display: flex;
+  flex: 1 1 auto;
+  gap: var(--np-space-8);
+  align-items: center;
+}
+
+.np-auth-shell-nav-link,
+.np-auth-shell-account,
+.np-auth-shell-mobile-link {
+  padding-inline: var(--np-space-16);
+}
+
+.np-auth-shell-nav-link-active,
+.np-auth-shell-mobile-link-active {
+  border: 1px solid var(--np-color-brand-1);
+  background: var(--np-color-active-surface);
+}
+
+.np-auth-shell-sign-out,
+.np-auth-shell-menu-trigger,
+.np-auth-shell-mobile-close,
+.np-auth-shell-mobile-sign-out {
+  min-inline-size: var(--np-space-44);
+  min-block-size: var(--np-space-44);
+  border: 1px solid var(--np-color-brand-1);
+  border-radius: var(--np-space-12);
+  background: var(--np-color-surface);
+  color: var(--np-color-brand-2);
+  font: inherit;
+  font-weight: 700;
+}
+
+.np-auth-shell-menu-trigger {
+  display: none;
+}
+
+.np-auth-shell-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  padding: 0;
+  border: 0;
+  background: rgb(16 42 58 / var(--np-scrim-opacity));
+}
+
+.np-auth-shell-mobile-panel {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 11;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-12);
+  inline-size: min(20rem, 88vw);
+  padding: var(--np-space-24);
+  border-start-end-radius: var(--np-space-24);
+  border-end-end-radius: var(--np-space-24);
+  background: var(--np-color-surface);
+  color: var(--np-color-brand-2);
+}
+
+.np-auth-shell-mobile-link,
+.np-auth-shell-mobile-sign-out,
+.np-auth-shell-mobile-close {
+  justify-content: flex-start;
+  inline-size: 100%;
+}
+
+@media (width < 600px) {
+  .np-auth-shell-nav,
+  .np-auth-shell-account,
+  .np-auth-shell-sign-out {
+    display: none;
+  }
+
+  .np-auth-shell-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline-start: auto;
+  }
+}

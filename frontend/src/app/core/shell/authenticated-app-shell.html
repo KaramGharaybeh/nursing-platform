@@ -1,0 +1,87 @@
+<header class="np-auth-shell" data-testid="app-shell-header">
+  <a class="np-auth-shell-brand" data-testid="app-shell-brand" [routerLink]="'/'">
+    Nursing Platform
+  </a>
+
+  <nav class="np-auth-shell-nav" data-testid="app-shell-primary-nav" aria-label="Primary navigation">
+    @for (item of navigationItems(); track item.routeId) {
+      <a
+        class="np-auth-shell-nav-link"
+        [class.np-auth-shell-nav-link-active]="item.active"
+        [attr.aria-current]="item.active ? 'page' : null"
+        [routerLink]="item.path"
+      >
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+
+  <a class="np-auth-shell-account" data-testid="app-shell-account" [routerLink]="accountPath">
+    Account
+  </a>
+
+  <button class="np-auth-shell-sign-out" data-testid="app-shell-sign-out" type="button" (click)="signOut()">
+    Sign out
+  </button>
+
+  <button
+    #menuTrigger
+    class="np-auth-shell-menu-trigger"
+    data-testid="app-shell-menu-trigger"
+    type="button"
+    aria-label="Open navigation menu"
+    [attr.aria-expanded]="mobileNavigationOpen()"
+    aria-controls="app-shell-mobile-menu"
+    (click)="openMobileNavigation()"
+  >
+    Menu
+  </button>
+</header>
+
+@if (mobileNavigationOpen()) {
+  <button
+    class="np-auth-shell-backdrop"
+    data-testid="app-shell-mobile-backdrop"
+    type="button"
+    aria-label="Close navigation menu"
+    (click)="closeMobileNavigation()"
+  ></button>
+  <aside
+    id="app-shell-mobile-menu"
+    class="np-auth-shell-mobile-panel"
+    data-testid="app-shell-mobile-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Navigation menu"
+  >
+    <button
+      #mobileClose
+      class="np-auth-shell-mobile-close"
+      type="button"
+      data-testid="app-shell-mobile-close"
+      (click)="closeMobileNavigation()"
+    >
+      Close
+    </button>
+
+    <nav aria-label="Mobile primary navigation">
+      @for (item of navigationItems(); track item.routeId) {
+        <a
+          class="np-auth-shell-mobile-link"
+          [class.np-auth-shell-mobile-link-active]="item.active"
+          [attr.aria-current]="item.active ? 'page' : null"
+          [routerLink]="item.path"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <a class="np-auth-shell-mobile-link" data-testid="app-shell-mobile-account" [routerLink]="accountPath">
+      Account
+    </a>
+    <button class="np-auth-shell-mobile-sign-out" type="button" (click)="signOut()">
+      Sign out
+    </button>
+  </aside>
+}

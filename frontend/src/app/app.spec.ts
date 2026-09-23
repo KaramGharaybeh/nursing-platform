@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { provideRouter, Router } from '@angular/router';
 import { routes } from './app.routes';
 // @ts-expect-error - Vitest runs in Node; node builtins resolve at runtime.
@@ -6,9 +7,15 @@ import { readFileSync } from 'node:fs';
 // @ts-expect-error - Vitest runs in Node; node builtins resolve at runtime.
 import { join } from 'node:path';
 import { App } from './app';
+import { AuthSessionBootstrap } from './core/auth/auth-session-bootstrap';
+import { CurrentUserStore } from './core/auth/current-user-store';
+import type { CurrentUser } from './core/auth/current-user';
 
 const nodeGlobal = globalThis as unknown as { process: { cwd(): string } };
 const appDir = join(nodeGlobal.process.cwd(), 'src', 'app');
+const authState = signal<'initializing' | 'authenticated' | 'anonymous'>('anonymous');
+const currentUserStatus = signal<'idle' | 'loading' | 'ready' | 'anonymous' | 'unavailable'>('anonymous');
+const currentUser = signal<CurrentUser | undefined>(undefined);
 
 function readAppFile(name: string): string {
   return readFileSync(join(appDir, name), 'utf8');
@@ -16,9 +23,16 @@ function readAppFile(name: string): string {
 
 describe('App shell frame', () => {
   beforeEach(async () => {
+    authState.set('anonymous');
+    currentUserStatus.set('anonymous');
+    currentUser.set(undefined);
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        { provide: AuthSessionBootstrap, useValue: { state: authState.asReadonly() } },
+        { provide: CurrentUserStore, useValue: { status: currentUserStatus.asReadonly(), currentUser: currentUser.asReadonly() } },
+      ],
     }).compileComponents();
   });
 
@@ -64,20 +78,56 @@ describe('App shell frame', () => {
     expect(compiled.textContent).not.toContain('Congratulations');
   });
 
-  it('contains no navigation or product link list', () => {
+  it('does not show authenticated navigation for anonymous or public context', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('nav')).toBeNull();
-    expect(compiled.querySelectorAll('a').length).toBe(0);
+    expect(compiled.querySelector('[data-testid="app-shell-header"]')).toBeNull();
+    expect(compiled.querySelector('[data-testid="app-shell-primary-nav"]')).toBeNull();
+  });
+
+  it('shows authenticated shell navigation for authenticated application context', async () => {
+    TestBed.resetTestingModule();
+    authState.set('authenticated');
+    currentUserStatus.set('ready');
+    currentUser.set({
+      id: 'user-1',
+      email: 'nurse@example.test',
+      username: 'nurse-user',
+      firstName: 'Nurse',
+      lastName: 'Example',
+      isActive: true,
+      emailVerified: true,
+      isProfileComplete: true,
+      roles: ['Nurse'],
+      permissions: [],
+      createdAt: '2026-01-01T00:00:00Z',
+      lastLoginAt: undefined,
+    });
+    await TestBed.configureTestingModule({
+      imports: [App],
+      providers: [
+        provideRouter([{ path: 'exams', component: App }]),
+        { provide: AuthSessionBootstrap, useValue: { state: authState.asReadonly() } },
+        { provide: CurrentUserStore, useValue: { status: currentUserStatus.asReadonly(), currentUser: currentUser.asReadonly() } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/exams');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('[data-testid="app-shell-header"]')).not.toBeNull();
+    expect(compiled.querySelector('[data-testid="app-shell-primary-nav"]')?.textContent).toContain('Exams');
   });
 
   it('keeps component separation with external template and style metadata', () => {
     const source = readAppFile('app.ts');
     expect(source).toMatch(/templateUrl\s*:\s*['"]\.\/app\.html['"]/);
     expect(source).toMatch(/styleUrl\s*:\s*['"]\.\/app\.scss['"]/);
-    expect(source).not.toMatch(/template\s*:/);
-    expect(source).not.toMatch(/styles\s*:/);
+    expect(source).not.toMatch(/^\s*template\s*:/m);
+    expect(source).not.toMatch(/^\s*styles\s*:/m);
   });
 
   it('keeps the shell template free of embedded style blocks', () => {
@@ -107,7 +157,11 @@ describe('App route loading state (T-FE-028)', () => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([{ path: 'x', component: App }])],
+      providers: [
+        provideRouter([{ path: 'x', component: App }]),
+        { provide: AuthSessionBootstrap, useValue: { state: authState.asReadonly() } },
+        { provide: CurrentUserStore, useValue: { status: currentUserStatus.asReadonly(), currentUser: currentUser.asReadonly() } },
+      ],
     }).compileComponents();
     const fixture = TestBed.createComponent(App);
     const router = TestBed.inject(Router);
@@ -131,7 +185,11 @@ describe('App route loading state (T-FE-028)', () => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        { provide: AuthSessionBootstrap, useValue: { state: authState.asReadonly() } },
+        { provide: CurrentUserStore, useValue: { status: currentUserStatus.asReadonly(), currentUser: currentUser.asReadonly() } },
+      ],
     }).compileComponents();
     const fixture = TestBed.createComponent(App);
     const router = TestBed.inject(Router);

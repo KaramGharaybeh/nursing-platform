@@ -1,4 +1,8 @@
 <div class="np-app-shell">
+  <a class="np-app-shell-skip-link" href="#main-content">Skip to content</a>
+  @if (showAuthenticatedShell()) {
+    <np-authenticated-app-shell [navigationItems]="primaryNavigationItems()" />
+  }
   @if (navigating()) {
     <np-loading-error-retry
       data-testid="route-loading"

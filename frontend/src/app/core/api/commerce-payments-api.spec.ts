@@ -116,4 +116,82 @@ describe('commerce-payments-api (T-FE-082)', () => {
       'Product response did not include usable product content.',
     );
   });
+
+  function orderResponse(overrides: Record<string, unknown> = {}) {
+    return {
+      id: 'order-1',
+      status: 'PendingPayment',
+      currency: 'USD',
+      totalAmountMinor: '4999',
+      createdAt: '2026-02-01T00:00:00Z',
+      updatedAt: '2026-02-01T00:00:00Z',
+      cancelledAt: null,
+      expiresAt: null,
+      paidAt: null,
+      items: [
+        {
+          id: 'item-1',
+          productId: 'product-1',
+          productName: 'NCLEX Mock Exam',
+          productType: 'ExamAccess',
+          examId: 'exam-1',
+          currency: 'USD',
+          unitAmountMinor: '4999',
+          quantity: 1,
+          lineTotalAmountMinor: '4999',
+          sourceType: 'Product',
+          sourceId: 'product-1',
+          packageSnapshot: null,
+        },
+      ],
+      ...overrides,
+    };
+  }
+
+  it('creates a product order with the exact create path and adapts safe order content', async () => {
+    const result = firstValueFrom(api.createOrder({ productId: 'product-1' }));
+    const request = httpMock.expectOne('/api/v1/me/nurse-profile/payment/orders');
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ productId: 'product-1' });
+    request.flush(orderResponse());
+    const adapted = await result;
+    expect(adapted.id).toBe('order-1');
+    expect(adapted.status).toBe('PendingPayment');
+    expect(adapted.currency).toBe('USD');
+    expect(adapted.totalAmountMinor).toBe('4999');
+    expect(adapted.items.map((item) => item.title)).toEqual(['NCLEX Mock Exam']);
+    expect(JSON.stringify(adapted)).not.toContain('packageSnapshot');
+    expect(JSON.stringify(adapted)).not.toContain('ExamAccess');
+  });
+
+  it('creates a package order with only the package offer source', async () => {
+    const result = firstValueFrom(api.createOrder({ packageOfferId: 'offer-1' }));
+    const request = httpMock.expectOne('/api/v1/me/nurse-profile/payment/orders');
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ packageOfferId: 'offer-1' });
+    request.flush(orderResponse({ id: 'order-2' }));
+    expect((await result).id).toBe('order-2');
+  });
+
+  it('rejects order creation without exactly one purchase source before any request', () => {
+    expect(() => api.createOrder({ productId: '   ' })).toThrow(
+      'Order creation requires exactly one purchase source.',
+    );
+    expect(() =>
+      api.createOrder({ productId: 'product-1', packageOfferId: 'offer-1' }),
+    ).toThrow('Order creation requires exactly one purchase source.');
+  });
+
+  it('rejects malformed order content instead of rendering a broken order', async () => {
+    const result = firstValueFrom(api.createOrder({ productId: 'product-1' }));
+    httpMock
+      .expectOne('/api/v1/me/nurse-profile/payment/orders')
+      .flush(orderResponse({ id: '', totalAmountMinor: '49.99' }));
+
+    await expect(result).rejects.toThrow(
+      'Order response did not include usable order content.',
+    );
+  });
 });

@@ -95,13 +95,19 @@ describe('ProductDetail screen (T-FE-082)', () => {
     expect(text(fixture)).toContain('$49.99');
   });
 
-  it('omits the description block when absent and shows no Purchase control', async () => {
+  it('omits the description block when absent and offers Purchase for active products', async () => {
     const stub = new CommercePaymentsApiStub();
     stub.detail = product({ description: null });
-    const { fixture } = await setup(stub);
+    const { fixture, navigateSpy } = await setup(stub);
 
     expect(byTestId(fixture, 'product-detail-description')).toBeNull();
-    expect(text(fixture)).not.toMatch(/Purchase|Pay now|Checkout|Create order/i);
+    const purchase = byTestId(fixture, 'product-detail-purchase') as HTMLButtonElement | null;
+    expect(purchase?.textContent).toContain('Purchase');
+
+    purchase?.click();
+    expect(navigateSpy).toHaveBeenCalledWith(['/checkout'], {
+      queryParams: { productId: 'product-1' },
+    });
   });
 
   it('shows a factual unavailable state for inactive products without actions', async () => {

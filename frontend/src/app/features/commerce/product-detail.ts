@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { CommercePaymentsApi } from '../../core/api/commerce-payments-api';
 import type { CommerceProduct } from '../../core/api/commerce-payments-api';
@@ -21,6 +21,7 @@ const GENERIC_RETRY_COPY = "We couldn't load this product. Try again.";
 export class ProductDetailScreen implements OnInit {
   private readonly api = inject(CommercePaymentsApi);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly product = signal<CommerceProduct | undefined>(undefined);
@@ -34,6 +35,12 @@ export class ProductDetailScreen implements OnInit {
 
   protected async retry(): Promise<void> {
     await this.load();
+  }
+
+  protected async purchase(): Promise<void> {
+    await this.router.navigate([canonicalRoutePath('COMMERCE_CHECKOUT')], {
+      queryParams: { productId: this.productId() },
+    });
   }
 
   protected price(): string {

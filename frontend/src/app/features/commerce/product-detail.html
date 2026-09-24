@@ -24,7 +24,11 @@
         <p>{{ detail.examTitle }}</p>
       }
       <p>{{ price() }}</p>
-      @if (!detail.isActive) {
+      @if (detail.isActive) {
+        <button type="button" data-testid="product-detail-purchase" (click)="purchase()">
+          Purchase
+        </button>
+      } @else {
         <p role="status" data-testid="product-detail-unavailable">Unavailable</p>
       }
     }

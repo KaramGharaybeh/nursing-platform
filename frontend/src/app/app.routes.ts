@@ -236,4 +236,11 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'COMMERCE_PRODUCT_DETAIL' },
   },
+  {
+    path: 'checkout',
+    loadComponent: () =>
+      import('./features/commerce/checkout').then((m) => m.CheckoutScreen),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'COMMERCE_CHECKOUT' },
+  },
 ];

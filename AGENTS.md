@@ -23,11 +23,11 @@ These project instructions take precedence over convenience. Prototype implement
 # RULE 0: MANDATORY MEMORY BANK & DYNAMIC PLANNING PROTOCOL
 
 - **Startup:** Every agent MUST read `/PROGRESS.md` before executing any commands or code changes.
-- **Central Ownership:** The OpenAI Orchestrator owns central planning, incremental status, and session-handoff updates to `/PROGRESS.md` so project memory remains synchronized.
-- **Orchestrator Dynamic Planning:** Whenever a new task or step is planned in conversation, the OpenAI Orchestrator MUST write it to `/PROGRESS.md` BEFORE writing code.
-- **Orchestrator Incremental Status:** The OpenAI Orchestrator updates task progress incrementally (`[x]` for done, `[/]` for partial/in-progress, `[ ]` for pending). It must not wait for 100% completion.
+- **Central Ownership:** `dev-orchestrator` owns central planning, incremental status, and session-handoff updates to `/PROGRESS.md` so project memory remains synchronized.
+- **Orchestrator Dynamic Planning:** Whenever a new task or step is planned in conversation, `dev-orchestrator` MUST write it to `/PROGRESS.md` BEFORE writing code.
+- **Orchestrator Incremental Status:** `dev-orchestrator` updates task progress incrementally (`[x]` for done, `[/]` for partial/in-progress, `[ ]` for pending). It must not wait for 100% completion.
 - **Delegated Workers:** A delegated worker MUST read `/PROGRESS.md` but MUST NOT modify it unless the complete delegation packet explicitly includes it in `ALLOWED_FILES` and explicitly assigns progress-update ownership. Normally the worker returns status/evidence and the Orchestrator performs the central update.
-- **Shutdown:** The OpenAI Orchestrator MUST update `/PROGRESS.md` with explicit handoff instructions before ending the session.
+- **Shutdown:** `dev-orchestrator` MUST update `/PROGRESS.md` with explicit handoff instructions before ending the session.
 
 ---
 
@@ -84,7 +84,7 @@ The following Superpowers skills are mandatory whenever their triggering conditi
 | Every new conversation | using-superpowers |
 | New features or architecture discussions | brainstorming |
 | Multi-step implementations | writing-plans |
-| Executing an approved implementation plan | subagent-driven-development (preferred) or executing-plans |
+| Executing an approved implementation plan | executing-plans (inline; project orchestration does not create implementation workers) |
 | Independent parallel tasks | dispatching-parallel-agents |
 | New feature implementation | test-driven-development |
 | Debugging unexpected behavior | systematic-debugging |
@@ -124,7 +124,7 @@ The following order must always be respected:
 
 The AI must never begin implementation before selecting the applicable skills.
 
-Skill enforcement does not change project routing authority. If a generic installed skill describes model selection, delegated reviewer count, commits, staging, or progress-ledger behavior that conflicts with this repository, `docs/development/model-orchestration.md`, this file's approval gates, and the delegation packet govern. Loading a skill never by itself authorizes an additional delegated reviewer or verifier. All applicable non-conflicting skill steps remain mandatory.
+Skill enforcement does not change project routing authority. If a generic installed skill describes model selection, delegated reviewer count, commits, staging, progress-ledger behavior, or implementation subagents that conflict with this repository, `docs/development/model-orchestration.md`, `docs/development/opencode-agent-runtime.md`, this file's approval gates, and the delegation packet govern. Loading a skill never authorizes another implementation writer. Every task requires the project `verifier`; `expert` is used only when escalation criteria apply. All applicable non-conflicting skill steps remain mandatory.
 
 ---
 
@@ -134,7 +134,7 @@ This repository contains project documentation, backend code, frontend code, scr
 
 The AI must always treat the repository documentation as the primary source of truth.
 
-OpenCode multi-agent work must follow `docs/development/model-orchestration.md`. That document is the authority for model routing, usage-hardened delegation, optional supporting review/verification, compact evidence, escalation, approval gates, and the `GOAL-FE-001` Frontend Standing Implementation Authorization exception. Only `openai/gpt-5.5` may be configured as the project's OpenAI orchestrator; no other project OpenAI model may be configured for delegation or fallback.
+OpenCode goal work must follow `docs/development/model-orchestration.md` and `docs/development/opencode-agent-runtime.md`. The project has three active logical roles: `dev-orchestrator` (sole normal writer), mandatory read-only `verifier`, and advisory `expert`. Only `expert` may use the project OpenAI model, and only for justified escalation. The existing `GOAL-FE-001` Frontend Standing Implementation Authorization exception remains governed by its current ledger criteria.
 
 When multiple documents exist:
 
@@ -153,9 +153,9 @@ Always update the authoritative document instead.
 
 # Delegated Work (OpenCode)
 
-All delegated OpenCode work must comply with the canonical orchestration contract in `docs/development/model-orchestration.md`, which owns the mandatory delegation packet, orchestrator preflight, worker preflight, and result/evidence shape.
+All native OpenCode Task delegation must comply with the canonical orchestration contract in `docs/development/model-orchestration.md`, which owns the mandatory delegation packet, primary preflight, verifier/expert preflight, and result/evidence shape.
 
-No worker starts without a complete packet. Workers read `AGENTS.md` first, then every listed global and task-specific context module; discover, evaluate, and load the applicable installed skills above; respect allowed/forbidden scope; STOP on incomplete packets or unresolved authority; and return the central evidence shape. For normal Low/Medium work, repository-heavy exploration, contract extraction, implementation, routine debugging, verification, and evidence drafting default to approved non-OpenAI workers; `openai/gpt-5.5` stays a thin manager and targeted final gate unless a direct-OpenAI exception in the canonical contract applies. A separate supporting reviewer/verifier is optional and used only when justified under the canonical contract. The packet schema itself lives only there and is not duplicated here.
+No child starts without a complete packet validated by `.opencode/scripts/validate-delegation-packet.mjs`. Children read `AGENTS.md` first, then every listed global and task-specific context module; discover, evaluate, and load applicable installed skills; respect allowed/forbidden scope; STOP on incomplete packets or unresolved authority; and return the central evidence shape. Ordinary implementation is performed by `dev-orchestrator`; do not create implementation workers. `verifier` independently reviews every task and may run only bounded verification. `expert` is advisory escalation only. Native Task is the project child-dispatch path; shell-launched OpenCode children are denied. The packet schema itself lives only in `docs/development/model-orchestration.md` and is not duplicated here.
 
 ---
 
@@ -227,7 +227,7 @@ Never optimize for development speed at the expense of architecture or maintaina
 
 # Required Context Loading
 
-`docs/development/model-orchestration.md` is the canonical context-routing registry. Every agent must load the mandatory global context baseline defined there. A delegated worker must read `AGENTS.md` first, then the remaining `GLOBAL_CONTEXT_MODULES`, then only the `TASK_CONTEXT_MODULES` selected by the OpenAI Orchestrator for the bounded task.
+`docs/development/model-orchestration.md` is the canonical context-routing registry. Every agent must load the mandatory global context baseline defined there. A delegated verifier or expert must read `AGENTS.md` first, then the remaining `GLOBAL_CONTEXT_MODULES`, then only the `TASK_CONTEXT_MODULES` selected by `dev-orchestrator` for the bounded task.
 
 Do not load unrelated backend, database, or API internals for frontend-only work unless the task actually affects them. Do not load unrelated frontend or design documentation for backend-only work unless relevant. Cross-cutting work receives every applicable module selected by the Orchestrator.
 
@@ -487,7 +487,7 @@ A task is complete only when:
 - Final verification has been completed.
 - All applicable Superpowers skills have been followed.
 - The full requested evidence has been pasted for review.
-- The OpenAI Orchestrator's final review has approved the task.
+- `verifier` has returned PASS for the stable task snapshot and `dev-orchestrator` has completed only governance-authorized closure.
 
 ---
 
@@ -510,11 +510,12 @@ These rules exist because this project is executed in a strictly reviewed, task-
 
 When the assigned task is complete:
 
-- Stop immediately.
-- Do not proceed to the next task.
-- Do not suggest that you are starting the next task.
+- A bounded task without an explicitly authorized enclosing GOAL stops for review.
+- `dev-orchestrator` that owns an explicitly authorized multi-step GOAL must continue automatically through its mandatory verifier, bounded corrections, rereview, and governance-authorized closure until a terminal GOAL status.
+- A GOAL does not authorize beginning a separate later roadmap task or expanding into unrelated scope.
+- Do not suggest that a separate next task is starting.
 - Do not write speculative next-step implementation notes.
-- End with this exact status sentence:
+- When no enclosing GOAL owns another authorized lifecycle step, end with this exact status sentence:
 
 ```text
 Stopped for review. Do not proceed. Do not commit.
@@ -526,6 +527,8 @@ Do not write misleading phrases like:
 - “Next: implementing users endpoint” unless explicitly instructed.
 - “Ready to continue” without review.
 - “I will now proceed” after completing the task.
+
+For an active GOAL, return intermediate evidence to the current orchestrator flow rather than stopping for user handoff; end only at `COMPLETE`, `BLOCKED`, `HUMAN_DECISION_REQUIRED`, or `SECURITY_ACTION_REQUIRED`.
 
 ## 3. Full File Output Rule
 

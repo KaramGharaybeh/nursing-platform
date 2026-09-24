@@ -54,3 +54,7 @@ frontend/coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local OpenCode goal/checkpoint state and delegation packets
+.agent/goal-state.md
+.agent/delegation-packet.json

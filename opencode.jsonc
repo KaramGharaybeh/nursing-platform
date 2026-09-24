@@ -1,4 +1,79 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "orchestrator"
+  "default_agent": "dev-orchestrator",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "provider": {
+    "atria": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Atria",
+      "options": {
+        "baseURL": "https://api.atria-asi.ai/v1",
+        "apiKey": "{env:ATRIA_API_KEY}"
+      },
+      "models": {
+        "Atria-Dawn-Preview": {
+          "name": "Atria-Dawn-Preview",
+          "limit": {
+            "context": 256000,
+            "output": 65536
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        }
+      }
+    }
+  },
+  "skills": {
+    "paths": [
+      "~/development/superpowers/skills"
+    ]
+  },
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@latest"
+      ],
+      "enabled": true,
+      "timeout": 120000
+    },
+    "penpot": {
+      "type": "remote",
+      "url": "http://localhost:9001/mcp/stream?userToken={env:PENPOT_MCP_USER_TOKEN}",
+      "enabled": true,
+      "timeout": 120000,
+      "oauth": false
+    },
+    "stitch": {
+      "type": "remote",
+      "url": "https://stitch.googleapis.com/mcp",
+      "enabled": true,
+      "oauth": false,
+      "timeout": 120000,
+      "headers": {
+        "Accept": "application/json",
+        "X-Goog-Api-Key": "{env:STITCH_API_KEY}"
+      }
+    }
+  },
+  "agent": {
+    "orchestrator": { "disable": true },
+    "free-orchestrator": { "disable": true },
+    "deep-reviewer": { "disable": true },
+    "architect": { "disable": true },
+    "documentation": { "disable": true },
+    "documentation-reviewer": { "disable": true },
+    "git-guardian": { "disable": true },
+    "main-implementer": { "disable": true },
+    "routine-worker": { "disable": true },
+    "repo-scout": { "disable": true },
+    "repo-scout-fallback": { "disable": true },
+    "nps-isolated": { "disable": true },
+    "title": { "model": "opencode/muse-spark-1.3-contributor-free" },
+    "summary": { "model": "opencode/muse-spark-1.3-contributor-free" }
+  }
 }

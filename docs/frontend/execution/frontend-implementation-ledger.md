@@ -3153,6 +3153,37 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - evidence_summary: Checkout-processing classification evidence is recorded: HC-C7 deferral with no approved route or screen, live-provider nature of checkout-start, sandbox-only provider registration with Production throw, deferred production provider decision, dev-only sandbox completion boundary, and absent order-detail entry surface; no implementation performed.
 - closure_evidence: Gate is closed as `VERIFIED` for design-gap classification; COM-004 checkout processing remains unimplemented. Downstream `T-FE-087`, `T-FE-089`, and `T-FE-137` remain subject to their own gates and backend/external decisions.
 
+### `T-FE-087` — COM-005/006 generic outcome classification
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`,`BACKEND`
+- evidence_date: 2026-09-24
+- scope_summary: Read-only authority inspection for COM-005/006 generic outcome screens under the 2026-09-24 human authorization, with predecessors `GATE-FE-T084`, `GATE-FE-T086`, and `GATE-FE-T077` all VERIFIED. Inspected the commerce approval packet (HC-C8, HC-C11, HC-C15), the backend order-detail endpoint, the generated order-detail client, canonical routes, the route permission matrix, and the `T-FE-088`/`T-FE-089` dependency state. No screen implementation, frontend application code, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- classification_summary: No frontend generic-outcome scope can be implemented now. The approved outcome behavior (HC-C8) requires reconciling authoritative server-backed order truth via order detail, but the generated order-detail operation is void-typed with the body discarded; restoring it requires a separately authorized backend metadata prerequisite (prior `b31a26c` precedent). The approved View order action targets unimplemented order detail (COM-008, `T-FE-088` NOT STARTED), and success/failure truth itself depends on provider processing that remains deferred (`T-FE-089`).
+- evidence_summary: (1) Design authority: HC-C8 approves COM-005 only for authoritative Paid truth and COM-006 only for authoritative failure truth, never from URL/navigation state alone; approved actions are View order (COM-008) plus conditional Continue/Try again; matrix COM-005/COM-006 rows are `BLOCKED`/`NOT STARTED`. (2) Backend contract: `GET /api/v1/me/nurse-profile/payment/orders/{id}` exists owner-scoped, but declares no `.Produces` (`ApplicationBuilderExtensions.cs`), so generated `getMyPaymentOrder` is `StrictHttpResponse<void>` with `responseType: 'text'` and body discarded — recorded defect HC-C15, which requires each consuming task to receive an explicitly authorized metadata prerequisite first. (3) Entry/action dependency: View order targets canonical order detail, which is unimplemented with `T-FE-088` NOT STARTED; shipping outcome screens without it would create dead navigation. (4) Payment truth dependency: Paid/failed order truth in production requires provider processing (COM-004 unimplemented by `T-FE-086` classification; production provider deferred under `T-FE-089`); the dev/test sandbox is not production UI authority (HC-C14).
+- closure_evidence: Classification is complete and verified as backend/design gap / no implementation. COM-005/COM-006 remain unimplemented until the order-detail metadata prerequisite is authorized and completed, the COM-008 entry surface exists, and payment-truth dependencies resolve. Do not infer outcome behavior from the order-create flow, the sandbox fixture, URL parameters, or navigation state.
+
+### `ST-FE-087A` — Classify COM-005 generic success availability
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`,`BACKEND`
+- evidence_summary: Generic success state has no contract-backed implementation path: server-truth reconciliation needs the void-typed order-detail operation, and its View order action needs unimplemented COM-008.
+- closure_evidence: Subtask accepted as complete from source/packet/route/test-search evidence.
+
+### `ST-FE-087B` — Classify COM-006 generic failure availability
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`,`BACKEND`
+- evidence_summary: Generic failure state has no contract-backed implementation path: server-truth reconciliation needs the void-typed order-detail operation, conditional Try again has no approved retry contract, and its View order action needs unimplemented COM-008.
+- closure_evidence: Subtask accepted as complete from source/packet/route/test-search evidence.
+
+### `GATE-FE-T087`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`,`BACKEND`
+- evidence_summary: Generic-outcome classification evidence is recorded: HC-C8 server-truth requirement, void-typed order-detail generated operation with the recorded HC-C15 prerequisite rule, absent COM-008 entry surface, and deferred payment-truth dependencies; no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for backend/design-gap classification; COM-005/COM-006 generic outcomes remain unimplemented. Downstream `T-FE-089` and `T-FE-137` remain subject to their own gates and backend/external decisions.
+
 ### `T-FE-081` — Payment product contract clarification
 
 - status: `VERIFIED`

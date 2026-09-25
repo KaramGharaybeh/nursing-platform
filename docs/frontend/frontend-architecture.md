@@ -1161,9 +1161,9 @@ A frontend Task may be marked `VERIFIED` only when all applicable requirements p
 - generated-client drift check passes when applicable;
 - no unrelated repository regression;
 - no unauthorized scope change;
-- task ledger updated with evidence;
-- `PROGRESS.md` updated when milestone/current-state changes;
-- completion commit recorded once committed.
+- task ledger updated with evidence (per-Task acceptance mapping retained inside a shared batch review);
+- `PROGRESS.md` handoff updated only when current milestone/state changes, kept compact;
+- completion commit recorded once committed (prefer one logical batch commit where the GOAL authorizes it).
 
 A screenshot matching Penpot alone is never sufficient Definition of Done.
 

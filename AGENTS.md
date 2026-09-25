@@ -20,14 +20,28 @@ These project instructions take precedence over convenience. Prototype implement
 
 ---
 
-# RULE 0: MANDATORY MEMORY BANK & DYNAMIC PLANNING PROTOCOL
+# RULE 0: COMPACT HANDOFF & TARGETED READING PROTOCOL
 
-- **Startup:** Every agent MUST read `/PROGRESS.md` before executing any commands or code changes.
-- **Central Ownership:** `dev-orchestrator` owns central planning, incremental status, and session-handoff updates to `/PROGRESS.md` so project memory remains synchronized.
-- **Orchestrator Dynamic Planning:** Whenever a new task or step is planned in conversation, `dev-orchestrator` MUST write it to `/PROGRESS.md` BEFORE writing code.
-- **Orchestrator Incremental Status:** `dev-orchestrator` updates task progress incrementally (`[x]` for done, `[/]` for partial/in-progress, `[ ]` for pending). It must not wait for 100% completion.
-- **Delegated Workers:** A delegated worker MUST read `/PROGRESS.md` but MUST NOT modify it unless the complete delegation packet explicitly includes it in `ALLOWED_FILES` and explicitly assigns progress-update ownership. Normally the worker returns status/evidence and the Orchestrator performs the central update.
-- **Shutdown:** `dev-orchestrator` MUST update `/PROGRESS.md` with explicit handoff instructions before ending the session.
+- **Startup:** Read the compact `PROGRESS.md` current-state handoff (target ~1-3 KB). Do NOT read it
+  in its entirety as a ritual, and NEVER load `PROGRESS_HISTORY.md` at startup: it is historical,
+  append-oriented, read-on-demand evidence, non-authoritative for current execution.
+- **Central Ownership:** `dev-orchestrator` owns concise current-state updates to `PROGRESS.md`
+  (active GOAL, live blockers, protected worktree notes, next authorized action). Completed Task
+  reports, transcripts, and old handoffs move to `PROGRESS_HISTORY.md` (append-only) instead of
+  accumulating in `PROGRESS.md`. One durable evidence location plus references is preferred over
+  copying identical status into many files.
+- **Orchestrator Planning:** Record the authorized batch plan in `.agent/goal-state.md` (and the
+  owning ledger where governance requires it) BEFORE writing code.
+- **Orchestrator Status:** Record minimal per-increment evidence as work proceeds
+  (inspect → implement → focused verify → continue) and stop at a coherent batch boundary for
+  independent review. Do not emit intermediate human-facing essays for ordinary Low/Medium work.
+- **Delegated Workers:** A delegated worker reads ONLY the packet-listed context modules
+  (targeted). It MUST NOT bulk-read `PROGRESS_HISTORY.md`, full ledgers, or unrelated domain
+  internals, and MUST NOT modify `PROGRESS.md` unless the complete delegation packet explicitly
+  includes it in `ALLOWED_FILES` and explicitly assigns progress-update ownership. Normally the
+  worker returns status/evidence and the Orchestrator performs the central update.
+- **Shutdown:** `dev-orchestrator` MUST leave `PROGRESS.md` as a compact handoff (current state
+  only) before ending the session.
 
 ---
 
@@ -124,7 +138,7 @@ The following order must always be respected:
 
 The AI must never begin implementation before selecting the applicable skills.
 
-Skill enforcement does not change project routing authority. If a generic installed skill describes model selection, delegated reviewer count, commits, staging, progress-ledger behavior, or implementation subagents that conflict with this repository, `docs/development/model-orchestration.md`, `docs/development/opencode-agent-runtime.md`, this file's approval gates, and the delegation packet govern. Loading a skill never authorizes another implementation writer. Every task requires the project `verifier`; `expert` is used only when escalation criteria apply. All applicable non-conflicting skill steps remain mandatory.
+Skill enforcement does not change project routing authority. If a generic installed skill describes model selection, delegated reviewer count, commits, staging, progress-ledger behavior, or implementation subagents that conflict with this repository, `docs/development/model-orchestration.md`, `docs/development/opencode-agent-runtime.md`, this file's approval gates, and the delegation packet govern. Loading a skill never authorizes another implementation writer. Every coherent batch requires the project `verifier` (Low/Medium batches share one review at the batch boundary with per-Task acceptance mapping; High/consequential changes are reviewed strictly at their own boundary); `expert` is used only when escalation criteria apply. All applicable non-conflicting skill steps remain mandatory.
 
 ---
 
@@ -229,9 +243,9 @@ Never optimize for development speed at the expense of architecture or maintaina
 
 `docs/development/model-orchestration.md` is the canonical context-routing registry. Every agent must load the mandatory global context baseline defined there. A delegated verifier or expert must read `AGENTS.md` first, then the remaining `GLOBAL_CONTEXT_MODULES`, then only the `TASK_CONTEXT_MODULES` selected by `dev-orchestrator` for the bounded task.
 
-Do not load unrelated backend, database, or API internals for frontend-only work unless the task actually affects them. Do not load unrelated frontend or design documentation for backend-only work unless relevant. Cross-cutting work receives every applicable module selected by the Orchestrator.
+Prefer routed, targeted reads over whole-document ingestion: at GOAL start/resume, load the explicit human GOAL, compact `PROJECT_RULES.md`/`AGENTS.md` entry requirements, the compact `PROGRESS.md` handoff, the active `.agent/goal-state.md` when one exists, and current Git branch/HEAD/status; then read only the authority relevant to the work (exact Task/Gate/predecessors, relevant architecture sections, exact screen/family contract, relevant approved visual authority, affected source/tests). Do not bulk-read full ledgers, entire historical design programs, every screen contract, all OpenAPI JSON, or `PROGRESS_HISTORY.md` unless the task truly requires them.
 
-Implementation must not begin until all packet-listed context is understood. If the required authority cannot be safely identified or listed sources conflict without a resolvable precedence rule, STOP and return the blocker to the Orchestrator rather than guessing.
+Historical documents (`PROGRESS_HISTORY.md`, old `GOAL_STATE.md`/`MASTER_PLAN.md` design-program files, superseded packets) are on-demand evidence only and never create current STOP conditions merely because old text says "next". If the required authority cannot be safely identified or listed sources conflict without a resolvable precedence rule, STOP and return the blocker to the Orchestrator rather than guessing.
 
 ---
 
@@ -400,13 +414,16 @@ Never claim work is complete without verification.
 
 Before declaring completion, the AI must:
 
-- Build the solution.
-- Run all relevant tests.
+- Build the solution where a build exists for the changed surface.
+- Run focused verification for each changed testable behavior, plus the broader
+  build/integration/full checks appropriate to the combined batch risk (risk-based, not
+  full-regression-after-every-micro-Task; documentation/classification-only work needs no
+  unrelated product suites).
 - Review generated changes.
 - Verify documentation.
 - Confirm no unrelated files were modified.
-- Confirm no files were staged unless explicitly instructed.
-- Confirm no commit was made unless explicitly instructed.
+- Confirm no files were staged and no commit was made unless the active GOAL explicitly
+  authorizes that exact action.
 
 Never assume success.
 
@@ -487,7 +504,8 @@ A task is complete only when:
 - Final verification has been completed.
 - All applicable Superpowers skills have been followed.
 - The full requested evidence has been pasted for review.
-- `verifier` has returned PASS for the stable task snapshot and `dev-orchestrator` has completed only governance-authorized closure.
+- `verifier` has returned PASS for the stable batch snapshot (with per-Task acceptance mapping)
+  and `dev-orchestrator` has completed only governance-authorized closure.
 
 ---
 
@@ -502,8 +520,11 @@ These rules exist because this project is executed in a strictly reviewed, task-
 - Do not modify files outside the requested scope.
 - Do not modify `CURRENT_TASK.md` or `TASKS.md` unless explicitly instructed.
 - Do not modify endpoint groups that belong to later tasks.
-- Do not commit unless explicitly instructed.
-- Do not stage files unless explicitly instructed.
+- Do not commit unless the active GOAL explicitly authorizes the exact commit action.
+- Do not stage files unless the active GOAL explicitly authorizes the exact staging action.
+- Task/Gate IDs are traceability units, not automatic session/verifier-run/commit boundaries:
+  related eligible Low/Medium Tasks may execute as one coherent batch under one authorized GOAL
+  (see `docs/development/model-orchestration.md`).
 - Never use `git add .`.
 
 ## 2. Stop-for-Review Rule

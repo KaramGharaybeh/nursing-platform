@@ -10,7 +10,13 @@ The documentation is organized by topic, with each document acting as the author
 
 # Reading Order
 
-When starting work on the project, review the documentation in the following order:
+When starting work on the project, use targeted reads instead of ingesting every document:
+load the explicit human GOAL, the compact `PROGRESS.md` handoff, the active `.agent/goal-state.md`
+when one exists, and current Git branch/HEAD/status; then read only the authority relevant to the
+work, as routed by `docs/development/model-orchestration.md`. The historical record
+(`PROGRESS_HISTORY.md`, old design-program files, superseded packets) is on-demand evidence only.
+
+The full topic map below remains the authority index for its respective area:
 
 1. Product Vision
 2. System Architecture
@@ -211,6 +217,8 @@ The following repository-level documents complement the documentation in this di
 | `AGENTS.md` | Instructions for AI coding agents |
 | `CURRENT_TASK.md` | Active implementation milestone |
 | `TASKS.md` | Long-term project roadmap |
+| `PROGRESS.md` | Compact current-state / session handoff (not history) |
+| `PROGRESS_HISTORY.md` | Historical evidence, read-on-demand, non-authoritative |
 
 ---
 

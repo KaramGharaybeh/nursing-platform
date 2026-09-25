@@ -46,7 +46,7 @@ Do not pass `--auto` for project work; it can approve ask-gated Git operations. 
 
 `GOAL → PREFLIGHT → IMPLEMENT → LOCAL VERIFY → NATIVE TASK VERIFIER → CORRECT/REREVIEW AS NEEDED → AUTHORIZED CLOSURE → TERMINAL REPORT`
 
-Every task requires independent verifier review before completion. The verifier returns `PASS`, `FAIL`, or `BLOCKED`; it never repairs. The primary may perform two evidence-driven repair attempts for an unresolved verifier root finding. It may use expert earlier for qualifying consequential uncertainty. After the second failed repair it must consult expert; after an expert-informed correction the verifier rereviews. A remaining failure becomes `BLOCKED`.
+Every coherent batch requires independent verifier review before completion: related eligible Low/Medium Tasks share one review at the batch boundary with per-Task acceptance mapping, while High/consequential changes are reviewed strictly at their own boundary. A Task ID is not automatically a separate session, verifier invocation, full-suite run, or commit. The verifier returns `PASS`, `FAIL`, or `BLOCKED`; it never repairs. The primary may perform two evidence-driven repair attempts for an unresolved verifier root finding. It may use expert earlier for qualifying consequential uncertainty. After the second failed repair it must consult expert; after an expert-informed correction the verifier rereviews. A remaining failure becomes `BLOCKED`.
 
 Terminal statuses are `COMPLETE`, `BLOCKED`, `HUMAN_DECISION_REQUIRED`, and `SECURITY_ACTION_REQUIRED`. Ordinary implementation/review/checkpoint transitions are not terminal.
 

@@ -12,11 +12,13 @@ For frontend task execution, consult the following in order, together with expli
 4. `docs/frontend/frontend-architecture.md`
 5. `docs/frontend/design/frontend-design-foundation-reference.md` for the canonical textual implementation mapping of the approved frontend foundation; the 2026-09-20 human decision makes Google Stitch the active visual-design workspace for the system-wide redesign. Approved Stitch screens own new visual composition after human approval; existing Penpot artifacts are legacy/reference evidence unless explicitly re-approved. Storybook is the intended future production visual development/review surface, not requirements authority, and is not installed until a separate tooling authorization.
 6. Implemented backend source and the generated Development OpenAPI contract for runtime API behavior.
-7. `docs/frontend/design/GOAL_STATE.md`
-8. `docs/frontend/design/MASTER_PLAN.md`
-9. `docs/frontend/design/governance/source-authority.md`
-10. `docs/frontend/design/governance/decision-log.md`
-11. `docs/frontend/design/governance/open-questions.md`
+7. `docs/frontend/design/governance/source-authority.md`
+8. `docs/frontend/design/governance/decision-log.md`
+9. `docs/frontend/design/governance/open-questions.md`
+
+`docs/frontend/design/GOAL_STATE.md` and `docs/frontend/design/MASTER_PLAN.md` are frozen Phase-0
+historical records: on-demand evidence only, not routine execution context, and never current
+STOP conditions.
 
 Unresolved open questions block the affected implementation decision. Historical exports, trackers, prose, and uncommitted files are evidence only unless explicitly approved by the authority that owns the decision. Historical planning/design documents remain preserved but do not override newer verified execution state or current repository facts merely because they contain older statements such as “frontend workspace is not initialized.” If precedence cannot resolve a conflict deterministically, STOP AND ESCALATE.
 
@@ -51,7 +53,7 @@ G0 was accepted on 2026-08-12 as a governance/re-entry baseline only, as recorde
 
 ### 2.1 Standing Implementation Authorization
 
-Standing Implementation Authorization for ordinary eligible Low/Medium frontend Tasks is defined in `docs/frontend/execution/frontend-implementation-ledger.md` and `docs/development/model-orchestration.md`. It may replace a separate per-task start message only when all declared predecessor Gates are `VERIFIED`, exact scope is established, no unresolved blocker/approval/security/business/design/tooling/dependency/backend/OpenAPI/Penpot/Storybook/database/migration decision is required, risk remains Low/Medium, implementation can stay within bounded `ALLOWED_FILES`, and required focused plus full Gate evidence can be produced. It never authorizes staging, committing, pushing, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, Storybook installation/configuration, screen work without screen approval, or human-owned product/business decisions.
+Standing Implementation Authorization for ordinary eligible Low/Medium frontend Tasks is defined in `docs/frontend/execution/frontend-implementation-ledger.md` and `docs/development/model-orchestration.md`. It may replace a separate per-task start message only when all declared predecessor Gates are `VERIFIED`, exact scope is established, no unresolved blocker/approval/security/business/design/tooling/dependency/backend/OpenAPI/Penpot/Storybook/database/migration decision is required, risk remains Low/Medium, implementation can stay within bounded `ALLOWED_FILES`, and required focused plus risk-appropriate Gate evidence can be produced. Related eligible Tasks may execute as one coherent batch with one independent verifier review at the batch boundary and per-Task acceptance mapping. It never authorizes pushing, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, Storybook installation/configuration, screen work without screen approval, or human-owned product/business decisions. Exact-scope local staging/committing is allowed only when the active GOAL explicitly authorizes that exact action.
 
 ## 3. Angular stack rules
 
@@ -262,7 +264,7 @@ Stylelint MUST be configured with `property-disallowed-list` to reject any code 
 - Once a Task or Feature reaches VERIFIED status, later tasks MUST NOT refactor, redesign, rename, move, or behaviorally modify that completed scope unless the new task explicitly declares it as an affected dependency or REOPENED scope. If a completed area must change, record why it is being reopened, identify the dependent task/decision, mark the item REOPENED, define authorized affected files/modules, rerun its acceptance/verification gates, record the new verification evidence, and return it to VERIFIED. No opportunistic cleanup of verified features.
 - Use deterministic repository/runtime evidence. Report exact files changed and execute the validation requested by the task.
 - Stop and ask for clarification when a route, permission, DTO, validation rule, business transition, visual decision, or security behavior is not evidenced.
-- Do not stage, commit, push, delete branches, or alter repository history unless explicitly instructed. Never use `git add .`.
+- Do not stage, commit, push, delete branches, or alter repository history unless the active GOAL explicitly authorizes the exact action. Never use `git add .`.
 - Do not use reviewers, subagents, deep review, model-based review, or DeepSeek when the active task forbids them. Task-specific restrictions take precedence; no agent may delegate authorization or final acceptance.
 - Do not claim completion without the requested verification evidence, clean scope confirmation, unstaged-file status, and explicit distinction between facts, decisions, and open questions.
 
@@ -274,7 +276,7 @@ Stylelint MUST be configured with `property-disallowed-list` to reject any code 
 - Treat screen trackers such as AUTH-001 as legacy/draft evidence unless the governing task explicitly authorizes reconciliation. Do not overwrite them to match an assumption.
 - Reports record bounded audit evidence and do not supersede source documents. Maintain exact revision/source references where a report depends on live backend or Penpot evidence.
 - Documentation/status changes must be logically scoped. If commits are later authorized, separate a documentation-only/status update from implementation when combining them would obscure review, provenance, or verification; do not create any commit without explicit instruction.
-- Detailed frontend Task/Subtask history belongs in `docs/frontend/execution/frontend-implementation-ledger.md`. `PROGRESS.md` remains the high-level canonical session and handoff memory: current Goal, current Milestone, active Task, latest verified checkpoint, blockers, next approved gate, important cross-cutting decisions, and a reference to the detailed ledger.
+- Detailed frontend Task/Subtask history belongs in `docs/frontend/execution/frontend-implementation-ledger.md`. `PROGRESS.md` is the compact current-state handoff only (active GOAL, live blockers, protected worktree notes, next authorized action); completed reports move to append-only `PROGRESS_HISTORY.md`, which is on-demand evidence and never routine context. One durable evidence location plus references is preferred over copying identical status into many files.
 
 ## 14. Testing rules
 
@@ -314,9 +316,9 @@ A frontend Task may be marked `VERIFIED` only when all applicable requirements p
 - generated-client drift check passes when applicable;
 - no unrelated repository regression;
 - no unauthorized scope change;
-- task ledger updated with evidence;
-- `PROGRESS.md` updated when milestone/current-state changes;
-- completion commit recorded once committed.
+- task ledger updated with evidence (per-Task acceptance mapping retained inside a shared batch review);
+- `PROGRESS.md` handoff updated only when current milestone/state changes, kept compact;
+- completion commit recorded once committed (prefer one logical batch commit where the GOAL authorizes it).
 
 A screenshot matching Penpot alone is never sufficient Definition of Done.
 

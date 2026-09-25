@@ -17,6 +17,23 @@ Authoritative frontend rules remain in:
 
 `PROGRESS.md` remains the concise current-state and handoff memory. This ledger is the detailed implementation roadmap authority.
 
+### Task, batch, and GOAL boundaries
+
+Task/Gate IDs, Subtask IDs, predecessor relationships, and the DAG remain the traceability record;
+they are not deleted. But a Task ID is not automatically a separate human interaction, session,
+verifier invocation, full-suite run, or commit:
+
+- Task/Gate = traceability and acceptance unit;
+- batch = operational implementation and review unit (one stable diff, one verifier review with
+  per-Task acceptance mapping);
+- GOAL = human-authorized outcome boundary.
+
+Agents must NOT read this full multi-thousand-line ledger by default. Normal work locates and reads
+only the target Task(s), declared predecessor Gate(s), relevant screen row(s), applicable
+blocker/contract row(s), and applicable Gate criteria; historical Task records are on-demand
+evidence. Classification `VERIFIED` and feature-implementation `VERIFIED` remain distinct: a
+screen is never marked implemented merely because its classification Gate is `VERIFIED`.
+
 ### Execution authority precedence
 
 When frontend sources conflict, use this precedence for implementation execution and status decisions:
@@ -43,9 +60,9 @@ Standing Implementation Authorization replaces the need for a separate user “s
 - implementation can stay inside a bounded `ALLOWED_FILES` packet;
 - focused tests/source-contract tests and the Gate's full deterministic evidence can be produced with existing approved tooling.
 
-When those conditions are satisfied, the OpenAI Orchestrator may select the next eligible Task from the DAG, delegate repository-heavy exploration and implementation to the approved non-OpenAI worker pool, run required verification, perform the OpenAI final technical gate, update execution state, and proceed to the next eligible Task without a new per-task start message.
+When those conditions are satisfied, `dev-orchestrator` may select the next eligible Task from the DAG, implement bounded work directly, run focused verification, and proceed to the next eligible Task within the same authorized GOAL, working inspect → implement → focused verify → continue until a coherent batch boundary. It obtains the mandatory independent verifier PASS once per coherent Low/Medium batch (with per-Task acceptance mapping) before governance-authorized closure, and it may consult `expert` only when the escalation criteria in `docs/development/model-orchestration.md` apply.
 
-Standing authorization never authorizes staging, committing, pushing, destructive Git operations, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, Storybook installation/configuration, business/product decisions, or High/High-Precision implementation escalation.
+Standing authorization never authorizes pushing, destructive Git operations, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, Storybook installation/configuration, business/product decisions, or High/High-Precision implementation escalation. Exact-scope local staging/committing at coherent batch checkpoints is allowed only when the active GOAL explicitly authorizes that exact action (cached diff inspected, unrelated hunks excluded, batch-appropriate verification passed, no push).
 
 ### Automatic Task selection
 
@@ -66,18 +83,18 @@ Continuous execution MUST STOP and ask for user/technical-lead authority when an
 - database work, migration creation/application, backend mutation, OpenAPI mutation, Penpot mutation, or Storybook tooling/configuration is required;
 - Task scope or `ALLOWED_FILES` cannot be bounded safely;
 - High-risk or High-Precision implementation requires escalation under the orchestration policy;
-- staging, committing, pushing, reset, clean, stash, checkout/restore, or repository-history alteration is requested;
+- staging, committing, pushing, reset, clean, stash, checkout/restore, or repository-history alteration is requested without an explicit GOAL authorization covering that exact action (push always requires separate authorization);
 - repository authority conflicts cannot be resolved deterministically.
 
 Do not self-approve these stops.
 
 ### Testing and evidence invariant
 
-Every implementation Task must satisfy its Gate evidence. Where behavior, logic, source contracts, styling contracts, routing, API mapping, security presentation, or error behavior is testable, focused unit/component/source-contract tests are mandatory and must verify behavior or relationships rather than weak string-presence checks. After focused verification, run the applicable full regression/quality/build verification required by the Task/Gate. The worker and Orchestrator must report exact command evidence; tests passing alone is insufficient unless requirement coverage is also checked.
+Every implementation Task must satisfy its Gate evidence. Where behavior, logic, source contracts, styling contracts, routing, API mapping, security presentation, or error behavior is testable, focused unit/component/source-contract tests are mandatory and must verify behavior or relationships rather than weak string-presence checks. After focused verification, run the build/integration/full checks appropriate to the combined batch risk (shared shell/routing/auth changes, generated client or API contract changes, dependency/toolchain/config changes, broadly consumed shared infrastructure, consequential behavior, release/integration checkpoints, an explicit Gate requirement, or a finding that creates broad regression risk) — not a full regression after every micro-Task. Documentation-only and classification-only work needs diff/scope/consistency validation, not unrelated product suites. The worker and Orchestrator must report exact command evidence; tests passing alone is insufficient unless requirement coverage is also checked.
 
 ### Usage-efficiency invariant
 
-For normal Low/Medium eligible Tasks, use the efficient path: OpenAI Orchestrator performs compact classification, routing, packet validation, and final gate; Muse Spark 1.3 or the approved free fallback worker performs repository-heavy exploration, implementation, and deterministic verification; OpenAI reviews concise evidence and critical artifacts without repeating broad repository exploration unless a concrete risk, missing evidence, or finding justifies it.
+For normal Low/Medium eligible Tasks, `dev-orchestrator` uses the configured free model for bounded discovery, implementation, and primary verification, then invokes the independent free `verifier` once per coherent batch with explicit Task/Gate acceptance mapping. `expert` is reserved for justified consequential reasoning and does not act as a routine final reviewer. The orchestrator does not create implementation workers or repeat delegated work because implementation remains its responsibility.
 
 ## 2. Canonical Status and Blocker Model
 

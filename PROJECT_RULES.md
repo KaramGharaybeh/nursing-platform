@@ -208,6 +208,16 @@ A change is considered complete only when:
 
 # Memory Bank Governance
 
-* `/PROGRESS.md` is the canonical single source of truth for project status, current roadmap, and agent handoffs.
-* All planned features or structural changes MUST be documented in `/PROGRESS.md` prior to code implementation.
-* Broad staging (`git add .`) is prohibited. Updates to `/PROGRESS.md` must be staged alongside corresponding code changes.
+* `/PROGRESS.md` is the compact current-state handoff (active GOAL, live blockers, protected
+  worktree notes, next authorized action; target ~1-3 KB). It is not historical storage.
+* `PROGRESS_HISTORY.md` is the append-oriented historical record: non-authoritative,
+  read-on-demand only, never mandatory startup context.
+* Agents use targeted reads (explicit GOAL, compact entry requirements, compact handoff, active
+  goal state, branch/HEAD/status, then only task-relevant authority) instead of ingesting whole
+  ledgers, histories, or unrelated domain documents.
+* Related eligible Low/Medium Tasks may execute as one coherent batch under one authorized GOAL
+  with independent verifier review at the batch boundary; Task/Gate IDs remain the traceability
+  units (see `docs/development/model-orchestration.md`).
+* Broad staging (`git add .`) is prohibited. Exact-scope staging/committing is allowed only when
+  the active GOAL explicitly authorizes that exact action; push remains separately authorized
+  (default: prohibited).

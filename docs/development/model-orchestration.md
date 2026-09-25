@@ -7,7 +7,7 @@ This is the canonical project delegation contract. It owns the mandatory packet,
 - User decisions and approved repository specifications remain authoritative. Agents route and execute; they do not invent product behavior or authorization.
 - The project has exactly three active logical orchestration roles: `dev-orchestrator`, `verifier`, and `expert`.
 - `dev-orchestrator` owns user goals, preflight, implementation, documentation, bounded repository discovery, primary verification, routing, correction, and authorized closure. It is the only normal writer in the shared project worktree. It creates no implementation workers.
-- `verifier` is an independent, mandatory, read-only subagent for every task, including trivial changes. It returns PASS, FAIL, or BLOCKED; it never repairs or closes a gate.
+- `verifier` is an independent, mandatory, read-only subagent for every coherent batch, including trivial changes. Related eligible Low/Medium Tasks share one review at the batch boundary with per-Task acceptance mapping; High/consequential changes are reviewed strictly at their own boundary. It returns PASS, FAIL, or BLOCKED; it never repairs or closes a gate.
 - `expert` is an advisory OpenAI subagent used only when consequential uncertainty, a qualifying escalation, or unresolved verifier findings justify it. It never writes, delegates, or approves completion.
 - OpenAI is not used for ordinary execution or as an automatic final reviewer. The configured expert model is `openai/gpt-5.5`; expert calls are usage-gated by the primary and the user’s goal.
 
@@ -38,12 +38,14 @@ Every project task packet includes these path references:
 - `AGENTS.md`
 - `PROJECT_RULES.md`
 - `CURRENT_TASK.md`
-- `PROGRESS.md`
+- `PROGRESS.md` (compact current-state handoff only, target ~1-3 KB)
 - `docs/index.md`
 - `docs/standards/engineering-standards.md`
 - `docs/development/development-guide.md`
 - `docs/development/model-orchestration.md`
 - `docs/development/opencode-agent-runtime.md`
+
+`PROGRESS_HISTORY.md`, full multi-thousand-line ledgers, entire historical design programs, every screen contract, and all OpenAPI JSON are never mandatory context. They are on-demand evidence, read only for a specific discrepancy or audit. Normal start/resume reads are targeted and small: the explicit human GOAL, compact entry requirements, the compact handoff, the active goal state when one exists, and current branch/HEAD/status, then only task-relevant authority.
 
 Workers read the current files from the repository snapshot; packets do not paste complete documents or conversation history.
 
@@ -108,6 +110,8 @@ node .opencode/scripts/validate-delegation-packet.mjs .agent/delegation-packet.j
 
 Dispatch only on `PACKET_VALID`. The validator derives field names from this section rather than keeping a second schema list. It verifies structure/presence, not semantic truth; the primary remains responsible for correctness and context selection.
 
+Send the packet ONCE per coherent batch rather than once per micro-Task. Represent every included Task/Gate ID and its acceptance mapping inside the existing fields (for example, list all covered Task IDs and map each to its criteria); the packet schema itself does not change for batching.
+
 Do not paste complete files or long histories. Include only necessary goals, authority references, snapshot/diff facts, constraints, acceptance criteria, and evidence. A verifier rereview gets prior findings, correction diff, and regression scope. An expert gets only the unresolved reasoning problem and minimum relevant authority.
 
 ## Primary preflight and adaptive reasoning
@@ -120,17 +124,29 @@ Consult expert before implementation when uncertainty is itself consequential, i
 
 ## Mandatory verification, correction, and escalation lifecycle
 
-Each bounded task follows:
+Each coherent batch follows (a batch is one stable review unit; Task/Gate IDs remain the traceability units):
 
 `GOAL → GOVERNANCE PREFLIGHT → ACCEPTANCE CRITERIA → RISK / REASONING CLASSIFICATION → IMPLEMENT → PRIMARY SELF-VERIFICATION → VERIFIER → PASS → GOVERNANCE-AUTHORIZED CLOSURE → FINAL REPORT`
 
 1. Primary implements and runs focused local verification, then freezes the relevant diff/snapshot.
-2. Primary sends a complete packet and exact acceptance/evidence contract to verifier.
+2. Primary sends one complete packet for the batch (every included Task/Gate ID with per-Task acceptance mapping expressed inside the existing packet fields) and the exact acceptance/evidence contract to verifier.
 3. Verifier independently checks requirement coverage, scope, relevant source/security/business invariants, and actual verification evidence, returning PASS, FAIL, or BLOCKED.
-4. FAIL triggers a bounded evidence-driven correction by the primary, local verification, and verifier rereview. After two evidence-driven repair attempts against the same unresolved root problem, consult expert. A material HIGH-risk uncertainty may call expert before implementation instead of waiting for failures.
+4. FAIL triggers a bounded evidence-driven correction by the primary, local verification, and verifier rereview of the corrected stable batch. After two evidence-driven repair attempts against the same unresolved root problem, consult expert. A material HIGH-risk uncertainty may call expert before implementation instead of waiting for failures.
 5. Primary applies expert recommendations; primary performs local verification and verifier rereviews. If that rereview still fails, stop BLOCKED.
 6. Only verifier PASS plus satisfied task/ledger/user gates permits primary closure. The verifier and expert never close their own gates.
 7. Do not return ordinary intermediate phase completion to the user. Continue automatically until COMPLETE, BLOCKED, HUMAN_DECISION_REQUIRED, or SECURITY_ACTION_REQUIRED.
+
+## Batching, verification, and evidence policy
+
+A Task ID is not automatically a separate human interaction, session, verifier invocation, full-suite run, or commit. A batch is a shared review/rejection boundary, not an arbitrary Task count. Low/Medium Tasks may share a batch when they serve the same bounded GOAL, have established authority, are DAG-eligible, share compatible risk, and remain reviewable as one stable diff without hiding a consequential change inside mechanical work. Split a batch when risk materially changes, a trust boundary is reached, the diff becomes hard to review independently, unrelated authorities are required, one branch is blocked while another can continue, or a genuine human decision is required. Never invent a fixed one-Task-equals-one-batch rule.
+
+Verification is risk-based. Focused unit/component/contract checks are required for each changed testable behavior. Broader build/integration/full checks run at the boundary appropriate to the combined batch risk: shared shell/routing/auth changes, generated client or API contract changes, dependency/toolchain/config changes, broadly consumed shared infrastructure, consequential behavior, release or integration checkpoints, an explicit Gate that truly requires it, or a finding that creates broad regression risk. Documentation-only and classification-only work needs diff/scope/consistency validation (plus relevant parser/validator tests where they exist), not unrelated product suites. Previously valid evidence may be reused only when the checked source, dependencies, configuration, command environment, and contracts are unchanged.
+
+One durable evidence location plus references is preferred. Do not copy identical command counts, verifier narratives, or status text into PROGRESS, Task, Subtask, Gate, and final response. Historical documents never create current STOP conditions merely because old text says "next".
+
+## Blocker and sandbox policy
+
+Blocked Tasks do not stop unrelated eligible DAG branches. Classify a blocker once against its effective prerequisite, then continue unrelated eligible work: local controllable prerequisites are scheduled when authorized; real human product/design/security decisions stop only the affected branch; backend prerequisites we control are represented as backend work rather than freezing the frontend DAG; third-party/external/production-provider blockers keep production/release status blocked without freezing development. Development/Test mocks, fakes, adapters, fixtures, or sandbox providers may be used only when explicitly Development/Test-only, never silently active in Production, with no Production fallback, preserving the real interface and trust boundary, replaceable by the production implementation, never claiming production readiness, and failing closed in Production where applicable. A mock must never establish authoritative truth for authentication, authorization, ownership, payment success, fulfillment, entitlements, official exam results or scoring, protected data, or any other backend-controlled truth. For payments specifically: a Development/Test sandbox may support development across the real backend/interface boundary, Production must never fall back to sandbox, frontend URL or state can never prove payment success, and backend-confirmed payment/order state remains authoritative.
 
 HIGH-risk topics include authentication, authorization, permissions, payments/financial behavior, fulfillment, entitlements, concurrency, transactions, idempotency, migrations, sensitive personal data, session provenance, reports, and file authorization. Follow stronger domain-specific project gates.
 
@@ -140,7 +156,7 @@ Explicit user authorization remains separately required where repository governa
 
 Use the least powerful justified reasoning/model. Expert is not a default reviewer. The configured expert is `openai/gpt-5.5` and may only be invoked by the primary on an allowed named Task route. Never configure another OpenAI project role or use OpenAI as a routine fallback.
 
-Git rules remain exact: preserve unrelated state; never broadly stage; no push; no reset, clean, stash, restore, checkout, rebase, or amend. `git add`/`git commit` require the explicit authorization and configured permission action. Confirm staged files and worktree state at closure.
+Git rules remain exact: preserve unrelated state; never broadly stage; no push; no reset, clean, stash, restore, checkout, rebase, or amend. `git add`/`git commit` require the explicit authorization and configured permission action. An explicitly authorized GOAL may additionally permit bounded exact-scope LOCAL staging and committing at coherent batch checkpoints (inspect status, exact modified files, cached name-status, cached diff, and cached diff check; unrelated hunks excluded; verification appropriate to the batch passed; prefer one logical batch commit; never a closure-only commit per Task). Confirm staged files and worktree state at closure.
 
 ## Evidence contract
 
@@ -157,4 +173,4 @@ Every child result includes:
 
 Verifier findings are severity-ordered Critical, High, Medium, Low. Every material finding gives the requirement/contract clause, file/symbol, problem, impact, required correction, and evidence. Expert results additionally give diagnosis, recommendation, affected paths, risks, and verification criteria.
 
-The primary’s final report maps every acceptance criterion to evidence, lists changed files and verification, notes remaining uncertainty, and reports the terminal GOAL status. Actual commands—not claims—are required.
+The primary’s final report maps every acceptance criterion to evidence, lists changed files and verification, notes remaining uncertainty, and reports the terminal GOAL status. Actual commands—not claims—are required. Keep the report compact: one durable evidence location plus references, no repeated identical result prose across PROGRESS, ledger, and final response.

@@ -3129,6 +3129,30 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DESIGN`
 - evidence_summary: Gate evidence satisfies the family-packet requirement: `employer-screen-approval-packet.md` exists with explicit APPROVED decisions for `EMP-001/002/003/004/006/007/008`, explicit DEFERRED/BACKEND_BLOCKED decision for `EMP-005`, backend/API and privacy boundaries recorded, and no invented metrics, candidate detail, private candidate fields, request actions, or unsupported search features. `T-FE-090` becomes the first downstream Employer implementation candidate subject to its own predecessor gates and implementation authorization; `T-FE-091`, `T-FE-094`, and `T-FE-095` remain blocked by their declared predecessor gates.
 
+### `T-FE-086` — COM-004 checkout processing classification
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_date: 2026-09-24
+- scope_summary: Read-only authority inspection for COM-004 checkout processing under the 2026-09-24 human authorization, with predecessor `GATE-FE-T084` VERIFIED. Inspected the commerce approval packet (HC-C7, HC-C11, HC-C14), the backend checkout-start endpoint/validator/handler, provider registration, the generated checkout client, canonical routes, the route permission matrix/policy, and the `T-FE-088`/`T-FE-089` dependency state. No screen implementation, frontend application code, backend/OpenAPI mutation, dependency/tooling change, staging, commit, or push occurred.
+- classification_summary: No production frontend checkout-processing scope can be implemented now. The backend checkout-start contract exists, but COM-004 has no approved screen, no route, and no approved provider interaction; the only registered provider is dev/test-only; production provider selection is deferred; and the order-detail entry surface is unimplemented.
+- evidence_summary: (1) Design authority: commerce packet HC-C7 defers COM-004 pending provider-callback architecture — NO ROUTE, no dedicated processing screen, no card/instrument/provider/redirect UI, no fake progress; matrix COM-004 row is `BLOCKED`/`NOT STARTED`. (2) Backend contract: `POST /api/v1/me/nurse-profile/payment/orders/{orderId}/checkout` returns `200 PaymentCheckoutSessionDto` with `400/401/404/409/503` (`ApplicationBuilderExtensions.cs`); `StartMyPaymentCheckoutCommandHandler` resolves `IPaymentCheckoutProvider` and calls `CreateCheckoutSessionAsync` with provider success/cancel URLs, so starting checkout is a live provider interaction producing an external `CheckoutUrl`. (3) Provider reality: the only registered `IPaymentCheckoutProvider` is `SandboxPaymentCheckoutProvider`, registered dev/test-only and explicitly throwing in Production (`DependencyInjection.cs`); with no provider configured the handler fails, and production provider selection remains deferred under `T-FE-089` (`BACKEND`,`EXTERNAL`). (4) Sandbox boundary: the sandbox-complete endpoint is Development/Test-only and HC-C14 forbids any learner-visible sandbox-completion action. (5) Entry surface: the natural processing entry (order detail COM-008) is unimplemented with `T-FE-088` NOT STARTED; checkout-start idempotency-key ownership, retryable-409 UI, lease/race recovery display, and refresh/navigation semantics have no approved screen, so there is nothing contract-backed to render without inventing provider-callback architecture.
+- closure_evidence: Classification is complete and verified as design gap / no implementation. COM-004 remains unimplemented until provider-callback architecture is approved (new route/screen), a production provider is selected, and an entry surface exists. Do not infer provider checkout, redirect, retry, progress, or success/failure behavior from the order-create flow, the sandbox fixture, or the typed checkout DTOs.
+
+### `ST-FE-086` — Classify COM-004 processing availability
+
+- status: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Checkout-processing frontend scope is absent: human-DEFERRED screen with no route, dev/test-only provider, deferred production provider decision, and unimplemented order-detail entry surface; backend checkout-start/provider machinery and typed DTOs are not learner UI contracts.
+- closure_evidence: Subtask accepted as complete from source/packet/route/test-search evidence.
+
+### `GATE-FE-T086`
+
+- status_result: `VERIFIED`
+- blocker_types: `DESIGN`
+- evidence_summary: Checkout-processing classification evidence is recorded: HC-C7 deferral with no approved route or screen, live-provider nature of checkout-start, sandbox-only provider registration with Production throw, deferred production provider decision, dev-only sandbox completion boundary, and absent order-detail entry surface; no implementation performed.
+- closure_evidence: Gate is closed as `VERIFIED` for design-gap classification; COM-004 checkout processing remains unimplemented. Downstream `T-FE-087`, `T-FE-089`, and `T-FE-137` remain subject to their own gates and backend/external decisions.
+
 ### `T-FE-081` — Payment product contract clarification
 
 - status: `VERIFIED`

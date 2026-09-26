@@ -64,10 +64,10 @@ describe('AdminEntry', () => {
     expect(text).toContain('Choose an approved administrative workspace.');
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       canonicalRoutePath('ADMIN_USERS'),
+      canonicalRoutePath('ADMIN_REFERENCE_DATA'),
     ]);
     expect(text).toContain('Users');
-    expect(text).not.toContain('Exam categories');
-    expect(text).not.toContain('Exams');
+    expect(text).toContain('Exam categories');
     expect(text).not.toContain('Questions');
     expect(text).not.toContain('Payment products');
     expect(text).not.toContain('Reporting topics');
@@ -87,15 +87,14 @@ describe('AdminEntry', () => {
       .map((link) => link.getAttribute('href'))
       .filter((href): href is string => href !== null);
 
-    expect(activeHrefs).toEqual([canonicalRoutePath('ADMIN_USERS')]);
+    expect(activeHrefs).toEqual([canonicalRoutePath('ADMIN_USERS'), canonicalRoutePath('ADMIN_REFERENCE_DATA')]);
     expect(activeHrefs.every((href) => mountedAdminPaths.includes(href))).toBe(true);
     expect(activeHrefs.every((href) => !href.includes(':'))).toBe(true);
-    expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_REFERENCE_DATA'));
     expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_EXAMS'));
     expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_EXAM_QUESTIONS'));
     expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_PAYMENT_PRODUCTS'));
     expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_PREPARATION_PACKAGE_TOPICS'));
-    expect(text).not.toContain('Exam categories');
+    expect(text).toContain('Exam categories');
     expect(text).not.toContain('Questions');
     expect(text).not.toContain('Payment products');
     expect(text).not.toContain('Reporting topics');
@@ -117,7 +116,7 @@ describe('AdminEntry', () => {
       canonicalRoutePath('ADMIN_USERS'),
     ]);
     expect(text).toContain('Users');
-    expect(text).not.toContain('Exams');
+    expect(text).not.toContain('Exam categories');
     expect(text).not.toContain('Questions');
     expect(text).not.toContain('Payment products');
   });

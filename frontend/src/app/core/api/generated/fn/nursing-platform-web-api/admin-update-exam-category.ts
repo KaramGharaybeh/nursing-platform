@@ -7,6 +7,7 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { AdminExamCategoryDto } from '../../models/admin-exam-category-dto';
 import { UpdateAdminExamCategoryRequest } from '../../models/update-admin-exam-category-request';
 
 export interface AdminUpdateExamCategory$Params {
@@ -14,7 +15,7 @@ export interface AdminUpdateExamCategory$Params {
       body: UpdateAdminExamCategoryRequest
 }
 
-export function adminUpdateExamCategory(http: HttpClient, rootUrl: string, params: AdminUpdateExamCategory$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function adminUpdateExamCategory(http: HttpClient, rootUrl: string, params: AdminUpdateExamCategory$Params, context?: HttpContext): Observable<StrictHttpResponse<AdminExamCategoryDto>> {
   const rb = new RequestBuilder(rootUrl, adminUpdateExamCategory.PATH, 'put');
   if (params) {
     rb.path('id', params.id, {});
@@ -22,11 +23,11 @@ export function adminUpdateExamCategory(http: HttpClient, rootUrl: string, param
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<AdminExamCategoryDto>;
     })
   );
 }

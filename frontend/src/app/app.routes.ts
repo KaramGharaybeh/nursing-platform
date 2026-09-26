@@ -82,6 +82,12 @@ export const routes: Routes = [
     data: { routeId: 'ADMIN_USER_DETAIL' },
   },
   {
+    path: 'admin/reference-data',
+    loadComponent: () => import('./features/admin/exam-categories/exam-categories').then((m) => m.ExamCategoriesScreen),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'ADMIN_REFERENCE_DATA' },
+  },
+  {
     path: 'nurse',
     redirectTo: 'nurse/profile',
     pathMatch: 'full',

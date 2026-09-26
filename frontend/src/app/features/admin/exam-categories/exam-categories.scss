@@ -1,0 +1,60 @@
+@use '../../../../styles/abstracts/mixins' as mixins;
+@use '../../../../styles/abstracts/responsive' as responsive;
+
+.np-exam-categories {
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 80rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-exam-categories-filters,
+.np-exam-categories-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--np-space-8);
+  margin-block: var(--np-space-16);
+}
+
+.np-exam-categories select,
+.np-exam-categories button {
+  @include mixins.touch-target(true);
+}
+
+.np-exam-categories-table { display: none; }
+
+.np-exam-categories-cards {
+  display: grid;
+  gap: var(--np-space-16);
+  padding: 0;
+  list-style: none;
+}
+
+.np-exam-categories-cards li,
+.np-exam-categories-form,
+.np-exam-categories-confirm {
+  padding: var(--np-space-16);
+  border: 1px solid var(--np-color-brand-1);
+  border-radius: var(--np-space-16);
+}
+
+@include responsive.respond-from(desktop) {
+  .np-exam-categories-table {
+    display: table;
+    inline-size: 100%;
+    border-collapse: collapse;
+  }
+
+  .np-exam-categories-table th,
+  .np-exam-categories-table td {
+    padding: var(--np-space-8);
+    border-block-end: 1px solid var(--np-color-brand-1);
+    text-align: start;
+  }
+
+  .np-exam-categories-cards { display: none; }
+}

@@ -7,23 +7,24 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { AdminExamCategoryDto } from '../../models/admin-exam-category-dto';
 
 export interface AdminRestoreExamCategory$Params {
   id: string;
 }
 
-export function adminRestoreExamCategory(http: HttpClient, rootUrl: string, params: AdminRestoreExamCategory$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function adminRestoreExamCategory(http: HttpClient, rootUrl: string, params: AdminRestoreExamCategory$Params, context?: HttpContext): Observable<StrictHttpResponse<AdminExamCategoryDto>> {
   const rb = new RequestBuilder(rootUrl, adminRestoreExamCategory.PATH, 'post');
   if (params) {
     rb.path('id', params.id, {});
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<AdminExamCategoryDto>;
     })
   );
 }

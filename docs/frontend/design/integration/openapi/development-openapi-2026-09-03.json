@@ -4959,7 +4959,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResultOfAdminExamCategoryDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -4992,8 +4999,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminExamCategoryDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -5030,7 +5044,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminExamCategoryDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -5075,7 +5096,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminExamCategoryDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -5109,8 +5137,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
           },
           "401": {
             "description": "Unauthorized",
@@ -5147,7 +5175,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminExamCategoryDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -5184,7 +5219,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminExamCategoryDto"
+                }
+              }
+            }
           },
           "401": {
             "description": "Unauthorized",
@@ -8525,6 +8567,28 @@
   },
   "components": {
     "schemas": {
+      "AdminExamCategoryDto": {
+        "required": [
+          "id",
+          "countryId",
+          "countryName",
+          "name",
+          "slug",
+          "displayOrder",
+          "isActive"
+        ],
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "countryId": { "type": "string", "format": "uuid" },
+          "countryName": { "type": "string" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "description": { "type": ["null", "string"] },
+          "displayOrder": { "type": "integer", "format": "int32" },
+          "isActive": { "type": "boolean" }
+        }
+      },
       "AdminPracticeAnswerOptionDto": {
         "required": [
           "id",
@@ -11867,6 +11931,20 @@
           "message": {
             "type": "string"
           }
+        }
+      },
+      "PaginatedResultOfAdminExamCategoryDto": {
+        "required": ["items", "page", "pageSize", "totalCount", "totalPages"],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AdminExamCategoryDto" }
+          },
+          "page": { "type": "integer", "format": "int32" },
+          "pageSize": { "type": "integer", "format": "int32" },
+          "totalCount": { "type": "integer", "format": "int32" },
+          "totalPages": { "type": "integer", "format": "int32" }
         }
       },
       "PaginatedResultOfAdminPracticeCollectionDto": {

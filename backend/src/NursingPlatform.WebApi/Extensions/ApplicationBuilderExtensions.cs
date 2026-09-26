@@ -11,6 +11,7 @@ using NursingPlatform.Application.Exams.Commands.StartExamSession;
 using NursingPlatform.Application.Exams.Commands.SubmitExamSession;
 using NursingPlatform.Application.Exams.Admin.AnswerOptions;
 using NursingPlatform.Application.Exams.Admin.Categories;
+using NursingPlatform.Application.Exams.Admin.DTOs;
 using NursingPlatform.Application.Exams.Admin.Exams;
 using NursingPlatform.Application.Exams.Admin.Questions;
 using NursingPlatform.Application.Exams.Admin.Versions;
@@ -508,6 +509,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminListExamCategories")
+        .Produces<PaginatedResult<AdminExamCategoryDto>>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.View);
 
         admin.MapGet("/exam-categories/{id:guid}", async (Guid id, ISender sender) =>
@@ -516,6 +518,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminGetExamCategory")
+        .Produces<AdminExamCategoryDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.View);
 
         admin.MapPost("/exam-categories", async (CreateAdminExamCategoryRequest request, ISender sender) =>
@@ -524,6 +527,7 @@ public static class ApplicationBuilderExtensions
             return Results.Created($"/api/v1/admin/exam-categories/{result.Id}", result);
         })
         .WithName("AdminCreateExamCategory")
+        .Produces<AdminExamCategoryDto>(StatusCodes.Status201Created)
         .RequirePermission(Permissions.Exams.Create);
 
         admin.MapPut("/exam-categories/{id:guid}", async (Guid id, UpdateAdminExamCategoryRequest request, ISender sender) =>
@@ -532,6 +536,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminUpdateExamCategory")
+        .Produces<AdminExamCategoryDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapPost("/exam-categories/{id:guid}/archive", async (Guid id, ISender sender) =>
@@ -540,6 +545,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminArchiveExamCategory")
+        .Produces<AdminExamCategoryDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapPost("/exam-categories/{id:guid}/restore", async (Guid id, ISender sender) =>
@@ -548,6 +554,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminRestoreExamCategory")
+        .Produces<AdminExamCategoryDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapDelete("/exam-categories/{id:guid}", async (Guid id, ISender sender) =>
@@ -556,6 +563,7 @@ public static class ApplicationBuilderExtensions
             return Results.NoContent();
         })
         .WithName("AdminDeleteExamCategory")
+        .Produces(StatusCodes.Status204NoContent)
         .RequirePermission(Permissions.Exams.Delete);
 
         admin.MapGet("/exams", async (

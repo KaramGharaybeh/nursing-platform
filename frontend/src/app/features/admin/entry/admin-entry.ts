@@ -21,6 +21,12 @@ const ADMIN_WORKSPACE_DESTINATIONS: readonly AdminWorkspaceDestination[] = Objec
     description: 'Find user accounts and open safe profile details.',
     group: 'Access',
   },
+  {
+    routeId: 'ADMIN_REFERENCE_DATA',
+    title: 'Exam categories',
+    description: 'Manage exam categories for supported countries.',
+    group: 'Exams',
+  },
 ]);
 
 @Component({

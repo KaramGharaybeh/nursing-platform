@@ -6,19 +6,20 @@
 
 ## Active Goal
 
-- `MAX-FE-PROGRESS-2026-09-25` (ACTIVE): implementation GOAL on
-  `feat/2026-09-23-shared-shell-navigation`. Batch 1 COM-007/008 metadata/OpenAPI/typed client,
-  facade, screens/routes/tests/stories and contract updates received independent verifier PASS
-  (`BATCH1-COM0708-VERIFY-001`, including bounded doc rereview). Exact-scope local closure and
-  DAG reassessment are in progress.
+- `MAX-FE-PROGRESS-2026-09-25` (ACTIVE) on `feat/2026-09-23-shared-shell-navigation`.
+  Batch 1 COM-007/008 passed verifier and was committed locally as `417371f` (no push).
+  DAG reassessment selected Batch 2 `T-FE-106` / ADM-005 Exam Category administration:
+  backend metadata/OpenAPI, typed regenerated client, facade, screen/route/entry, tests and
+  Storybook received independent verifier PASS (`BATCH2-ADM005-VERIFY-001`); exact-scope local
+  closure and DAG reassessment are underway.
 
 ## Live Blockers / Human Decisions
 
 - `SECURITY_ROTATION_REQUIRED` (human action): revoke/rotate `ATRIA_API_KEY`,
   `PENPOT_MCP_USER_TOKEN`, `STITCH_API_KEY`; populate the environment; restart OpenCode. Blocks
   provider/MCP activation only.
-- Client regeneration permission was reloaded and the approved script succeeded. COM-004/005/006
-  remain deferred under their own gates; `T-FE-089` / `T-FE-137` remain external production-only.
+- COM-004/005/006 remain deferred under their own gates; `T-FE-089` / `T-FE-137` remain
+  external production-only. Credential rotation remains a separate human action.
 
 ## Protected Worktree / Safety Notes
 
@@ -31,8 +32,8 @@
 
 ## Next Authorized Action
 
-- Complete Batch 1 exact-scope local commit, reassess DAG for another eligible Low/Medium batch,
-  continue automatically where authorized. No push.
+- Complete Batch 2 exact-scope local commit, then reassess DAG for further eligible Low/Medium
+  product work. No push.
 
 ## Authority Pointers
 

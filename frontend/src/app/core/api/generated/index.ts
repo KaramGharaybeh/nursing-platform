@@ -7,6 +7,7 @@ export type { StrictHttpResponse } from './strict-http-response';
 export { Api } from './api';
 
 export type { AdminExamCategoryDto } from './models/admin-exam-category-dto';
+export type { AdminExamDto } from './models/admin-exam-dto';
 export type { AdminPracticeAnswerOptionDto } from './models/admin-practice-answer-option-dto';
 export type { AdminPracticeCollectionDto } from './models/admin-practice-collection-dto';
 export type { AdminPracticeCollectionVersionDto } from './models/admin-practice-collection-version-dto';
@@ -90,6 +91,7 @@ export type { PackagePracticeProgressSummaryDto } from './models/package-practic
 export type { PackagePublicationValidationDto } from './models/package-publication-validation-dto';
 export type { PackagePublicationValidationIssueDto } from './models/package-publication-validation-issue-dto';
 export type { PaginatedResultOfAdminExamCategoryDto } from './models/paginated-result-of-admin-exam-category-dto';
+export type { PaginatedResultOfAdminExamDto } from './models/paginated-result-of-admin-exam-dto';
 export type { PaginatedResultOfAdminPracticeCollectionDto } from './models/paginated-result-of-admin-practice-collection-dto';
 export type { PaginatedResultOfAdminPreparationPackageDefinitionDto } from './models/paginated-result-of-admin-preparation-package-definition-dto';
 export type { PaginatedResultOfAdminPreparationPackageOfferDto } from './models/paginated-result-of-admin-preparation-package-offer-dto';

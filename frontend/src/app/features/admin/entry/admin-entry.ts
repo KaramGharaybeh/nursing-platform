@@ -27,6 +27,12 @@ const ADMIN_WORKSPACE_DESTINATIONS: readonly AdminWorkspaceDestination[] = Objec
     description: 'Manage exam categories for supported countries.',
     group: 'Exams',
   },
+  {
+    routeId: 'ADMIN_EXAMS',
+    title: 'Manage exams',
+    description: 'View and manage exam records.',
+    group: 'Exams',
+  },
 ]);
 
 @Component({

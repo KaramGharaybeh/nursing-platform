@@ -587,6 +587,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminListExams")
+        .Produces<PaginatedResult<AdminExamDto>>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.View);
 
         admin.MapGet("/exams/{id:guid}", async (Guid id, ISender sender) =>
@@ -595,6 +596,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminGetExam")
+        .Produces<AdminExamDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.View);
 
         admin.MapPost("/exams", async (CreateAdminExamRequest request, ISender sender) =>
@@ -603,6 +605,7 @@ public static class ApplicationBuilderExtensions
             return Results.Created($"/api/v1/admin/exams/{result.Id}", result);
         })
         .WithName("AdminCreateExam")
+        .Produces<AdminExamDto>(StatusCodes.Status201Created)
         .RequirePermission(Permissions.Exams.Create);
 
         admin.MapPut("/exams/{id:guid}", async (Guid id, UpdateAdminExamRequest request, ISender sender) =>
@@ -611,6 +614,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminUpdateExam")
+        .Produces<AdminExamDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapPost("/exams/{id:guid}/archive", async (Guid id, ISender sender) =>
@@ -619,6 +623,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminArchiveExam")
+        .Produces<AdminExamDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapDelete("/exams/{id:guid}", async (Guid id, ISender sender) =>
@@ -627,6 +632,7 @@ public static class ApplicationBuilderExtensions
             return Results.NoContent();
         })
         .WithName("AdminDeleteExam")
+        .Produces(StatusCodes.Status204NoContent)
         .RequirePermission(Permissions.Exams.Delete);
 
         admin.MapGet("/payment/products", async (

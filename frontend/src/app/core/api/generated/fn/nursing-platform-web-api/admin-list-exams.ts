@@ -8,6 +8,7 @@ import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
 import { ExamStatus } from '../../models/exam-status';
+import { PaginatedResultOfAdminExamDto } from '../../models/paginated-result-of-admin-exam-dto';
 
 export interface AdminListExams$Params {
   page?: (number | null);
@@ -18,7 +19,7 @@ export interface AdminListExams$Params {
   isFree?: boolean;
 }
 
-export function adminListExams(http: HttpClient, rootUrl: string, params?: AdminListExams$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function adminListExams(http: HttpClient, rootUrl: string, params?: AdminListExams$Params, context?: HttpContext): Observable<StrictHttpResponse<PaginatedResultOfAdminExamDto>> {
   const rb = new RequestBuilder(rootUrl, adminListExams.PATH, 'get');
   if (params) {
     rb.query('page', params.page, {});
@@ -30,11 +31,11 @@ export function adminListExams(http: HttpClient, rootUrl: string, params?: Admin
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<PaginatedResultOfAdminExamDto>;
     })
   );
 }

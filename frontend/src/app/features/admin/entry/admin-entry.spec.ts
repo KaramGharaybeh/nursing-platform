@@ -65,9 +65,11 @@ describe('AdminEntry', () => {
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       canonicalRoutePath('ADMIN_USERS'),
       canonicalRoutePath('ADMIN_REFERENCE_DATA'),
+      canonicalRoutePath('ADMIN_EXAMS'),
     ]);
     expect(text).toContain('Users');
     expect(text).toContain('Exam categories');
+    expect(text).toContain('Manage exams');
     expect(text).not.toContain('Questions');
     expect(text).not.toContain('Payment products');
     expect(text).not.toContain('Reporting topics');
@@ -87,10 +89,9 @@ describe('AdminEntry', () => {
       .map((link) => link.getAttribute('href'))
       .filter((href): href is string => href !== null);
 
-    expect(activeHrefs).toEqual([canonicalRoutePath('ADMIN_USERS'), canonicalRoutePath('ADMIN_REFERENCE_DATA')]);
+    expect(activeHrefs).toEqual([canonicalRoutePath('ADMIN_USERS'), canonicalRoutePath('ADMIN_REFERENCE_DATA'), canonicalRoutePath('ADMIN_EXAMS')]);
     expect(activeHrefs.every((href) => mountedAdminPaths.includes(href))).toBe(true);
     expect(activeHrefs.every((href) => !href.includes(':'))).toBe(true);
-    expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_EXAMS'));
     expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_EXAM_QUESTIONS'));
     expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_PAYMENT_PRODUCTS'));
     expect(activeHrefs).not.toContain(canonicalRoutePath('ADMIN_PREPARATION_PACKAGE_TOPICS'));

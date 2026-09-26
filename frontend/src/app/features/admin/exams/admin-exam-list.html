@@ -1,0 +1,60 @@
+<section class="np-admin-exam-list" aria-labelledby="admin-exams-heading">
+  <h1 id="admin-exams-heading">Admin exams</h1>
+  <np-loading-error-retry [state]="state()" loadingLabel="Loading admin exams"
+    fallbackErrorTitle="We couldn't load admin exams. Try again." (retryRequested)="retry()" />
+  @if (state().kind === 'ready') {
+    @if (message()) { <p role="status">{{ message() }}</p> }
+    @if (saveError()) { <p role="alert">{{ saveError() }}</p> }
+    <div class="np-admin-exam-list-filters">
+      <label for="exam-country-filter">Country</label>
+      <select #countrySelect id="exam-country-filter" [value]="countryFilter()" (change)="filterCountry(countrySelect.value)">
+        <option value="">All countries</option>
+        @for (country of countries(); track country.id) { <option [value]="country.id">{{ country.name }}</option> }
+      </select>
+      <label for="exam-category-filter">Category</label>
+      <select #categorySelect id="exam-category-filter" [value]="categoryFilter()" (change)="filterCategory(categorySelect.value)">
+        <option value="">All categories</option>
+        @for (category of filteredCategories; track category.id) { <option [value]="category.id">{{ category.name }}</option> }
+      </select>
+      <label for="exam-status-filter">Status</label>
+      <select #statusSelect id="exam-status-filter" [value]="statusFilter()" (change)="filterStatus(statusSelect.value)">
+        <option value="all">All statuses</option><option value="0">Draft</option><option value="1">Published</option><option value="2">Archived</option>
+      </select>
+      <label for="exam-free-filter">Price type</label>
+      <select #freeSelect id="exam-free-filter" [value]="freeFilter()" (change)="filterFree(freeSelect.value)">
+        <option value="all">All</option><option value="free">Free</option><option value="paid">Paid</option>
+      </select>
+    </div>
+    @if (canCreate) { <button #createTrigger type="button" data-testid="create-exam" (click)="openForm()">Add exam</button> }
+    @if ((page()?.items.length ?? 0) === 0) {
+      <np-empty-state [kind]="countryFilter() || categoryFilter() || statusFilter() !== 'all' || freeFilter() !== 'all' ? 'no-results' : 'empty'"
+        [title]="countryFilter() || categoryFilter() || statusFilter() !== 'all' || freeFilter() !== 'all' ? 'No matching exams' : 'No exams yet'" />
+    } @else {
+      <table class="np-admin-exam-table">
+        <caption>Admin exams</caption>
+        <thead><tr><th scope="col">Title</th><th scope="col">Country</th><th scope="col">Category</th><th scope="col">Status</th><th scope="col">Price type</th><th scope="col">Action</th></tr></thead>
+        <tbody>@for (exam of page()?.items ?? []; track exam.id) {
+          <tr><th scope="row">{{ exam.title }}</th><td>{{ exam.countryName }}</td><td>{{ exam.categoryName || 'No category' }}</td>
+            <td>{{ status(exam) }}</td><td>{{ exam.isFree ? 'Free' : 'Paid' }}</td>
+            <td><a [routerLink]="detailPath(exam.id)" data-testid="exam-detail-link">View exam</a></td></tr>
+        }</tbody>
+      </table>
+      <ul class="np-admin-exam-cards">@for (exam of page()?.items ?? []; track exam.id) {
+        <li><h2>{{ exam.title }}</h2><p>{{ exam.countryName }} · {{ exam.categoryName || 'No category' }}</p>
+          <p>{{ status(exam) }} · {{ exam.isFree ? 'Free' : 'Paid' }}</p>
+          <a [routerLink]="detailPath(exam.id)">View exam</a></li>
+      }</ul>
+      <np-pagination [page]="page()?.page ?? 1" [totalPages]="page()?.totalPages ?? 0"
+        [totalCount]="page()?.totalCount ?? 0" itemLabel="exams" ariaLabel="Admin exam pagination"
+        (pageRequested)="changePage($event)" />
+    }
+    @if (formOpen()) {
+      <section aria-labelledby="new-exam-heading">
+        <h2 #formHeading tabindex="-1" id="new-exam-heading">Add exam</h2>
+        <np-admin-exam-form [countries]="countries()" [categories]="categories()" [pending]="saving()"
+          [serverError]="validationError()"
+          (submitted)="create($event)" (cancelled)="closeForm()" />
+      </section>
+    }
+  }
+</section>

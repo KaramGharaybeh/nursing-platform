@@ -1,0 +1,63 @@
+@use '../../../../styles/abstracts/mixins' as mixins;
+@use '../../../../styles/abstracts/responsive' as responsive;
+
+.np-admin-exam-list {
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 80rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-admin-exam-list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--np-space-8);
+  margin-block: var(--np-space-16);
+}
+
+.np-admin-exam-list select,
+.np-admin-exam-list button,
+.np-admin-exam-list a {
+  @include mixins.touch-target(true);
+}
+
+.np-admin-exam-list a {
+  display: inline-flex;
+  align-items: center;
+}
+
+.np-admin-exam-table { display: none; }
+
+.np-admin-exam-cards {
+  display: grid;
+  gap: var(--np-space-16);
+  padding: 0;
+  list-style: none;
+}
+
+.np-admin-exam-cards li {
+  padding: var(--np-space-16);
+  border: 1px solid var(--np-color-brand-1);
+  border-radius: var(--np-space-16);
+}
+
+@include responsive.respond-from(desktop) {
+  .np-admin-exam-table {
+    display: table;
+    inline-size: 100%;
+    border-collapse: collapse;
+  }
+
+  .np-admin-exam-table th,
+  .np-admin-exam-table td {
+    padding: var(--np-space-8);
+    border-block-end: 1px solid var(--np-color-brand-1);
+    text-align: start;
+  }
+
+  .np-admin-exam-cards { display: none; }
+}

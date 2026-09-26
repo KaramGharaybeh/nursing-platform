@@ -1,0 +1,17 @@
+@use '../../../../styles/abstracts/mixins' as mixins;
+
+.np-admin-exam-form {
+  display: grid;
+  gap: var(--np-space-16);
+  padding: var(--np-space-16);
+  border: 1px solid var(--np-color-brand-1);
+  border-radius: var(--np-space-16);
+}
+
+.np-admin-exam-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-8);
+}
+
+.np-admin-exam-form-actions button { @include mixins.touch-target(true); }

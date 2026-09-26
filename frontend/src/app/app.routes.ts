@@ -88,6 +88,18 @@ export const routes: Routes = [
     data: { routeId: 'ADMIN_REFERENCE_DATA' },
   },
   {
+    path: 'admin/exams',
+    loadComponent: () => import('./features/admin/exams/admin-exam-list').then((m) => m.AdminExamList),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'ADMIN_EXAMS' },
+  },
+  {
+    path: 'admin/exams/:examId',
+    loadComponent: () => import('./features/admin/exams/admin-exam-detail').then((m) => m.AdminExamDetail),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'ADMIN_EXAM_DETAIL' },
+  },
+  {
     path: 'nurse',
     redirectTo: 'nurse/profile',
     pathMatch: 'full',

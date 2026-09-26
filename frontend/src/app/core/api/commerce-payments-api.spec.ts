@@ -194,4 +194,61 @@ describe('commerce-payments-api (T-FE-082)', () => {
       'Order response did not include usable order content.',
     );
   });
+
+  it('lists owned orders on the requested backend page without a status filter', async () => {
+    const result = firstValueFrom(api.listOrders(2));
+    const request = httpMock.expectOne('/api/v1/me/nurse-profile/payment/orders?page=2&pageSize=20');
+    expect(request.request.method).toBe('GET');
+    request.flush({
+      items: [orderResponse({ id: 'order-2' }), orderResponse()],
+      page: 2,
+      pageSize: 20,
+      totalCount: 22,
+      totalPages: 2,
+    });
+    const page = await result;
+    expect(page).toMatchObject({ page: 2, pageSize: 20, totalCount: 22, totalPages: 2 });
+    expect(page.items.map((item) => item.id)).toEqual(['order-2', 'order-1']);
+    expect(JSON.stringify(page)).not.toContain('packageSnapshot');
+  });
+
+  it('retrieves an owned order by id and preserves safe payment dates', async () => {
+    const result = firstValueFrom(api.getOrder('order-1'));
+    const request = httpMock.expectOne('/api/v1/me/nurse-profile/payment/orders/order-1');
+    expect(request.request.method).toBe('GET');
+    request.flush(orderResponse({ status: 'Paid', paidAt: '2026-02-02T00:00:00Z' }));
+    expect(await result).toMatchObject({ status: 'Paid', paidAt: '2026-02-02T00:00:00Z' });
+  });
+
+  it('cancels once via the owner-scoped endpoint and adapts the resulting order', async () => {
+    const result = firstValueFrom(api.cancelOrder('order-1'));
+    const request = httpMock.expectOne('/api/v1/me/nurse-profile/payment/orders/order-1/cancel');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toBeNull();
+    request.flush(orderResponse({ status: 'Cancelled', cancelledAt: '2026-02-02T00:00:00Z' }));
+    expect((await result).status).toBe('Cancelled');
+  });
+
+  it('rejects unusable list items instead of showing partial order history', async () => {
+    const result = firstValueFrom(api.listOrders(1));
+    httpMock.expectOne('/api/v1/me/nurse-profile/payment/orders?page=1&pageSize=20').flush({
+      items: [orderResponse({ items: [] })], page: 1, pageSize: 20, totalCount: 1, totalPages: 1,
+    });
+    await expect(result).rejects.toThrow('Order response did not include usable order content.');
+  });
+
+  it('rejects unknown payment statuses instead of displaying internal text', async () => {
+    const result = firstValueFrom(api.getOrder('order-1'));
+    httpMock.expectOne('/api/v1/me/nurse-profile/payment/orders/order-1').flush(
+      orderResponse({ status: 'InternalProviderStatus' }),
+    );
+    await expect(result).rejects.toThrow('Order response did not include usable order content.');
+  });
+
+  it('does not turn malformed pagination into a false empty order history', async () => {
+    const result = firstValueFrom(api.listOrders(1));
+    httpMock.expectOne('/api/v1/me/nurse-profile/payment/orders?page=1&pageSize=20')
+      .flush({ items: [], page: 1, pageSize: 20 });
+    await expect(result).rejects.toThrow('Order response did not include usable order history.');
+  });
 });

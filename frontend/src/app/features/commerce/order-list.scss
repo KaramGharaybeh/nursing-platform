@@ -1,0 +1,33 @@
+@use '../../../styles/abstracts/mixins' as mixins;
+
+.np-order-list {
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-order-list-rows {
+  display: grid;
+  gap: var(--np-space-16);
+  padding: 0;
+  list-style: none;
+}
+
+.np-order-list-rows li {
+  padding: var(--np-space-16);
+  border: 1px solid var(--np-color-brand-1);
+  border-radius: var(--np-space-16);
+}
+
+.np-order-list-rows h2 { margin-block: 0; }
+
+.np-order-list a {
+  @include mixins.touch-target(true);
+
+  display: inline-flex;
+  align-items: center;
+}

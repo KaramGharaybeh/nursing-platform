@@ -243,4 +243,18 @@ export const routes: Routes = [
     canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
     data: { routeId: 'COMMERCE_CHECKOUT' },
   },
+  {
+    path: 'commerce/orders',
+    loadComponent: () =>
+      import('./features/commerce/order-list').then((m) => m.OrderListScreen),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'COMMERCE_ORDERS' },
+  },
+  {
+    path: 'commerce/orders/:orderId',
+    loadComponent: () =>
+      import('./features/commerce/order-detail').then((m) => m.OrderDetailScreen),
+    canActivate: [authenticatedRouteGuard, profileCompletionGuard, routePermissionGuard],
+    data: { routeId: 'COMMERCE_ORDER_DETAIL' },
+  },
 ];

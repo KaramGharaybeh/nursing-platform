@@ -4,10 +4,14 @@ import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiConfiguration } from './generated/api-configuration';
 import { createMyPaymentOrder } from './generated/fn/nursing-platform-web-api/create-my-payment-order';
+import { cancelMyPaymentOrder } from './generated/fn/nursing-platform-web-api/cancel-my-payment-order';
+import { getMyPaymentOrder } from './generated/fn/nursing-platform-web-api/get-my-payment-order';
 import { getPaymentProduct } from './generated/fn/nursing-platform-web-api/get-payment-product';
+import { listMyPaymentOrders } from './generated/fn/nursing-platform-web-api/list-my-payment-orders';
 import { listPaymentProducts } from './generated/fn/nursing-platform-web-api/list-payment-products';
 
 const PRODUCT_PAGE_SIZE = 20;
+const ORDER_PAGE_SIZE = 20;
 
 export interface CommerceProduct {
   readonly id: string;
@@ -40,11 +44,22 @@ export interface CommerceOrderItem {
 
 export interface CommerceOrder {
   readonly id: string;
-  readonly status: string;
+  readonly status: CommerceOrderStatus;
   readonly currency: string;
   readonly totalAmountMinor: string;
   readonly createdAt: string;
+  readonly paidAt?: string | null;
   readonly items: readonly CommerceOrderItem[];
+}
+
+export type CommerceOrderStatus = 'PendingPayment' | 'Paid' | 'Failed' | 'Cancelled' | 'Expired';
+
+export interface CommerceOrderPage {
+  readonly items: CommerceOrder[];
+  readonly page: number;
+  readonly pageSize: number;
+  readonly totalCount: number;
+  readonly totalPages: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -78,6 +93,55 @@ export class CommercePaymentsApi {
       map((response) => adaptOrder(response.body)),
     );
   }
+
+  listOrders(page: number): Observable<CommerceOrderPage> {
+    return listMyPaymentOrders(this.http, this.config.rootUrl, {
+      page,
+      pageSize: ORDER_PAGE_SIZE,
+    }).pipe(map((response) => adaptOrderPage(response.body)));
+  }
+
+  getOrder(id: string): Observable<CommerceOrder> {
+    return getMyPaymentOrder(this.http, this.config.rootUrl, { id }).pipe(
+      map((response) => adaptOrder(response.body)),
+    );
+  }
+
+  cancelOrder(id: string): Observable<CommerceOrder> {
+    return cancelMyPaymentOrder(this.http, this.config.rootUrl, { id }).pipe(
+      map((response) => adaptOrder(response.body)),
+    );
+  }
+}
+
+function adaptOrderPage(body: unknown): CommerceOrderPage {
+  const page = asRecord(body);
+  const { items: rawItems, page: pageNumber, pageSize, totalCount, totalPages } = page;
+  if (
+    !Array.isArray(rawItems) ||
+    !isPositiveInteger(pageNumber) ||
+    !isPositiveInteger(pageSize) ||
+    !isNonNegativeInteger(totalCount) ||
+    !isNonNegativeInteger(totalPages)
+  ) {
+    throw new Error('Order response did not include usable order history.');
+  }
+  const items = rawItems.map(adaptOrder);
+  return {
+    items,
+    page: pageNumber,
+    pageSize,
+    totalCount,
+    totalPages,
+  };
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return isNonNegativeInteger(value) && value > 0;
 }
 
 function adaptProductPage(body: unknown): CommerceProductPage {
@@ -147,7 +211,7 @@ function adaptOrder(body: unknown): CommerceOrder {
   const items = Array.isArray(order['items']) ? order['items'].map(adaptOrderItem) : [];
   if (
     id === '' ||
-    status.trim() === '' ||
+    !isOrderStatus(status) ||
     !/^[A-Za-z]{3}$/.test(currency.trim()) ||
     !/^-?\d+$/.test(totalAmountMinor.trim()) ||
     createdAt.trim() === '' ||
@@ -155,7 +219,11 @@ function adaptOrder(body: unknown): CommerceOrder {
   ) {
     throw new Error('Order response did not include usable order content.');
   }
-  return { id, status, currency, totalAmountMinor, createdAt, items };
+  return { id, status: status as CommerceOrderStatus, currency, totalAmountMinor, createdAt, paidAt: asNullableString(order['paidAt']), items };
+}
+
+function isOrderStatus(status: string): status is CommerceOrderStatus {
+  return status === 'PendingPayment' || status === 'Paid' || status === 'Failed' || status === 'Cancelled' || status === 'Expired';
 }
 
 function adaptOrderItem(item: unknown): CommerceOrderItem {

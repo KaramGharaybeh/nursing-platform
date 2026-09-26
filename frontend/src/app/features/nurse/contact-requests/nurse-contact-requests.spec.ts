@@ -90,10 +90,6 @@ function text(fixture: ComponentFixture<NurseContactRequests>): string {
   return fixture.nativeElement.textContent as string;
 }
 
-function byTestId(fixture: ComponentFixture<NurseContactRequests>, id: string): HTMLElement | null {
-  return fixture.nativeElement.querySelector(`[data-testid="${id}"]`) as HTMLElement | null;
-}
-
 function allByTestId(fixture: ComponentFixture<NurseContactRequests>, id: string): HTMLElement[] {
   return Array.from(fixture.nativeElement.querySelectorAll(`[data-testid="${id}"]`)) as HTMLElement[];
 }

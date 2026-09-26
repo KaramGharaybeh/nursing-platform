@@ -1267,21 +1267,24 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListMyPaymentOrders");
+        .WithName("ListMyPaymentOrders")
+        .Produces<PaginatedResult<PaymentOrderDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/payment/orders/{id:guid}", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new GetMyPaymentOrderQuery { Id = id });
             return Results.Ok(result);
         })
-        .WithName("GetMyPaymentOrder");
+        .WithName("GetMyPaymentOrder")
+        .Produces<PaymentOrderDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/payment/orders/{id:guid}/cancel", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new CancelMyPaymentOrderCommand { Id = id });
             return Results.Ok(result);
         })
-        .WithName("CancelMyPaymentOrder");
+        .WithName("CancelMyPaymentOrder")
+        .Produces<PaymentOrderDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/payment/orders/{orderId:guid}/checkout", async (
             Guid orderId,

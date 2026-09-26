@@ -1,0 +1,51 @@
+<section class="np-order-detail" aria-labelledby="order-detail-heading">
+  <a [routerLink]="backPath" data-testid="back-to-orders">Back to orders</a>
+  <h1 #pageHeading tabindex="-1" id="order-detail-heading">Order details</h1>
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading order"
+    fallbackErrorTitle="We couldn't load this order. Try again."
+    retryLabel="Retry"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (unavailable()) {
+      <p role="status">This order isn't available.</p>
+    } @else if (order(); as detail) {
+      <h2>{{ detail.items[0].title }}</h2>
+      <dl>
+        <dt>Created</dt><dd>{{ detail.createdAt | date: 'medium' }}</dd>
+        <dt>Total</dt><dd>{{ total(detail) }}</dd>
+        <dt>Status</dt><dd>{{ status(detail.status) }}</dd>
+        @if (detail.status === 'Paid' && detail.paidAt) {
+          <dt>Paid on</dt><dd>{{ detail.paidAt | date: 'medium' }}</dd>
+        }
+      </dl>
+      @if (detail.items.length > 1) {
+        <h2>Items</h2>
+        <ul>
+          @for (item of detail.items; track $index) {
+            <li>{{ item.title }} — {{ itemTotal(item) }}</li>
+          }
+        </ul>
+      }
+      @if (cancelMessage(); as message) {
+        <p role="alert" data-testid="cancel-message">{{ message }}</p>
+      }
+      @if (detail.status === 'PendingPayment') {
+        @if (confirming()) {
+          <div class="np-order-detail-confirmation" role="group" aria-labelledby="cancel-heading">
+            <h2 #confirmationHeading tabindex="-1" id="cancel-heading">Cancel order?</h2>
+            <p>This order will be cancelled if it is still eligible for cancellation.</p>
+            <button type="button" data-testid="keep-order" [disabled]="cancelling()" (click)="keep()">Keep order</button>
+            <button type="button" data-testid="confirm-cancel" [disabled]="cancelling()" (click)="cancel()">Cancel order</button>
+            @if (cancelling()) { <p role="status">Cancelling order…</p> }
+          </div>
+        } @else {
+          <button #cancelButton type="button" data-testid="cancel-order" (click)="confirm()">Cancel order</button>
+        }
+      }
+    }
+  }
+</section>

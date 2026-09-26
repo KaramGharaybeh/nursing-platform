@@ -73,15 +73,20 @@ Primary authority: `commerce-screen-approval-packet.md`, `system-design-contract
 | Field | Contract |
 |---|---|
 | Identity | `/commerce/orders`; Nurse role. |
-| Known future list | Order/product title, created date, total amount/currency, status, View order; backend page/order. |
-| Missing | Current implementation/screen authority and exact OpenAPI display contract not extracted/closed for implementation. |
-| Status | `AUTHORITY_GAP`. |
+| Source | Human-approved commerce packet HC-C9, HC-C11–C15; `PaymentOrderDto` and typed paginated order-list OpenAPI response. |
+| List | Owner-scoped, backend `CreatedAt DESC, Id` order and backend page/pageSize (20) facts. Human-readable item title, created date/time, formatted total/currency and factual status, View order to `/commerce/orders/:orderId`. No search/filter/sort controls; raw identifiers/internal fields never shown. |
+| States | Shared loading; empty `No orders yet` / `Your orders will appear here after you create one.` with Browse products to `/commerce/products`; error `We couldn't load your orders. Try again.` with Retry on the same page. |
+| Responsive/accessibility | Mobile list cards reflow within the 390px viewport; semantic headings/lists, keyboard links and pagination, logical properties, readable mixed-direction money; shared focus and live status behavior. |
+| Status | `CONTRACT_READY` per approved HC-C9 and typed response prerequisite; implementation review tracked by `T-FE-088` batch record. |
 
 ## COM-008 Order Detail
 
 | Field | Contract |
 |---|---|
 | Identity | `/commerce/orders/:orderId`; Nurse role. |
-| Known future detail | Order facts/status/dates/items safe fields; cancel confirmation only if backend allows. |
-| Missing | Exact fields, cancellation eligibility, conflict handling, and implementation authority remain incomplete. |
-| Status | `AUTHORITY_GAP`. |
+| Source | Human-approved commerce packet HC-C10–C15; owner-scoped typed order-detail/cancel OpenAPI responses and backend `PaymentOrder.Cancel`/cancel handler. |
+| Facts | Item titles, created date/time, formatted total/currency and status; paid date only for Paid when supplied. Factual statuses: Pending payment, Paid, Failed, Cancelled, Expired; unknown status fails safely. No raw ids, provider internals, or entitlement detail. |
+| Cancellation | PendingPayment only, conditional behind inline explicit `Cancel order?` / `This order will be cancelled if it is still eligible for cancellation.` / Keep order / Cancel order confirmation. No optimistic success. One request per activation, reload owner-scoped detail after success and conflict; 409: `This order can no longer be cancelled.`; no blind mutation retry. Active checkout can produce 409 even for pending orders. |
+| States/navigation | Shared factual loading/error with Retry; owner-hidden 404 `This order isn't available.`; Back to orders always `/commerce/orders`. Confirmation heading receives focus and Keep order returns focus; status text is not color-only. |
+| Responsive/accessibility | Narrow-screen facts stack, logical layout, keyboard-complete controls with minimum target size, semantic headings/definition list, privacy-safe live error and status. |
+| Status | `CONTRACT_READY` per approved HC-C10 and typed response prerequisite; implementation review tracked by `T-FE-088` batch record. |

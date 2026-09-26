@@ -1,0 +1,41 @@
+<section class="np-order-list" aria-labelledby="orders-heading">
+  <h1 id="orders-heading">Orders</h1>
+  <np-loading-error-retry
+    [state]="state()"
+    loadingLabel="Loading orders"
+    fallbackErrorTitle="We couldn't load your orders. Try again."
+    retryLabel="Retry"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if ((page()?.items.length ?? 0) === 0) {
+      <np-empty-state
+        kind="empty"
+        title="No orders yet"
+        description="Your orders will appear here after you create one."
+      />
+      <a [routerLink]="productsPath" data-testid="browse-products">Browse products</a>
+    } @else {
+      <ul class="np-order-list-rows">
+        @for (order of page()?.items ?? []; track order.id) {
+          <li>
+            <h2>{{ title(order) }}</h2>
+            <p>Created {{ order.createdAt | date: 'medium' }}</p>
+            <p>{{ total(order) }}</p>
+            <p>Status: {{ status(order.status) }}</p>
+            <a [routerLink]="detailPath(order.id)" data-testid="order-view">View order</a>
+          </li>
+        }
+      </ul>
+      <np-pagination
+        [page]="page()?.page ?? 1"
+        [totalPages]="page()?.totalPages ?? 0"
+        [totalCount]="page()?.totalCount ?? 0"
+        itemLabel="orders"
+        ariaLabel="Order history pagination"
+        (pageRequested)="changePage($event)"
+      />
+    }
+  }
+</section>

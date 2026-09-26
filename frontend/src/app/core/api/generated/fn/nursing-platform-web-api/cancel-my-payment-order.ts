@@ -7,23 +7,24 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { PaymentOrderDto } from '../../models/payment-order-dto';
 
 export interface CancelMyPaymentOrder$Params {
   id: string;
 }
 
-export function cancelMyPaymentOrder(http: HttpClient, rootUrl: string, params: CancelMyPaymentOrder$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+export function cancelMyPaymentOrder(http: HttpClient, rootUrl: string, params: CancelMyPaymentOrder$Params, context?: HttpContext): Observable<StrictHttpResponse<PaymentOrderDto>> {
   const rb = new RequestBuilder(rootUrl, cancelMyPaymentOrder.PATH, 'post');
   if (params) {
     rb.path('id', params.id, {});
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: '*/*', context })
+    rb.build({ responseType: 'json', accept: 'application/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      return r as StrictHttpResponse<PaymentOrderDto>;
     })
   );
 }

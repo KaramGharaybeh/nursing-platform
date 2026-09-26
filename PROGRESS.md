@@ -6,18 +6,19 @@
 
 ## Active Goal
 
-- `GOV-STREAMLINE-2026-09-25` (ACTIVE): governance-only migration to the streamlined agent
-  execution model. Branch `feat/2026-09-23-shared-shell-navigation`. No feature Tasks in scope;
-  T-FE-089 / T-FE-137 explicitly excluded.
-- Prior: `T-FE-088` CLOSED classification-only at `1a711f5`; verifier PASS packet
-  `T-FE-088-CLASSIFICATION-001` remains authoritative; COM-007/008 BLOCKED + NOT STARTED.
+- `MAX-FE-PROGRESS-2026-09-25` (ACTIVE): implementation GOAL on
+  `feat/2026-09-23-shared-shell-navigation`. Batch 1 COM-007/008 metadata/OpenAPI/typed client,
+  facade, screens/routes/tests/stories and contract updates received independent verifier PASS
+  (`BATCH1-COM0708-VERIFY-001`, including bounded doc rereview). Exact-scope local closure and
+  DAG reassessment are in progress.
 
 ## Live Blockers / Human Decisions
 
 - `SECURITY_ROTATION_REQUIRED` (human action): revoke/rotate `ATRIA_API_KEY`,
   `PENPOT_MCP_USER_TOKEN`, `STITCH_API_KEY`; populate the environment; restart OpenCode. Blocks
   provider/MCP activation only.
-- COM-007/008 need metadata + implementation authority (`T-FE-089` needs its own gate). Do not start.
+- Client regeneration permission was reloaded and the approved script succeeded. COM-004/005/006
+  remain deferred under their own gates; `T-FE-089` / `T-FE-137` remain external production-only.
 
 ## Protected Worktree / Safety Notes
 
@@ -30,8 +31,8 @@
 
 ## Next Authorized Action
 
-- Finish `GOV-STREAMLINE-2026-09-25`: verify governance diff, obtain ONE independent verifier PASS,
-  make the exact-scope local commit `chore(governance): streamline agent execution`, then STOP.
+- Complete Batch 1 exact-scope local commit, reassess DAG for another eligible Low/Medium batch,
+  continue automatically where authorized. No push.
 
 ## Authority Pointers
 

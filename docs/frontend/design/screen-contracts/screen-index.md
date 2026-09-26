@@ -90,8 +90,8 @@ Notes:
 | Commerce | COM-004 | NOT_ROUTABLE | payment processing state | DEFERRED | `commerce.md#com-004-payment-processing` |
 | Commerce | COM-005 | `COMMERCE_PAYMENT_SUCCESS` | `/checkout/orders/:orderId/success` | AUTHORITY_GAP | `commerce.md#com-005-payment-success` |
 | Commerce | COM-006 | `COMMERCE_PAYMENT_FAILURE` | `/checkout/orders/:orderId/failure` | AUTHORITY_GAP | `commerce.md#com-006-payment-failure` |
-| Commerce | COM-007 | `COMMERCE_ORDERS` | `/commerce/orders` | AUTHORITY_GAP | `commerce.md#com-007-order-history` |
-| Commerce | COM-008 | `COMMERCE_ORDER_DETAIL` | `/commerce/orders/:orderId` | AUTHORITY_GAP | `commerce.md#com-008-order-detail` |
+| Commerce | COM-007 | `COMMERCE_ORDERS` | `/commerce/orders` | CONTRACT_READY | `commerce.md#com-007-order-history` |
+| Commerce | COM-008 | `COMMERCE_ORDER_DETAIL` | `/commerce/orders/:orderId` | CONTRACT_READY | `commerce.md#com-008-order-detail` |
 | Employer | EMP-001 | `EMPLOYER_HOME` | `/employer` | CONTRACT_READY | `employer.md#emp-001-employer-home` |
 | Employer | EMP-002 | `EMPLOYER_CANDIDATES` | `/employer/candidates` | CONTRACT_READY | `employer.md#emp-002-candidate-search` |
 | Employer | EMP-003 | `EMPLOYER_CANDIDATES` | `/employer/candidates` | CONTRACT_READY | `employer.md#emp-003-candidate-results` |

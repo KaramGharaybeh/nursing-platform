@@ -101,6 +101,7 @@ export type { PaginatedResultOfExamAnalyticsByExamDto } from './models/paginated
 export type { PaginatedResultOfExamAttemptDto } from './models/paginated-result-of-exam-attempt-dto';
 export type { PaginatedResultOfExamCatalogItemDto } from './models/paginated-result-of-exam-catalog-item-dto';
 export type { PaginatedResultOfPackageEntitlementListItemDto } from './models/paginated-result-of-package-entitlement-list-item-dto';
+export type { PaginatedResultOfPaymentOrderDto } from './models/paginated-result-of-payment-order-dto';
 export type { PaginatedResultOfPaymentProductDto } from './models/paginated-result-of-payment-product-dto';
 export type { PaginatedResultOfPreparationPackageOfferListItemDto } from './models/paginated-result-of-preparation-package-offer-list-item-dto';
 export type { PaginatedResultOfReceivedContactRequestDto } from './models/paginated-result-of-received-contact-request-dto';

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { routes } from '../../app.routes';
 import { ExamsApi } from '../../core/api/exams-api';
 import type { ExamSession, ExamSessionResult } from '../../core/api/exams-api';
@@ -426,6 +426,75 @@ describe('ExamSession screen (T-FE-069)', () => {
     expect(byTestId(fixture, 'session-submit-open')).toBeNull();
     expect(byTestId(fixture, 'session-result')).toBeNull();
     expect(byTestId(fixture, 'session-timer')).toBeNull();
+  });
+
+  it('renders a backend-backed session header, one question card and explicit save controls', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('.np-exam-session-header h1')?.textContent).toContain('Exam session');
+    expect(root.querySelector('.np-exam-session-context')?.textContent).toContain('Exam');
+    expect(root.querySelector('.np-exam-session-header [data-testid="session-timer"]')?.textContent).toContain('60:00');
+    expect(root.querySelectorAll('.np-exam-session-card fieldset')).toHaveLength(1);
+    expect(root.querySelectorAll('.np-exam-session-card [data-testid="session-option"]')).toHaveLength(2);
+    expect(byTestId(fixture, 'session-save')).not.toBeNull();
+    expect(byTestId(fixture, 'session-confirm')).toBeNull();
+  });
+
+  it('shows only persisted selection as saved, never the unsaved local radio choice', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({ items: [question('q-1', 1, 'q-1-a')] });
+    const { fixture } = await setup(stub);
+    expect(byTestId(fixture, 'session-saved-status')).not.toBeNull();
+
+    ((fixture.nativeElement as HTMLElement).querySelectorAll('[data-testid="session-option"] input')[1] as HTMLInputElement).click();
+    fixture.detectChanges();
+
+    expect(byTestId(fixture, 'session-unsaved-notice')).not.toBeNull();
+    expect(byTestId(fixture, 'session-saved-status')).toBeNull();
+    expect(stub.saved).toEqual([]);
+  });
+
+  it('shows a non-routable submit confirmation with persisted total/unanswered facts and one confirm action', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({ examTitle: 'Clinical Skills', items: [question('q-1', 1, null), question('q-2', 2, 'q-2-a'), question('q-3', 3, 'q-3-a')] });
+    const { fixture, api } = await setup(stub);
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const confirm = byTestId(fixture, 'session-confirm') as HTMLElement;
+    expect(confirm.textContent).toContain('Clinical Skills');
+    expect([...confirm.querySelectorAll('.np-exam-session-confirm-facts > div')].map((fact) => [
+      fact.querySelector('dt')?.textContent?.trim(), fact.querySelector('dd')?.textContent?.trim(),
+    ])).toEqual([['Total questions', '3'], ['Answered', '2'], ['Unanswered', '1']]);
+    expect(byTestId(fixture, 'session-submit-open')).toBeNull();
+    expect(confirm.querySelectorAll('[data-testid="session-confirm-go"]')).toHaveLength(1);
+    expect(api.submitCalls).toEqual([]);
+  });
+
+  it('keeps confirmation facts visible and disables actions during the single in-flight submit', async () => {
+    const stub = new ExamsApiStub();
+    const pending = new Subject<ExamSessionResult>();
+    stub.submitExamSession = (id: string) => {
+      stub.submitCalls.push(id);
+      return pending.asObservable();
+    };
+    const { fixture } = await setup(stub);
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (byTestId(fixture, 'session-confirm-go') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(byTestId(fixture, 'session-confirm')?.getAttribute('aria-busy')).toBe('true');
+    expect(byTestId(fixture, 'session-confirm')?.textContent).toContain('Submitting');
+    expect((byTestId(fixture, 'session-confirm-cancel') as HTMLButtonElement).disabled).toBe(true);
+    expect((byTestId(fixture, 'session-confirm-go') as HTMLButtonElement).disabled).toBe(true);
+    expect(stub.submitCalls).toEqual(['session-9']);
+
+    pending.next(stub.submitResult);
+    pending.complete();
+    await settle(fixture);
+    expect(stub.submitCalls).toEqual(['session-9']);
   });
 });
 

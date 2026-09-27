@@ -1,56 +1,245 @@
+@use '../../../styles/abstracts/responsive' as responsive;
+
 .np-exam-session {
-  display: flex;
-  flex-direction: column;
   box-sizing: border-box;
   inline-size: 100%;
-  max-inline-size: 44rem;
+  max-inline-size: 90rem;
+  min-block-size: 100%;
   margin-inline: auto;
-  padding-block: var(--np-space-24);
+  padding-block: var(--np-space-24) var(--np-space-48);
   padding-inline: var(--np-page-gutter);
   overflow-wrap: anywhere;
 }
 
-.np-exam-session h1 {
-  margin: var(--np-space-16) 0 0;
-  font-size: 1.5rem;
-  line-height: 1.2;
+.np-exam-session-back {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--np-button-height);
+  margin-block-end: var(--np-space-24);
+  color: var(--np-color-secondary-text);
+}
+
+.np-exam-session-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-16);
+  padding-block-end: var(--np-space-24);
+  border-block-end: 1px solid var(--np-color-border);
+
+  h1 {
+    margin: var(--np-space-4) 0 0;
+    font-size: 1.875rem;
+    line-height: 1.3;
+  }
+}
+
+.np-exam-session-context {
+  margin: 0;
+  color: var(--np-color-secondary-text);
+  font-weight: 600;
+}
+
+.np-exam-session-telemetry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-12);
+
+  > span {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--np-button-height);
+    padding-inline: var(--np-space-16);
+    border: 1px solid var(--np-color-border);
+    border-radius: var(--np-button-radius);
+    background: var(--np-color-surface);
+    font-weight: 600;
+  }
+}
+
+.np-exam-session-timer {
+  gap: var(--np-space-8);
+  font-variant-numeric: tabular-nums;
+}
+
+.np-exam-session-warning,
+.np-exam-session-save-error {
+  margin-block: var(--np-space-16);
+  padding: var(--np-space-16);
+  border: 1px solid var(--np-color-border);
+  border-inline-start: var(--np-space-4) solid var(--np-color-border-strong);
+  border-radius: var(--np-button-radius);
+  background: var(--np-color-subtle-surface);
+  font-weight: 600;
+}
+
+.np-exam-session-save-error { border-inline-start-color: var(--np-color-error); }
+
+.np-exam-session-card,
+.np-exam-session-actions,
+.np-exam-session-confirm {
+  margin-block-start: var(--np-space-24);
+  padding: var(--np-space-24);
+  border: 1px solid var(--np-color-border);
+  border-radius: var(--np-space-16);
+  background: var(--np-color-surface);
+}
+
+.np-exam-session-points {
+  margin: 0;
+  padding-block-end: var(--np-space-16);
+  border-block-end: 1px solid var(--np-color-border);
+  color: var(--np-color-secondary-text);
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .np-exam-session-question {
   display: grid;
-  gap: var(--np-space-8);
+  gap: var(--np-space-12);
+  min-inline-size: 0;
   margin: var(--np-space-16) 0 0;
   padding: 0;
   border: 0;
+
+  legend {
+    max-inline-size: 75ch;
+    padding: 0 0 var(--np-space-16);
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.7;
+    white-space: pre-line;
+  }
 }
 
-.np-exam-session-question legend {
-  padding: 0;
+.np-exam-session-option {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-16);
+  min-block-size: var(--np-space-56);
+  padding: var(--np-space-16);
+  border: 1px solid var(--np-color-border);
+  border-radius: var(--np-button-radius);
+  background: var(--np-color-surface);
+  cursor: pointer;
+
+  input {
+    flex: none;
+    inline-size: var(--np-space-20);
+    block-size: var(--np-space-20);
+    accent-color: var(--np-color-brand-1);
+  }
+
+  &:focus-within {
+    outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+    outline-offset: var(--np-focus-ring-offset);
+  }
+}
+
+.np-exam-session-option-selected {
+  border-color: var(--np-color-brand-1);
+  background: var(--np-color-active-surface);
+}
+
+.np-exam-session-unsaved,
+.np-exam-session-saved {
+  margin: var(--np-space-16) 0 0;
+  padding-block-start: var(--np-space-16);
+  border-block-start: 1px solid var(--np-color-border);
   font-weight: 600;
 }
+
+.np-exam-session-saved { color: var(--np-color-brand-1); }
 
 .np-exam-session-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--np-space-8);
-  margin-block-start: var(--np-space-16);
+  justify-content: space-between;
+  gap: var(--np-space-16);
+
+  > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--np-space-12);
+  }
+}
+
+.np-exam-session-next,
+.np-exam-session-confirm-actions button:last-child {
+  border-color: var(--np-color-brand-3);
+  background: var(--np-color-brand-3);
+  color: var(--np-color-surface);
+}
+
+.np-exam-session-confirm {
+  max-inline-size: 40rem;
+  margin-inline: auto;
+
+  h2 { margin: 0; }
+  p { line-height: 1.6; }
+}
+
+.np-exam-session-confirm-context {
+  color: var(--np-color-secondary-text);
+  font-weight: 600;
+}
+
+.np-exam-session-confirm-facts {
+  display: grid;
+  gap: var(--np-space-12);
+  margin: var(--np-space-24) 0;
+
+  div {
+    min-inline-size: 0;
+    padding: var(--np-space-16);
+    border: 1px solid var(--np-color-border);
+    border-radius: var(--np-button-radius);
+    background: var(--np-color-subtle-surface);
+  }
+
+  dt { color: var(--np-color-secondary-text); }
+
+  dd {
+    margin: var(--np-space-8) 0 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+}
+
+.np-exam-session-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: var(--np-space-12);
+  padding-block-start: var(--np-space-16);
+  border-block-start: 1px solid var(--np-color-border);
 }
 
 .np-exam-session-result {
   display: grid;
-  gap: var(--np-space-8);
-  margin: var(--np-space-16) 0 0;
+  gap: var(--np-space-12);
+
+  div { padding: var(--np-space-12); }
+  dt { font-weight: 600; }
+  dd { margin: 0; }
 }
 
-.np-exam-session-result div {
-  display: grid;
-  gap: var(--np-space-4);
+.np-exam-session a:focus-visible,
+.np-exam-session button:focus-visible {
+  outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+  outline-offset: var(--np-focus-ring-offset);
 }
 
-.np-exam-session-result dt {
-  font-weight: 600;
+@include responsive.respond-from(tablet) {
+  .np-exam-session-confirm-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-.np-exam-session-result dd {
-  margin: 0;
+@media (width < 600px) {
+  .np-exam-session a,
+  .np-exam-session button { min-block-size: var(--np-space-48); }
+
+  .np-exam-session-actions > div { inline-size: 100%; }
+  .np-exam-session-actions button { flex: 1; }
+  .np-exam-session-confirm-actions button { flex: 1; }
 }

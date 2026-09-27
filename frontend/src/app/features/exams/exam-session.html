@@ -1,8 +1,7 @@
 <section class="np-exam-session" aria-labelledby="exam-session-title">
-  <a [routerLink]="backPath" data-testid="session-back-link">{{ i18n.t('session.backToExam') }}</a>
+  <a class="np-exam-session-back" [routerLink]="backPath" data-testid="session-back-link">{{ i18n.t('session.backToExam') }}</a>
 
   <np-live-region />
-
   <np-loading-error-retry
     [state]="state()"
     [loadingLabel]="i18n.t('session.loading')"
@@ -12,17 +11,29 @@
 
   @if (state().kind === 'ready') {
     @if (notFound()) {
-      <p role="status" data-testid="session-missing-notice">
-        {{ i18n.t('session.missing') }}
-      </p>
+      <p role="status" data-testid="session-missing-notice">{{ i18n.t('session.missing') }}</p>
     } @else if (session(); as active) {
-      <h1 id="exam-session-title">{{ active.examTitle }}</h1>
-      @if (!isTerminal()) {
-        <p data-testid="session-timer" role="timer">{{ i18n.t('session.timeRemaining') }}: {{ formattedRemaining() }}</p>
-      }
+      <header class="np-exam-session-header">
+        <div>
+          <p class="np-exam-session-context">{{ active.examTitle }}</p>
+          <h1 id="exam-session-title">{{ i18n.t('session.title') }}</h1>
+        </div>
+        @if (!isTerminal()) {
+          <div class="np-exam-session-telemetry">
+            <span data-testid="session-position">
+              {{ i18n.tp('session.questionOf', { current: currentIndex() + 1, total: active.items.length }) }}
+            </span>
+            <span class="np-exam-session-timer" data-testid="session-timer" role="timer">
+              {{ i18n.t('session.timeRemaining') }}: <bdi>{{ formattedRemaining() }}</bdi>
+            </span>
+          </div>
+        }
+      </header>
+
       @if (isWarning()) {
-        <p role="status" data-testid="session-expiry-warning">{{ i18n.t('session.expiryWarning') }}</p>
+        <p class="np-exam-session-warning" role="status" data-testid="session-expiry-warning">{{ i18n.t('session.expiryWarning') }}</p>
       }
+
       @if (isTerminal()) {
         @if (result(); as transient) {
           <p role="status" data-testid="session-result">{{ i18n.t('session.submitted') }}</p>
@@ -45,70 +56,52 @@
         }
       } @else {
         @if (currentQuestion(); as question) {
-          <p data-testid="session-position">
-            {{ i18n.tp('session.questionOf', { current: currentIndex() + 1, total: active.items.length }) }}
-          </p>
-          <fieldset class="np-exam-session-question">
-            <legend data-testid="session-prompt">{{ question.text }}</legend>
-            @for (option of question.options; track option.examSessionAnswerOptionId) {
-              <label data-testid="session-option">
-                <input
-                  type="radio"
-                  [name]="'session-question-' + question.examSessionQuestionId"
-                  [value]="option.examSessionAnswerOptionId"
-                  [checked]="effectiveSelection(question.examSessionQuestionId) === option.examSessionAnswerOptionId"
-                  [disabled]="saving() || submitting()"
-                  (change)="selectOption(option.examSessionAnswerOptionId)"
-                />
-                {{ option.text }}
-              </label>
+          <div class="np-exam-session-card">
+            <p class="np-exam-session-points">{{ i18n.t('session.points') }}: {{ question.points }}</p>
+            <fieldset class="np-exam-session-question">
+              <legend data-testid="session-prompt">{{ question.text }}</legend>
+              @for (option of question.options; track option.examSessionAnswerOptionId) {
+                <label class="np-exam-session-option" data-testid="session-option" [class.np-exam-session-option-selected]="effectiveSelection(question.examSessionQuestionId) === option.examSessionAnswerOptionId">
+                  <input
+                    type="radio"
+                    [name]="'session-question-' + question.examSessionQuestionId"
+                    [value]="option.examSessionAnswerOptionId"
+                    [checked]="effectiveSelection(question.examSessionQuestionId) === option.examSessionAnswerOptionId"
+                    [disabled]="saving() || submitting() || isConfirming()"
+                    (change)="selectOption(option.examSessionAnswerOptionId)"
+                  />
+                  <span>{{ option.text }}</span>
+                </label>
+              }
+            </fieldset>
+            @if (hasUnsavedChange(question.examSessionQuestionId)) {
+              <p class="np-exam-session-unsaved" data-testid="session-unsaved-notice">{{ i18n.t('session.unsaved') }}</p>
+            } @else if (persistedSelection(question.examSessionQuestionId)) {
+              <p class="np-exam-session-saved" data-testid="session-saved-status">{{ i18n.t('session.announceSaved') }}</p>
             }
-          </fieldset>
-          @if (hasUnsavedChange(question.examSessionQuestionId)) {
-            <p data-testid="session-unsaved-notice">{{ i18n.t('session.unsaved') }}</p>
-          }
-          <div class="np-exam-session-actions">
-            <button
-              type="button"
-              data-testid="session-prev"
-              [disabled]="currentIndex() === 0 || saving() || submitting()"
-              (click)="previous()"
-            >
-              {{ i18n.t('pagination.previous') }}
-            </button>
-            <button
-              type="button"
-              data-testid="session-next"
-              [disabled]="currentIndex() + 1 >= active.items.length || saving() || submitting()"
-              (click)="next()"
-            >
-              {{ i18n.t('pagination.next') }}
-            </button>
-            <button
-              type="button"
-              data-testid="session-save"
-              [disabled]="saving() || submitting()"
-              (click)="save()"
-            >
-              {{ i18n.t('session.saveAnswer') }}
-            </button>
-            <button
-              type="button"
-              data-testid="session-submit-open"
-              [disabled]="saving() || submitting()"
-              (click)="requestSubmit()"
-            >
-              {{ i18n.t('session.submitExam') }}
-            </button>
           </div>
+
           @if (saveError()) {
-            <div data-testid="session-save-error" role="alert">
-              <p>{{ i18n.t('session.saveError') }}</p>
+            <div class="np-exam-session-save-error" data-testid="session-save-error" role="alert"><p>{{ i18n.t('session.saveError') }}</p></div>
+          }
+
+          @if (!isConfirming() && !submitting()) {
+            <div class="np-exam-session-actions">
+              <div>
+                <button type="button" data-testid="session-prev" [disabled]="currentIndex() === 0 || saving() || submitting()" (click)="previous()">{{ i18n.t('pagination.previous') }}</button>
+                <button type="button" data-testid="session-save" [disabled]="saving() || submitting()" (click)="save()">{{ i18n.t('session.saveAnswer') }}</button>
+              </div>
+              <div>
+                <button type="button" class="np-exam-session-next" data-testid="session-next" [disabled]="currentIndex() + 1 >= active.items.length || saving() || submitting()" (click)="next()">{{ i18n.t('pagination.next') }}</button>
+                <button type="button" data-testid="session-submit-open" [disabled]="saving() || submitting()" (click)="requestSubmit()">{{ i18n.t('session.submitExam') }}</button>
+              </div>
             </div>
           }
-          @if (isConfirming()) {
-            <div data-testid="session-confirm" role="group" aria-labelledby="session-confirm-title">
+
+          @if (isConfirming() || submitting()) {
+            <section class="np-exam-session-confirm" data-testid="session-confirm" role="group" aria-labelledby="session-confirm-title" [attr.aria-busy]="submitting()">
               <h2 id="session-confirm-title">{{ i18n.t('session.confirmTitle') }}</h2>
+              <p class="np-exam-session-confirm-context">{{ active.examTitle }}</p>
               <p>
                 @if (unansweredCount() === 0) {
                   {{ i18n.t('session.confirmAllSaved') }}
@@ -116,16 +109,16 @@
                   {{ i18n.tp('session.confirmUnanswered', { count: unansweredCount() }) }}
                 }
               </p>
-              <button type="button" data-testid="session-confirm-cancel" (click)="cancelSubmit()">{{ i18n.t('session.cancel') }}</button>
-              <button
-                type="button"
-                data-testid="session-confirm-go"
-                [disabled]="submitting()"
-                (click)="confirmSubmit()"
-              >
-                {{ i18n.t('session.submitExam') }}
-              </button>
-            </div>
+              <dl class="np-exam-session-confirm-facts">
+                <div><dt>{{ i18n.t('session.totalQuestions') }}</dt><dd>{{ active.items.length }}</dd></div>
+                <div><dt>{{ i18n.t('session.answered') }}</dt><dd>{{ active.items.length - unansweredCount() }}</dd></div>
+                <div><dt>{{ i18n.t('session.unanswered') }}</dt><dd>{{ unansweredCount() }}</dd></div>
+              </dl>
+              <div class="np-exam-session-confirm-actions">
+                <button type="button" data-testid="session-confirm-cancel" [disabled]="submitting()" (click)="cancelSubmit()">{{ i18n.t('session.cancel') }}</button>
+                <button type="button" data-testid="session-confirm-go" [disabled]="submitting()" (click)="confirmSubmit()">{{ submitting() ? i18n.t('session.submitting') : i18n.t('session.submitExam') }}</button>
+              </div>
+            </section>
           }
         }
       }

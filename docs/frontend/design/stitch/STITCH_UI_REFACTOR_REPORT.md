@@ -954,8 +954,8 @@ Cross-page corrections applied everywhere: 32px teal brand-mark tile in all 8 pu
 per-page header action treatment (current-page underline vs solid Sign-up pill vs outline pill);
 composition padding 48px/64px (terminal pages 48px/64px); card widths per artifact (448/460/480/
 500/512/576px); 24px primary-action radius (except AUTH-011, which specifies 12px); arrow affordances
-on Stitch-arrowed CTAs. Retained as REQUIRED deviations: shared Material field geometry (64px fields,
-project-owned shared pattern — changing it here would pre-empt unfactored families), Noto Sans system
+on Stitch-arrowed CTAs. The former shared Material field geometry was subsequently corrected in the
+AUTH Form Field Fidelity Follow-up below; it is NOT a required deviation. Retained deviations: Noto Sans system
 stack (no webfont mechanism), text wordmark treatment inside the new mark tile, 44px minimum targets
 where Stitch draws 40-42px chrome (project 44px rule governs), `tablet` (768px) standing in for
 Stitch `sm` (640px) scale steps (approved project breakpoints only).
@@ -967,7 +967,7 @@ Stitch `sm` (640px) scale steps (approved project breakpoints only).
   52px → 48px; composition padding 24/48px → 48/64px.
 - REQUIRED_CONTRACT_DEVIATION retained: email-only field/label vs “Email or username”; conditional
   Problem Details states vs illustrative simultaneous banners.
-- Drift remaining: shared-field input height (shared pattern), no webfont, 44px targets.
+- Drift remaining: no webfont, 44px targets. Field geometry corrected in the follow-up below.
 - Rendered verification: desktop/mobile/RTL snapshots + measurement (card 448px, one h1, no
   overflow, zero console errors).
 
@@ -977,7 +977,7 @@ Stitch `sm` (640px) scale steps (approved project breakpoints only).
   card 448px → 512px, desktop padding 32px → 40px; form gap 16px → 20px; helper 0.875rem → 0.75rem;
   h1 → 1.5rem/1.875rem desktop; submit radius 24px + decorative arrow + semibold label.
 - REQUIRED_CONTRACT_DEVIATION retained: Confirm password field (STITCH_FUNCTIONALITY_GAP, Stitch-styled).
-- Drift remaining: shared-field geometry, no webfont, 44px targets.
+- Drift remaining: no webfont, 44px targets. Field geometry corrected in the follow-up below.
 - Rendered verification: desktop + mobile screenshots reviewed; measurement (card 512px, no overflow).
 
 ### AUTH-005 — Check Email (`265d92edd39248269e867d6d72d44962`)
@@ -1009,7 +1009,7 @@ Stitch `sm` (640px) scale steps (approved project breakpoints only).
   mt-6/pt-6/border divider with back-arrow Back-to-sign-in.
 - UI_LOGIC_GAP — VISUAL_ONLY retained: preview-state tab strip not rendered.
 - REQUIRED_CONTRACT_DEVIATION retained: enumeration-safe accepted copy; conditional states only.
-- Drift remaining: shared-field geometry, tablet (not sm) scale steps, 44px targets.
+- Drift remaining: tablet (not sm) scale steps, 44px targets. Field geometry corrected in the follow-up below.
 - Rendered verification: measured (card 460px, one h1, no overflow incl. RTL).
 
 ### AUTH-008 — Reset Password (`5782187204dc4229a5970ddf2cc0012f`)
@@ -1022,7 +1022,7 @@ Stitch `sm` (640px) scale steps (approved project breakpoints only).
 - UI_LOGIC_GAP — VISUAL_ONLY retained: preview-state tab strip not rendered.
 - REQUIRED_CONTRACT_DEVIATION retained: opaque-token flow, residual post-success form
   (STITCH_FUNCTIONALITY_GAP), backend-safe copy.
-- Drift remaining: shared-field geometry, tablet scale steps, 44px targets.
+- Drift remaining: tablet scale steps, 44px targets. Field geometry corrected in the follow-up below.
 - Rendered verification: desktop screenshot reviewed; measured (card 480px, no overflow incl. RTL).
 
 ### AUTH-009 — Reset Password Success, non-routable (`ef4d555b00d54f68870318e12d251780)
@@ -1081,3 +1081,50 @@ Stitch `sm` (640px) scale steps (approved project breakpoints only).
   insofar as their explicitly justified contract gaps persist; composition fidelity itself is now
   materially faithful. AUTH-010 is STITCH_ALIGNED_WITH_REPORTED_LOGIC_GAPS. No page is called
   STITCH_ALIGNED_VERIFIED while contract-bound copy/state differences remain by design.
+
+## AUTH Form Field Fidelity Follow-up (after `7b78919`)
+
+The previous re-audit erroneously classified 64px floating Material fields as a required deviation.
+They were visually inherited, not required by an auth contract. The exact accepted Stitch HTML for
+AUTH-001 `6427cabcd8b549eb845c85d6b8a0413a`, AUTH-002
+`300823b7306f4924a947eb3a80848e63`, AUTH-007 `55522993d9514ed9ac67586fb552cb1a`,
+and AUTH-008 `5782187204dc4229a5970ddf2cc0012f` was inspected at input/label/helper/error
+element level. AUTH-009 is a success state in AUTH-008 and inherits its real fields. AUTH-005/006/010/011
+contain no form fields; their earlier state/action presentation is unchanged by this follow-up.
+
+| Screen/field | Exact Stitch DOM and geometry | Angular correction | Remaining authority-bound difference |
+|---|---|---|---|
+| AUTH-001 Email | Persistent uppercase 12px label above native outlined input, required star, 8px radius, ~44px height, 14px inline padding, helper below | Auth-owned persistent label + native 44px/8px input and 6px label gap; approved email-only placeholder | Email-only transport means label stays `Email address`; Stitch's email-or-username and institutional-email helper claim are not adopted. |
+| AUTH-001 Password | Persistent uppercase label beside Forgot password link; password input and trailing eye | Label/control 6px gap; Forgot password returned to the password label row; masked native input, decorative non-operational eye centered at control end | Eye is UI_LOGIC_GAP — VISUAL_ONLY; no disclosure behavior invented. |
+| AUTH-002 Email | Persistent 12–14px label, 8px outlined input, `name@example.com` placeholder, required star | Native 44px input with persistent label and placeholder | Existing label `Email address` preserved; copy-only difference. |
+| AUTH-002 Username | Label above native input, `Choose a username` placeholder | Same treatment as email, independently associated label and error | Backend username validation unchanged. |
+| AUTH-002 Password | Label above input, eye in trailing edge, rule helper immediately below field | Native masked input, decorative eye, rule text moved into field support row (8px below control) and associated via `aria-describedby` | Eye not operable (UI_LOGIC_GAP); rule remains current V1 validation copy. |
+| AUTH-002 Confirm Password | Not present in Stitch | Existing required field retained; **same persistent-label 44px/8px native input**, placeholder, error row and spacing as Password | REQUIRED_CONTRACT_DEVIATION / STITCH_FUNCTIONALITY_GAP: existing required match validation unchanged. |
+| AUTH-007 Email | Persistent label, outlined 44px/8px input, `name@example.com`, inline error beneath field | Matching auth-owned native input; backend error text in field support row, label and error IDs preserved | `Email address` copy and enumeration-safe accepted status retained. |
+| AUTH-008 Email | Persistent label, 44px/8px input and placeholder | Matching auth-owned native input + error support row | Required token remains opaque and separate from fields. |
+| AUTH-008 New password | Persistent label, password input + trailing eye, helper immediately below, red inline validation state | Masked native input + visual-only eye + helper text/validation row associated with input | No invented toggle; backend-safe validation messages retained. |
+
+Implementation: `frontend/src/app/features/auth/auth-text-field/` is an Authentication-owned,
+external-template/SCSS component with a direct label/input relationship, 44px min-height, 8px
+radius, 14px inline padding, approved border, visible 2px focus treatment, readable disabled and
+red-border error states; helper/error text appears below and is linked by `aria-describedby`. It
+accepts the same visual field inputs and emits entered string values; owning auth components retain
+their original form controls, exact API payloads, submission flow, autocomplete assignment,
+validation and error mapping. The globally shared Material form control remains untouched for
+other features. Password-eye SVGs are decorative, `aria-hidden`, non-operational; no route, service
+or API behavior was added.
+
+**Verification without Playwright MCP (explicitly prohibited for this GOAL):** test-first field
+component tests initially failed because the component was absent, then passed 2/2; per-page
+persistent-label tests failed on floating Material markup, then auth family passed 81/81 across 12
+files. Full frontend unit suite passed 960/960 across 99 files. `npm run lint` and
+`npm run lint:styles` passed. `npm run build` succeeded with initial bundle 448.74 kB; existing
+reset-password style warning is 5.40 kB against 4 kB warning / 8 kB error limit. JSDOM
+component tests verified actual rendered DOM/label/error/disabled/masked-input structure, but do
+not constitute pixel/browser visual verification; CSS/token/DOM comparison with exact Stitch HTML
+is the non-Playwright evidence. No Playwright MCP was used.
+
+**Disposition:** prior “shared-field geometry” justification is withdrawn for AUTH-001/002/007/008.
+Remaining differences above are copy/backend authority or visual-only password affordance, not
+permission to retain the old layout. AUTH-009 form-preservation and other previous contract-bound
+page verdicts remain as reported; no page is newly marked STITCH_ALIGNED_VERIFIED solely from tests.

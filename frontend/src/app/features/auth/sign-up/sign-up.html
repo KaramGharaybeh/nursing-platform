@@ -31,10 +31,11 @@
     }
 
     <form class="np-sign-up-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-      <np-text-input-control
+      <np-auth-text-field
         controlId="auth-sign-up-email"
         label="Email address"
         type="email"
+        placeholder="name@example.com"
         [required]="true"
         [disabled]="isSubmitting()"
         [value]="emailValue"
@@ -42,10 +43,11 @@
         (valueChange)="updateEmail($event)"
       />
 
-      <np-text-input-control
+      <np-auth-text-field
         controlId="auth-sign-up-username"
         label="Username"
         type="text"
+        placeholder="Choose a username"
         [required]="true"
         [disabled]="isSubmitting()"
         [value]="usernameValue"
@@ -54,10 +56,12 @@
       />
 
       <div class="np-sign-up-password-field">
-        <np-text-input-control
+        <np-auth-text-field
           controlId="auth-sign-up-password"
           label="Password"
           type="password"
+          placeholder="••••••••"
+          helperText="Use at least 8 characters, one uppercase letter, and one number."
           [required]="true"
           [disabled]="isSubmitting()"
           [value]="passwordValue"
@@ -69,12 +73,12 @@
           <path d="M2.5 12C3.7 8 7.5 5 12 5s8.3 3 9.5 7c-1.2 4-5 7-9.5 7S3.7 16 2.5 12Z" />
         </svg>
       </div>
-      <p class="np-sign-up-password-guidance">Use at least 8 characters, one uppercase letter, and one number.</p>
 
-      <np-text-input-control
+      <np-auth-text-field
         controlId="auth-sign-up-confirm-password"
         label="Confirm password"
         type="password"
+        placeholder="••••••••"
         [required]="true"
         [disabled]="isSubmitting()"
         [value]="confirmPasswordValue"

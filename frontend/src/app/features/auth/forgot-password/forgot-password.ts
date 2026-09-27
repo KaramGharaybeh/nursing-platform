@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
-import { NpTextInputControl } from '../../../shared/ui/form-controls';
+import { AuthTextField } from '../auth-text-field/auth-text-field';
 import {
   NpFormValidationSummary,
   toFieldErrorText,
@@ -57,7 +57,7 @@ const EMAIL_VALIDATION: NormalizedProblemDetails = Object.freeze({
   imports: [
     MatButtonModule,
     NpFormValidationSummary,
-    NpTextInputControl,
+    AuthTextField,
     ReactiveFormsModule,
     RouterLink,
   ],

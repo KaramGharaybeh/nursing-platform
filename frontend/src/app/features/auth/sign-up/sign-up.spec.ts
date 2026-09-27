@@ -53,6 +53,17 @@ async function enter(fixture: { nativeElement: HTMLElement }, values: PublicRegi
 }
 
 describe('Unified Sign Up', () => {
+  it('renders all four real fields in the same persistent-label Stitch treatment', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    for (const id of ['auth-sign-up-email', 'auth-sign-up-username', 'auth-sign-up-password', 'auth-sign-up-confirm-password']) {
+      expect(root.querySelector(`label[for="${id}"] + input#${id}`)).not.toBeNull();
+    }
+    expect(root.querySelector('.np-sign-up-form mat-form-field')).toBeNull();
+    const helper = root.querySelector('#auth-sign-up-password-helper');
+    expect(helper?.closest('np-auth-text-field')).not.toBeNull();
+    expect(input(fixture, '#auth-sign-up-password').getAttribute('aria-describedby')).toContain('auth-sign-up-password-helper');
+  });
   it('uses the public header and approved centered account card while retaining confirm password', async () => {
     const { fixture } = await setup();
     const root = fixture.nativeElement as HTMLElement;

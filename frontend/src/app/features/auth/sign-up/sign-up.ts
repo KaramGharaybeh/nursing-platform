@@ -7,7 +7,7 @@ import { SignUpApi } from '../../../core/api/sign-up-api';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
-import { NpTextInputControl } from '../../../shared/ui/form-controls';
+import { AuthTextField } from '../auth-text-field/auth-text-field';
 import {
   NpFormValidationSummary,
   toFieldErrorText,
@@ -40,7 +40,7 @@ const CONTROL_IDS = Object.freeze({
   imports: [
     MatButtonModule,
     NpFormValidationSummary,
-    NpTextInputControl,
+    AuthTextField,
     ReactiveFormsModule,
     RouterLink,
   ],

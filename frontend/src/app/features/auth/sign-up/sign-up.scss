@@ -139,13 +139,6 @@ h1 {
   line-height: 1.5;
 }
 
-.np-sign-up-password-guidance {
-  margin: 0;
-  color: #4f6473;
-  font-size: 0.75rem;
-  line-height: 1.5;
-}
-
 .np-sign-up-form {
   display: grid;
   gap: var(--np-space-20);
@@ -157,7 +150,7 @@ h1 {
 
 .np-sign-up-password-eye {
   position: absolute;
-  inset-block-start: var(--np-space-20);
+  inset-block-start: var(--np-space-36);
   inset-inline-end: var(--np-space-16);
   inline-size: var(--np-space-20);
   block-size: var(--np-space-20);

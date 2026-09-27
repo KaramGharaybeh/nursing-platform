@@ -10,7 +10,7 @@ import { AuthSessionBootstrap } from '../../../core/auth/auth-session-bootstrap'
 import { CurrentUserStore } from '../../../core/auth/current-user-store';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { RETURN_URL_QUERY_KEY, isSafeReturnUrl } from '../../../core/routing/safe-return';
-import { NpTextInputControl } from '../../../shared/ui/form-controls';
+import { AuthTextField } from '../auth-text-field/auth-text-field';
 import {
   NpFormValidationSummary,
   toFieldErrorText,
@@ -53,7 +53,7 @@ const REQUIRED_VALIDATION: NormalizedProblemDetails = Object.freeze({
   imports: [
     MatButtonModule,
     NpFormValidationSummary,
-    NpTextInputControl,
+    AuthTextField,
     ReactiveFormsModule,
     RouterLink,
   ],

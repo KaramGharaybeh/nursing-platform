@@ -170,6 +170,15 @@ describe('AUTH-001 Sign In', () => {
     expect(submitButton(fixture).disabled).toBe(false);
   });
 
+  it('renders persistent Stitch-style labels above both native inputs', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    for (const id of ['auth-sign-in-email', 'auth-sign-in-password']) {
+      expect(root.querySelector(`label[for="${id}"] + input#${id}`)).not.toBeNull();
+    }
+    expect(root.querySelector('.np-sign-in-form mat-form-field')).toBeNull();
+  });
+
   it('presents the public auth header and centered sign-in card without decorative marketing panels', async () => {
     const { fixture } = await setup();
     const root = fixture.nativeElement as HTMLElement;

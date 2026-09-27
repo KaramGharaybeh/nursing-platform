@@ -150,7 +150,7 @@ h1 {
 
 .np-sign-in-password-eye {
   position: absolute;
-  inset-block-start: var(--np-space-20);
+  inset-block-start: var(--np-space-36);
   inset-inline-end: var(--np-space-16);
   inline-size: var(--np-space-20);
   block-size: var(--np-space-20);
@@ -189,6 +189,10 @@ h1 {
 }
 
 .np-sign-in-recovery {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  z-index: 1;
   text-align: end;
 }
 

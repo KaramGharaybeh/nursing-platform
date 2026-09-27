@@ -33,10 +33,11 @@
       }
 
       <form class="np-sign-in-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-        <np-text-input-control
+        <np-auth-text-field
           controlId="auth-sign-in-email"
           label="Email address"
           type="email"
+          placeholder="name@example.com"
           [required]="true"
           [disabled]="isSubmitting()"
           [value]="emailValue"
@@ -44,14 +45,15 @@
           (valueChange)="updateEmail($event)"
         />
 
-        <p class="np-sign-in-recovery">
-          <a [routerLink]="forgotPasswordPath">Forgot password?</a>
-        </p>
         <div class="np-sign-in-password-field">
-          <np-text-input-control
+          <p class="np-sign-in-recovery">
+            <a [routerLink]="forgotPasswordPath">Forgot password?</a>
+          </p>
+          <np-auth-text-field
             controlId="auth-sign-in-password"
             label="Password"
             type="password"
+            placeholder="••••••••"
             [required]="true"
             [disabled]="isSubmitting()"
             [value]="passwordValue"

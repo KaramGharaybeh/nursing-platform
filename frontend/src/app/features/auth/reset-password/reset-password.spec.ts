@@ -108,6 +108,17 @@ async function enterCredentials(fixture: { nativeElement: HTMLElement }, email: 
 }
 
 describe('AUTH-008 Reset Password', () => {
+  it('renders email and new password with the approved persistent-label input treatment', async () => {
+    const { fixture } = await setup('opaque-token');
+    const root = fixture.nativeElement as HTMLElement;
+    for (const id of ['auth-reset-password-email', 'auth-reset-password-new-password']) {
+      expect(root.querySelector(`label[for="${id}"] + input#${id}`)).not.toBeNull();
+    }
+    expect(root.querySelector('.np-reset-password-form mat-form-field')).toBeNull();
+    expect(root.querySelector('#auth-reset-password-new-password-helper')?.closest('np-auth-text-field')).not.toBeNull();
+    expect(passwordInput(fixture).getAttribute('aria-describedby')).toContain('auth-reset-password-new-password-helper');
+    expect(root.querySelector('.np-reset-password-eye[aria-hidden="true"]')).not.toBeNull();
+  });
   it('uses the public auth header and single centered reset card without marketing decoration', async () => {
     const { fixture } = await setup(null);
     const root = fixture.nativeElement as HTMLElement;

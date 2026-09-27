@@ -1,0 +1,69 @@
+:host {
+  display: block;
+  inline-size: 100%;
+}
+
+.np-auth-field {
+  display: grid;
+  gap: var(--np-space-optical-6);
+  text-align: start;
+}
+
+.np-auth-field-label {
+  color: var(--np-color-brand-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.np-auth-field-required,
+.np-auth-field-error {
+  color: #b3261e;
+}
+
+.np-auth-field-input {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: var(--np-space-44);
+  padding-block: var(--np-space-8);
+  padding-inline: var(--np-space-optical-14);
+  border: 1px solid #c9ddda;
+  border-radius: var(--np-space-8);
+  background: var(--np-color-surface);
+  color: var(--np-color-brand-2);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: start;
+}
+
+.np-auth-field-input::placeholder {
+  color: #5f7280;
+  opacity: 1;
+}
+
+.np-auth-field-input:focus-visible {
+  border-color: var(--np-color-brand-1);
+  outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+  outline-offset: var(--np-focus-ring-offset);
+}
+
+.np-auth-field-input:disabled {
+  background: #f3f6f8;
+  color: #4f6473;
+  cursor: not-allowed;
+}
+
+.np-auth-field-input-error {
+  border-color: #b3261e;
+}
+
+.np-auth-field-helper,
+.np-auth-field-error {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.np-auth-field-helper {
+  color: #4f6473;
+}

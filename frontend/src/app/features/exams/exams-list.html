@@ -1,28 +1,46 @@
 <section class="np-exams-list" aria-labelledby="exams-title">
   <np-live-region />
 
-  <h1 id="exams-title">{{ i18n.t('exams.title') }}</h1>
-  <a [routerLink]="analyticsPath" data-testid="exam-analytics-link">{{ i18n.t('exams.viewAnalytics') }}</a>
-  <a [routerLink]="historyPath" data-testid="exam-history-link">{{ i18n.t('exams.viewHistory') }}</a>
+  <header class="np-exams-list-header">
+    <div>
+      <h1 id="exams-title">{{ i18n.t('exams.title') }}</h1>
+      <p>{{ i18n.t('exams.catalogIntro') }}</p>
+    </div>
+    <nav class="np-exams-list-actions" [attr.aria-label]="i18n.t('exams.catalogActions')">
+      <a [routerLink]="historyPath" data-testid="exam-history-link">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 2.6-6.4M3 4v5h5M12 7v5l3 2" /></svg>
+        {{ i18n.t('exams.viewHistory') }}
+      </a>
+      <a [routerLink]="analyticsPath" data-testid="exam-analytics-link">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10m6 10V4m6 16v-7m5 7H3" /></svg>
+        {{ i18n.t('exams.viewAnalytics') }}
+      </a>
+    </nav>
+  </header>
 
-  <div class="np-exams-list-filters">
-    <np-select-control
-      controlId="exams-country-filter"
-      [label]="i18n.t('exams.countryFilter')"
-      data-testid="exams-country-filter"
-      [options]="countryOptions()"
-      [value]="countryId()"
-      (valueChange)="onCountryChange($event)"
-    />
-    <np-select-control
-      controlId="exams-category-filter"
-      [label]="i18n.t('exams.categoryFilter')"
-      data-testid="exams-category-filter"
-      [options]="categoryOptions()"
-      [value]="categoryId()"
-      (valueChange)="onCategoryChange($event)"
-    />
-  </div>
+  <section class="np-exams-list-filters" aria-labelledby="exams-filter-heading">
+    <h2 id="exams-filter-heading" class="u-visually-hidden">{{ i18n.t('exams.filterHeading') }}</h2>
+    <div class="np-exams-list-filter">
+      <label for="exams-country-filter">{{ i18n.t('exams.countryFilter') }}</label>
+      <select id="exams-country-filter" data-testid="exams-country-filter" [value]="draftCountryId()" (change)="onCountryChange($any($event.target).value)">
+        @for (option of countryOptions(); track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="np-exams-list-filter">
+      <label for="exams-category-filter">{{ i18n.t('exams.categoryFilter') }}</label>
+      <select id="exams-category-filter" data-testid="exams-category-filter" [value]="draftCategoryId()" (change)="onCategoryChange($any($event.target).value)">
+        @for (option of categoryOptions(); track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+    <div class="np-exams-list-filter-actions">
+      <button type="button" class="np-exams-list-clear" data-testid="exams-clear-filters" (click)="clearFilters()">{{ i18n.t('exams.clearFilters') }}</button>
+      <button type="button" class="np-exams-list-apply" data-testid="exams-apply-filters" (click)="applyFilters()">{{ i18n.t('exams.applyFilters') }}</button>
+    </div>
+  </section>
 
   <np-loading-error-retry
     [state]="state()"
@@ -33,33 +51,36 @@
 
   @if (state().kind === 'ready') {
     @if (listState() === 'empty') {
-      <np-empty-state
-        kind="empty"
-        [title]="i18n.t('exams.emptyTitle')"
-        [description]="i18n.t('exams.emptyText')"
-      />
+      <div class="np-exams-list-status">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v14H4zM8 2h8v4M8 11h8m-8 4h5" /></svg>
+        <np-empty-state kind="empty" [title]="i18n.t('exams.emptyTitle')" [description]="i18n.t('exams.emptyText')" />
+      </div>
     } @else if (listState() === 'no-results') {
-      <np-empty-state
-        kind="no-results"
-        [title]="i18n.t('exams.noResultsTitle')"
-        [description]="i18n.t('exams.noResultsText')"
-      />
+      <div class="np-exams-list-status">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="7" /><path d="m15 15 6 6M7 10h6" /></svg>
+        <np-empty-state kind="no-results" [title]="i18n.t('exams.noResultsTitle')" [description]="i18n.t('exams.noResultsText')" />
+        <button type="button" data-testid="exams-reset-filters" (click)="clearFilters()">{{ i18n.t('exams.resetFilters') }}</button>
+      </div>
     } @else {
-      <ul class="np-exams-list-items">
-        @for (exam of result()?.items ?? []; track exam.id) {
-          <li>
-            <np-exam-card [exam]="exam" />
-          </li>
+      <section class="np-exams-list-results" [attr.aria-label]="i18n.t('exams.availableExams')">
+        <ul class="np-exams-list-items">
+          @for (exam of result()?.items ?? []; track exam.id) {
+            <li><np-exam-card [exam]="exam" /></li>
+          }
+        </ul>
+        @if ((result()?.totalPages ?? 0) > 1) {
+          <nav class="np-exams-list-pagination" [attr.aria-label]="i18n.t('exams.paginationLabel')">
+            <p>{{ i18n.tp('exams.showingCount', { from: showingFrom(), to: showingTo(), total: result()?.totalCount ?? 0 }) }}</p>
+            <div class="np-exams-list-pages">
+              <button type="button" [disabled]="page() <= 1" (click)="loadPage(page() - 1)">{{ i18n.t('pagination.previous') }}</button>
+              @for (number of pageNumbers(); track number) {
+                <button type="button" data-testid="exams-page-number" [attr.aria-current]="page() === number ? 'page' : null" [attr.aria-label]="i18n.tp('exams.pageNumber', { page: number })" (click)="loadPage(number)">{{ number }}</button>
+              }
+              <button type="button" [disabled]="page() >= (result()?.totalPages ?? 0)" (click)="loadPage(page() + 1)">{{ i18n.t('pagination.next') }}</button>
+            </div>
+          </nav>
         }
-      </ul>
-      <np-pagination
-        [page]="page()"
-        [totalPages]="result()?.totalPages ?? 0"
-        [totalCount]="result()?.totalCount ?? 0"
-        [itemLabel]="i18n.t('exams.itemLabel')"
-        [ariaLabel]="i18n.t('exams.paginationLabel')"
-        (pageRequested)="loadPage($event)"
-      />
+      </section>
     }
   }
 </section>

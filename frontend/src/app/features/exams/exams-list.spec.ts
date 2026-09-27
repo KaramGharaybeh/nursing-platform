@@ -122,28 +122,38 @@ describe('ExamsList (T-FE-067)', () => {
     expect(content).not.toMatch(/\bFree\b/);
   });
 
-  it('sends the selected Country filter and resets to page one', async () => {
+  it('stages Country and Category and applies both backend filters together on page one', async () => {
     const { fixture, api } = await setup();
     const component = fixture.componentInstance as unknown as {
       onCountryChange(countryId: string): Promise<void>;
+      onCategoryChange(categoryId: string): Promise<void>;
+      applyFilters(): Promise<void>;
     };
 
     await component.onCountryChange('country-2');
-    await settle(fixture);
-
-    expect(api.requested.at(-1)).toEqual({ page: 1, countryId: 'country-2', categoryId: undefined });
-  });
-
-  it('sends the selected Category filter and resets to page one', async () => {
-    const { fixture, api } = await setup();
-    const component = fixture.componentInstance as unknown as {
-      onCategoryChange(categoryId: string): Promise<void>;
-    };
-
     await component.onCategoryChange('cat-1');
     await settle(fixture);
 
-    expect(api.requested.at(-1)).toEqual({ page: 1, countryId: undefined, categoryId: 'cat-1' });
+    expect(api.requested).toHaveLength(1);
+    await component.applyFilters();
+    expect(api.requested.at(-1)).toEqual({ page: 1, countryId: 'country-2', categoryId: 'cat-1' });
+  });
+
+  it('clears both draft and applied filters and requests the unfiltered first page', async () => {
+    const { fixture, api } = await setup();
+    const component = fixture.componentInstance as unknown as {
+      onCategoryChange(categoryId: string): Promise<void>;
+      applyFilters(): Promise<void>;
+      clearFilters(): Promise<void>;
+    };
+
+    await component.onCategoryChange('cat-1');
+    await component.applyFilters();
+    await component.clearFilters();
+    await settle(fixture);
+
+    expect(api.requested.at(-1)).toEqual({ page: 1, countryId: undefined, categoryId: undefined });
+    expect((byTestId(fixture, 'exams-category-filter') as HTMLSelectElement).value).toBe('');
   });
 
   it('offers country options from the lookup and category options from loaded items', async () => {
@@ -193,6 +203,7 @@ describe('ExamsList (T-FE-067)', () => {
     };
 
     await component.onCountryChange('country-2');
+    await (component as typeof component & { applyFilters(): Promise<void> }).applyFilters();
     await settle(fixture);
 
     expect(text(fixture)).toContain('No exams match the selected filters.');
@@ -238,6 +249,58 @@ describe('ExamsList (T-FE-067)', () => {
 
     expect(link).not.toBeNull();
     expect(link?.getAttribute('href')).toBe('/exams/11111111-1111-4111-8111-111111111111');
+  });
+
+  it('matches the accepted catalog hierarchy and renders server data rather than mock cards', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelectorAll('h1')).toHaveLength(1);
+    expect(root.querySelector('header a[data-testid="exam-history-link"]')).not.toBeNull();
+    expect(root.querySelector('section[aria-labelledby="exams-filter-heading"]')).not.toBeNull();
+    expect(root.querySelectorAll('ul.np-exams-list-items > li article')).toHaveLength(2);
+    expect(root.querySelectorAll('.np-exam-card-facts')).toHaveLength(2);
+    expect(root.querySelector('.np-exam-card-free')?.textContent).toContain('Free');
+    expect(root.querySelector('.np-exam-card-meta')?.textContent).toContain('Licensure');
+    expect(text(fixture)).not.toContain('NMC CBT — Adult Nursing');
+    expect(text(fixture)).not.toContain('Catalog Status References');
+  });
+
+  it('provides labeled native filters and explicit apply/clear actions', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('label[for="exams-country-filter"]')?.textContent).toContain('Country');
+    expect(root.querySelector('label[for="exams-category-filter"]')?.textContent).toContain('Exam category');
+    expect(root.querySelector('button[data-testid="exams-apply-filters"]')?.textContent).toContain('Apply filters');
+    expect(root.querySelector('button[data-testid="exams-clear-filters"]')?.textContent).toContain('Clear filters');
+    expect(root.querySelector('select#exams-country-filter')).not.toBeNull();
+  });
+
+  it('keeps backend-labeled category options after applying a filter with no results, without exposing an ID', async () => {
+    const { fixture, api } = await setup();
+    const component = fixture.componentInstance as unknown as {
+      onCategoryChange(value: string): Promise<void>;
+      applyFilters(): Promise<void>;
+    };
+    api.catalog = pageOf([]);
+    await component.onCategoryChange('cat-1');
+    await component.applyFilters();
+    await settle(fixture);
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('select#exams-category-filter option[value="cat-1"]')?.textContent).toContain('Licensure');
+    expect(root.querySelector('button[data-testid="exams-reset-filters"]')).not.toBeNull();
+    expect(text(fixture)).not.toContain('cat-1');
+  });
+
+  it('shows backend pagination with accessible numbered page links and current page state', async () => {
+    const stub = new ExamsApiStub();
+    stub.catalog = { items: [ITEM_1], page: 1, pageSize: 20, totalCount: 41, totalPages: 3 };
+    const { fixture, api } = await setup(stub);
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('nav[aria-label="Exams pagination"] [aria-current="page"]')?.textContent).toContain('1');
+    expect(root.querySelectorAll('[data-testid="exams-page-number"]')).toHaveLength(3);
+    (root.querySelectorAll('[data-testid="exams-page-number"]')[1] as HTMLButtonElement).click();
+    await settle(fixture);
+    expect(api.requested.at(-1)?.page).toBe(2);
   });
 });
 

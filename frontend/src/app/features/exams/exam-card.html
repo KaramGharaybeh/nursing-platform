@@ -1,17 +1,21 @@
 <article class="np-exam-card">
+  <div class="np-exam-card-meta">
+    <div class="np-exam-card-tags">
+      @if (hasCountry()) { <span class="np-exam-card-country">{{ exam().countryName }}</span> }
+      @if (hasCategory()) { <span class="np-exam-card-category">{{ exam().categoryName }}</span> }
+    </div>
+    @if (exam().isFree) {
+      <span class="np-exam-card-free"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 12 5 5L20 6" /></svg>{{ i18n.t('exams.free') }}</span>
+    }
+  </div>
   <h3>{{ exam().title }}</h3>
-  @if (hasDescription()) {
-    <p class="np-exam-card-description">{{ exam().description }}</p>
-  }
-  @if (hasCountry()) {
-    <p class="np-exam-card-country">{{ exam().countryName }}</p>
-  }
-  @if (hasCategory()) {
-    <p class="np-exam-card-category">{{ exam().categoryName }}</p>
-  }
-  <p class="np-exam-card-facts">{{ exam().durationMinutes }} {{ i18n.t('exams.minutes') }} · {{ exam().questionCount }} {{ i18n.t('exams.questions') }}</p>
-  @if (exam().isFree) {
-    <p class="np-exam-card-free">{{ i18n.t('exams.free') }}</p>
-  }
-  <a [routerLink]="detailPath()" data-testid="exam-details-link">{{ i18n.t('exams.viewDetails') }}</a>
+  @if (hasDescription()) { <p class="np-exam-card-description">{{ exam().description }}</p> }
+  <div class="np-exam-card-facts">
+    <span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>{{ exam().durationMinutes }} {{ i18n.t('exams.minutes') }}</span>
+    <span><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" /></svg>{{ exam().questionCount }} {{ i18n.t('exams.questions') }}</span>
+  </div>
+  <a [routerLink]="detailPath()" data-testid="exam-details-link">
+    {{ i18n.t('exams.viewDetails') }}
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+  </a>
 </article>

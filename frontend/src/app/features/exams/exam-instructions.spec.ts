@@ -321,6 +321,36 @@ describe('ExamInstructions (T-FE-068)', () => {
     expect(content).not.toMatch(UUID_PATTERN);
     expect(content).not.toMatch(/correct answer|answer key|rationale|explanation/i);
   });
+
+  it('renders the accepted context, three backend fact cards and instructions panel', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('h1')?.textContent).toContain('Instructions');
+    expect(root.querySelector('.np-exam-instructions-context')?.textContent).toContain('NCLEX Readiness');
+    expect(root.querySelectorAll('.np-exam-instructions-facts > div')).toHaveLength(3);
+    expect(root.querySelector('.np-exam-instructions-panel h2')?.textContent).toContain('Candidate instructions');
+    expect(root.querySelector('.np-exam-instructions-panel')?.textContent).toContain('Answer every question carefully.');
+    expect(root.querySelector('[data-testid="instructions-confirm"]')).toBeNull();
+  });
+
+  it('shows the resume notice and only the backend-authorized resume action', async () => {
+    const stub = new ExamsApiStub();
+    stub.resumable = attempt();
+    const { fixture } = await setup(stub);
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.np-exam-instructions-resume-notice')).not.toBeNull();
+    expect(byTestId(fixture, 'instructions-resume')).not.toBeNull();
+    expect(byTestId(fixture, 'instructions-start')).toBeNull();
+  });
+
+  it('shows the timed inline confirmation only after action, without duplicate Start and Resume actions', async () => {
+    const { fixture } = await setup();
+    (byTestId(fixture, 'instructions-start') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.np-exam-instructions-confirmation')).not.toBeNull();
+    expect(byTestId(fixture, 'instructions-start')).toBeNull();
+    expect(byTestId(fixture, 'instructions-confirm-go')).not.toBeNull();
+  });
 });
 
 describe('ExamInstructions route', () => {

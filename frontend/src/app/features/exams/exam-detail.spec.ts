@@ -118,7 +118,7 @@ describe('ExamDetail (T-FE-067)', () => {
     expect(byTestId(fixture, 'exam-requires-purchase')?.textContent).toContain('Requires purchase');
     expect(byTestId(fixture, 'exam-instructions-link')).toBeNull();
     const actions = [...(fixture.nativeElement as HTMLElement).querySelectorAll('a, button')].filter(
-      (element) => element.getAttribute('data-testid') !== 'exam-back-link',
+      (element) => element.getAttribute('data-testid') !== 'exam-back-link' && element.getAttribute('data-testid') !== 'exam-bottom-back-link',
     );
     expect(actions).toEqual([]);
     expect(content).not.toMatch(/checkout|buy now|pay now|price|cart/i);
@@ -144,5 +144,25 @@ describe('ExamDetail (T-FE-067)', () => {
     await settle(fixture);
 
     expect(text(fixture)).toContain('NCLEX Readiness');
+  });
+
+  it('renders the Stitch hero, backend-backed fact tiles, instructions summary and bottom actions', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelectorAll('.np-exam-detail-hero h1')).toHaveLength(1);
+    expect(root.querySelectorAll('.np-exam-detail-facts > div')).toHaveLength(4);
+    expect(root.querySelector('.np-exam-detail-summary h2')?.textContent).toContain('Exam instructions summary');
+    expect(root.querySelector('.np-exam-detail-summary')?.textContent).toContain('Answer every question carefully.');
+    expect(root.querySelector('.np-exam-detail-actions a[data-testid="exam-instructions-link"]')).not.toBeNull();
+    expect(text(fixture)).not.toContain('Testing sessions operate under continuous timed progression');
+  });
+
+  it('uses a localized factual summary fallback rather than invented exam instructions', async () => {
+    const stub = new ExamsApiStub();
+    stub.detail = { ...STARTABLE, instructions: null, description: null };
+    const { fixture } = await setup(stub);
+    expect((fixture.nativeElement as HTMLElement).querySelector('.np-exam-detail-summary')?.textContent)
+      .toContain('No instructions were supplied for this exam.');
+    expect(text(fixture)).not.toContain('Are you ready?');
   });
 });

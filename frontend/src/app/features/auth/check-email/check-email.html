@@ -1,12 +1,15 @@
 <section class="np-check-email" aria-labelledby="auth-check-email-title">
+  <header class="np-check-email-public-header">
+    <span class="np-check-email-brand">Nursing Platform</span>
+    <nav aria-label="Public authentication navigation">
+      <a [routerLink]="publicOffersPath">Preparation Packages</a>
+      <a [routerLink]="signInPath">Sign in</a>
+      <a [routerLink]="signUpPath">Sign up</a>
+    </nav>
+  </header>
   <div class="np-check-email-composition">
-    <div class="np-check-email-context" aria-hidden="true">
-      <p class="np-check-email-kicker">Nursing Platform</p>
-      <div class="np-check-email-anchor"></div>
-    </div>
-
     <article class="np-check-email-card">
-      <p class="np-check-email-product">Nursing Platform</p>
+      <span class="np-check-email-icon" aria-hidden="true">✉</span>
       <h1 id="auth-check-email-title">Check your email</h1>
       <p class="np-check-email-intro">
         If registration was successful, a verification email has been sent.

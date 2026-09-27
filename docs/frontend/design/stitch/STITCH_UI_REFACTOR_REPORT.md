@@ -8,9 +8,37 @@ separate task and is excluded.
 
 ## Index
 
+Batch 2 public-header navigation (AUTH-001/002/005/006/007/008/010/011): the visual
+`Preparation Packages` link reuses the already mounted anonymous catalog route
+`PREPARATION_PACKAGES_OFFERS` (`/preparation-packages`) through `canonicalRoutePath`. The only
+TypeScript additions across these eight components are readonly `publicOffersPath` properties
+and, where the existing page did not already link to Sign up, readonly `signUpPath` properties;
+no authentication/API/workflow logic changed and no route was created. Both are pre-existing public
+destinations surfaced in approved Stitch auth headers. Brand remains non-navigating because
+the root/default-entry policy is frozen. AUTH-009 inherits the same header as AUTH-008.
+
+Batch 2 boundary evidence (current working snapshot, before independent verifier):
+`npm test -- --watch=false --include='src/app/features/auth/**/*.spec.ts'` — 11 files,
+75/75 tests; `npm test -- --watch=false` — 98 files, 954/954 tests; `npm run lint`,
+`npm run lint:styles`, and `npm run check:dependencies` passed; `npm run build` passed,
+initial 448.74 kB without budget warning. Browser inspection of all eight routes at 390px,
+1280px and then 320px found one visible h1 per route, no document overflow, and the mounted
+anonymous catalog link at the expected canonical path; at 390px with `dir="rtl"`, no document
+overflow across all eight routes. The observed pages used existing routes only; no authenticated
+data, token, role, or permission was displayed. The browser session had zero console errors.
+
 | Page ID | Page | Route | Actor | Stitch Artifact | Alignment | UI Logic Gaps | Verification |
 |---------|------|-------|-------|-----------------|-----------|---------------|--------------|
 | APP-SHELL | Authenticated App Shell | Shell-level (wraps authenticated routes) | Nurse / Employer / Admin | `projects/17116545761229201855/screens/764a9361e16948b0be831e4bf28f584b` (App Shell v3, HUMAN_APPROVED_AUTHENTICATED_VISUAL_BASELINE) | Aligned with reported logic gaps | 2 | Focused shell specs 15/15; full suite 98 files 944/944 (final state); build 448.74 kB, no budget warning |
+| AUTH-001 | Sign in | `/auth/sign-in` | Public | `projects/17116545761229201855/screens/6427cabcd8b549eb845c85d6b8a0413a` | Partial alignment: transport/visual field conflict | 1 | Focused spec 16/16; stylelint passed; batch verifier pending |
+| AUTH-002 | Sign up | `/auth/sign-up` | Public | `projects/17116545761229201855/screens/300823b7306f4924a947eb3a80848e63` | Partial alignment: required confirm-password field | 1 | Focused spec 6/6; stylelint passed; batch verifier pending |
+| AUTH-005 | Check Email | `/auth/verify-email` | Public | `projects/17116545761229201855/screens/265d92edd39248269e867d6d72d44962` | Partial alignment: delivery-certainty copy conflict | 0 | Focused spec 7/7; stylelint passed; batch verifier pending |
+| AUTH-006 | Verify Email | `/auth/verify-email/confirm` | Public | `projects/17116545761229201855/screens/76bae8f5c9a94284a919bf81b9c8e15c` | Partial alignment: illustrative state selector omitted | 1 | Focused spec 10/10; stylelint passed; batch verifier pending |
+| AUTH-007 | Forgot Password | `/auth/forgot-password` | Public | `projects/17116545761229201855/screens/55522993d9514ed9ac67586fb552cb1a` | Partial alignment: illustrative state selector omitted | 1 | Focused spec 10/10; stylelint passed; batch verifier pending |
+| AUTH-008 | Reset Password | `/auth/reset-password` | Public | `projects/17116545761229201855/screens/5782187204dc4229a5970ddf2cc0012f` | Partial alignment: illustrative state gallery omitted | 1 | Focused spec 15/15; stylelint passed; batch verifier pending |
+| AUTH-009 | Reset Password Success (state) | `/auth/reset-password` (non-routable state) | Public | `projects/17116545761229201855/screens/ef4d555b00d54f68870318e12d251780` | Partial alignment: form retained after success | 0 | Focused reset spec 15/15; no new route |
+| AUTH-010 | Session Expired | `/session-expired` | Public | `projects/17116545761229201855/screens/43b0f224781949ad8be651df1991a257` | Aligned with reported logic gap | 1 | Focused terminal specs 8/8; stylelint passed; batch verifier pending |
+| AUTH-011 | Access Denied | `/access-denied` | Public | `projects/17116545761229201855/screens/e869c0c2568444b5bc2638036f5fa8c0` | Aligned with reported logic gaps | 2 | Focused terminal specs 8/8; stylelint passed; batch verifier pending |
 
 ---
 
@@ -168,3 +196,745 @@ presentation) is representable within approved chrome; nothing was removed.
 ## 16. Page Verdict
 
 STITCH_ALIGNED_WITH_REPORTED_LOGIC_GAPS
+
+---
+
+# AUTH-001 — Sign In
+
+## 1. Identity
+
+- Page ID/name/actor: AUTH-001, Sign in, public/unauthenticated.
+- Canonical and actual route: `AUTH_SIGN_IN`, `/auth/sign-in` (unchanged).
+- Component: `frontend/src/app/features/auth/sign-in/sign-in.ts` (external `.html` / `.scss`).
+- Accepted artifact: `projects/17116545761229201855/screens/6427cabcd8b549eb845c85d6b8a0413a`, `HUMAN_APPROVED_VISUAL_REFERENCE`.
+
+## 2. Page/State Goal
+
+Authenticate using the existing email/password login request, hydrate the current user, and navigate to a safe existing return URL or account overview. Present validation, generic backend failure, and email-verification-required states without exposing tokens.
+
+## 3. Refactor Goal
+
+Translate the accepted centered white auth card, calm public header, headline/subtitle, recovery link adjacent to the password field, primary submit, and separated account-creation row into the existing Angular form without altering auth transport or route behavior.
+
+## 4. Goals Achieved
+
+Removed the unrelated decorative two-column marketing panel and gradient. Added the simple public header, centered bordered single-column card, subtitle, password-adjacent recovery link and divider before account-creation copy; kept the Material controls and token-based button. A submitting state now uses the existing `isSubmitting()` signal for button text.
+
+## 5. Complete Existing Feature Behavior
+
+Focused tests verify required fields/validation, exact `LoginCommand` email/password payload, session bootstrap before current-user hydration, safe `returnUrl` with account fallback, public route, failure/error handling, email-verification-required message, no role redirect or token exposure, autocomplete, and recovery links. Auth workflow and API code are unchanged; a canonical public catalog path property was added for the approved header.
+
+## 6. Routes / Redirects / Navigation
+
+| UI action | Destination | Existing behavior? | Route authority | Logic owner |
+|---|---|---|---|---|
+| Sign in | Safe `returnUrl` or `/account` | Yes; unchanged | `isSafeReturnUrl`, `ACCOUNT_OVERVIEW` | `SignIn.submit()` |
+| Forgot password? | `/auth/forgot-password` | Yes; unchanged | `AUTH_FORGOT_PASSWORD` | `SignIn.forgotPasswordPath` |
+| Create an account / header Sign up | `/auth/sign-up` | Existing destination; header shares the already-authorized link | `AUTH_SIGN_UP` | `SignIn.signUpPath` |
+| Header Preparation Packages | `/preparation-packages` | Existing mounted public catalog | `PREPARATION_PACKAGES_OFFERS` | `SignIn.publicOffersPath` |
+| Header Sign in | Current page label; no new navigation | No action | `AUTH_SIGN_IN` | Presentational current-page text |
+| Header brand | Visible wordmark; no new route | No action | Root/default policy frozen | Presentational brand text |
+
+## 7. Stitch → Angular Visual Changes
+
+Single-column centered 448px card and neutral background replace marketing art; white 64px public bar; navy heading, secondary subtitle, `#C9DDDA` border, approved 16px card radius, 12px actions, approved 4px spacing scale and responsive gutter token. Logical CSS properties keep future RTL reflow. Error and validation presentations remain conditional and retain their accessible announcements rather than showing Stitch's illustrative simultaneous error and verification banners.
+
+## 8. TypeScript / Logic Mapping
+
+| Element | Classification | Owner |
+|---|---|---|
+| Email address and Password fields, Sign in, submitting label | EXISTING_LOGIC_VISUALLY_REFACTORED | `SignIn.form`, `submit()`, existing `NpTextInputControl` / `AuthTransport` |
+| Forgot password, Create account, header Sign up | EXISTING_LOGIC_REUSED | Existing canonical paths and `RouterLink` |
+| Header brand, current-page Sign in label, subtitle | PRESENTATIONAL_ONLY | Template/SCSS |
+| Password-visibility icon shown by Stitch | UI_LOGIC_GAP — VISUAL_ONLY | See §9; static decorative SVG |
+| Email-or-username form field displayed by Stitch | STITCH_FUNCTIONALITY_GAP | Existing transport only sends `email`; see §§10,14 |
+
+## 9. UI Without Logic
+
+| Stitch UI element | Location | Visual role | UI implemented? | Logic exists? | Functionality wired? | Action taken | Classification |
+|---|---|---|---|---|---|---|---|
+| Password visibility eye | Password input trailing edge | Visual indication of password field | YES — decorative, `aria-hidden`, non-focusable, no event/route binding | NO | NO | Rendered an inline SVG beside the existing shared Material password field; password remains masked. Requires authorized accessible local visibility control to become functional; TypeScript: NONE, route: NONE, service/facade: NONE, API/backend: NONE. No behavior invented. | UI_LOGIC_GAP — VISUAL_ONLY |
+
+UI “Password visibility” in AUTH-001 exists in Stitch and was implemented visually as a non-operational icon, but it has no authoritative functionality in the current TypeScript/component/route/facade/service/backend contract. No behavior was invented.
+
+## 10. Existing Functionality Missing From Stitch
+
+No existing functional action was removed. The real field is email-only (`LoginCommand.email`); Stitch's “Email or username” label promises broader input than the implemented transport supports. This visual/functional mismatch is preserved as an exact deviation, not turned into new auth logic. Existing server-backed validation summary and safe error semantics are retained even when Stitch illustrates static alerts.
+
+## 11. Contracts Preserved
+
+Exact login payload, token/session ownership, current-user hydration, safe return URL and fallback, backend Problem Details, required-field validation, route access, email-verification-required handling, authentication/authorization, and sensitive-field secrecy are unchanged.
+
+## 12. Files Changed
+
+`frontend/src/app/features/auth/sign-in/sign-in.ts` (public route-path property only), `sign-in.html`, `sign-in.scss`, `sign-in.spec.ts`; this report. No auth workflow logic, route, generated client, backend, or OpenAPI change.
+
+## 13. Verification
+
+`npm test -- --watch=false --include='src/app/features/auth/sign-in/sign-in.spec.ts'` — 16/16 passed (visual-structure and decorative-eye tests red before implementation); `npm run lint:styles` — passed. Scoped lint, production build, browser/responsive verification and verifier pending batch boundary.
+
+## 14. Visual Deviations From Stitch
+
+- “Email or username” remains “Email address”: current `LoginCommand.email` and frontend login validation are email-only; no username support inferred from artwork. This is an affected visual decision requiring explicit auth/UX authority for exact copy equivalence.
+- The password eye is a non-operational presentational SVG, not Stitch's working toggle button; the existing password input remains masked (see §9).
+- Illustrative simultaneous error and verification alerts become truthful conditional states from the existing Problem Details mapping. Placeholder/institutional-email helper, spinner and separate disabled button are not fabricated as real states; existing submit button changes label and disabled state based on actual submission.
+- Stitch brand `href="#"` becomes non-interactive wordmark; root/default-route behavior is frozen. The public header includes existing Sign up, public Preparation Packages, and current-page Sign in.
+
+## 15. Remaining Gaps
+
+Visual field-label decision is HUMAN_DECISION_REQUIRED for exact copy parity; functional password-eye behavior requires separate authority. Browser responsive/RTL review completed (batch evidence above); verifier review pending.
+
+## 16. Page Verdict
+
+PARTIAL_ALIGNMENT (bounded AUTH-001 visual decisions described above; functional contract preserved).
+
+---
+
+# AUTH-002 — Sign Up
+
+## 1. Identity
+
+- AUTH-002, Sign up, public; canonical and actual route `AUTH_SIGN_UP` `/auth/sign-up`.
+- `frontend/src/app/features/auth/sign-up/sign-up.ts` with external `.html`/`.scss`.
+- `projects/17116545761229201855/screens/300823b7306f4924a947eb3a80848e63`, `HUMAN_APPROVED_VISUAL_REFERENCE`.
+
+## 2. Page/State Goal
+
+Submit the existing public registration request, handle validation/error state, then navigate to Check Email without creating a session or choosing a role.
+
+## 3. Refactor Goal
+
+Apply the approved centered account card and neutral public header/typography/field rhythm while preserving the real fourth confirmation field omitted by Stitch.
+
+## 4. Goals Achieved
+
+Added public header with Sign in/current Sign up, centered white card, Stitch title/subtitle, approved password-rule helper text, neutral page canvas and token spacing. Removed unsupported role-assignment marketing claim and heavy shadow. Existing Material form controls and validation retained.
+
+## 5. Complete Existing Feature Behavior
+
+Focused specs verify four fields, autocomplete, confirm-password mismatch rejection, exact public registration payload (email/username/password only), and Check Email navigation. Form, errors, and auth service are untouched.
+
+## 6. Routes / Redirects / Navigation
+
+| UI action | Destination | Existing behavior? | Route authority | Logic owner |
+|---|---|---|---|---|
+| Create account | `/auth/verify-email` after accepted submit | Yes, unchanged | `AUTH_VERIFY_EMAIL_REQUEST` | `SignUp.submit()` |
+| Sign in (header and footer) | `/auth/sign-in` | Existing route reused | `AUTH_SIGN_IN` | `SignUp.signInPath` |
+| Header Preparation Packages | `/preparation-packages` | Existing mounted public catalog | `PREPARATION_PACKAGES_OFFERS` | `SignUp.publicOffersPath` |
+| Sign up (header) | Current page only, no new navigation | n/a | `AUTH_SIGN_UP` | Presentational text |
+| Brand | Static wordmark, no root redirect | n/a | Root freeze | Presentational text |
+
+## 7. Stitch → Angular Visual Changes
+
+New 64px public bar, centered 448px card, light approved background, navy heading, teal Material submit, white surface with approved border/radius; 16px mobile and approved tablet gutters, logical CSS for RTL. The server-driven error summary remains conditional rather than rendering illustrative banners simultaneously.
+
+## 8. TypeScript / Logic Mapping
+
+| Element | Classification | Owner |
+|---|---|---|
+| Email, Username, Password, Create account | EXISTING_LOGIC_VISUALLY_REFACTORED | `SignUp.form`, `submit()`, `SignUpApi` |
+| Sign in links | EXISTING_LOGIC_REUSED | `SignUp.signInPath` |
+| Confirm password | STITCH_FUNCTIONALITY_GAP | Existing validation in `SignUp.form` and `clientValidationFailure()` |
+| Password eye visual | UI_LOGIC_GAP — VISUAL_ONLY | Decorative SVG only; no control behavior |
+| Brand, current-page Sign up, description and approved rule helper | PRESENTATIONAL_ONLY | Angular template |
+
+## 9. UI Without Logic
+
+| Stitch UI element | Location | Visual role | UI implemented? | Logic exists? | Functionality wired? | Action taken | Classification |
+|---|---|---|---|---|---|---|---|
+| Password visibility eye | Password input trailing edge | Visual indication of password field | YES — decorative, `aria-hidden`, non-focusable SVG | NO | NO | Rendered as non-operational SVG; masked input remains. TypeScript/route/service/facade/API/backend authority: NONE. Accessible reveal-control semantics require separate authority and a shared-control slot. No behavior invented. | UI_LOGIC_GAP — VISUAL_ONLY |
+
+UI “Password visibility” in AUTH-002 exists in Stitch and was implemented visually, but it has no authoritative functionality in the current TypeScript/component/route/facade/service/backend contract. No behavior was invented.
+
+## 10. Existing Functionality Missing From Stitch
+
+**STITCH_FUNCTIONALITY_GAP:** Confirm password is a required existing form control and must be retained. It remains in the same form stack with matching field styling. Exact Stitch three-field composition is intentionally extended by one real field.
+
+## 11. Contracts Preserved
+
+Public sign-up payload and 202 acceptance handoff, password/confirm validation, backend-safe errors, no role selector or automatic login, canonical navigation, auth/session and sensitive-field protections unchanged. No backend/API/DTO/generated client edits.
+
+## 12. Files Changed
+
+`frontend/src/app/features/auth/sign-up/sign-up.ts` (public route-path property only), `sign-up.html`, `sign-up.scss`, `sign-up.spec.ts`; this report.
+
+## 13. Verification
+
+`npm test -- --watch=false --include='src/app/features/auth/sign-up/sign-up.spec.ts'`: 6/6 pass (new structure and decorative-eye tests failed before implementation); `npm run lint:styles`: pass before the final decorative-eye addition; rerun at batch boundary. Batch regression, browser, production build, verifier pending.
+
+## 14. Visual Deviations From Stitch
+
+Required Confirm password retained (§10); no illustrative simultaneously visible failure/verification banners; no fake response state or root-brand link. Public package nav reuses the mounted catalog route. Password eye is non-operational rather than Stitch's working toggle; current masked field remains. Exact body wording is kept neutral and consistent with current backend truth.
+
+## 15. Remaining Gaps
+
+Functional password-eye behavior, plus batch-wide responsive/browser checks and verifier review remain. No new auth behavior authorized.
+
+## 16. Page Verdict
+
+PARTIAL_ALIGNMENT (real required field is absent from Stitch and preserved).
+
+---
+
+# AUTH-005 — Check Email
+
+## 1. Identity
+
+- AUTH-005; Check Email; public; `AUTH_VERIFY_EMAIL_REQUEST` `/auth/verify-email`; `frontend/src/app/features/auth/check-email/check-email.ts` with external `.html`/`.scss`.
+- Accepted artifact `projects/17116545761229201855/screens/265d92edd39248269e867d6d72d44962`; `HUMAN_APPROVED_VISUAL_REFERENCE`.
+
+## 2. Page/State Goal
+
+Show a generic accepted-registration verification instruction without claiming delivery for any specific account; offer existing Sign in navigation only. No resend, countdown, token inspection or extra backend call.
+
+## 3. Refactor Goal
+
+Use the accepted centered public confirmation card, simple auth header, envelope icon and prominent Sign in action, subject to the existing enumeration-safe copy contract.
+
+## 4. Goals Achieved
+
+Removed the previous two-column marketing graphic and gradient; added a calm white bordered centered card, public wordmark/sign-in header, decorative envelope and teal sign-in action. Existing generic instructional wording remains.
+
+## 5. Complete Existing Feature Behavior
+
+Focused specs verify conditional generic copy (“If registration was successful”), canonical sign-in link, no resend/countdown/delivery guarantee, public route activation, preservation of verify-confirmation route, and absence of backend/token/session handling. All remain unchanged.
+
+## 6. Routes / Redirects / Navigation
+
+| UI action | Destination | Existing behavior? | Route authority | Logic owner |
+|---|---|---|---|---|
+| Card `Go to sign in`, header `Sign in` | `/auth/sign-in` | Existing destination reused | `AUTH_SIGN_IN` | `CheckEmail.signInPath` |
+| Header Preparation Packages | `/preparation-packages` | Existing mounted public catalog | `PREPARATION_PACKAGES_OFFERS` | `CheckEmail.publicOffersPath` |
+| Header brand | No navigation | No | Root/default freeze | Presentational template |
+
+## 7. Stitch → Angular Visual Changes
+
+Applied public-header/card geometry, neutral approved canvas, teal envelope treatment, centered text and 48px sign-in visual button using existing border/spacing/radius tokens and logical CSS. Heading and copy remain safe and readable at mobile widths.
+
+## 8. TypeScript / Logic Mapping
+
+| Element | Classification | Owner |
+|---|---|---|
+| Sign in header/card links | EXISTING_LOGIC_VISUALLY_REFACTORED | Existing `signInPath` / `RouterLink` |
+| Brand and envelope | PRESENTATIONAL_ONLY | Template/SCSS |
+| “We sent a link” status | PRESENTATIONAL_ONLY, rejected literal claim | No delivery-confirmation authority; generic instruction retained |
+
+## 9. UI Without Logic
+
+No `UI_LOGIC_GAP — VISUAL_ONLY` was found. The catalog header link reuses the already mounted anonymous route; no fake control, resend or API behavior was created.
+
+## 10. Existing Functionality Missing From Stitch
+
+No existing action removed. The conditional, enumeration-safe wording of the implemented page differs from Stitch's unconditional delivery claim; it remains in place to preserve truthful backend behavior.
+
+## 11. Contracts Preserved
+
+Public route and sign-in destination, conditional copy, zero token/backend use, no resend or account-existence disclosure, authentication/security and privacy semantics unchanged.
+
+## 12. Files Changed
+
+`frontend/src/app/features/auth/check-email/check-email.ts` (public route-path property only), `check-email.html`, `check-email.scss`, `check-email.spec.ts`; this report.
+
+## 13. Verification
+
+`npm test -- --watch=false --include='src/app/features/auth/check-email/check-email.spec.ts'`: 7/7 passed (new layout test first failed); `npm run lint:styles`: passed. Browser and verifier pending batch boundary.
+
+## 14. Visual Deviations From Stitch
+
+“Verification link sent / We sent” banner omitted: an unconditional delivery claim conflicts with the existing enumeration-safe “If registration was successful” text. Retained old explanatory copy rather than falsely showing a confirmed email address or delivery. Header uses existing Sign in and public catalog destinations, with wordmark non-interactive because root policy is frozen.
+
+## 15. Remaining Gaps
+
+Exact delivery-status copy requires backend/product authority; responsive/browser and batch verifier review pending.
+
+## 16. Page Verdict
+
+PARTIAL_ALIGNMENT (content-safety deviation preserved).
+
+---
+
+# AUTH-006 — Verify Email
+
+## 1. Identity
+
+- AUTH-006; Verify Email; public token-query route `AUTH_VERIFY_EMAIL_CONFIRM` `/auth/verify-email/confirm`; component `frontend/src/app/features/auth/verify-email/verify-email.ts` with external `.html`/`.scss`.
+- Artifact `projects/17116545761229201855/screens/76bae8f5c9a94284a919bf81b9c8e15c`, `HUMAN_APPROVED_VISUAL_REFERENCE`.
+
+## 2. Page/State Goal
+
+Verify an opaque query token through the existing API and present exactly one truthful current state (missing, loading, success, error) with safe sign-in exit. Never display token or pretend an arbitrary status was returned.
+
+## 3. Refactor Goal
+
+Use the approved public top bar, calm centered status card, navy heading and visually distinct state banners/teal recovery CTA while retaining the actual backend-driven state machine.
+
+## 4. Goals Achieved
+
+Removed marketing graphic/gradient; added compact public header and centered white card, subtitle, token-driven status styling, and clear sign-in recovery actions. Existing observable states and API logic untouched.
+
+## 5. Complete Existing Feature Behavior
+
+Focused spec 10/10 verifies opaque token never rendered, missing/empty token blocks API, success calls exact verify request, backend failure remains safe, correct Sign in recovery labels and canonical route. No API/session/navigation logic changed.
+
+## 6. Routes / Redirects / Navigation
+
+| UI action | Destination | Existing behavior? | Route authority | Logic owner |
+|---|---|---|---|---|
+| Continue/Back to sign in | `/auth/sign-in` | Yes; unchanged | `AUTH_SIGN_IN` | `VerifyEmail.signInPath` |
+| Header Sign in | `/auth/sign-in` | Existing canonical destination reused | `AUTH_SIGN_IN` | Same path |
+| Header Preparation Packages | `/preparation-packages` | Existing mounted public catalog | `PREPARATION_PACKAGES_OFFERS` | `VerifyEmail.publicOffersPath` |
+| Brand | Non-navigating | No | Root/default freeze | Presentational text |
+
+## 7. Stitch → Angular Visual Changes
+
+Single centered 448px border card, 64px public bar, white surface, approved light canvas, responsive logical CSS and calm token-based state banner styles replace decorative two-column panel. No simultaneous success/failure/example states.
+
+## 8. TypeScript / Logic Mapping
+
+| Element | Classification | Owner |
+|---|---|---|
+| Loading, success, missing-token, backend-failure banners | EXISTING_LOGIC_VISUALLY_REFACTORED | `VerifyEmail` signals + API + Problem Details |
+| Sign in links | EXISTING_LOGIC_REUSED | `signInPath` / `RouterLink` |
+| Public brand and subtitle | PRESENTATIONAL_ONLY | Angular template |
+| Stitch state tabs (Loading / Success / Missing Link / Expired or Invalid / Temporary Error) | UI_LOGIC_GAP — VISUAL_ONLY | Design-preview selector has no runtime authority |
+
+## 9. UI Without Logic
+
+| Stitch UI element | Location | Visual role | UI implemented? | Logic exists? | Functionality wired? | Action taken | Classification |
+|---|---|---|---|---|---|---|---|
+| State-preview tabs | Above example states | Switch illustrated state variants | NO — a fake switcher would falsify verification truth | NO | NO | Kept real status card only. TypeScript preview state: NONE; route/service/facade/API/backend authority: NONE. A separately approved design-preview tooling state would be needed. No behavior invented. | UI_LOGIC_GAP — VISUAL_ONLY |
+
+Stitch's state-preview tabs are not a production workflow element; representing them as working tabs would let visitors manufacture a false verified state. This conflicts with auth truth, so the state selector is not rendered. No behavior was invented.
+
+## 10. Existing Functionality Missing From Stitch
+
+No existing action removed. Actual missing-token short-circuit, opaque-token API verification, state exclusivity, error detail mapping, and established recovery labels remain even though Stitch depicts a static gallery of multiple states.
+
+## 11. Contracts Preserved
+
+Verify-email request and token secrecy, route/query semantics, loading/success/failure/invalid handling, Problem Details, safe Sign in navigation and public access unchanged. Only a public route-path property was added to TS; no auth workflow, generated client, backend or OpenAPI changes.
+
+## 12. Files Changed
+
+`frontend/src/app/features/auth/verify-email/verify-email.ts` (public route-path property only), `verify-email.html`, `verify-email.scss`, `verify-email.spec.ts`; this report.
+
+## 13. Verification
+
+`npm test -- --watch=false --include='src/app/features/auth/verify-email/verify-email.spec.ts'`: 10/10 passed (new visual-structure test failed before implementation); `npm run lint:styles`: passed. Batch browser/RTL and verifier pending.
+
+## 14. Visual Deviations From Stitch
+
+State gallery/tabs omitted to prevent fabricated verification states; only the actual resolved state renders. No invented Try again action; existing safe sign-in recovery retained. Stitch's literal status copy is not substituted for backend-safe existing wording. Header uses existing Sign in and public catalog destinations; no root-brand link.
+
+## 15. Remaining Gaps
+
+The illustrative state-selector design decision is BLOCKED_CONTRACT_CONFLICT with auth truth; browser responsive/RTL review completed (batch evidence above); verifier review pending.
+
+## 16. Page Verdict
+
+PARTIAL_ALIGNMENT (illustrative multi-state gallery conflicts with runtime truth).
+
+---
+
+# AUTH-007 — Forgot Password
+
+## 1. Identity
+
+- AUTH-007; Forgot Password; public route `AUTH_FORGOT_PASSWORD` `/auth/forgot-password`; component `frontend/src/app/features/auth/forgot-password/forgot-password.ts` with external `.html`/`.scss`.
+- Artifact `projects/17116545761229201855/screens/55522993d9514ed9ac67586fb552cb1a`, `HUMAN_APPROVED_VISUAL_REFERENCE`.
+
+## 2. Page/State Goal
+
+Request a password-reset email using existing API with a single email input and enumeration-safe accepted response. Preserve validation, submitting, backend error, and safe sign-in exit.
+
+## 3. Refactor Goal
+
+Apply the accepted centered public-header/card geometry and calm form presentation, keeping actual backend-driven state exclusivity and neutral success text.
+
+## 4. Goals Achieved
+
+Replaced two-column decorative panel/gradient with white bordered centered card and public wordmark/sign-in header; retained email field, validation summary, real success/error status, primary submit and Back to sign in.
+
+## 5. Complete Existing Feature Behavior
+
+Focused spec 10/10 verifies required/email-format validation, exact request payload, enumeration-safe status, backend failure handling, public route and canonical sign-in exit; no TypeScript/API change.
+
+## 6. Routes / Redirects / Navigation
+
+| UI action | Destination | Existing behavior? | Route authority | Logic owner |
+|---|---|---|---|---|
+| Send reset link | No route change; existing request | Yes | `AUTH_FORGOT_PASSWORD` | `ForgotPassword.submit()` / `ForgotPasswordApi` |
+| Back to sign in / header Sign in | `/auth/sign-in` | Yes; reused | `AUTH_SIGN_IN` | `ForgotPassword.signInPath` |
+| Header Preparation Packages | `/preparation-packages` | Existing mounted public catalog | `PREPARATION_PACKAGES_OFFERS` | `ForgotPassword.publicOffersPath` |
+| Brand | Static, no route | No | Root freeze | Presentational template |
+
+## 7. Stitch → Angular Visual Changes
+
+Single centered 448px white card, 64px top bar, approved border/radius/neutral background and responsive logical spacing replace heavy-shadow gradient layout. Conditional real status messaging remains in its original location rather than rendering mock simultaneous states.
+
+## 8. TypeScript / Logic Mapping
+
+| Element | Classification | Owner |
+|---|---|---|
+| Email field, Send reset link, validation/status | EXISTING_LOGIC_VISUALLY_REFACTORED | `ForgotPassword.form`, `submit()`, `ForgotPasswordApi` |
+| Sign in links | EXISTING_LOGIC_REUSED | `signInPath` |
+| Brand, instructional heading | PRESENTATIONAL_ONLY | Template |
+| Stitch preview state tabs | UI_LOGIC_GAP — VISUAL_ONLY | No runtime state selector contract |
+
+## 9. UI Without Logic
+
+| Stitch UI element | Location | Visual role | UI implemented? | Logic exists? | Functionality wired? | Action taken | Classification |
+|---|---|---|---|---|---|---|---|
+| Initial / Validation error / Submitting / Accepted / Backend error tabs | Above card | Design-preview state switcher | NO — preview-only and would falsify request state | NO | NO | Only actual backend-driven state is shown. TypeScript/route/facade/service/API preview-state authority: NONE. Future functionality would need explicit non-production preview/tooling authority. No behavior invented. | UI_LOGIC_GAP — VISUAL_ONLY |
+
+## 10. Existing Functionality Missing From Stitch
+
+No working action removed; current enumeration-safe success wording, concrete validation summary and actual error mapping are retained even where the artifact illustrates copy/state examples.
+
+## 11. Contracts Preserved
+
+Exact reset-request payload, validation, enumeration safety, API/error truth, public route, sign-in destination, token/account privacy unchanged. No backend/API/generated client edits.
+
+## 12. Files Changed
+
+`frontend/src/app/features/auth/forgot-password/forgot-password.ts` (public route-path property only), `forgot-password.html`, `forgot-password.scss`, `forgot-password.spec.ts`; this report.
+
+## 13. Verification
+
+`npm test -- --watch=false --include='src/app/features/auth/forgot-password/forgot-password.spec.ts'`: 10/10 pass (layout test red before implementation); `npm run lint:styles`: pass. Batch browser/build/verifier pending.
+
+## 14. Visual Deviations From Stitch
+
+Stitch preview-state tabs and simultaneous accepted/error panels are omitted to preserve actual state truth; generic accepted copy is maintained instead of any guaranteed email delivery. Brand remains a non-navigating wordmark; public catalog nav uses the existing route.
+
+## 15. Remaining Gaps
+
+Preview-state switcher design decision is BLOCKED_CONTRACT_CONFLICT with request truth; browser/responsive review completed (batch evidence above); verifier pending.
+
+## 16. Page Verdict
+
+PARTIAL_ALIGNMENT (preview controls conflict with runtime request truth).
+
+---
+
+# AUTH-008 — Reset Password
+
+## 1. Identity
+
+- AUTH-008; Reset Password; public `AUTH_RESET_PASSWORD` `/auth/reset-password` (opaque token query); `frontend/src/app/features/auth/reset-password/reset-password.ts` with external `.html`/`.scss`.
+- Artifact `projects/17116545761229201855/screens/5782187204dc4229a5970ddf2cc0012f`, `HUMAN_APPROVED_VISUAL_REFERENCE`.
+
+## 2. Page/State Goal
+
+Use an opaque reset token and email/new password to submit the existing reset request; show validation/error/missing-token/accepted success, then offer safe sign-in. AUTH-009 is the same component's non-routable success state.
+
+## 3. Refactor Goal
+
+Apply approved calm public header, centered card and two-field arrangement, password-rule helper and real conditional status presentation without changing the reset transaction or route.
+
+## 4. Goals Achieved
+
+Removed decorative gradient/two-column panel; centered bordered form card, added public wordmark/sign-in bar and password guidance consistent with existing validation, styled actual success as a distinct icon/status panel. No token or API handling changed.
+
+## 5. Complete Existing Feature Behavior
+
+Focused spec 15/15 verifies exact ResetPasswordRequest, token handling, email/password validation, missing token blocking, success state on same route, backend error and safe recovery. Current success flow keeps the original form and submit interaction; it was not silently removed.
+
+## 6. Routes / Redirects / Navigation
+
+| UI action | Destination | Existing behavior? | Route authority | Logic owner |
+|---|---|---|---|---|
+| Reset password | Same route; existing API call | Yes | `AUTH_RESET_PASSWORD` | `ResetPassword.submit()` |
+| Request new reset link | `/auth/forgot-password` | Yes | `AUTH_FORGOT_PASSWORD` | `forgotPasswordPath` |
+| Continue to sign in / header Sign in | `/auth/sign-in` | Yes; destination reused | `AUTH_SIGN_IN` | `signInPath` |
+| Header Preparation Packages | `/preparation-packages` | Existing mounted public catalog | `PREPARATION_PACKAGES_OFFERS` | `ResetPassword.publicOffersPath` |
+| Brand | No route | n/a | Root freeze | Presentational wordmark |
+
+## 7. Stitch → Angular Visual Changes
+
+White centered 448px card, neutral canvas, 64px public bar, approved card/button geometry and 4px spacing rhythm; actual success icon, error/validation banners and form remain in logical document order with responsive gutters.
+
+## 8. TypeScript / Logic Mapping
+
+| Element | Classification | Owner |
+|---|---|---|
+| Email, New password, Reset password, validation/status | EXISTING_LOGIC_VISUALLY_REFACTORED | `ResetPassword.form`, `submit()`, `ResetPasswordApi` |
+| Forgot password and Sign in | EXISTING_LOGIC_REUSED | Existing canonical paths |
+| Brand, helper text, success icon | PRESENTATIONAL_ONLY | Template/SCSS; helper matches existing validation |
+| State-preview tabs / example panels | UI_LOGIC_GAP — VISUAL_ONLY | No preview-state runtime contract |
+| Form remaining in success state | STITCH_FUNCTIONALITY_GAP | Existing form remains usable in current component |
+
+## 9. UI Without Logic
+
+| Stitch UI element | Location | Visual role | UI implemented? | Logic exists? | Functionality wired? | Action taken | Classification |
+|---|---|---|---|---|---|---|---|
+| Initial / Validation error / Submitting / Success / Invalid / Missing / Retryable preview tabs | Above example cards | Design-preview state selector | NO (would falsify reset truth) | NO | NO | Rendered only actual existing runtime state. TypeScript/route/service/facade/API/backend preview authority: NONE. Future functionality would need separately approved preview tooling. No behavior invented. | UI_LOGIC_GAP — VISUAL_ONLY |
+
+## 10. Existing Functionality Missing From Stitch
+
+STITCH_FUNCTIONALITY_GAP: The current Reset Password form remains rendered and available after a successful request; Stitch's isolated success screen does not show it. No existing field or submit capability was removed; visual parity of this residual form needs a separate UX decision if a success-only replacement is desired.
+
+## 11. Contracts Preserved
+
+Opaque-token secrecy, exact reset payload/validation, accepted success on existing route, backend-safe errors, sign-in/forgot links, auth and privacy semantics unchanged. No backend/API/DTO/generated-client change.
+
+## 12. Files Changed
+
+`frontend/src/app/features/auth/reset-password/reset-password.ts` (public route-path property only), `reset-password.html`, `reset-password.scss`, `reset-password.spec.ts`; this report.
+
+## 13. Verification
+
+`npm test -- --watch=false --include='src/app/features/auth/reset-password/reset-password.spec.ts'`: 15/15 pass (new structure test red before implementation); `npm run lint:styles`: pass. Browser and batch verifier pending.
+
+## 14. Visual Deviations From Stitch
+
+No fake state tabs or simultaneous state cards, no unauthorised Try again or extra route; actual conditional statuses replace demo content. Form stays visible after success to preserve existing behavior (§10). No root-brand link; public catalog nav reuses the mounted route. Password remains masked; no unsupported toggle behavior.
+
+## 15. Remaining Gaps
+
+State-preview selector design decision is BLOCKED_CONTRACT_CONFLICT with reset truth. Success-state residual form is a visual discrepancy marked HUMAN_DECISION_REQUIRED for a success-only replacement; browser/responsive review completed (batch evidence above); verifier pending.
+
+## 16. Page Verdict
+
+PARTIAL_ALIGNMENT (state gallery omitted and existing success-state form retained).
+
+---
+
+# AUTH-009 — Reset Password Success (non-routable state)
+
+## 1. Identity
+
+- AUTH-009; Reset Password Success; public, **non-routable transient state** within `AUTH_RESET_PASSWORD` `/auth/reset-password`.
+- Component is the existing `frontend/src/app/features/auth/reset-password/reset-password.ts`, not a new component/route.
+- Artifact `projects/17116545761229201855/screens/ef4d555b00d54f68870318e12d251780`; `GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW`.
+
+## 2. Page/State Goal
+
+Confirm a successful reset without exposing token/password data and direct the user to the existing Sign in route.
+
+## 3. Refactor Goal
+
+Apply the artifact's icon/status hierarchy and prominent Sign in presentation inside the existing AUTH-008 success branch, with no new route or altered reset behavior.
+
+## 4. Goals Achieved
+
+Success now uses a separate visually distinct icon/status panel within the centered card. Existing live-status semantics and safe Sign in link are retained.
+
+## 5. Complete Existing Feature Behavior
+
+Success appears only after the existing reset API resolves; status text remains `Password has been reset successfully.` (`role="status"`). Route remains `/auth/reset-password`; sign-in link still navigates to `/auth/sign-in` (focused reset spec 15/15). Existing form remains rendered afterward.
+
+## 6. Routes / Redirects / Navigation
+
+| UI action | Destination | Existing behavior? | Route authority | Logic owner |
+|---|---|---|---|---|
+| Continue to sign in | `/auth/sign-in` | Yes | `AUTH_SIGN_IN` | `ResetPassword.signInPath` |
+| Success state itself | No route | Yes; same workflow | `AUTH-009` non-routable contract | `ResetPassword.successMessage` |
+
+## 7. Stitch → Angular Visual Changes
+
+Added teal-tinted success icon beside the actual success status; centered card and responsive token-based geometry are shared with AUTH-008. No second page or duplicate production component.
+
+## 8. TypeScript / Logic Mapping
+
+| Element | Classification | Owner |
+|---|---|---|
+| Success message and Sign in | EXISTING_LOGIC_VISUALLY_REFACTORED | `ResetPassword.successMessage` + `signInPath` |
+| Success icon | PRESENTATIONAL_ONLY | Template/SCSS |
+| Form remaining below success | STITCH_FUNCTIONALITY_GAP | Existing form/submission behavior |
+
+## 9. UI Without Logic
+
+No `UI_LOGIC_GAP — VISUAL_ONLY` was found in the AUTH-009 artifact; the Sign in control already has an authoritative route.
+
+## 10. Existing Functionality Missing From Stitch
+
+STITCH_FUNCTIONALITY_GAP: The existing form remains present after success, unlike the standalone Stitch success frame. It is preserved; removing/replacing it would change the current component's behavior and requires a separate UX/behavior decision.
+
+## 11. Contracts Preserved
+
+Exact reset success criterion, status announcement, token/password secrecy, canonical route and existing Sign in destination unchanged. No new route/component, backend, API, DTO or auth flow.
+
+## 12. Files Changed
+
+Same `reset-password.html`, `reset-password.scss`, `reset-password.spec.ts` as AUTH-008; this report. No independent AUTH-009 source file.
+
+## 13. Verification
+
+`npm test -- --watch=false --include='src/app/features/auth/reset-password/reset-password.spec.ts'`: 15/15 pass, including success-state and no-new-route assertions. Batch browser and verifier pending.
+
+## 14. Visual Deviations From Stitch
+
+The success frame is rendered as a conditional state of the existing route; the input form remains after success, and the exact existing backend-safe success copy is preserved. No standalone route or automatic redirect was created.
+
+## 15. Remaining Gaps
+
+Success-only replacement design would need an explicit decision on preserving/disabling post-success form behavior.
+
+## 16. Page Verdict
+
+PARTIAL_ALIGNMENT (existing same-route success form preserved).
+
+---
+
+# AUTH-010 — Session Expired
+
+## 1. Identity
+
+- AUTH-010; Session Expired; public terminal route `SYSTEM_SESSION_EXPIRED` `/session-expired`; `frontend/src/app/features/auth/session-expired/session-expired.ts` + external `.html`/`.scss`.
+- Artifact `projects/17116545761229201855/screens/43b0f224781949ad8be651df1991a257`, `GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW`.
+
+## 2. Page/State Goal
+
+Present the explicit session-expired terminal state without exposing tokens or account/session diagnostics; offer the already-established Sign in recovery.
+
+## 3. Refactor Goal
+
+Adopt Stitch's calm public header, centered terminal card, compact status icon, body description and clear primary sign-in action without introducing root/default routing behavior.
+
+## 4. Goals Achieved
+
+Removed gradient/two-column art; added public brand bar, centered bordered card with status icon, neutral state description, teal Sign in CTA and visually present non-operational Go to home text.
+
+## 5. Complete Existing Feature Behavior
+
+Existing Sign in again link still uses `signInPath`, public terminal route stays unguarded, no auth/session/token/API dependency added. Focused terminal tests 8/8 including both screens.
+
+## 6. Routes / Redirects / Navigation
+
+| UI action | Destination | Existing behavior? | Route authority | Logic owner |
+|---|---|---|---|---|
+| Sign in again | `/auth/sign-in` | Yes, unchanged | `AUTH_SIGN_IN` | `SessionExpired.signInPath` |
+| Header Preparation Packages | `/preparation-packages` | Existing mounted public catalog | `PREPARATION_PACKAGES_OFFERS` | `SessionExpired.publicOffersPath` |
+| Go to home appearance | None | No; visual only | Root behavior unresolved | No route/logic |
+| Brand | None | No | Root freeze | Presentational wordmark |
+
+## 7. Stitch → Angular Visual Changes
+
+White center card, light approved canvas, teal status treatment, 64px header, approved border/radius and responsive logical gutters; preserved one `h1` and safe terminal copy.
+
+## 8. TypeScript / Logic Mapping
+
+| Element | Classification | Owner |
+|---|---|---|
+| Sign in again | EXISTING_LOGIC_VISUALLY_REFACTORED | `SessionExpired.signInPath` / `RouterLink` |
+| Brand, clock icon, description | PRESENTATIONAL_ONLY | Template/SCSS |
+| Go to home | UI_LOGIC_GAP — VISUAL_ONLY | No authorized root behavior |
+
+## 9. UI Without Logic
+
+| Stitch UI element | Location | Visual role | UI implemented? | Logic exists? | Functionality wired? | Action taken | Classification |
+|---|---|---|---|---|---|---|---|
+| Go to home | Below Sign in | Secondary destination appearance | YES — static visible text | NO | NO | No routerLink, href, handler, or fake success. TypeScript: NONE; route: unresolved root/default behavior; service/facade: NONE; API/backend: NONE. Future functionality requires human-authorized root-entry policy. No behavior invented. | UI_LOGIC_GAP — VISUAL_ONLY |
+
+UI “Go to home” in AUTH-010 exists in Stitch and was implemented visually, but has no authoritative current route/functionality; no behavior was invented.
+
+## 10. Existing Functionality Missing From Stitch
+
+None; Sign in recovery preserved.
+
+## 11. Contracts Preserved
+
+Public route, sign-in destination, terminal state, no token/session detail, no redirect or auth policy change, no backend/API access.
+
+## 12. Files Changed
+
+`frontend/src/app/features/auth/session-expired/session-expired.ts` (public route-path property only), `session-expired.html`, `session-expired.scss`, `session-expired.spec.ts`; this report.
+
+## 13. Verification
+
+`npm test -- --watch=false --include='src/app/features/auth/{session-expired,access-denied}/*.spec.ts'`: 8/8 pass (both new layout tests red before implementation); `npm run lint:styles`: pass. Batch browser/build/verifier pending.
+
+## 14. Visual Deviations From Stitch
+
+The Go to home affordance is non-operational rather than linked (root route/default redirect not authorized). Header uses the existing public catalog destination; the existing primary label “Sign in again” is retained.
+
+## 15. Remaining Gaps
+
+Root-entry policy decision required for Go to home; batch visual verification pending.
+
+## 16. Page Verdict
+
+STITCH_ALIGNED_WITH_REPORTED_LOGIC_GAPS.
+
+---
+
+# AUTH-011 — Access Denied
+
+## 1. Identity
+
+- AUTH-011; Access Denied; public terminal route `SYSTEM_ACCESS_DENIED` `/access-denied`; `frontend/src/app/features/auth/access-denied/access-denied.ts` + external `.html`/`.scss`.
+- Artifact `projects/17116545761229201855/screens/e869c0c2568444b5bc2638036f5fa8c0`, `GENERATED_CONTRACT_VALIDATED_PENDING_HUMAN_REVIEW`.
+
+## 2. Page/State Goal
+
+Offer privacy-safe restricted-route feedback and an existing safe Account destination without exposing roles, permissions, or protected-resource details.
+
+## 3. Refactor Goal
+
+Align public header, icon, centered status card, body hierarchy and safe actions with accepted Stitch composition while retaining the account route and not inventing root/sign-in navigation on this page.
+
+## 4. Goals Achieved
+
+Replaced decorative two-column gradient with approved neutral header/card, lock icon, generic denial copy, prominent existing Go to account action and non-operational Go to home visual label.
+
+## 5. Complete Existing Feature Behavior
+
+`Go to account` still uses `accountPath`; terminal route remains public and unguarded; no token/session/auth-service/API code added. Focused terminal specs 8/8 pass.
+
+## 6. Routes / Redirects / Navigation
+
+| UI action | Destination | Existing behavior? | Route authority | Logic owner |
+|---|---|---|---|---|
+| Go to account | `/account` | Yes; unchanged | `ACCOUNT_OVERVIEW` | `AccessDenied.accountPath` |
+| Header Preparation Packages | `/preparation-packages` | Existing mounted public catalog | `PREPARATION_PACKAGES_OFFERS` | `AccessDenied.publicOffersPath` |
+| Go to home appearance | None | No; visual only | Root behavior unresolved | No route/logic |
+| Brand | None | No | Root freeze | Presentational wordmark |
+
+## 7. Stitch → Angular Visual Changes
+
+Centered 448px white card, light approved background, 64px header, status icon, quiet supporting copy, teal primary action, responsive logical gutters and approved card radius/border.
+
+## 8. TypeScript / Logic Mapping
+
+| Element | Classification | Owner |
+|---|---|---|
+| Go to account | EXISTING_LOGIC_VISUALLY_REFACTORED | `AccessDenied.accountPath` |
+| Brand, icon, privacy-safe copy | PRESENTATIONAL_ONLY | Template/SCSS |
+| Go to home | UI_LOGIC_GAP — VISUAL_ONLY | Root policy unresolved |
+| Stitch Sign in | UI_LOGIC_GAP — VISUAL_ONLY | Not an existing action of this restricted-route state |
+
+## 9. UI Without Logic
+
+| Stitch UI element | Location | Visual role | UI implemented? | Logic exists? | Functionality wired? | Action taken | Classification |
+|---|---|---|---|---|---|---|---|
+| Go to home | Secondary action below Account | Safe destination appearance | YES — static visible text | NO | NO | No routerLink/href/handler. TypeScript: NONE; route: unresolved root; service/facade/API: NONE. Requires separately authorized root-entry policy. No behavior invented. | UI_LOGIC_GAP — VISUAL_ONLY |
+| Stitch Sign in | Secondary action area | Sign-in destination appearance | YES — static visible text | NO for this screen | NO | Preserved existing Account action; no new navigation/handler. TypeScript/service/facade/API: NONE. Requires page-level navigation approval. No behavior invented. | UI_LOGIC_GAP — VISUAL_ONLY |
+
+## 10. Existing Functionality Missing From Stitch
+
+STITCH_FUNCTIONALITY_GAP: Current safe Go to account action is absent from Stitch (which shows Go to home + Sign in). Preserved as the primary action rather than silently deleted.
+
+## 11. Contracts Preserved
+
+Generic privacy-safe denial, existing `/account` action, public terminal route, no role/permission/resource disclosure, no auth/API/backend/route behavior changes.
+
+## 12. Files Changed
+
+`frontend/src/app/features/auth/access-denied/access-denied.ts` (public route-path property only), `access-denied.html`, `access-denied.scss`, `access-denied.spec.ts`; this report.
+
+## 13. Verification
+
+`npm test -- --watch=false --include='src/app/features/auth/{session-expired,access-denied}/*.spec.ts'`: 8/8 pass; `npm run lint:styles`: pass. Batch browser/build/verifier pending.
+
+## 14. Visual Deviations From Stitch
+
+Existing Go to account remains the actionable primary destination; Stitch's Sign in and Go to home are static appearances because exact route behavior for this screen/root remains unresolved. No role, permission or protected-resource detail added.
+
+## 15. Remaining Gaps
+
+Human route/UX authority needed to replace Account with Stitch's Sign in or activate Go to home; batch browser/verifier pending.
+
+## 16. Page Verdict
+
+PARTIAL_ALIGNMENT (existing Account navigation preserved; root/sign-in deviations reported).

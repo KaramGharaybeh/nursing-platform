@@ -15,6 +15,19 @@ function readTextFile(relativePath: string): string {
 }
 
 describe('AUTH-010 Session Expired', () => {
+  it('shows the public header, centered terminal card, and non-navigating home appearance', async () => {
+    await TestBed.configureTestingModule({ imports: [SessionExpired], providers: [provideRouter(routes)] }).compileComponents();
+    const fixture = TestBed.createComponent(SessionExpired);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.np-session-expired-public-header')).not.toBeNull();
+    expect(root.querySelector('.np-session-expired-context')).toBeNull();
+    expect(root.querySelector('.np-session-expired-public-header a[href="/preparation-packages"]')).not.toBeNull();
+    expect(root.querySelector('.np-session-expired-public-header a[href="/auth/sign-up"]')).not.toBeNull();
+    expect(root.querySelector('.np-session-expired-icon svg[aria-hidden="true"]')).not.toBeNull();
+    expect(root.querySelector('.np-session-expired-home')?.textContent).toContain('Go to home');
+    expect(root.querySelector('.np-session-expired-home a')).toBeNull();
+  });
   it('renders the authorized terminal screen identity with a sign-in recovery action', async () => {
     await TestBed.configureTestingModule({
       imports: [SessionExpired],

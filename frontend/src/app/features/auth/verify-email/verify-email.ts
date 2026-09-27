@@ -26,6 +26,8 @@ export class VerifyEmail implements OnInit {
     (inject(ActivatedRoute).snapshot.queryParamMap.get('token') ?? '').trim();
 
   protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
+  protected readonly publicOffersPath = canonicalRoutePath('PREPARATION_PACKAGES_OFFERS');
+  protected readonly signUpPath = canonicalRoutePath('AUTH_SIGN_UP');
 
   protected readonly isLoading = signal(false);
   protected readonly successMessage = signal('');

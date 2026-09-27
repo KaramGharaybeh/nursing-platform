@@ -1,16 +1,17 @@
 <section class="np-sign-in" aria-labelledby="auth-sign-in-title">
+  <header class="np-sign-in-public-header">
+    <span class="np-sign-in-brand">Nursing Platform</span>
+    <nav aria-label="Public authentication navigation">
+      <a [routerLink]="publicOffersPath">Preparation Packages</a>
+      <span aria-current="page">Sign in</span>
+      <a [routerLink]="signUpPath">Sign up</a>
+    </nav>
+  </header>
   <div class="np-sign-in-composition">
-    <div class="np-sign-in-context" aria-hidden="true">
-      <p class="np-sign-in-kicker">Nursing Platform</p>
-      <div class="np-sign-in-anchor"></div>
-      <div class="np-sign-in-orbit np-sign-in-orbit-primary"></div>
-      <div class="np-sign-in-orbit np-sign-in-orbit-secondary"></div>
-    </div>
-
     <div class="np-sign-in-card">
       <div class="np-sign-in-header">
-        <p class="np-sign-in-product">Nursing Platform</p>
         <h1 id="auth-sign-in-title">Sign in</h1>
+        <p class="np-sign-in-subtitle">Enter your credentials to access your account</p>
       </div>
 
       @if (backendFailureMessage() === '') {
@@ -37,27 +38,33 @@
           (valueChange)="updateEmail($event)"
         />
 
-        <np-text-input-control
-          controlId="auth-sign-in-password"
-          label="Password"
-          type="password"
-          [required]="true"
-          [disabled]="isSubmitting()"
-          [value]="passwordValue"
-          [errorText]="passwordError"
-          (valueChange)="updatePassword($event)"
-        />
+        <p class="np-sign-in-recovery">
+          <a [routerLink]="forgotPasswordPath">Forgot password?</a>
+        </p>
+        <div class="np-sign-in-password-field">
+          <np-text-input-control
+            controlId="auth-sign-in-password"
+            label="Password"
+            type="password"
+            [required]="true"
+            [disabled]="isSubmitting()"
+            [value]="passwordValue"
+            [errorText]="passwordError"
+            (valueChange)="updatePassword($event)"
+          />
+          <svg class="np-sign-in-password-eye" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            <path d="M2.5 12C3.7 8 7.5 5 12 5s8.3 3 9.5 7c-1.2 4-5 7-9.5 7S3.7 16 2.5 12Z" />
+          </svg>
+        </div>
 
         <button class="np-sign-in-submit" type="submit" mat-flat-button color="primary" [disabled]="isSubmitting()">
-          Sign in
+          {{ isSubmitting() ? 'Signing in...' : 'Sign in' }}
         </button>
       </form>
 
-      <p class="np-sign-in-recovery">
-        <a [routerLink]="forgotPasswordPath">Forgot password?</a>
-      </p>
       <p class="np-sign-in-register">
-        New to Nursing Platform? <a [routerLink]="signUpPath">Create an account</a>
+        Don't have an account? <a [routerLink]="signUpPath">Create an account</a>
       </p>
     </div>
   </div>

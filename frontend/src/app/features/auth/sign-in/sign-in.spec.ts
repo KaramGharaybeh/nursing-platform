@@ -170,6 +170,28 @@ describe('AUTH-001 Sign In', () => {
     expect(submitButton(fixture).disabled).toBe(false);
   });
 
+  it('presents the public auth header and centered sign-in card without decorative marketing panels', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('header.np-sign-in-public-header')?.textContent).toContain('Nursing Platform');
+    expect(root.querySelector('.np-sign-in-card h1')?.textContent).toContain('Sign in');
+    expect(root.querySelector('.np-sign-in-subtitle')?.textContent).toContain('Enter your credentials');
+    expect(root.querySelector('.np-sign-in-context')).toBeNull();
+    expect(root.querySelector('.np-sign-in-public-header a[href="/preparation-packages"]')).not.toBeNull();
+    expect(root.querySelector('.np-sign-in-card a[href="/auth/sign-up"]')).not.toBeNull();
+  });
+
+  it('shows the Stitch password-eye appearance as non-operational decoration without exposing the password', async () => {
+    const { fixture } = await setup();
+    const wrapper = (fixture.nativeElement as HTMLElement).querySelector('.np-sign-in-password-field');
+    const eye = wrapper?.querySelector('.np-sign-in-password-eye');
+    expect(eye).not.toBeNull();
+    expect(eye?.getAttribute('aria-hidden')).toBe('true');
+    expect(eye?.closest('button, a')).toBeNull();
+    expect(input(fixture, '#auth-sign-in-password').type).toBe('password');
+  });
+
   it('renders backend-authorized required validation messages and guards submission', async () => {
     const { fixture, authTransport } = await setup();
 
@@ -329,7 +351,7 @@ describe('AUTH-001 Sign In', () => {
       `a[href="${canonicalRoutePath('AUTH_FORGOT_PASSWORD')}"]`,
     ) as HTMLAnchorElement | null;
     const registerLink = fixture.nativeElement.querySelector(
-      `a[href="${canonicalRoutePath('AUTH_SIGN_UP')}"]`,
+      `.np-sign-in-register a[href="${canonicalRoutePath('AUTH_SIGN_UP')}"]`,
     ) as HTMLAnchorElement | null;
 
     expect(forgotLink).not.toBeNull();

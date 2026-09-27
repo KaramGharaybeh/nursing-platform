@@ -53,11 +53,30 @@ async function enter(fixture: { nativeElement: HTMLElement }, values: PublicRegi
 }
 
 describe('Unified Sign Up', () => {
+  it('uses the public header and approved centered account card while retaining confirm password', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.np-sign-up-public-header')?.textContent).toContain('Nursing Platform');
+    expect(root.querySelector('.np-sign-up-card h1')?.textContent).toContain('Create account');
+    expect(root.querySelector('.np-sign-up-card a[href="/auth/sign-in"]')).not.toBeNull();
+    expect(root.querySelector('.np-sign-up-public-header a[href="/preparation-packages"]')).not.toBeNull();
+    expect(input(fixture, '#auth-sign-up-confirm-password').type).toBe('password');
+  });
+
+  it('shows a non-operational password eye without changing password masking', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    const eye = root.querySelector('.np-sign-up-password-eye');
+    expect(eye).not.toBeNull();
+    expect(eye?.getAttribute('aria-hidden')).toBe('true');
+    expect(eye?.closest('button, a')).toBeNull();
+    expect(input(fixture, '#auth-sign-up-password').type).toBe('password');
+  });
   it('renders exactly email, username, password, and confirm password fields with no role selector', async () => {
     const { fixture } = await setup();
     const text = fixture.nativeElement.textContent as string;
 
-    expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Sign up');
+    expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Create account');
     expect(fixture.nativeElement.querySelectorAll('input').length).toBe(4);
     expect(text).toContain('Email address');
     expect(text).toContain('Username');

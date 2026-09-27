@@ -69,6 +69,8 @@ export class ForgotPassword implements AfterViewInit {
   private readonly host = inject(ElementRef);
 
   protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
+  protected readonly publicOffersPath = canonicalRoutePath('PREPARATION_PACKAGES_OFFERS');
+  protected readonly signUpPath = canonicalRoutePath('AUTH_SIGN_UP');
 
   protected readonly form: ForgotPasswordForm = new FormGroup({
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),

@@ -10,4 +10,6 @@ import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 })
 export class CheckEmail {
   protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
+  protected readonly publicOffersPath = canonicalRoutePath('PREPARATION_PACKAGES_OFFERS');
+  protected readonly signUpPath = canonicalRoutePath('AUTH_SIGN_UP');
 }

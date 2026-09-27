@@ -108,6 +108,15 @@ async function enterCredentials(fixture: { nativeElement: HTMLElement }, email: 
 }
 
 describe('AUTH-008 Reset Password', () => {
+  it('uses the public auth header and single centered reset card without marketing decoration', async () => {
+    const { fixture } = await setup(null);
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.np-reset-password-public-header')?.textContent).toContain('Nursing Platform');
+    expect(root.querySelector('.np-reset-password-card h1')?.textContent).toContain('Reset password');
+    expect(root.querySelector('.np-reset-password-context')).toBeNull();
+    expect(root.querySelector('.np-reset-password-public-header a[href="/preparation-packages"]')).not.toBeNull();
+    expect(root.querySelector('.np-reset-password-public-header a[href="/auth/sign-up"]')).not.toBeNull();
+  });
   afterEach(() => {
     try {
       TestBed.inject(HttpTestingController).verify();
@@ -218,7 +227,7 @@ describe('AUTH-008 Reset Password', () => {
     fixture.detectChanges();
 
     const signInLink = fixture.nativeElement.querySelector(
-      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+      `.np-reset-password-sign-in a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
     ) as HTMLAnchorElement | null;
 
     expect(signInLink).not.toBeNull();

@@ -10,4 +10,6 @@ import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 })
 export class AccessDenied {
   protected readonly accountPath = canonicalRoutePath('ACCOUNT_OVERVIEW');
+  protected readonly publicOffersPath = canonicalRoutePath('PREPARATION_PACKAGES_OFFERS');
+  protected readonly signUpPath = canonicalRoutePath('AUTH_SIGN_UP');
 }

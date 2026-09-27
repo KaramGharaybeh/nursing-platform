@@ -1,16 +1,22 @@
 <section class="np-session-expired" aria-labelledby="auth-session-expired-title">
+  <header class="np-session-expired-public-header">
+    <span class="np-session-expired-product">Nursing Platform</span>
+    <a [routerLink]="publicOffersPath">Preparation Packages</a>
+    <a [routerLink]="signUpPath">Sign up</a>
+  </header>
   <div class="np-session-expired-composition">
-    <div class="np-session-expired-context" aria-hidden="true">
-      <p class="np-session-expired-kicker">Nursing Platform</p>
-      <div class="np-session-expired-anchor"></div>
-    </div>
-
     <article class="np-session-expired-card">
-      <p class="np-session-expired-product">Nursing Platform</p>
+      <span class="np-session-expired-icon">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" />
+        </svg>
+      </span>
       <h1 id="auth-session-expired-title">Session expired</h1>
+      <p class="np-session-expired-description">Your session has ended. Sign in again to continue.</p>
       <p class="np-session-expired-action">
         <a [routerLink]="signInPath">Sign in again</a>
       </p>
+      <span class="np-session-expired-home">Go to home</span>
     </article>
   </div>
 </section>

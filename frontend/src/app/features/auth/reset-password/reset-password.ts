@@ -54,6 +54,8 @@ export class ResetPassword implements AfterViewInit {
 
   protected readonly forgotPasswordPath = canonicalRoutePath('AUTH_FORGOT_PASSWORD');
   protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
+  protected readonly publicOffersPath = canonicalRoutePath('PREPARATION_PACKAGES_OFFERS');
+  protected readonly signUpPath = canonicalRoutePath('AUTH_SIGN_UP');
 
   protected readonly form: ResetPasswordForm = new FormGroup({
     email: new FormControl('', {

@@ -15,6 +15,22 @@ function readTextFile(relativePath: string): string {
 }
 
 describe('AUTH-011 Access Denied', () => {
+  it('uses a centered safe terminal card and non-operational home appearance', async () => {
+    await TestBed.configureTestingModule({ imports: [AccessDenied], providers: [provideRouter(routes)] }).compileComponents();
+    const fixture = TestBed.createComponent(AccessDenied);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.np-access-denied-public-header')).not.toBeNull();
+    expect(root.querySelector('.np-access-denied-context')).toBeNull();
+    expect(root.querySelector('.np-access-denied-public-header a[href="/preparation-packages"]')).not.toBeNull();
+    expect(root.querySelector('.np-access-denied-public-header a[href="/auth/sign-up"]')).not.toBeNull();
+    expect(root.querySelector('.np-access-denied-icon svg[aria-hidden="true"]')).not.toBeNull();
+    expect(root.querySelector('.np-access-denied-home')?.textContent).toContain('Go to home');
+    expect(root.querySelector('.np-access-denied-home a')).toBeNull();
+    const signInVisual = root.querySelector('.np-access-denied-sign-in');
+    expect(signInVisual?.textContent).toContain('Sign in');
+    expect(signInVisual?.querySelector('a, button')).toBeNull();
+  });
   it('renders the authorized terminal screen identity with an account recovery action', async () => {
     await TestBed.configureTestingModule({
       imports: [AccessDenied],

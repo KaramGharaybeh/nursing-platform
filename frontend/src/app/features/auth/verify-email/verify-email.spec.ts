@@ -77,6 +77,15 @@ function textContent(fixture: { nativeElement: HTMLElement }): string {
 }
 
 describe('AUTH-006 Verify Email', () => {
+  it('uses the public header and one centered status card without decorative marketing context', async () => {
+    const { fixture } = await setup(null);
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.np-verify-email-public-header')?.textContent).toContain('Nursing Platform');
+    expect(root.querySelector('.np-verify-email-card h1')?.textContent).toContain('Verify email');
+    expect(root.querySelector('.np-verify-email-context')).toBeNull();
+    expect(root.querySelector('.np-verify-email-public-header a[href="/preparation-packages"]')).not.toBeNull();
+    expect(root.querySelector('.np-verify-email-public-header a[href="/auth/sign-up"]')).not.toBeNull();
+  });
   afterEach(() => {
     try {
       TestBed.inject(HttpTestingController).verify();
@@ -194,7 +203,7 @@ describe('AUTH-006 Verify Email', () => {
     const { fixture } = await setup('opaque-token');
 
     const signInLink = fixture.nativeElement.querySelector(
-      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+      `.np-verify-email-recovery a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
     ) as HTMLAnchorElement | null;
 
     expect(signInLink).not.toBeNull();
@@ -205,7 +214,7 @@ describe('AUTH-006 Verify Email', () => {
     const { fixture } = await setup(null);
 
     const signInLink = fixture.nativeElement.querySelector(
-      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+      `.np-verify-email-recovery a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
     ) as HTMLAnchorElement | null;
 
     expect(signInLink).not.toBeNull();

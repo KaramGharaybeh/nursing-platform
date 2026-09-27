@@ -27,6 +27,15 @@ async function createComponent(): Promise<ComponentFixture<CheckEmail>> {
 }
 
 describe('AUTH-005 Check Email', () => {
+  it('uses a public header and a centered verification card without decorative context', async () => {
+    const fixture = await createComponent();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.np-check-email-public-header')?.textContent).toContain('Nursing Platform');
+    expect(root.querySelector('.np-check-email-card h1')?.textContent).toContain('Check your email');
+    expect(root.querySelector('.np-check-email-context')).toBeNull();
+    expect(root.querySelector('.np-check-email-public-header a[href="/preparation-packages"]')).not.toBeNull();
+    expect(root.querySelector('.np-check-email-public-header a[href="/auth/sign-up"]')).not.toBeNull();
+  });
   it('renders the public check-email informational state without claiming delivery certainty', async () => {
     const fixture = await createComponent();
     const text = (fixture.nativeElement.textContent as string) ?? '';
@@ -41,7 +50,7 @@ describe('AUTH-005 Check Email', () => {
     const fixture = await createComponent();
 
     const signInLink = fixture.nativeElement.querySelector(
-      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+      `.np-check-email-sign-in a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
     ) as HTMLAnchorElement | null;
 
     expect(signInLink).not.toBeNull();

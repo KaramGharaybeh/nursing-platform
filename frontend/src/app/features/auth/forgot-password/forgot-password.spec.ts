@@ -86,6 +86,15 @@ async function enterEmail(fixture: { nativeElement: HTMLElement }, email: string
 }
 
 describe('AUTH-007 Forgot Password', () => {
+  it('renders a public header and single centered recovery card', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.np-forgot-password-public-header')?.textContent).toContain('Nursing Platform');
+    expect(root.querySelector('.np-forgot-password-card h1')?.textContent).toContain('Forgot password');
+    expect(root.querySelector('.np-forgot-password-context')).toBeNull();
+    expect(root.querySelector('.np-forgot-password-public-header a[href="/preparation-packages"]')).not.toBeNull();
+    expect(root.querySelector('.np-forgot-password-public-header a[href="/auth/sign-up"]')).not.toBeNull();
+  });
   afterEach(() => {
     try {
       TestBed.inject(HttpTestingController).verify();
@@ -170,7 +179,7 @@ describe('AUTH-007 Forgot Password', () => {
     const { fixture } = await setup();
 
     const signInLink = fixture.nativeElement.querySelector(
-      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+      `.np-forgot-password-back a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
     ) as HTMLAnchorElement | null;
 
     expect(signInLink).not.toBeNull();

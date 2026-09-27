@@ -1,14 +1,17 @@
 <section class="np-verify-email" aria-labelledby="auth-verify-email-title">
+  <header class="np-verify-email-public-header">
+    <span class="np-verify-email-brand">Nursing Platform</span>
+    <nav aria-label="Public authentication navigation">
+      <a [routerLink]="publicOffersPath">Preparation Packages</a>
+      <a [routerLink]="signInPath">Sign in</a>
+      <a [routerLink]="signUpPath">Sign up</a>
+    </nav>
+  </header>
   <div class="np-verify-email-composition">
-    <div class="np-verify-email-context" aria-hidden="true">
-      <p class="np-verify-email-kicker">Nursing Platform</p>
-      <div class="np-verify-email-anchor"></div>
-    </div>
-
     <div class="np-verify-email-card">
       <div class="np-verify-email-header">
-        <p class="np-verify-email-product">Nursing Platform</p>
         <h1 id="auth-verify-email-title">Verify email</h1>
+        <p>Email verification confirmation</p>
       </div>
 
       @if (tokenMissingMessage() !== '') {

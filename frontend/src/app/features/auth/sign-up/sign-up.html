@@ -1,8 +1,16 @@
 <section class="np-sign-up" aria-labelledby="auth-sign-up-title">
+  <header class="np-sign-up-public-header">
+    <span class="np-sign-up-brand">Nursing Platform</span>
+    <nav aria-label="Public authentication navigation">
+      <a [routerLink]="publicOffersPath">Preparation Packages</a>
+      <a [routerLink]="signInPath">Sign in</a>
+      <span aria-current="page">Sign up</span>
+    </nav>
+  </header>
+  <div class="np-sign-up-composition">
   <div class="np-sign-up-card">
-    <p class="np-sign-up-product">Nursing Platform</p>
-    <h1 id="auth-sign-up-title">Sign up</h1>
-    <p class="np-sign-up-instruction">Create one account. Your role is assigned securely by Nursing Platform.</p>
+    <h1 id="auth-sign-up-title">Create account</h1>
+    <p class="np-sign-up-instruction">Enter your details to create your Nursing Platform account.</p>
 
     @if (backendFailureMessage() === '') {
       <np-form-validation-summary
@@ -39,16 +47,23 @@
         (valueChange)="updateUsername($event)"
       />
 
-      <np-text-input-control
-        controlId="auth-sign-up-password"
-        label="Password"
-        type="password"
-        [required]="true"
-        [disabled]="isSubmitting()"
-        [value]="passwordValue"
-        [errorText]="passwordError"
-        (valueChange)="updatePassword($event)"
-      />
+      <div class="np-sign-up-password-field">
+        <np-text-input-control
+          controlId="auth-sign-up-password"
+          label="Password"
+          type="password"
+          [required]="true"
+          [disabled]="isSubmitting()"
+          [value]="passwordValue"
+          [errorText]="passwordError"
+          (valueChange)="updatePassword($event)"
+        />
+        <svg class="np-sign-up-password-eye" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          <path d="M2.5 12C3.7 8 7.5 5 12 5s8.3 3 9.5 7c-1.2 4-5 7-9.5 7S3.7 16 2.5 12Z" />
+        </svg>
+      </div>
+      <p class="np-sign-up-password-guidance">Use at least 8 characters, one uppercase letter, and one number.</p>
 
       <np-text-input-control
         controlId="auth-sign-up-confirm-password"
@@ -67,5 +82,6 @@
     </form>
 
     <p class="np-sign-up-sign-in">Already have an account? <a [routerLink]="signInPath">Sign in</a></p>
+  </div>
   </div>
 </section>

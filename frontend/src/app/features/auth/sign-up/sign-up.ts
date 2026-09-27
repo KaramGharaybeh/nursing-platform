@@ -53,6 +53,7 @@ export class SignUp implements AfterViewInit {
   private readonly host = inject(ElementRef);
 
   protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
+  protected readonly publicOffersPath = canonicalRoutePath('PREPARATION_PACKAGES_OFFERS');
   protected readonly checkEmailPath = canonicalRoutePath('AUTH_VERIFY_EMAIL_REQUEST');
 
   protected readonly form: SignUpForm = new FormGroup({

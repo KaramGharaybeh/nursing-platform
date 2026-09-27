@@ -2807,6 +2807,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: Analytics tests + per-screen visual evidence satisfied: 22/22 focused tests, 80/787 full suite, stylelint/deps/build/Storybook green, 7 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for catalog/entry/summary/by-exam/by-category/trends/filters/query-persistence/clear/date-gate/empty/direct/reload/back states. Prerequisite GATE-FE-T069 was VERIFIED before closeout, per DAG.
+- 2026-09-28 Flow 4 EXM-008 accepted-Stitch presentation alignment (`5342ec2b852e41558567e6bc92f79ed0`): four existing filters, ten backend-verbatim overview metrics, textual by-exam/category/month tables with mobile card treatment and existing section-level states/pagination; no sample metrics, chart, local derivation, route/API/TS/backend changes. Combined history/analytics/API/result/review focused 108/108; lint/stylelint/build/diff-check PASS; new non-fatal analytics.scss 4.37 kB/4 kB budget warning disclosed. Independent `EXAMS-FLOW4-V1-2026-09-28` verifier PASS; verifier could not independently inspect Stitch bodies, so pixel fidelity and new browser visual proof are not claimed. No Playwright MCP or push.
 
 ### `T-FE-073` — EXM-010 exam history
 
@@ -2827,6 +2828,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: History tests + per-screen visual evidence satisfied: 22/22 focused tests, 81/811 full suite, stylelint/deps/build/Storybook green, 8 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for catalog/entry/rows/filter/reload/actions/empty/direct/reload/back/package-coexistence states. Prerequisites GATE-FE-T069 and GATE-FE-T038 were VERIFIED before closeout, per DAG.
+- 2026-09-28 Flow 4 EXM-010 accepted-Stitch presentation alignment (`40e4a6d17fce4e4c966978cc715d5667`): factual backend-ordered attempt cards, status filter and backend total count, existing paginator/empty/no-results/retry. InProgress alone offers Resume, Submitted/Expired offer result/review, Abandoned none; no sample attempts, local eligibility, source/provenance or route/API/TS/backend change. Combined Flow 4 focused 108/108; lint/stylelint/build/diff-check PASS with disclosed analytics stylesheet budget warning. Independent `EXAMS-FLOW4-V1-2026-09-28` verifier PASS; no independently proven Stitch pixel fidelity or new browser visual proof. No Playwright MCP or push.
 
 ### `T-FE-065` — NUR-013 profile completion clarification (closed without implementation)
 

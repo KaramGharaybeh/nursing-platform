@@ -5,6 +5,7 @@ import { vi, type Mock } from 'vitest';
 import { routes } from '../../app.routes';
 import { ExamsApi } from '../../core/api/exams-api';
 import type { ExamHistoryAttempt } from '../../core/api/exams-api';
+import { LocaleDirectionService } from '../../core/locale/locale-direction.service';
 import { ExamHistoryScreen } from './exam-history';
 
 function inProgressAttempt(): ExamHistoryAttempt {
@@ -158,12 +159,69 @@ describe('ExamHistory screen (T-FE-073)', () => {
     expect(rows[2].textContent).toContain('Time expired');
   });
 
+  it('groups backend attempts in a filter panel and factual attempt cards', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    const cards = root.querySelectorAll('.np-exam-history-card');
+
+    expect(root.querySelector('.np-exam-history-header #exam-history-heading')).not.toBeNull();
+    expect(root.querySelector('.np-exam-history-filter-panel np-select-control')).not.toBeNull();
+    expect(root.querySelector('[data-testid="exam-history-total"]')?.textContent).toContain('3');
+    expect(cards).toHaveLength(3);
+    expect(cards[0].querySelector('.np-exam-history-card-header h2')?.textContent).toContain('NCLEX Readiness');
+    expect(cards[0].querySelector('.np-exam-history-card-actions [data-testid="exam-history-resume"]')).not.toBeNull();
+    expect(cards[0].querySelector('[data-testid="exam-history-result"]')).toBeNull();
+    expect(cards[1].querySelector('.np-exam-history-card-actions [data-testid="exam-history-review"]')).not.toBeNull();
+    expect(cards[2].querySelector('[data-testid="exam-history-resume"]')).toBeNull();
+    expect(text(fixture)).not.toContain('NMC CBT — Adult Nursing');
+  });
+
+  it('keeps filtered empty and retry screens free of sample attempt cards', async () => {
+    const stub = new ExamsApiStub();
+    stub.items = [];
+    const { fixture } = await setup(stub, { status: 'Expired' });
+    expect(byTestId(fixture, 'exam-history-filtered-empty')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.np-exam-history-card')).toHaveLength(0);
+  });
+
+  it('keeps Abandoned attempts factual without resume or finalized actions', async () => {
+    const stub = new ExamsApiStub();
+    stub.items = [{ ...inProgressAttempt(), status: 'Abandoned', expiresAt: null }];
+    const { fixture } = await setup(stub);
+    const row = byTestId(fixture, 'exam-history-row');
+
+    expect(row?.textContent).toContain('Abandoned');
+    expect(row?.textContent).not.toContain('Ends');
+    expect(row?.querySelectorAll('.np-exam-history-card-actions a')).toHaveLength(0);
+  });
+
+  it('localizes filter, status and safe error copy in Arabic without altering backend attempts', async () => {
+    const stub = new ExamsApiStub();
+    stub.error = { status: 500, error: { title: 'Private failure' } };
+    const { fixture } = await setup(stub);
+    const locale = TestBed.inject(LocaleDirectionService);
+    try {
+      locale.setLocale('ar');
+      await settle(fixture);
+      expect(text(fixture)).toContain('تعذّر تحميل سجل اختباراتك');
+      expect(text(fixture)).not.toContain('Private failure');
+      stub.error = undefined;
+      (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.np-loading-error-retry-retry')?.click();
+      await settle(fixture);
+      expect(byTestId(fixture, 'exam-history-status-filter')?.textContent).toContain('الحالة');
+      expect(byTestId(fixture, 'exam-history-row')?.textContent).toContain('قيد التقدم');
+    } finally {
+      locale.setLocale('en');
+    }
+  });
+
   it('shows Ends with expiry for InProgress and percentage/result for finalized rows', async () => {
     const { fixture } = await setup();
     const rows = allByTestId(fixture, 'exam-history-row');
 
     expect(rows[0].textContent).toContain('Ends');
     expect(rows[1].textContent).toContain('90.67%');
+    expect(rows[1].textContent).toContain('Percentage');
     expect(rows[1].textContent).toContain('Passed');
     expect(rows[2].textContent).toContain('Not passed');
     expect(rows[0].textContent).not.toContain('Passed');

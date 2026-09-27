@@ -1,53 +1,157 @@
 @use '../../../styles/abstracts/mixins' as mixins;
+@use '../../../styles/abstracts/responsive' as responsive;
 
 .np-exam-history {
-  display: flex;
-  flex-direction: column;
   box-sizing: border-box;
   inline-size: 100%;
-  max-inline-size: 44rem;
+  max-inline-size: 72rem;
   margin-inline: auto;
-  padding-block: var(--np-space-24);
+  padding-block: var(--np-space-24) var(--np-space-48);
   padding-inline: var(--np-page-gutter);
   overflow-wrap: anywhere;
 }
 
-.np-exam-history h1 {
-  margin: var(--np-space-16) 0 0;
-  font-size: 1.5rem;
-  line-height: 1.2;
+.np-exam-history-back {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--np-button-height);
+}
+
+.np-exam-history-header {
+  margin-block: var(--np-space-16) var(--np-space-32);
+
+  h1 {
+    margin: 0;
+    font-size: 1.875rem;
+    line-height: 1.3;
+  }
+
+  p {
+    margin: var(--np-space-8) 0 0;
+    color: var(--np-color-secondary-text);
+  }
+}
+
+.np-exam-history-filter-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-16);
+  margin-block-end: var(--np-space-24);
+  padding: var(--np-space-16) var(--np-space-24);
+  border: 1px solid var(--np-color-border);
+  border-radius: var(--np-space-16);
+  background: var(--np-color-surface);
+
+  np-select-control { min-inline-size: min(100%, 16rem); }
+
+  p {
+    margin: 0;
+    color: var(--np-color-secondary-text);
+  }
 }
 
 .np-exam-history-rows {
   display: grid;
-  gap: var(--np-space-8);
-  margin: var(--np-space-16) 0 0;
+  gap: var(--np-space-16);
+  margin: 0 0 var(--np-space-32);
   padding: 0;
   list-style: none;
 }
 
-.np-exam-history-rows li {
-  display: grid;
-  gap: var(--np-space-4);
-  padding-block: var(--np-space-8);
-  padding-inline: var(--np-space-12);
-  border: 1px solid var(--np-color-border, #d9e2e7);
-  border-radius: var(--np-space-12);
-}
-
-.np-exam-history-rows h2 {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.3;
-}
-
-.np-exam-history-actions {
+.np-exam-history-card {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--np-space-8);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-16);
+  min-inline-size: 0;
+  padding: var(--np-space-24);
+  border: 1px solid var(--np-color-border);
+  border-radius: var(--np-space-16);
+  background: var(--np-color-surface);
 }
 
-.np-exam-history-actions a,
-.np-exam-history button {
-  @include mixins.touch-target;
+.np-exam-history-card-content { min-inline-size: 0; }
+
+.np-exam-history-card-header,
+.np-exam-history-card-meta,
+.np-exam-history-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--np-space-12);
+}
+
+.np-exam-history-card-header {
+  h2 {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 1.4;
+  }
+
+  p {
+    margin: 0;
+    padding: var(--np-space-4) var(--np-space-12);
+    border: 1px solid var(--np-color-border-strong);
+    border-radius: var(--np-space-24);
+    background: var(--np-color-subtle-surface);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+}
+
+.np-exam-history-card-meta {
+  margin-block-start: var(--np-space-12);
+  color: var(--np-color-secondary-text);
+  font-size: 0.875rem;
+
+  p { margin: 0; }
+}
+
+.np-exam-history-card-actions {
+  a {
+    @include mixins.touch-target;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: var(--np-space-16);
+    border: 1px solid var(--np-color-border-strong);
+    border-radius: var(--np-button-radius);
+    text-align: center;
+  }
+
+  [data-testid='exam-history-resume'] {
+    border-color: var(--np-color-brand-1);
+    background: var(--np-color-brand-1);
+    color: var(--np-color-surface);
+  }
+}
+
+.np-exam-history a:focus-visible,
+.np-exam-history button:focus-visible {
+  outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+  outline-offset: var(--np-focus-ring-offset);
+}
+
+@include responsive.respond-from(tablet) {
+  .np-exam-history-card-actions { justify-content: end; }
+}
+
+@media (width < 600px) {
+  .np-exam-history-card { padding: var(--np-space-16); }
+
+  .np-exam-history-card-actions {
+    inline-size: 100%;
+
+    a {
+      flex: 1;
+      min-block-size: var(--np-space-48);
+    }
+  }
+
+  .np-exam-history a,
+  .np-exam-history button { min-block-size: var(--np-space-48); }
 }

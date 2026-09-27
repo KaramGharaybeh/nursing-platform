@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { routes } from '../../app.routes';
 import { CountriesApi } from '../../core/api/countries-api';
 import { ExamsApi } from '../../core/api/exams-api';
+import { LocaleDirectionService } from '../../core/locale/locale-direction.service';
 import type {
   ExamAnalyticsByCategoryItem,
   ExamAnalyticsByExamItem,
@@ -73,6 +74,7 @@ class ExamsApiStub {
     byExamRow({ examTitle: 'First exam', attemptCount: 1, passRate: 100 }),
   ];
   categoryItems: ExamAnalyticsByCategoryItem[] = [byCategoryRow()];
+  categoryTotalCount = 1;
   trendPoints: ExamAnalyticsTrendPoint[] = [
     trendPoint(),
     trendPoint({ bucketStart: '2026-02-01T00:00:00Z', bucketEnd: '2026-03-01T00:00:00Z' }),
@@ -116,7 +118,7 @@ class ExamsApiStub {
     if (this.categoryError !== undefined) {
       return throwError(() => this.categoryError);
     }
-    return of({ items: this.categoryItems, page, pageSize: 20, totalCount: 1, totalPages: 1 });
+    return of({ items: this.categoryItems, page, pageSize: 20, totalCount: this.categoryTotalCount, totalPages: Math.ceil(this.categoryTotalCount / 20) });
   }
 
   listExamAnalyticsTrends(filters: unknown) {
@@ -210,6 +212,52 @@ describe('ExamAnalytics screen (T-FE-074)', () => {
     expect(byTestId(fixture, 'analytics-submitted')?.textContent).toContain('2');
     expect(byTestId(fixture, 'analytics-pass-rate')?.textContent).toContain('66.67%');
     expect(byTestId(fixture, 'analytics-latest-score')?.textContent).toContain('Not available');
+  });
+
+  it('groups existing filters and ten backend metrics in the approved card composition', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('.np-exam-analytics-header #exam-analytics-heading')).not.toBeNull();
+    expect(root.querySelector('.np-exam-analytics-filter-panel form')).not.toBeNull();
+    expect(root.querySelectorAll('.np-exam-analytics-overview > div')).toHaveLength(10);
+    expect(byTestId(fixture, 'analytics-latest-score')?.textContent).toContain('Not available');
+    expect(root.querySelectorAll('canvas')).toHaveLength(0);
+  });
+
+  it('presents by-exam, by-category and monthly backend rows as textual tables and mobile cards', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelectorAll('[data-testid="analytics-exam-row"]')).toHaveLength(2);
+    expect(root.querySelector('[data-testid="analytics-exam-row"] th[scope="row"]')?.textContent).toContain('Second exam');
+    expect(root.querySelector('#analytics-by-exam-heading + .np-exam-analytics-table-wrap th[scope="col"]')?.textContent).toContain('Exam title');
+    expect(root.querySelector('[data-testid="analytics-category-row"] th[scope="row"]')?.textContent).toContain('Licensure');
+    expect(root.querySelector('[data-testid="analytics-trend-point"] th[scope="row"]')?.textContent).toContain('January');
+    expect(root.querySelectorAll('.np-exam-analytics-mobile-card')).toHaveLength(5);
+    expect(root.querySelector('.np-exam-analytics-lower-grid #analytics-trends-heading')).not.toBeNull();
+    expect(root.querySelectorAll('.np-exam-analytics-section canvas, .np-exam-analytics-section svg')).toHaveLength(0);
+    expect(root.querySelector('.np-exam-analytics-mobile-card')?.textContent).toContain('Second exam');
+    expect(root.querySelector('.np-exam-analytics-mobile-card')?.textContent).toContain('50%');
+  });
+
+  it('localizes section retry controls and category pagination in Arabic', async () => {
+    const stub = new ExamsApiStub();
+    stub.categoryError = { status: 500 };
+    stub.categoryTotalCount = 21;
+    const { fixture } = await setup(stub);
+    const locale = TestBed.inject(LocaleDirectionService);
+    try {
+      locale.setLocale('ar');
+      await settle(fixture);
+      expect(byTestId(fixture, 'analytics-category-retry')?.textContent).toContain('إعادة المحاولة');
+      stub.categoryError = undefined;
+      (byTestId(fixture, 'analytics-category-retry') as HTMLButtonElement | null)?.click();
+      await settle(fixture);
+      expect(byTestId(fixture, 'analytics-category-pagination')?.textContent).toContain('فئات');
+    } finally {
+      locale.setLocale('en');
+    }
   });
 
   it('shows the page-level empty state when attemptCount is 0 without section tables', async () => {

@@ -1,5 +1,5 @@
 <section class="np-exam-analytics" aria-labelledby="exam-analytics-heading">
-  <a [routerLink]="backPath" data-testid="analytics-back">{{ i18n.t('analytics.backToExams') }}</a>
+  <a class="np-exam-analytics-back" [routerLink]="backPath" data-testid="analytics-back">{{ i18n.t('analytics.backToExams') }}</a>
 
   <np-loading-error-retry
     [state]="state()"
@@ -10,8 +10,10 @@
   />
 
   @if (state().kind === 'ready') {
-    <h1 id="exam-analytics-heading" data-testid="exam-analytics-heading">{{ i18n.t('analytics.title') }}</h1>
-    <p>{{ i18n.t('analytics.intro') }}</p>
+    <header class="np-exam-analytics-header">
+      <h1 id="exam-analytics-heading" data-testid="exam-analytics-heading">{{ i18n.t('analytics.title') }}</h1>
+      <p>{{ i18n.t('analytics.intro') }}</p>
+    </header>
 
     @if (summary(); as overview) {
       @if (overview.attemptCount === 0) {
@@ -23,53 +25,56 @@
           />
         </div>
       } @else {
-        <form
-          class="np-exam-analytics-filters"
-          [attr.aria-label]="i18n.t('analytics.filtersLabel')"
-          (submit)="$event.preventDefault(); applyFilters()"
-        >
-          <np-date-control
-            controlId="analytics-from-filter"
-            [label]="i18n.t('analytics.fromDate')"
-            data-testid="analytics-from-filter"
-            [value]="draft().from"
-            (valueChange)="setDraftFilters({ from: $event })"
-          />
-          <np-date-control
-            controlId="analytics-to-filter"
-            [label]="i18n.t('analytics.toDate')"
-            data-testid="analytics-to-filter"
-            [value]="draft().to"
-            (valueChange)="setDraftFilters({ to: $event })"
-          />
-          <np-select-control
-            controlId="analytics-country-filter"
-            [label]="i18n.t('exams.countryFilter')"
-            data-testid="analytics-country-filter"
-            [options]="countryOptions()"
-            [value]="draft().countryId"
-            (valueChange)="setDraftFilters({ countryId: $event })"
-          />
-          <np-select-control
-            controlId="analytics-category-filter"
-            [label]="i18n.t('exams.categoryFilter')"
-            data-testid="analytics-category-filter"
-            [options]="categoryOptions()"
-            [value]="draft().categoryId"
-            (valueChange)="setDraftFilters({ categoryId: $event })"
-          />
-          @if (dateError() !== null) {
-            <p role="alert" data-testid="analytics-date-error">{{ dateError() }}</p>
-          }
-          <div class="np-exam-analytics-filter-actions">
-            <button type="submit" data-testid="analytics-apply">{{ i18n.t('analytics.applyFilters') }}</button>
-            <button type="button" data-testid="analytics-clear" (click)="clearFilters()">
-              {{ i18n.t('analytics.clearFilters') }}
-            </button>
-          </div>
-        </form>
+        <section class="np-exam-analytics-filter-panel" [attr.aria-label]="i18n.t('analytics.filtersLabel')">
+          <form
+            class="np-exam-analytics-filters"
+            (submit)="$event.preventDefault(); applyFilters()"
+          >
+            <div class="np-exam-analytics-filter-fields">
+              <np-date-control
+                controlId="analytics-from-filter"
+                [label]="i18n.t('analytics.fromDate')"
+                data-testid="analytics-from-filter"
+                [value]="draft().from"
+                (valueChange)="setDraftFilters({ from: $event })"
+              />
+              <np-date-control
+                controlId="analytics-to-filter"
+                [label]="i18n.t('analytics.toDate')"
+                data-testid="analytics-to-filter"
+                [value]="draft().to"
+                (valueChange)="setDraftFilters({ to: $event })"
+              />
+              <np-select-control
+                controlId="analytics-country-filter"
+                [label]="i18n.t('exams.countryFilter')"
+                data-testid="analytics-country-filter"
+                [options]="countryOptions()"
+                [value]="draft().countryId"
+                (valueChange)="setDraftFilters({ countryId: $event })"
+              />
+              <np-select-control
+                controlId="analytics-category-filter"
+                [label]="i18n.t('exams.categoryFilter')"
+                data-testid="analytics-category-filter"
+                [options]="categoryOptions()"
+                [value]="draft().categoryId"
+                (valueChange)="setDraftFilters({ categoryId: $event })"
+              />
+            </div>
+            @if (dateError() !== null) {
+              <p role="alert" data-testid="analytics-date-error">{{ dateError() }}</p>
+            }
+            <div class="np-exam-analytics-filter-actions">
+              <button type="button" data-testid="analytics-clear" (click)="clearFilters()">
+                {{ i18n.t('analytics.clearFilters') }}
+              </button>
+              <button type="submit" data-testid="analytics-apply">{{ i18n.t('analytics.applyFilters') }}</button>
+            </div>
+          </form>
+        </section>
 
-        <section aria-labelledby="analytics-overview-heading">
+        <section class="np-exam-analytics-overview-section" aria-labelledby="analytics-overview-heading">
           <h2 id="analytics-overview-heading">{{ i18n.t('analytics.overview') }}</h2>
           <dl class="np-exam-analytics-overview">
             <div>
@@ -119,7 +124,7 @@
           </dl>
         </section>
 
-        <section aria-labelledby="analytics-by-exam-heading">
+        <section class="np-exam-analytics-section" aria-labelledby="analytics-by-exam-heading">
           <h2 id="analytics-by-exam-heading">{{ i18n.t('analytics.byExam') }}</h2>
           @if (examSection() === 'loading') {
             <p role="status">{{ i18n.t('analytics.examSectionLoading') }}</p>
@@ -132,37 +137,46 @@
                 data-testid="analytics-exam-retry"
                 (click)="retryExamSection()"
               >
-                Retry
+                {{ i18n.t('exams.historyRetry') }}
               </button>
             </div>
           } @else if ((examPage()?.items.length ?? 0) === 0) {
             <p role="status">{{ i18n.t('analytics.noData') }}</p>
           } @else {
-            <ul class="np-exam-analytics-rows">
+            <div class="np-exam-analytics-table-wrap" role="region" tabindex="0" [attr.aria-label]="i18n.t('analytics.byExam')">
+              <table>
+                <thead><tr>
+                  <th scope="col">{{ i18n.t('analytics.examTitle') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.attempts') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.passRate') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.averageScore') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.bestScore') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.latestScore') }}</th>
+                </tr></thead>
+                <tbody>
+                  @for (row of examPage()?.items ?? []; track $index) {
+                    <tr data-testid="analytics-exam-row">
+                      <th scope="row">{{ row.examTitle }}</th>
+                      <td>{{ row.attemptCount }}</td>
+                      <td>{{ metric(row.passRate) }}</td>
+                      <td>{{ metric(row.averageScorePercentage) }}</td>
+                      <td>{{ metric(row.bestScorePercentage) }}</td>
+                      <td>{{ metric(row.latestScorePercentage) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <ul class="np-exam-analytics-mobile-cards">
               @for (row of examPage()?.items ?? []; track $index) {
-                <li data-testid="analytics-exam-row">
+                <li class="np-exam-analytics-mobile-card">
                   <h3>{{ row.examTitle }}</h3>
                   <dl>
-                    <div>
-                      <dt>{{ i18n.t('analytics.attempts') }}</dt>
-                      <dd>{{ row.attemptCount }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ i18n.t('analytics.passRate') }}</dt>
-                      <dd>{{ metric(row.passRate) }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ i18n.t('analytics.averageScore') }}</dt>
-                      <dd>{{ metric(row.averageScorePercentage) }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ i18n.t('analytics.bestScore') }}</dt>
-                      <dd>{{ metric(row.bestScorePercentage) }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ i18n.t('analytics.latestScore') }}</dt>
-                      <dd>{{ metric(row.latestScorePercentage) }}</dd>
-                    </div>
+                    <div><dt>{{ i18n.t('analytics.attempts') }}</dt><dd>{{ row.attemptCount }}</dd></div>
+                    <div><dt>{{ i18n.t('analytics.passRate') }}</dt><dd>{{ metric(row.passRate) }}</dd></div>
+                    <div><dt>{{ i18n.t('analytics.averageScore') }}</dt><dd>{{ metric(row.averageScorePercentage) }}</dd></div>
+                    <div><dt>{{ i18n.t('analytics.bestScore') }}</dt><dd>{{ metric(row.bestScorePercentage) }}</dd></div>
+                    <div><dt>{{ i18n.t('analytics.latestScore') }}</dt><dd>{{ metric(row.latestScorePercentage) }}</dd></div>
                   </dl>
                 </li>
               }
@@ -179,7 +193,8 @@
           }
         </section>
 
-        <section aria-labelledby="analytics-by-category-heading">
+        <div class="np-exam-analytics-lower-grid">
+        <section class="np-exam-analytics-section" aria-labelledby="analytics-by-category-heading">
           <h2 id="analytics-by-category-heading">{{ i18n.t('analytics.byCategory') }}</h2>
           @if (categorySection() === 'loading') {
             <p role="status">{{ i18n.t('analytics.categoryLoading') }}</p>
@@ -192,35 +207,43 @@
                 data-testid="analytics-category-retry"
                 (click)="retryCategorySection()"
               >
-                Retry
+                {{ i18n.t('exams.historyRetry') }}
               </button>
             </div>
           } @else if ((categoryPage()?.items.length ?? 0) === 0) {
             <p role="status">{{ i18n.t('analytics.noData') }}</p>
           } @else {
-            <ul class="np-exam-analytics-rows">
-              @for (row of categoryPage()?.items ?? []; track $index) {
-                <li data-testid="analytics-category-row">
-                  @if (row.categoryName !== null) {
-                    <h3>{{ row.categoryName }}</h3>
+            <div class="np-exam-analytics-table-wrap" role="region" tabindex="0" [attr.aria-label]="i18n.t('analytics.byCategory')">
+              <table>
+                <thead><tr>
+                  <th scope="col">{{ i18n.t('analytics.categoryName') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.attempts') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.passRate') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.averageScore') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.bestScore') }}</th>
+                </tr></thead>
+                <tbody>
+                  @for (row of categoryPage()?.items ?? []; track $index) {
+                    <tr data-testid="analytics-category-row">
+                      <th scope="row">{{ row.categoryName === null ? i18n.t('analytics.notAvailable') : row.categoryName }}</th>
+                      <td>{{ row.attemptCount }}</td>
+                      <td>{{ metric(row.passRate) }}</td>
+                      <td>{{ metric(row.averageScorePercentage) }}</td>
+                      <td>{{ metric(row.bestScorePercentage) }}</td>
+                    </tr>
                   }
+                </tbody>
+              </table>
+            </div>
+            <ul class="np-exam-analytics-mobile-cards">
+              @for (row of categoryPage()?.items ?? []; track $index) {
+                <li class="np-exam-analytics-mobile-card">
+                  <h3>{{ row.categoryName === null ? i18n.t('analytics.notAvailable') : row.categoryName }}</h3>
                   <dl>
-                    <div>
-                      <dt>{{ i18n.t('analytics.attempts') }}</dt>
-                      <dd>{{ row.attemptCount }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ i18n.t('analytics.passRate') }}</dt>
-                      <dd>{{ metric(row.passRate) }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ i18n.t('analytics.averageScore') }}</dt>
-                      <dd>{{ metric(row.averageScorePercentage) }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ i18n.t('analytics.bestScore') }}</dt>
-                      <dd>{{ metric(row.bestScorePercentage) }}</dd>
-                    </div>
+                    <div><dt>{{ i18n.t('analytics.attempts') }}</dt><dd>{{ row.attemptCount }}</dd></div>
+                    <div><dt>{{ i18n.t('analytics.passRate') }}</dt><dd>{{ metric(row.passRate) }}</dd></div>
+                    <div><dt>{{ i18n.t('analytics.averageScore') }}</dt><dd>{{ metric(row.averageScorePercentage) }}</dd></div>
+                    <div><dt>{{ i18n.t('analytics.bestScore') }}</dt><dd>{{ metric(row.bestScorePercentage) }}</dd></div>
                   </dl>
                 </li>
               }
@@ -230,14 +253,14 @@
               [page]="categoryPage()?.page ?? 1"
               [totalPages]="categoryPage()?.totalPages ?? 0"
               [totalCount]="categoryPage()?.totalCount ?? 0"
-              itemLabel="categories"
+              [itemLabel]="i18n.t('analytics.categoryItemLabel')"
               [ariaLabel]="i18n.t('analytics.categoryPagination')"
               (pageRequested)="loadCategoryPage($event)"
             />
           }
         </section>
 
-        <section aria-labelledby="analytics-trends-heading" data-testid="analytics-trends">
+        <section class="np-exam-analytics-section" aria-labelledby="analytics-trends-heading" data-testid="analytics-trends">
           <h2 id="analytics-trends-heading">{{ i18n.t('analytics.trends') }}</h2>
           @if (trendsSection() === 'loading') {
             <p role="status">{{ i18n.t('analytics.trendsLoading') }}</p>
@@ -245,35 +268,47 @@
             <div role="alert">
               <p>{{ i18n.t('analytics.trendsError') }}</p>
               <button type="button" class="np-exam-analytics-retry" data-testid="analytics-trends-retry" (click)="retryTrends()">
-                Retry
+                {{ i18n.t('exams.historyRetry') }}
               </button>
             </div>
           } @else if ((trends()?.length ?? 0) === 0) {
             <p role="status">{{ i18n.t('analytics.noData') }}</p>
           } @else {
-            <ul class="np-exam-analytics-rows">
+            <div class="np-exam-analytics-table-wrap" role="region" tabindex="0" [attr.aria-label]="i18n.t('analytics.trends')">
+              <table>
+                <thead><tr>
+                  <th scope="col">{{ i18n.t('analytics.month') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.attempts') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.averageScore') }}</th>
+                  <th scope="col">{{ i18n.t('analytics.passRate') }}</th>
+                </tr></thead>
+                <tbody>
+                  @for (point of trends() ?? []; track $index) {
+                    <tr data-testid="analytics-trend-point">
+                      <th scope="row">{{ point.bucketStart | date: 'MMMM y' }}</th>
+                      <td>{{ point.attemptCount }}</td>
+                      <td>{{ metric(point.averageScorePercentage) }}</td>
+                      <td>{{ metric(point.passRate) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <ul class="np-exam-analytics-mobile-cards">
               @for (point of trends() ?? []; track $index) {
-                <li data-testid="analytics-trend-point">
+                <li class="np-exam-analytics-mobile-card">
                   <h3>{{ point.bucketStart | date: 'MMMM y' }}</h3>
                   <dl>
-                    <div>
-                      <dt>{{ i18n.t('analytics.attempts') }}</dt>
-                      <dd>{{ point.attemptCount }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ i18n.t('analytics.averageScore') }}</dt>
-                      <dd>{{ metric(point.averageScorePercentage) }}</dd>
-                    </div>
-                    <div>
-                      <dt>{{ i18n.t('analytics.passRate') }}</dt>
-                      <dd>{{ metric(point.passRate) }}</dd>
-                    </div>
+                    <div><dt>{{ i18n.t('analytics.attempts') }}</dt><dd>{{ point.attemptCount }}</dd></div>
+                    <div><dt>{{ i18n.t('analytics.averageScore') }}</dt><dd>{{ metric(point.averageScorePercentage) }}</dd></div>
+                    <div><dt>{{ i18n.t('analytics.passRate') }}</dt><dd>{{ metric(point.passRate) }}</dd></div>
                   </dl>
                 </li>
               }
             </ul>
           }
         </section>
+        </div>
       }
     }
   }

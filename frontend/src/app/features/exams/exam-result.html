@@ -1,5 +1,5 @@
 <section class="np-exam-result" aria-labelledby="exam-result-heading">
-  <a [routerLink]="backPath" data-testid="exam-result-back">{{ i18n.t('result.backToExams') }}</a>
+  <a class="np-exam-result-back" [routerLink]="backPath" data-testid="exam-result-back">{{ i18n.t('result.backToExams') }}</a>
 
   <np-loading-error-retry
     [state]="state()"
@@ -17,40 +17,49 @@
         {{ i18n.t('result.notFinalized') }}
       </p>
     } @else if (result(); as loaded) {
-      <h1 id="exam-result-heading" data-testid="exam-result-heading">{{ i18n.t('result.title') }}</h1>
-      @if (loaded.examTitle !== null) {
-        <p data-testid="exam-result-title">{{ loaded.examTitle }}</p>
-      }
-      @if (statusLabel(); as status) {
-        <p role="status" data-testid="exam-result-status">{{ status }}</p>
-      }
-      <dl class="np-exam-result-summary">
+      <header class="np-exam-result-header">
         <div>
-          <dt>{{ i18n.t('result.score') }}</dt>
-          <dd data-testid="exam-result-score">{{ loaded.score }} {{ i18n.t('common.of') }} {{ loaded.maxScore }}</dd>
+          @if (loaded.examTitle !== null) {
+            <p data-testid="exam-result-title">{{ loaded.examTitle }}</p>
+          }
+          <h1 id="exam-result-heading" data-testid="exam-result-heading">{{ i18n.t('result.title') }}</h1>
         </div>
-        <div>
-          <dt>{{ i18n.t('result.maxScore') }}</dt>
-          <dd data-testid="exam-result-max">{{ loaded.maxScore }}</dd>
-        </div>
-        <div>
-          <dt>{{ i18n.t('result.percentage') }}</dt>
-          <dd data-testid="exam-result-percentage">{{ loaded.percentage }}%</dd>
-        </div>
-        <div>
-          <dt>{{ i18n.t('result.result') }}</dt>
-          <dd data-testid="exam-result-outcome">{{ loaded.passed ? i18n.t('result.passed') : i18n.t('result.notPassed') }}</dd>
-        </div>
-        <div>
-          <dt>{{ i18n.t('result.correctCount') }}</dt>
-          <dd data-testid="exam-result-correct">{{ loaded.correctCount }}</dd>
-        </div>
-        <div>
-          <dt>{{ i18n.t('result.questions') }}</dt>
-          <dd data-testid="exam-result-questions">{{ loaded.questionCount }}</dd>
-        </div>
-      </dl>
-      <a [routerLink]="reviewPath()" data-testid="exam-result-review">{{ i18n.t('exams.reviewAnswers') }}</a>
+        @if (statusLabel(); as status) {
+          <p role="status" data-testid="exam-result-status">{{ status }}</p>
+        }
+      </header>
+      <div class="np-exam-result-card">
+        <h2>{{ loaded.passed ? i18n.t('result.passed') : i18n.t('result.notPassed') }}</h2>
+        <dl class="np-exam-result-summary">
+          <div>
+            <dt>{{ i18n.t('result.score') }}</dt>
+            <dd data-testid="exam-result-score">{{ loaded.score }} {{ i18n.t('common.of') }} {{ loaded.maxScore }}</dd>
+          </div>
+          <div>
+            <dt>{{ i18n.t('result.maxScore') }}</dt>
+            <dd data-testid="exam-result-max">{{ loaded.maxScore }}</dd>
+          </div>
+          <div>
+            <dt>{{ i18n.t('result.percentage') }}</dt>
+            <dd data-testid="exam-result-percentage">{{ loaded.percentage }}%</dd>
+          </div>
+          <div>
+            <dt>{{ i18n.t('result.result') }}</dt>
+            <dd data-testid="exam-result-outcome">{{ loaded.passed ? i18n.t('result.passed') : i18n.t('result.notPassed') }}</dd>
+          </div>
+          <div>
+            <dt>{{ i18n.t('result.correctCount') }}</dt>
+            <dd data-testid="exam-result-correct">{{ loaded.correctCount }}</dd>
+          </div>
+          <div>
+            <dt>{{ i18n.t('result.questions') }}</dt>
+            <dd data-testid="exam-result-questions">{{ loaded.questionCount }}</dd>
+          </div>
+        </dl>
+      </div>
+      <div class="np-exam-result-actions">
+        <a [routerLink]="reviewPath()" data-testid="exam-result-review">{{ i18n.t('exams.reviewAnswers') }}</a>
+      </div>
     }
   }
 </section>

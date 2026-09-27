@@ -240,6 +240,30 @@ describe('ExamResult screen (T-FE-071)', () => {
     expect(body).not.toMatch(/startedAt|finalizedAt|20\d\d-/);
     expect(body).not.toMatch(/correct answer|answer key|rationale|explanation/i);
   });
+
+  it('groups backend aggregates into a result card with a contextual header and separate actions', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('.np-exam-result-header #exam-result-heading')?.textContent).toContain('Exam result');
+    expect(root.querySelector('.np-exam-result-header [data-testid="exam-result-title"]')?.textContent).toContain('NCLEX Readiness');
+    expect(root.querySelector('.np-exam-result-header [data-testid="exam-result-status"]')?.textContent).toContain('Completed');
+    expect(root.querySelector('.np-exam-result-card [data-testid="exam-result-outcome"]')?.textContent).toContain('Passed');
+    expect(root.querySelectorAll('.np-exam-result-card .np-exam-result-summary > div')).toHaveLength(6);
+    expect(root.querySelector('.np-exam-result-actions [data-testid="exam-result-review"]')).not.toBeNull();
+    expect(text(fixture)).not.toContain('Passing threshold');
+  });
+
+  it('shows backend zero aggregates rather than substituting Stitch example scores', async () => {
+    const stub = new ExamsApiStub();
+    stub.result = fullResult({ score: 0, maxScore: 80, percentage: 0, correctCount: 0, questionCount: 80, passed: false });
+    const { fixture } = await setup(stub);
+
+    expect(byTestId(fixture, 'exam-result-score')?.textContent?.trim()).toBe('0 of 80');
+    expect(byTestId(fixture, 'exam-result-percentage')?.textContent?.trim()).toBe('0%');
+    expect(byTestId(fixture, 'exam-result-correct')?.textContent?.trim()).toBe('0');
+    expect(text(fixture)).not.toContain('Passing threshold');
+  });
 });
 
 describe('ExamResult route', () => {

@@ -323,6 +323,31 @@ describe('ExamReview screen (T-FE-072)', () => {
     expect(element.querySelectorAll('input[type="radio"]')).toHaveLength(0);
     expect(element.querySelectorAll('input')).toHaveLength(0);
   });
+
+  it('renders finalized review in a single card with backend position, status, option labels and explanation', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('.np-exam-review-header [data-testid="exam-review-title"]')?.textContent).toContain('NCLEX Readiness');
+    expect(root.querySelector('.np-exam-review-card-header [data-testid="exam-review-position"]')?.textContent).toContain('Question 1 of 2');
+    expect(root.querySelector('.np-exam-review-card-header [data-testid="exam-review-status"]')?.textContent).toContain('Incorrect');
+    expect(root.querySelector('.np-exam-review-card-header [data-testid="exam-review-points"]')?.textContent).toContain('0 of 3');
+    expect([...root.querySelectorAll('.np-exam-review-options > li')].map((option) => option.textContent?.trim())).toEqual([
+      expect.stringContaining('First A'), expect.stringContaining('First B'),
+    ]);
+    expect(root.querySelector('.np-exam-review-explanation [data-testid="exam-review-explanation"]')?.textContent).toContain('Because safety comes first.');
+    expect(root.querySelector('.np-exam-review-card-footer [data-testid="exam-review-next"]')).not.toBeNull();
+    expect(root.querySelectorAll('.np-exam-review-card input')).toHaveLength(0);
+  });
+
+  it('does not mount review cards or correctness labels for an unfinished 409 session', async () => {
+    const stub = new ExamsApiStub();
+    stub.error = { status: 409 };
+    const { fixture } = await setup(stub);
+    expect(byTestId(fixture, 'exam-review-not-finalized')).not.toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.np-exam-review-card')).toBeNull();
+    expect(text(fixture)).not.toMatch(/Correct answer|Your answer|Explanation/);
+  });
 });
 
 describe('ExamReview route', () => {

@@ -2765,6 +2765,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: Result tests + per-screen visual evidence satisfied: 33/33 focused tests, 78/740 full suite, stylelint/deps/build/Storybook green, 6 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for submit/transient/entry/result/direct/reload/back/404/409/PackageAttempt-coexistence states. Prerequisite GATE-FE-T069 was VERIFIED before closeout, per DAG. T-FE-072/T-FE-074 remain NOT STARTED and unimplemented.
+- 2026-09-27 Flow 3 accepted-Stitch EXM-007 presentation alignment (`c605f30a477041d980c81114cc8a046a`): contextual heading/terminal status, backend aggregate-card and actions. No mock score, passing threshold, routes/API/TS/backend mutation or inline review disclosure; established T-FE-072 review CTA remains finalized-only. Combined result/review/session/API focused tests 94/94; stylelint, lint, production build and diff check pass (only existing bundle/SCSS budget warnings). HIGH verifier packet `EXAMS-FLOW3-V1-2026-09-27` complete-context continuation PASS (initial incomplete-context verdict superseded). Direct Stitch HTML inspected by primary; verifier could not directly view bodies, so pixel-level fidelity and new browser visual proof are not claimed. No Playwright MCP.
 
 ### `T-FE-072` — EXM-009 finalized exam answer review
 
@@ -2785,6 +2786,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 
 - status_result: `VERIFIED`
 - evidence_summary: Answer-review disclosure tests + per-screen visual evidence satisfied: 47/47 focused tests, 79/765 full suite, stylelint/deps/build/Storybook green, 7 Storybook stories, responsive/RTL-safe evidence, and populated real-backend browser evidence for result/entry/review/direct/reload/back/unanswered/404/409/PackageAttempt-coexistence/pre-finalization-rejection states. Prerequisite GATE-FE-T069 was VERIFIED before closeout, per DAG. T-FE-074 remains NOT STARTED and unimplemented.
+- 2026-09-27 Flow 3 accepted-Stitch EXM-009 presentation alignment (`9b3192df49d247398c0f9c4e4e1471b5`): backend-authorized finalized single-question review card with text correctness/selection cues, backend-verbatim explanation/points and local pager; test asserts unfinished 409 has no review card/content. No score/analytics/source/ID or route/API/TS/backend mutation. Shared Flow 3 94/94 focused checks + stylelint/lint/build/diff check PASS; independent HIGH packet `EXAMS-FLOW3-V1-2026-09-27` complete-context PASS with direct Stitch-body pixel comparison unavailable to verifier; no Playwright MCP.
 
 ### `T-FE-074` — EXM-008 historical exam analytics
 

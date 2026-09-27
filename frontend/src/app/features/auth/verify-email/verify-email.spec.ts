@@ -81,7 +81,7 @@ describe('AUTH-006 Verify Email', () => {
     const { fixture } = await setup(null);
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.np-verify-email-public-header')?.textContent).toContain('Nursing Platform');
-    expect(root.querySelector('.np-verify-email-card h1')?.textContent).toContain('Verify email');
+    expect(root.querySelector('h1')?.textContent).toContain('Verify email');
     expect(root.querySelector('.np-verify-email-context')).toBeNull();
     expect(root.querySelector('.np-verify-email-public-header a[href="/preparation-packages"]')).not.toBeNull();
     expect(root.querySelector('.np-verify-email-public-header a[href="/auth/sign-up"]')).not.toBeNull();

@@ -1,8 +1,17 @@
 <section class="np-access-denied" aria-labelledby="auth-access-denied-title">
   <header class="np-access-denied-public-header">
-    <span class="np-access-denied-product">Nursing Platform</span>
-    <a [routerLink]="publicOffersPath">Preparation Packages</a>
-    <a [routerLink]="signUpPath">Sign up</a>
+    <span class="np-access-denied-product">
+      <svg class="np-access-denied-brand-mark" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Nursing Platform
+    </span>
+    <nav aria-label="Public authentication navigation">
+      <a [routerLink]="publicOffersPath">Preparation Packages</a>
+      <a [routerLink]="signInPath">Sign in</a>
+      <a class="np-access-denied-nav-solid" [routerLink]="signUpPath">Sign up</a>
+    </nav>
   </header>
   <div class="np-access-denied-composition">
     <article class="np-access-denied-card">

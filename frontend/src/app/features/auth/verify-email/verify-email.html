@@ -1,36 +1,67 @@
 <section class="np-verify-email" aria-labelledby="auth-verify-email-title">
   <header class="np-verify-email-public-header">
-    <span class="np-verify-email-brand">Nursing Platform</span>
+    <span class="np-verify-email-brand">
+      <svg class="np-verify-email-brand-mark" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Nursing Platform
+    </span>
     <nav aria-label="Public authentication navigation">
       <a [routerLink]="publicOffersPath">Preparation Packages</a>
       <a [routerLink]="signInPath">Sign in</a>
-      <a [routerLink]="signUpPath">Sign up</a>
+      <a class="np-verify-email-nav-solid" [routerLink]="signUpPath">Sign up</a>
     </nav>
   </header>
   <div class="np-verify-email-composition">
+    <div class="np-verify-email-screen-header">
+      <h1 id="auth-verify-email-title">Verify email</h1>
+      <p>Email verification confirmation</p>
+    </div>
     <div class="np-verify-email-card">
-      <div class="np-verify-email-header">
-        <h1 id="auth-verify-email-title">Verify email</h1>
-        <p>Email verification confirmation</p>
-      </div>
-
       @if (tokenMissingMessage() !== '') {
+        <span class="np-verify-email-state-icon" aria-hidden="true">
+          <svg focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+        </span>
         <p class="np-verify-email-error" role="alert">{{ tokenMissingMessage() }}</p>
         <p class="np-verify-email-recovery">
           <a [routerLink]="signInPath">Back to sign in</a>
         </p>
       } @else if (loadingMessage() !== '') {
+        <span class="np-verify-email-state-icon" aria-hidden="true">
+          <svg focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </span>
         <p class="np-verify-email-loading" role="status" aria-live="polite" aria-busy="true">
           {{ loadingMessage() }}
         </p>
       } @else {
         @if (successMessage() !== '') {
+          <span class="np-verify-email-state-icon np-verify-email-state-icon-success" aria-hidden="true">
+            <svg focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </span>
           <p class="np-verify-email-success" role="status">{{ successMessage() }}</p>
           <p class="np-verify-email-recovery">
             <a [routerLink]="signInPath">Continue to sign in</a>
           </p>
         }
         @if (backendFailureMessage() !== '') {
+          <span class="np-verify-email-state-icon" aria-hidden="true">
+            <svg focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </span>
           <p class="np-verify-email-error" role="alert">{{ backendFailureMessage() }}</p>
           <p class="np-verify-email-recovery">
             <a [routerLink]="signInPath">Back to sign in</a>

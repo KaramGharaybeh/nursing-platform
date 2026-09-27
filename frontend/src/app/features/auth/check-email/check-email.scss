@@ -40,18 +40,36 @@
     font-weight: 600;
   }
 
-  a:last-child {
+  a:first-child {
+    padding-inline: 0;
+    color: #4f6473;
+    font-weight: 500;
+  }
+
+  .np-check-email-nav-solid {
     padding-inline: var(--np-space-16);
-    border: 1px solid #c9ddda;
-    border-radius: var(--np-space-12);
-    color: var(--np-color-brand-2);
-    text-decoration: none;
+    border-radius: 9999px;
+    background: var(--np-color-brand-1);
+    color: #fff;
   }
 }
 
 .np-check-email-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-8);
   font-size: 1.125rem;
   font-weight: 700;
+}
+
+.np-check-email-brand-mark {
+  box-sizing: border-box;
+  inline-size: var(--np-space-32);
+  block-size: var(--np-space-32);
+  padding: var(--np-space-8);
+  border-radius: var(--np-space-8);
+  background: var(--np-color-brand-1);
+  color: #fff;
 }
 
 .np-check-email-composition {
@@ -60,19 +78,19 @@
   display: grid;
   flex: 1;
   place-items: center;
-  padding: var(--np-space-24) var(--np-page-gutter);
+  padding: var(--np-space-48) var(--np-page-gutter);
 
   @include responsive.respond-from(tablet) {
-    padding-block: var(--np-space-48);
+    padding-block: var(--np-space-64);
   }
 }
 
 .np-check-email-card {
   box-sizing: border-box;
-  inline-size: min(100%, 448px);
+  inline-size: min(100%, 500px);
   display: grid;
   justify-items: center;
-  gap: var(--np-space-16);
+  gap: var(--np-space-24);
   padding: var(--np-space-24);
   border: 1px solid #c9ddda;
   border-radius: var(--np-space-16);
@@ -80,7 +98,9 @@
   text-align: center;
 
   @include responsive.respond-from(tablet) {
-    padding: var(--np-space-32);
+    padding: var(--np-space-40);
+    justify-items: start;
+    text-align: start;
   }
 }
 
@@ -97,8 +117,12 @@
 
 h1 {
   margin: 0;
-  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-size: 1.5rem;
   line-height: 1.3;
+
+  @include responsive.respond-from(tablet) {
+    font-size: 1.75rem;
+  }
 }
 
 .np-check-email-intro,
@@ -106,7 +130,12 @@ h1 {
 .np-check-email-sign-in {
   margin: 0;
   color: #4f6473;
+  font-size: 0.875rem;
   line-height: 1.5;
+
+  @include responsive.respond-from(tablet) {
+    font-size: 1rem;
+  }
 }
 
 .np-check-email-sign-in {
@@ -118,9 +147,15 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--np-space-12);
+  gap: var(--np-space-8);
+  border-radius: var(--np-space-24);
   background: var(--np-color-brand-1);
   color: #fff;
   font-weight: 600;
   text-decoration: none;
+}
+
+.np-check-email-sign-in-icon {
+  inline-size: var(--np-space-20);
+  block-size: var(--np-space-20);
 }

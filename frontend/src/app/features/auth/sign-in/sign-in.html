@@ -1,10 +1,16 @@
 <section class="np-sign-in" aria-labelledby="auth-sign-in-title">
   <header class="np-sign-in-public-header">
-    <span class="np-sign-in-brand">Nursing Platform</span>
+    <span class="np-sign-in-brand">
+      <svg class="np-sign-in-brand-mark" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Nursing Platform
+    </span>
     <nav aria-label="Public authentication navigation">
       <a [routerLink]="publicOffersPath">Preparation Packages</a>
-      <span aria-current="page">Sign in</span>
-      <a [routerLink]="signUpPath">Sign up</a>
+      <span class="np-sign-in-nav-current" aria-current="page">Sign in</span>
+      <a class="np-sign-in-nav-pill" [routerLink]="signUpPath">Sign up</a>
     </nav>
   </header>
   <div class="np-sign-in-composition">

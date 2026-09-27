@@ -35,13 +35,12 @@
     font-size: 0.875rem;
   }
 
-  nav span,
   nav a {
     display: inline-flex;
     align-items: center;
     min-block-size: var(--np-space-44);
-    color: var(--np-color-brand-2);
-    font-weight: 600;
+    color: #4f6473;
+    font-weight: 500;
     text-decoration: none;
   }
 
@@ -50,22 +49,46 @@
     border: 0;
   }
 
-  nav span {
+  .np-sign-in-nav-current {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--np-space-44);
     border-block-end: 2px solid var(--np-color-brand-1);
     color: var(--np-color-brand-1);
+    font-weight: 600;
+    text-decoration: none;
   }
 
-  nav a {
+  .np-sign-in-nav-pill {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--np-space-44);
     padding-inline: var(--np-space-16);
     border: 1px solid #c9ddda;
-    border-radius: var(--np-space-12);
+    border-radius: 9999px;
+    color: var(--np-color-brand-2);
+    font-weight: 600;
+    text-decoration: none;
   }
 }
 
 .np-sign-in-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-8);
   color: var(--np-color-brand-2);
   font-size: 1.125rem;
   font-weight: 700;
+}
+
+.np-sign-in-brand-mark {
+  box-sizing: border-box;
+  inline-size: var(--np-space-32);
+  block-size: var(--np-space-32);
+  padding: var(--np-space-8);
+  border-radius: var(--np-space-8);
+  background: var(--np-color-brand-1);
+  color: #fff;
 }
 
 .np-sign-in-composition {
@@ -74,10 +97,10 @@
   display: grid;
   flex: 1;
   place-items: center;
-  padding: var(--np-space-24) var(--np-page-gutter);
+  padding: var(--np-space-48) var(--np-page-gutter);
 
   @include responsive.respond-from(tablet) {
-    padding-block: var(--np-space-48);
+    padding-block: var(--np-space-64);
   }
 }
 
@@ -151,8 +174,8 @@ h1 {
   --mdc-filled-button-label-text-color: #fff;
 
   justify-self: stretch;
-  min-block-size: var(--np-space-52);
-  border-radius: var(--np-space-12);
+  min-block-size: var(--np-space-48);
+  border-radius: var(--np-space-24);
   font-weight: 600;
 
   @include mixins.touch-target(true);

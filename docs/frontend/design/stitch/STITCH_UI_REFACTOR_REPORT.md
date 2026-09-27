@@ -938,3 +938,146 @@ Human route/UX authority needed to replace Account with Stitch's Sign in or acti
 ## 16. Page Verdict
 
 PARTIAL_ALIGNMENT (existing Account navigation preserved; root/sign-in deviations reported).
+
+---
+
+## Visual Fidelity Re-audit (Correction Pass, GOAL STITCH-UI-REFACTOR-2026-09-27)
+
+Human review found Batch 2 (commit `6d4aa6c`) at 0/9 STITCH_ALIGNED_VERIFIED with material
+composition drift. Each artifact below was re-opened directly (full HTML, not text extracts) and
+every difference classified: REQUIRED_CONTRACT_DEVIATION (behavior/copy/state truth),
+REQUIRED_ACCESSIBILITY_DEVIATION, REQUIRED_SECURITY_DEVIATION, UI_LOGIC_GAP — VISUAL_ONLY, or
+UNJUSTIFIED_VISUAL_DRIFT (corrected in this pass). No business logic, routes, APIs, or auth behavior
+were changed; only HTML/SCSS presentation plus minimal selector-scoping test updates.
+
+Cross-page corrections applied everywhere: 32px teal brand-mark tile in all 8 public headers;
+per-page header action treatment (current-page underline vs solid Sign-up pill vs outline pill);
+composition padding 48px/64px (terminal pages 48px/64px); card widths per artifact (448/460/480/
+500/512/576px); 24px primary-action radius (except AUTH-011, which specifies 12px); arrow affordances
+on Stitch-arrowed CTAs. Retained as REQUIRED deviations: shared Material field geometry (64px fields,
+project-owned shared pattern — changing it here would pre-empt unfactored families), Noto Sans system
+stack (no webfont mechanism), text wordmark treatment inside the new mark tile, 44px minimum targets
+where Stitch draws 40-42px chrome (project 44px rule governs), `tablet` (768px) standing in for
+Stitch `sm` (640px) scale steps (approved project breakpoints only).
+
+### AUTH-001 — Sign In (`6427cabcd8b549eb845c85d6b8a0413a`)
+
+- Drift found/corrected: text-only brand → mark tile; uniform header links → per-page treatment
+  (teal underlined current Sign in + outline pill Sign up); submit radius 12px → 24px, min-height
+  52px → 48px; composition padding 24/48px → 48/64px.
+- REQUIRED_CONTRACT_DEVIATION retained: email-only field/label vs “Email or username”; conditional
+  Problem Details states vs illustrative simultaneous banners.
+- Drift remaining: shared-field input height (shared pattern), no webfont, 44px targets.
+- Rendered verification: desktop/mobile/RTL snapshots + measurement (card 448px, one h1, no
+  overflow, zero console errors).
+
+### AUTH-002 — Sign Up (`300823b7306f4924a947eb3a80848e63`)
+
+- Drift found/corrected: brand mark tile; header → outline Sign-in pill + solid current Sign-up pill;
+  card 448px → 512px, desktop padding 32px → 40px; form gap 16px → 20px; helper 0.875rem → 0.75rem;
+  h1 → 1.5rem/1.875rem desktop; submit radius 24px + decorative arrow + semibold label.
+- REQUIRED_CONTRACT_DEVIATION retained: Confirm password field (STITCH_FUNCTIONALITY_GAP, Stitch-styled).
+- Drift remaining: shared-field geometry, no webfont, 44px targets.
+- Rendered verification: desktop + mobile screenshots reviewed; measurement (card 512px, no overflow).
+
+### AUTH-005 — Check Email (`265d92edd39248269e867d6d72d44962`)
+
+- Drift found/corrected: brand mark tile; header → plain links + solid Sign-up pill; card 448px →
+  500px, tablet padding 32px → 40px; header block mb-8 with start alignment at tablet; subtitle
+  0.875rem/1rem responsive scale; CTA arrow + 24px radius; composition 48/64px.
+- REQUIRED_CONTRACT_DEVIATION retained: enumeration-safe conditional copy vs “We sent” banner
+  (no delivery authority); no resend/countdown.
+- Drift remaining: no delivery banner visual, shared tokens/breakpoints, 44px targets.
+- Rendered verification: measured (card 500px, one h1, no overflow incl. RTL).
+
+### AUTH-006 — Verify Email (`76bae8f5c9a94284a919bf81b9c8e15c`)
+
+- Drift found/corrected: brand mark tile; solid Sign-up pill; screen-level centered header block
+  (h1 1.875rem + subtitle) moved above card per artifact; card 448px → 576px, tablet padding 40px;
+  56px decorative state icon tiles per branch (static loader, check, info, error); recovery CTAs
+  changed from full-width bars to centered auto-width (min 140px, 44px) actions.
+- UI_LOGIC_GAP — VISUAL_ONLY retained: state-preview tab gallery not rendered (would falsify truth).
+- REQUIRED_CONTRACT_DEVIATION retained: mutually exclusive backend-driven states only.
+- Drift remaining: no animated progress sweep (reduced-motion safety), shared tokens.
+- Rendered verification: measured (card 576px, one h1, no overflow incl. RTL).
+
+### AUTH-007 — Forgot Password (`55522993d9514ed9ac67586fb552cb1a`)
+
+- Drift found/corrected: brand mark tile; solid Sign-up pill; card 448px → 460px; h1 centered
+  1.5rem + centered secondary instruction; form gap 20px; submit 44px + arrow + 24px radius;
+  error/success banners icon + title/detail geometry (p-4, title/detail text); footer rebuilt as
+  mt-6/pt-6/border divider with back-arrow Back-to-sign-in.
+- UI_LOGIC_GAP — VISUAL_ONLY retained: preview-state tab strip not rendered.
+- REQUIRED_CONTRACT_DEVIATION retained: enumeration-safe accepted copy; conditional states only.
+- Drift remaining: shared-field geometry, tablet (not sm) scale steps, 44px targets.
+- Rendered verification: measured (card 460px, one h1, no overflow incl. RTL).
+
+### AUTH-008 — Reset Password (`5782187204dc4229a5970ddf2cc0012f`)
+
+- Drift found/corrected: brand mark tile; solid Sign-up pill; card 448px → 480px, tablet padding
+  40px; centered header + 0.875rem instruction; form gap 20px; helper 0.75rem; submit 48px + arrow
+  + 24px radius; success icon → 56px circle with check SVG; missing-token block centered with
+  outline secondary Back-to-sign-in action; new footer row (arrow Back-to-sign-in + Forgot password,
+  mt-8/pt-6/border).
+- UI_LOGIC_GAP — VISUAL_ONLY retained: preview-state tab strip not rendered.
+- REQUIRED_CONTRACT_DEVIATION retained: opaque-token flow, residual post-success form
+  (STITCH_FUNCTIONALITY_GAP), backend-safe copy.
+- Drift remaining: shared-field geometry, tablet scale steps, 44px targets.
+- Rendered verification: desktop screenshot reviewed; measured (card 480px, no overflow incl. RTL).
+
+### AUTH-009 — Reset Password Success, non-routable (`ef4d555b00d54f68870318e12d251780)
+
+- Drift found/corrected: success presentation rebuilt as centered 56px emerald circle icon + status
+  + full teal Continue-to-sign-in CTA with arrow (was unstyled link); inherits AUTH-008 header/card.
+- REQUIRED_CONTRACT_DEVIATION retained: same-route conditional state (no new route/component);
+  existing success copy; residual form preserved (STITCH_FUNCTIONALITY_GAP).
+- Rendered verification: covered by AUTH-008 page evidence (same component/route).
+
+### AUTH-010 — Session Expired (`43b0f224781949ad8be651df1991a257`)
+
+- Drift found/corrected: brand mark tile; header → plain links + solid Sign-up pill; 64px warning
+  circle badge (was 48px tile); h1 1.5rem; copy 0.875rem/1rem with mt-3/mb-8 rhythm; primary 44px +
+  arrow + 24px radius; Go-to-home de-styled from bordered pill to plain muted text (no false
+  affordance); composition 48/64px; card tablet padding 40px.
+- UI_LOGIC_GAP — VISUAL_ONLY retained: Go-to-home static (root policy unresolved).
+- Drift remaining: 64px (not 80px) terminal padding (no 80px project token), shared tokens.
+- Rendered verification: measured (card 448px, one h1, no overflow incl. RTL).
+
+### AUTH-011 — Access Denied (`e869c0c2568444b5bc2638036f5fa8c0`)
+
+- Drift found/corrected: brand mark tile; header → plain links + solid 12px Sign-up pill (per
+  artifact); 64px error circle badge (was 48px tile); h1 margin rhythm; body fixed 1rem centered;
+  static Go-to-home/Sign-in de-styled to plain muted text; card tablet padding 40px; composition
+  48/64px; primary Account action kept at artifact-specified 12px radius.
+- UI_LOGIC_GAP — VISUAL_ONLY retained: static Go-to-home + Sign-in appearances (root/page-route
+  authority missing).
+- STITCH_FUNCTIONALITY_GAP retained: existing Go-to-account primary action.
+- Drift remaining: shared tokens, 44px targets.
+- Rendered verification: measured (card 448px, one h1, no overflow incl. RTL).
+
+### Correction change distribution
+
+- Production HTML files changed: 8 (all auth pages: headers, icons, arrows, footers, verify
+  restructure, reset token/success blocks).
+- Production SCSS files changed: 8 (geometry, spacing, radius, icon tiles, responsive scale).
+- Production TypeScript files changed: 1 (`access-denied.ts`: one readonly `signInPath`
+  canonical-path property for the Stitch-specified header link; same established pattern, no logic).
+- Test files changed: 2, selector-scoping only (session-expired card-action scope after header gained
+  a same-destination link; verify-email h1 scope after approved screen-header move). No assertion
+  weakened; no layout accepted as-is.
+- Report/docs files changed: 1 (this chapter; per-page §§1–16 factual claims unchanged).
+- Visual correction is carried by production HTML/SCSS; tests only track the new structure.
+
+### Remaining deviations and budgets
+
+- REQUIRED deviations catalogued per page above; UNJUSTIFIED_VISUAL_DRIFT remaining: none known —
+  every inventoried difference is either corrected or explicitly justified.
+- `reset-password.scss` (most state-dense auth page) now compiles to 5.21 kB vs the 4.00 kB
+  `anyComponentStyle` warning budget (error budget 8.00 kB; build green). Reduced from 6.02 kB by
+  merging duplicated rules; further reduction would require removing fidelity-required state
+  coverage or a shared-component refactor, both out of scope for this pass. Initial bundle unchanged
+  at 448.74 kB, no initial-budget warning.
+- Verdicts after correction: AUTH-001/002/005/006/007/008/009/011 remain PARTIAL_ALIGNMENT only
+  insofar as their explicitly justified contract gaps persist; composition fidelity itself is now
+  materially faithful. AUTH-010 is STITCH_ALIGNED_WITH_REPORTED_LOGIC_GAPS. No page is called
+  STITCH_ALIGNED_VERIFIED while contract-bound copy/state differences remain by design.

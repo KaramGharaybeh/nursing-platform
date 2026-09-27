@@ -42,7 +42,7 @@ describe('AUTH-010 Session Expired', () => {
     );
     expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Session expired');
     const signInLink = fixture.nativeElement.querySelector(
-      `a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
+      `.np-session-expired-action a[href="${canonicalRoutePath('AUTH_SIGN_IN')}"]`,
     ) as HTMLAnchorElement | null;
     expect(signInLink).not.toBeNull();
     expect(signInLink?.textContent).toContain('Sign in again');

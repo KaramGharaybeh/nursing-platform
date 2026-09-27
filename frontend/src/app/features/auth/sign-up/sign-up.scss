@@ -148,16 +148,6 @@ h1 {
   position: relative;
 }
 
-.np-sign-up-password-eye {
-  position: absolute;
-  inset-block-start: var(--np-space-36);
-  inset-inline-end: var(--np-space-16);
-  inline-size: var(--np-space-20);
-  block-size: var(--np-space-20);
-  color: #4f6473;
-  pointer-events: none;
-}
-
 .np-sign-up-error {
   margin: 0;
   color: #b3261e;
@@ -169,7 +159,6 @@ h1 {
 
   inline-size: 100%;
   min-block-size: var(--np-space-48);
-  border-radius: var(--np-space-24);
   font-weight: 600;
 }
 

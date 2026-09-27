@@ -10,15 +10,12 @@ import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { NpSelectControl } from '../../../shared/ui/form-controls';
 import type { NpSelectOption } from '../../../shared/ui/form-controls';
+import type { TranslationKey } from '../../../core/i18n/translations';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../shared/ui/loading-error-retry';
 
-const ROLE_OPTIONS: readonly NpSelectOption[] = Object.freeze([
-  { value: 'Nurse', label: 'Nurse' },
-  { value: 'Employer', label: 'Employer' },
-  { value: 'Expert', label: 'Expert' },
-  { value: 'Admin', label: 'Admin' },
-]);
+const ROLE_VALUES = Object.freeze(['Nurse', 'Employer', 'Expert', 'Admin'] as const);
 
 @Component({
   selector: 'np-admin-user-detail',
@@ -29,9 +26,17 @@ const ROLE_OPTIONS: readonly NpSelectOption[] = Object.freeze([
 export class AdminUserDetail implements OnInit {
   private readonly api = inject(AdminUsersApi);
   private readonly route = inject(ActivatedRoute);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly usersPath = canonicalRoutePath('ADMIN_USERS');
-  protected readonly roleOptions = ROLE_OPTIONS;
+  protected get roleOptions(): readonly NpSelectOption[] {
+    return [
+      { value: 'Nurse', label: this.i18n.t('adm.roleNurse') },
+      { value: 'Employer', label: this.i18n.t('adm.roleEmployer') },
+      { value: 'Expert', label: this.i18n.t('adm.roleExpert') },
+      { value: 'Admin', label: this.i18n.t('adm.roleAdmin') },
+    ];
+  }
   protected readonly roleControl = new FormControl('', { nonNullable: true, validators: [Validators.required] });
   protected readonly user = signal<UserDetailDto | undefined>(undefined);
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
@@ -53,13 +58,17 @@ export class AdminUserDetail implements OnInit {
     this.saveError.set('');
   }
 
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
+  }
+
   protected displayName(user: UserDetailDto): string {
     const name = `${user.firstName} ${user.lastName}`.trim();
-    return name === '' ? 'Name not provided' : name;
+    return name === '' ? this.i18n.t('adm.noName') : name;
   }
 
   protected displayRoles(user: UserDetailDto): string {
-    return user.roles.length > 0 ? user.roles.join(', ') : 'No role assigned';
+    return user.roles.length > 0 ? user.roles.join(', ') : this.i18n.t('adm.noRole');
   }
 
   protected async retry(): Promise<void> {
@@ -80,10 +89,10 @@ export class AdminUserDetail implements OnInit {
       const response = await firstValueFrom(this.api.updateRole(current.id, { roleName: this.roleValue }));
       this.user.set({ ...current, roles: response.roles });
       this.roleControl.setValue(response.roles[0] ?? this.roleValue);
-      this.saveStatus.set('Role updated successfully.');
+      this.saveStatus.set(this.i18n.t('adm.roleUpdated'));
     } catch (error: unknown) {
       const normalized = this.normalizeError(error);
-      this.saveError.set(normalized.detail.trim() !== '' ? normalized.detail : 'Role could not be updated.');
+      this.saveError.set(this.i18n.backendErrorCopy(normalized.detail, 'adm.roleUpdateFailed'));
     } finally {
       this.savePending.set(false);
     }
@@ -95,7 +104,7 @@ export class AdminUserDetail implements OnInit {
     try {
       const loaded = await firstValueFrom(this.api.get(userId));
       this.user.set(loaded);
-      this.roleControl.setValue(loaded.roles[0] ?? ROLE_OPTIONS[0]?.value ?? '');
+      this.roleControl.setValue(loaded.roles[0] ?? ROLE_VALUES[0] ?? '');
       this.state.set({ kind: 'ready' });
     } catch (error: unknown) {
       this.state.set({ kind: 'error', error: this.normalizeError(error), canRetry: true });

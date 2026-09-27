@@ -32,6 +32,11 @@ describe('LocaleDirectionService', () => {
   afterEach(() => {
     document.documentElement.lang = originalLang;
     document.documentElement.dir = originalDir;
+    localStorage.removeItem('np-locale');
+  });
+
+  beforeEach(() => {
+    localStorage.removeItem('np-locale');
   });
 
   it('uses en as the default locale', () => {
@@ -91,9 +96,9 @@ describe('LocaleDirectionService', () => {
     expect(document.documentElement.dir).toBe('ltr');
   });
 
-  it('maps both foundation locales to the approved temporary font stack', () => {
+  it('maps both foundation locales to approved font stacks', () => {
     expect(LOCALE_FONT_STACK['en']).toBe('system-ui, sans-serif');
-    expect(LOCALE_FONT_STACK['ar']).toBe('system-ui, sans-serif');
+    expect(LOCALE_FONT_STACK['ar']).toBe("'Noto Sans Arabic', 'Noto Sans', system-ui, sans-serif");
 
     TestBed.configureTestingModule({});
     const service = TestBed.inject(LocaleDirectionService);
@@ -102,17 +107,43 @@ describe('LocaleDirectionService', () => {
 
     service.setLocale('ar');
 
-    expect(service.fontStack()).toBe('system-ui, sans-serif');
+    expect(service.fontStack()).toBe("'Noto Sans Arabic', 'Noto Sans', system-ui, sans-serif");
+
+    service.setLocale('en');
+    localStorage.removeItem('np-locale');
   });
 
-  it('introduces no persistence mechanism', () => {
-    const source = readServiceSource();
+  it('persists the selected locale to local storage', () => {
+    TestBed.configureTestingModule({});
+    const service = TestBed.inject(LocaleDirectionService);
 
-    expect(source).not.toContain('localStorage');
-    expect(source).not.toContain('sessionStorage');
-    expect(source).not.toContain('document.cookie');
-    expect(source).not.toContain('IndexedDB');
-    expect(source).not.toContain('indexedDB');
+    service.setLocale('ar');
+
+    expect(localStorage.getItem('np-locale')).toBe('ar');
+
+    service.setLocale('en');
+
+    expect(localStorage.getItem('np-locale')).toBe('en');
+    localStorage.removeItem('np-locale');
+  });
+
+  it('restores a stored locale on startup and falls back to en otherwise', () => {
+    localStorage.setItem('np-locale', 'ar');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const restored = TestBed.inject(LocaleDirectionService);
+
+    expect(restored.locale()).toBe('ar');
+    expect(restored.direction()).toBe('rtl');
+
+    localStorage.setItem('np-locale', 'de');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const fallback = TestBed.inject(LocaleDirectionService);
+
+    expect(fallback.locale()).toBe('en');
+    expect(fallback.direction()).toBe('ltr');
+    localStorage.removeItem('np-locale');
   });
 
   it('introduces no CDK or Bidi dependency', () => {

@@ -8,6 +8,7 @@ import { normalizeProblemDetails } from '../../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../../core/api/problem-details';
 import { NpTextInputControl } from '../../../../shared/ui/form-controls';
 import { NpFormValidationSummary, toFormValidationSummary } from '../../../../shared/ui/form-validation';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../../shared/ui/loading-error-retry';
 
@@ -31,6 +32,7 @@ export function normalizeSkillForComparison(value: string): string {
 export class NurseSkills implements OnInit {
   private readonly api = inject(NurseProfileApi);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly savedSkills = signal<readonly string[]>([]);
@@ -45,8 +47,8 @@ export class NurseSkills implements OnInit {
 
   protected get validationSummary() {
     return toFormValidationSummary(this.saveError(), {
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'Your skills could not be saved.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('skills.formFallback'),
     });
   }
 
@@ -55,7 +57,7 @@ export class NurseSkills implements OnInit {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'Your skills could not be saved.';
+    return this.i18n.backendErrorCopy(error.detail, 'skills.formFallback');
   }
 
   ngOnInit(): void {
@@ -74,20 +76,20 @@ export class NurseSkills implements OnInit {
   protected addSkill(): void {
     const normalized = normalizeSkillName(this.skillInput());
     if (normalized === '') {
-      this.addError.set('Enter a skill name.');
+      this.addError.set(this.i18n.t('skills.enterName'));
       return;
     }
     if (normalized.length > MAX_SKILL_LENGTH) {
-      this.addError.set('Skill name must be at most 100 characters.');
+      this.addError.set(this.i18n.t('skills.nameMax'));
       return;
     }
     const comparison = normalizeSkillForComparison(normalized);
     if (this.draftSkills().some((skill) => normalizeSkillForComparison(skill) === comparison)) {
-      this.addError.set(`"${normalized}" has already been added.`);
+      this.addError.set(this.i18n.tp('skills.duplicate', { skill: normalized }));
       return;
     }
     if (this.draftSkills().length >= MAX_SKILLS) {
-      this.addError.set('A maximum of 50 skills can be saved.');
+      this.addError.set(this.i18n.tp('skills.capShort', { max: MAX_SKILLS }));
       return;
     }
     this.draftSkills.set([...this.draftSkills(), normalized]);
@@ -114,13 +116,15 @@ export class NurseSkills implements OnInit {
       const names = saved.map((skill) => skill.name);
       this.savedSkills.set(names);
       this.draftSkills.set(names);
-      this.announcer.announce('Skills saved.');
+      this.announcer.announce(this.i18n.t('skills.saved'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
-        this.notice.set('Your nurse profile no longer exists. Your skills were not saved.');
-        this.announcer.announce('Your nurse profile no longer exists.');
+        this.notice.set(this.i18n.t('skills.profileGone'));
+        this.announcer.announce(this.i18n.t('skills.profileGoneAnnounce'));
       } else {
-        this.saveError.set(normalizeProblemDetails(this.errorBody(error)));
+        this.saveError.set(
+          this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), {}),
+        );
       }
     } finally {
       this.isSaving.set(false);

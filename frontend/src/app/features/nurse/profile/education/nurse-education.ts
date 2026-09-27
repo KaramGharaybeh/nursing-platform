@@ -9,6 +9,7 @@ import type { CountryListItemDto } from '../../../../core/api/generated/models/c
 import type { NurseEducationDto } from '../../../../core/api/generated/models/nurse-education-dto';
 import { normalizeProblemDetails } from '../../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../../core/api/problem-details';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../../shared/ui/loading-error-retry';
 import { NurseEducationForm, type NurseEducationFormValue } from './nurse-education-form';
@@ -27,6 +28,7 @@ export class NurseEducation implements OnInit {
   private readonly api = inject(NurseProfileApi);
   private readonly countriesApi = inject(CountriesApi);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
   private readonly deleteConfirmation = new TwoStepConfirmation();
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
@@ -43,7 +45,7 @@ export class NurseEducation implements OnInit {
   protected readonly expandedDescriptions = signal<readonly string[]>([]);
 
   protected get formTitle(): string {
-    return this.view() === 'edit' ? 'Edit education' : 'Add education';
+    return this.view() === 'edit' ? this.i18n.t('edu.formTitleEdit') : this.i18n.t('edu.add');
   }
 
   protected get formInitial(): NurseEducationFormValue | undefined {
@@ -108,7 +110,7 @@ export class NurseEducation implements OnInit {
       await this.reloadRecords();
       this.editing.set(undefined);
       this.view.set('list');
-      this.announcer.announce('Education saved.');
+      this.announcer.announce(this.i18n.t('edu.saved'));
     } catch (error: unknown) {
       this.formError.set(normalizeProblemDetails(this.errorBody(error)));
     } finally {
@@ -138,13 +140,13 @@ export class NurseEducation implements OnInit {
       await this.reloadRecords();
       this.editing.set(undefined);
       this.view.set('list');
-      this.announcer.announce('Education saved.');
+      this.announcer.announce(this.i18n.t('edu.saved'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
         this.editing.set(undefined);
         this.view.set('list');
-        this.notice.set('This education record no longer exists. The list has been refreshed.');
-        this.announcer.announce('This education record no longer exists.');
+        this.notice.set(this.i18n.t('edu.goneNotice'));
+        this.announcer.announce(this.i18n.t('edu.goneAnnounce'));
         await this.reloadRecords();
       } else {
         this.formError.set(normalizeProblemDetails(this.errorBody(error)));
@@ -158,7 +160,7 @@ export class NurseEducation implements OnInit {
     this.deleteConfirmation.request();
     this.deleteTargetId.set(record.id);
     this.deleteError.set(undefined);
-    this.announcer.announce(`Confirm deletion of ${record.degree} at ${record.institutionName}?`);
+    this.announcer.announce(this.i18n.tp('edu.confirmDelete', { degree: record.degree, institution: record.institutionName }));
   }
 
   protected cancelDelete(): void {
@@ -178,15 +180,17 @@ export class NurseEducation implements OnInit {
     try {
       await firstValueFrom(this.api.deleteEducation(id));
       await this.reloadRecords();
-      this.announcer.announce('Education deleted.');
+      this.announcer.announce(this.i18n.t('edu.deleted'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
         await this.reloadRecords();
-        this.notice.set('That education record had already been removed. The list has been refreshed.');
-        this.announcer.announce('Education was already removed.');
+        this.notice.set(this.i18n.t('edu.alreadyRemoved'));
+        this.announcer.announce(this.i18n.t('edu.alreadyRemovedAnnounce'));
       } else {
         this.deleteTargetId.set(id);
-        this.deleteError.set(normalizeProblemDetails(this.errorBody(error)));
+        this.deleteError.set(
+          this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), {}),
+        );
       }
     } finally {
       this.deletingId.set(undefined);
@@ -217,7 +221,7 @@ export class NurseEducation implements OnInit {
       return `${start} → ${end}`;
     }
     if (start !== '') {
-      return `${start} → Present`;
+      return `${start} → ${this.i18n.t('edu.present')}`;
     }
     return end;
   }

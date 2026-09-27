@@ -46,7 +46,7 @@ describe('AUTH-010 Session Expired', () => {
     ) as HTMLAnchorElement | null;
     expect(signInLink).not.toBeNull();
     expect(signInLink?.textContent).toContain('Sign in again');
-    expect(fixture.nativeElement.querySelector('button')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.np-session-expired-card button')).toBeNull();
   });
 
   it('does not reference auth/session/token/current-user behavior', () => {

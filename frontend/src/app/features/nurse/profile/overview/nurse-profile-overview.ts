@@ -12,6 +12,7 @@ import type { NurseLanguageDto } from '../../../../core/api/generated/models/nur
 import type { NurseProfileDto } from '../../../../core/api/generated/models/nurse-profile-dto';
 import type { NurseSkillDto } from '../../../../core/api/generated/models/nurse-skill-dto';
 import { canonicalRoutePath } from '../../../../core/routing/canonical-routes';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 import { normalizeProblemDetails } from '../../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../../core/api/problem-details';
 import { RouterLink } from '@angular/router';
@@ -29,6 +30,7 @@ const MAX_CERTIFICATE_PREVIEWS = 2;
 export class NurseProfileOverview implements OnInit {
   private readonly api = inject(NurseProfileApi);
   private readonly currentUserStore = inject(CurrentUserStore);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly personalInformationPath = canonicalRoutePath('NURSE_PROFILE_PERSONAL_INFORMATION');
   protected readonly experiencePath = canonicalRoutePath('NURSE_PROFILE_EXPERIENCE');
@@ -57,8 +59,8 @@ export class NurseProfileOverview implements OnInit {
 
   protected get availabilityLabel(): string {
     return this.profile()?.isAvailableForRecruitment === true
-      ? 'Available for recruitment'
-      : 'Not available for recruitment';
+      ? this.i18n.t('profile.available')
+      : this.i18n.t('profile.notAvailable');
   }
 
   protected get latestExperience(): NurseExperienceDto | undefined {

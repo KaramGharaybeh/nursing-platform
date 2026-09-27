@@ -57,7 +57,7 @@ describe('Unified Sign Up', () => {
     const { fixture } = await setup();
     const root = fixture.nativeElement as HTMLElement;
     for (const id of ['auth-sign-up-email', 'auth-sign-up-username', 'auth-sign-up-password', 'auth-sign-up-confirm-password']) {
-      expect(root.querySelector(`label[for="${id}"] + input#${id}`)).not.toBeNull();
+      expect(root.querySelector(`label[for="${id}"] + .np-auth-field-control input#${id}`)).not.toBeNull();
     }
     expect(root.querySelector('.np-sign-up-form mat-form-field')).toBeNull();
     const helper = root.querySelector('#auth-sign-up-password-helper');
@@ -74,14 +74,27 @@ describe('Unified Sign Up', () => {
     expect(input(fixture, '#auth-sign-up-confirm-password').type).toBe('password');
   });
 
-  it('shows a non-operational password eye without changing password masking', async () => {
-    const { fixture } = await setup();
+  it('toggles password and confirm password independently without submitting registration', async () => {
+    const { fixture, api } = await setup();
     const root = fixture.nativeElement as HTMLElement;
-    const eye = root.querySelector('.np-sign-up-password-eye');
-    expect(eye).not.toBeNull();
-    expect(eye?.getAttribute('aria-hidden')).toBe('true');
-    expect(eye?.closest('button, a')).toBeNull();
-    expect(input(fixture, '#auth-sign-up-password').type).toBe('password');
+    const password = input(fixture, '#auth-sign-up-password');
+    const confirmation = input(fixture, '#auth-sign-up-confirm-password');
+    const buttons = root.querySelectorAll<HTMLButtonElement>('.np-auth-field-visibility');
+    expect(buttons).toHaveLength(2);
+    expect(Array.from(buttons).every((button) => button.type === 'button')).toBe(true);
+    buttons[0]?.click();
+    fixture.detectChanges();
+    expect(password.type).toBe('text');
+    expect(confirmation.type).toBe('password');
+    buttons[1]?.click();
+    fixture.detectChanges();
+    expect(confirmation.type).toBe('text');
+    buttons[0]?.click();
+    buttons[1]?.click();
+    fixture.detectChanges();
+    expect(password.type).toBe('password');
+    expect(confirmation.type).toBe('password');
+    expect(api.calls).toEqual([]);
   });
   it('renders exactly email, username, password, and confirm password fields with no role selector', async () => {
     const { fixture } = await setup();

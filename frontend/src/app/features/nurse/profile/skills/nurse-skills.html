@@ -1,8 +1,8 @@
 <section class="np-nurse-skills" aria-labelledby="nurse-skills-title">
   <np-live-region />
 
-  <p class="np-nurse-skills-kicker">Nurse profile</p>
-  <h1 id="nurse-skills-title">Skills</h1>
+  <p class="np-nurse-skills-kicker">{{ i18n.t('profile.kicker') }}</p>
+  <h1 id="nurse-skills-title">{{ i18n.t('skills.title') }}</h1>
 
   @if (notice() !== '') {
     <p class="np-nurse-skills-notice" role="status">{{ notice() }}</p>
@@ -10,8 +10,8 @@
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading your skills"
-    fallbackErrorTitle="Your skills could not be loaded"
+    [loadingLabel]="i18n.t('skills.loading')"
+    [fallbackErrorTitle]="i18n.t('skills.loadError')"
     (retryRequested)="retry()"
   />
 
@@ -27,7 +27,7 @@
     }
 
     @if (draftSkills().length === 0) {
-      <p class="np-nurse-skills-empty">No skills added yet. Add your professional and clinical skills below.</p>
+      <p class="np-nurse-skills-empty">{{ i18n.t('skills.empty') }}</p>
     } @else {
       <ul class="np-nurse-skills-list">
         @for (skill of draftSkills(); track skill) {
@@ -36,11 +36,11 @@
             <button
               mat-button
               type="button"
-              [attr.aria-label]="'Remove ' + skill"
+              [attr.aria-label]="i18n.tp('skills.removeSkill', { skill: skill })"
               [disabled]="isSaving()"
               (click)="removeSkill(skill)"
             >
-              Remove
+              {{ i18n.t('skills.remove') }}
             </button>
           </li>
         }
@@ -50,13 +50,13 @@
     <form class="np-nurse-skills-add" (ngSubmit)="addSkill()" novalidate>
       <np-text-input-control
         controlId="nurse-skills-input"
-        label="Add a skill"
+        [label]="i18n.t('skills.addLabel')"
         type="text"
         [required]="false"
         [disabled]="isSaving() || draftSkills().length >= maxSkills"
         [value]="skillInput()"
         [errorText]="addError()"
-        helperText="For example, Triage or Wound Care. Saving replaces the whole collection."
+        [helperText]="i18n.t('skills.addHelper')"
         (valueChange)="updateInput($event)"
       />
       <button
@@ -66,11 +66,11 @@
         data-testid="add-skill"
         [disabled]="isSaving() || draftSkills().length >= maxSkills"
       >
-        Add skill
+        {{ i18n.t('skills.addAction') }}
       </button>
     </form>
     @if (draftSkills().length >= maxSkills) {
-      <p class="np-nurse-skills-cap">A maximum of 50 skills can be saved. Remove one to add another.</p>
+      <p class="np-nurse-skills-cap">{{ i18n.tp('skills.cap', { max: maxSkills }) }}</p>
     }
 
     <div class="np-nurse-skills-actions">
@@ -82,9 +82,9 @@
         [disabled]="isSaving()"
         (click)="save()"
       >
-        Save
+        {{ i18n.t('skills.save') }}
       </button>
-      <button mat-button type="button" [disabled]="isSaving()" (click)="cancel()">Cancel</button>
+      <button mat-button type="button" [disabled]="isSaving()" (click)="cancel()">{{ i18n.t('skills.cancel') }}</button>
     </div>
   }
 </section>

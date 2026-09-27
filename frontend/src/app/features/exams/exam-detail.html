@@ -1,17 +1,17 @@
 <section class="np-exam-detail" aria-labelledby="exam-detail-title">
-  <a [routerLink]="backPath" data-testid="exam-back-link">Back to exams</a>
+  <a [routerLink]="backPath" data-testid="exam-back-link">{{ i18n.t('exams.backToExams') }}</a>
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading exam"
-    fallbackErrorTitle="Exam could not be loaded"
+    [loadingLabel]="i18n.t('exams.detailLoading')"
+    [fallbackErrorTitle]="i18n.t('exams.detailLoadError')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (notFound()) {
       <p role="status" data-testid="exam-missing-notice">
-        This exam is no longer available. It may have been removed, or the link is incorrect.
+        {{ i18n.t('exams.missing') }}
       </p>
     } @else if (exam(); as detail) {
       <h1 id="exam-detail-title">{{ detail.title }}</h1>
@@ -20,23 +20,23 @@
       }
       <dl class="np-exam-detail-facts">
         @if (hasCountry()) {
-          <div><dt>Country</dt><dd>{{ detail.countryName }}</dd></div>
+          <div><dt>{{ i18n.t('exams.country') }}</dt><dd>{{ detail.countryName }}</dd></div>
         }
         @if (hasCategory()) {
-          <div><dt>Exam category</dt><dd>{{ detail.categoryName }}</dd></div>
+          <div><dt>{{ i18n.t('exams.category') }}</dt><dd>{{ detail.categoryName }}</dd></div>
         }
-        <div><dt>Duration</dt><dd>{{ detail.durationMinutes }} minutes</dd></div>
-        <div><dt>Questions</dt><dd>{{ detail.questionCount }} questions</dd></div>
-        <div><dt>Passing score</dt><dd>{{ detail.passingScorePercentage }}%</dd></div>
+        <div><dt>{{ i18n.t('exams.duration') }}</dt><dd>{{ detail.durationMinutes }} {{ i18n.t('exams.minutes') }}</dd></div>
+        <div><dt>{{ i18n.t('exams.questions') }}</dt><dd>{{ detail.questionCount }} {{ i18n.t('exams.questions') }}</dd></div>
+        <div><dt>{{ i18n.t('exams.passingScore') }}</dt><dd>{{ detail.passingScorePercentage }}%</dd></div>
       </dl>
       @if (hasInstructions()) {
-        <h2>Instructions</h2>
+        <h2>{{ i18n.t('exams.instructionsHeading') }}</h2>
         <p class="np-exam-detail-instructions">{{ detail.instructions }}</p>
       }
       @if (isStartable()) {
-        <a [routerLink]="instructionsPath()" data-testid="exam-instructions-link">View instructions</a>
+        <a [routerLink]="instructionsPath()" data-testid="exam-instructions-link">{{ i18n.t('exams.viewInstructions') }}</a>
       } @else if (requiresPurchase()) {
-        <p role="status" data-testid="exam-requires-purchase">Requires purchase</p>
+        <p role="status" data-testid="exam-requires-purchase">{{ i18n.t('exams.requiresPurchase') }}</p>
       }
     }
   }

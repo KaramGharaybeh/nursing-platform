@@ -1,0 +1,14 @@
+<div class="np-language-switcher" role="group" [attr.aria-label]="i18n.t('switcher.label')">
+  @for (locale of options; track locale) {
+    <button
+      class="np-language-switcher-option"
+      [class.np-language-switcher-option-active]="isActive(locale)"
+      type="button"
+      [attr.aria-pressed]="isActive(locale)"
+      [attr.lang]="locale"
+      (click)="switchLocale(locale)"
+    >
+      {{ labelFor(locale) }}
+    </button>
+  }
+</div>

@@ -1,14 +1,15 @@
 @if (controlKind === 'input') {
-  <mat-form-field class="np-standard-field" appearance="outline" subscriptSizing="fixed">
-    <mat-label>
+  <div class="np-standard-control">
+    <label class="np-standard-control-label" [for]="controlId">
       {{ label }}
       @if (requirementLabel !== undefined) {
         <span class="np-standard-control-optional">{{ requirementLabel }}</span>
       }
-    </mat-label>
+      @if (required) { <span class="np-standard-control-required" aria-hidden="true">*</span> }
+    </label>
     <input
       class="np-standard-field-native"
-      matInput
+      [class.np-standard-control-invalid]="hasError"
       [id]="controlId"
       [type]="type"
       [value]="value"
@@ -21,23 +22,24 @@
       (input)="updateTextValue($any($event.target).value)"
     />
     @if (hasHelper) {
-      <mat-hint [id]="helperId" align="start">{{ helperText }}</mat-hint>
+      <p class="np-standard-control-helper" [id]="helperId">{{ helperText }}</p>
     }
     @if (hasError) {
-      <mat-hint [id]="errorId" align="end" class="np-standard-control-error">{{ errorText }}</mat-hint>
+      <p class="np-standard-control-error" [id]="errorId">{{ errorText }}</p>
     }
-  </mat-form-field>
+  </div>
 } @else if (controlKind === 'textarea') {
-  <mat-form-field class="np-standard-field np-standard-textarea" appearance="outline" subscriptSizing="fixed">
-    <mat-label>
+  <div class="np-standard-control np-standard-textarea">
+    <label class="np-standard-control-label" [for]="controlId">
       {{ label }}
       @if (requirementLabel !== undefined) {
         <span class="np-standard-control-optional">{{ requirementLabel }}</span>
       }
-    </mat-label>
+      @if (required) { <span class="np-standard-control-required" aria-hidden="true">*</span> }
+    </label>
     <textarea
       class="np-standard-field-native"
-      matInput
+      [class.np-standard-control-invalid]="hasError"
       [id]="controlId"
       [rows]="rows"
       [value]="value"
@@ -50,20 +52,23 @@
       (input)="updateTextValue($any($event.target).value)"
     ></textarea>
     @if (hasHelper) {
-      <mat-hint [id]="helperId" align="start">{{ helperText }}</mat-hint>
+      <p class="np-standard-control-helper" [id]="helperId">{{ helperText }}</p>
     }
     @if (hasError) {
-      <mat-hint [id]="errorId" align="end" class="np-standard-control-error">{{ errorText }}</mat-hint>
+      <p class="np-standard-control-error" [id]="errorId">{{ errorText }}</p>
     }
-  </mat-form-field>
+  </div>
 } @else if (controlKind === 'select') {
-  <mat-form-field class="np-standard-field" appearance="outline" subscriptSizing="fixed">
-    <mat-label>
+  <div class="np-standard-control">
+    <span class="np-standard-control-label" [id]="controlId + '-label'">
       {{ label }}
       @if (requirementLabel !== undefined) {
         <span class="np-standard-control-optional">{{ requirementLabel }}</span>
       }
-    </mat-label>
+      @if (required) { <span class="np-standard-control-required" aria-hidden="true">*</span> }
+    </span>
+    <mat-form-field class="np-standard-field np-standard-select" appearance="outline" subscriptSizing="dynamic">
+    <mat-label>{{ label }}</mat-label>
     <mat-select
       [id]="controlId"
       [value]="value"
@@ -79,13 +84,14 @@
         <mat-option [value]="option.value" [disabled]="option.disabled === true">{{ option.label }}</mat-option>
       }
     </mat-select>
+    </mat-form-field>
     @if (hasHelper) {
-      <mat-hint [id]="helperId" align="start">{{ helperText }}</mat-hint>
+      <p class="np-standard-control-helper" [id]="helperId">{{ helperText }}</p>
     }
     @if (hasError) {
-      <mat-hint [id]="errorId" align="end" class="np-standard-control-error">{{ errorText }}</mat-hint>
+      <p class="np-standard-control-error" [id]="errorId">{{ errorText }}</p>
     }
-  </mat-form-field>
+  </div>
 } @else if (controlKind === 'checkbox') {
   <div class="np-standard-selection-control">
     <mat-checkbox
@@ -143,16 +149,17 @@
     </div>
   </fieldset>
 } @else if (controlKind === 'date') {
-  <mat-form-field class="np-standard-field" appearance="outline" subscriptSizing="fixed">
-    <mat-label>
+  <div class="np-standard-control">
+    <label class="np-standard-control-label" [for]="controlId">
       {{ label }}
       @if (requirementLabel !== undefined) {
         <span class="np-standard-control-optional">{{ requirementLabel }}</span>
       }
-    </mat-label>
+      @if (required) { <span class="np-standard-control-required" aria-hidden="true">*</span> }
+    </label>
     <input
       class="np-standard-field-native"
-      matInput
+      [class.np-standard-control-invalid]="hasError"
       [id]="controlId"
       type="date"
       [value]="value"
@@ -165,10 +172,10 @@
       (change)="updateTextValue($any($event.target).value)"
     />
     @if (hasHelper) {
-      <mat-hint [id]="helperId" align="start">{{ helperText }}</mat-hint>
+      <p class="np-standard-control-helper" [id]="helperId">{{ helperText }}</p>
     }
     @if (hasError) {
-      <mat-hint [id]="errorId" align="end" class="np-standard-control-error">{{ errorText }}</mat-hint>
+      <p class="np-standard-control-error" [id]="errorId">{{ errorText }}</p>
     }
-  </mat-form-field>
+  </div>
 }

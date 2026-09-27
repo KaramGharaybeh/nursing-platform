@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 // @ts-expect-error - Vitest runs in Node; node builtins resolve at runtime.
 import { join } from 'node:path';
 import { AuthTransport } from '../../../core/api/auth-transport';
+import { LocaleDirectionService } from '../../../core/locale/locale-direction.service';
 import type { AuthResult } from '../../../core/api/generated/models/auth-result';
 import type { LoginCommand } from '../../../core/api/generated/models/login-command';
 import { AuthSessionBootstrap } from '../../../core/auth/auth-session-bootstrap';
@@ -174,7 +175,7 @@ describe('AUTH-001 Sign In', () => {
     const { fixture } = await setup();
     const root = fixture.nativeElement as HTMLElement;
     for (const id of ['auth-sign-in-email', 'auth-sign-in-password']) {
-      expect(root.querySelector(`label[for="${id}"] + input#${id}`)).not.toBeNull();
+      expect(root.querySelector(`label[for="${id}"] + .np-auth-field-control input#${id}`)).not.toBeNull();
     }
     expect(root.querySelector('.np-sign-in-form mat-form-field')).toBeNull();
   });
@@ -189,16 +190,48 @@ describe('AUTH-001 Sign In', () => {
     expect(root.querySelector('.np-sign-in-context')).toBeNull();
     expect(root.querySelector('.np-sign-in-public-header a[href="/preparation-packages"]')).not.toBeNull();
     expect(root.querySelector('.np-sign-in-card a[href="/auth/sign-up"]')).not.toBeNull();
+    expect(root.querySelector('header.np-sign-in-public-header np-language-switcher')).not.toBeNull();
   });
 
-  it('shows the Stitch password-eye appearance as non-operational decoration without exposing the password', async () => {
+  it('renders Arabic copy with RTL document state after switching locale, then restores English', async () => {
     const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+    const locale = TestBed.inject(LocaleDirectionService);
+
+    locale.setLocale('ar');
+    fixture.detectChanges();
+
+    expect(root.querySelector('.np-sign-in-card h1')?.textContent).toContain('تسجيل الدخول');
+    expect(document.documentElement.lang).toBe('ar');
+    expect(document.documentElement.dir).toBe('rtl');
+
+    locale.setLocale('en');
+    fixture.detectChanges();
+
+    expect(root.querySelector('.np-sign-in-card h1')?.textContent).toContain('Sign in');
+    expect(document.documentElement.lang).toBe('en');
+    expect(document.documentElement.dir).toBe('ltr');
+    localStorage.removeItem('np-locale');
+  });
+
+  it('toggles password visibility without submitting or changing the credentials', async () => {
+    const { fixture, authTransport } = await setup();
     const wrapper = (fixture.nativeElement as HTMLElement).querySelector('.np-sign-in-password-field');
-    const eye = wrapper?.querySelector('.np-sign-in-password-eye');
-    expect(eye).not.toBeNull();
-    expect(eye?.getAttribute('aria-hidden')).toBe('true');
-    expect(eye?.closest('button, a')).toBeNull();
-    expect(input(fixture, '#auth-sign-in-password').type).toBe('password');
+    const button = wrapper?.querySelector<HTMLButtonElement>('.np-auth-field-visibility');
+    const password = input(fixture, '#auth-sign-in-password');
+    password.value = 'SecurePass1';
+    password.dispatchEvent(new Event('input'));
+    expect(button?.type).toBe('button');
+    expect(button?.getAttribute('aria-label')).toBe('Show password');
+    button?.click();
+    fixture.detectChanges();
+    expect(password.type).toBe('text');
+    expect(password.value).toBe('SecurePass1');
+    expect(button?.getAttribute('aria-label')).toBe('Hide password');
+    button?.click();
+    fixture.detectChanges();
+    expect(password.type).toBe('password');
+    expect(authTransport.loginCalls).toEqual([]);
   });
 
   it('renders backend-authorized required validation messages and guards submission', async () => {

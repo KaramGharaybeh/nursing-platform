@@ -5,6 +5,7 @@ import { ExamsApi } from '../../core/api/exams-api';
 import type { ExamDetail as ExamDetailModel } from '../../core/api/exams-api';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { buildExamsInstructionsPath, canonicalRoutePath } from '../../core/routing/canonical-routes';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
@@ -18,6 +19,7 @@ import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry
 export class ExamDetail implements OnInit {
   private readonly api = inject(ExamsApi);
   private readonly route = inject(ActivatedRoute);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly backPath = canonicalRoutePath('EXAMS_CATALOG');
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });

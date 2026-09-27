@@ -1,13 +1,13 @@
 <section class="np-offers-list" aria-labelledby="offers-title">
   <np-live-region />
 
-  <h1 id="offers-title">Preparation packages</h1>
-  <p class="np-offers-list-lead">Browse preparation packages currently available.</p>
+  <h1 id="offers-title">{{ i18n.t('pp.listTitle') }}</h1>
+  <p class="np-offers-list-lead">{{ i18n.t('pp.listLead') }}</p>
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading preparation packages"
-    fallbackErrorTitle="Preparation packages could not be loaded"
+    [loadingLabel]="i18n.t('pp.listLoading')"
+    [fallbackErrorTitle]="i18n.t('pp.listLoadError')"
     (retryRequested)="retry()"
   />
 
@@ -15,8 +15,8 @@
     @if (listState() === 'empty') {
       <np-empty-state
         kind="empty"
-        title="No preparation packages available."
-        description="There are no preparation packages to show right now. Please check back later."
+        [title]="i18n.t('pp.emptyTitle')"
+        [description]="i18n.t('pp.emptyText')"
       />
     } @else {
       <ul class="np-offers-list-items">
@@ -30,8 +30,8 @@
         [page]="page()"
         [totalPages]="result()?.totalPages ?? 0"
         [totalCount]="result()?.totalCount ?? 0"
-        itemLabel="packages"
-        ariaLabel="Preparation packages pagination"
+        [itemLabel]="i18n.t('pp.itemLabel')"
+        [ariaLabel]="i18n.t('pp.paginationLabel')"
         (pageRequested)="loadPage($event)"
       />
     }

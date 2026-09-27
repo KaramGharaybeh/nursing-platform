@@ -1,5 +1,5 @@
 <div class="np-app-shell">
-  <a class="np-app-shell-skip-link" href="#main-content">Skip to content</a>
+  <a class="np-app-shell-skip-link" href="#main-content">{{ i18n.t('shell.skipLink') }}</a>
   @if (showAuthenticatedShell()) {
     <np-authenticated-app-shell [navigationItems]="primaryNavigationItems()" />
   }
@@ -7,7 +7,7 @@
     <np-loading-error-retry
       data-testid="route-loading"
       [state]="{ kind: 'loading' }"
-      loadingLabel="Loading page"
+      [loadingLabel]="i18n.t('shell.routeLoading')"
     />
   }
   <main id="main-content" tabindex="-1">

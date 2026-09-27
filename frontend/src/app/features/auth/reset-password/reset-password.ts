@@ -6,7 +6,9 @@ import { firstValueFrom } from 'rxjs';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { AuthTextField } from '../auth-text-field/auth-text-field';
+import { NpLanguageSwitcher } from '../../../shared/ui/language-switcher';
 import {
   NpFormValidationSummary,
   toFieldErrorText,
@@ -19,20 +21,15 @@ type ResetPasswordForm = FormGroup<{
   newPassword: FormControl<string>;
 }>;
 
-const FIELD_LABELS = Object.freeze({
-  Email: 'Email address',
-  NewPassword: 'New password',
-});
+const FIELD_LABEL_KEYS = Object.freeze({
+  Email: 'auth.emailLabel',
+  NewPassword: 'reset.newPasswordLabel',
+} as const);
 
 const CONTROL_IDS = Object.freeze({
   Email: 'auth-reset-password-email',
   NewPassword: 'auth-reset-password-new-password',
 });
-
-const MISSING_TOKEN_MESSAGE =
-  'This reset link is invalid or missing. Request a new reset link to continue.';
-
-const SUCCESS_MESSAGE = 'Password has been reset successfully.';
 
 @Component({
   selector: 'np-reset-password',
@@ -40,6 +37,7 @@ const SUCCESS_MESSAGE = 'Password has been reset successfully.';
     MatButtonModule,
     NpFormValidationSummary,
     AuthTextField,
+    NpLanguageSwitcher,
     ReactiveFormsModule,
     RouterLink,
   ],
@@ -49,6 +47,7 @@ const SUCCESS_MESSAGE = 'Password has been reset successfully.';
 export class ResetPassword implements AfterViewInit {
   private readonly resetPasswordApi = inject(ResetPasswordApi);
   private readonly host = inject(ElementRef);
+  protected readonly i18n = inject(LocalizationService);
   private readonly resetToken: string =
     (inject(ActivatedRoute).snapshot.queryParamMap.get('token') ?? '').trim();
 
@@ -85,15 +84,18 @@ export class ResetPassword implements AfterViewInit {
   protected readonly isTokenMissing = computed(() => this.resetToken === '');
 
   protected readonly tokenMissingMessage = computed(() =>
-    this.isTokenMissing() ? MISSING_TOKEN_MESSAGE : '',
+    this.isTokenMissing() ? this.i18n.t('reset.missing') : '',
   );
 
   protected readonly validationSummary = computed(() =>
     toFormValidationSummary(this.normalizedError(), {
-      fieldLabels: FIELD_LABELS,
+      fieldLabels: {
+        Email: this.i18n.t(FIELD_LABEL_KEYS.Email),
+        NewPassword: this.i18n.t(FIELD_LABEL_KEYS.NewPassword),
+      },
       controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'The password could not be reset.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('reset.formFallback'),
     }),
   );
 
@@ -102,7 +104,7 @@ export class ResetPassword implements AfterViewInit {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'The password could not be reset.';
+    return this.i18n.backendErrorCopy(error.detail, 'reset.formFallback');
   });
 
   protected get emailValue(): string {
@@ -157,9 +159,11 @@ export class ResetPassword implements AfterViewInit {
           newPassword: this.newPasswordValue,
         }),
       );
-      this.successMessage.set(SUCCESS_MESSAGE);
+      this.successMessage.set(this.i18n.t('reset.success'));
     } catch (error: unknown) {
-      this.normalizedError.set(normalizeProblemDetails(this.errorBody(error)));
+      this.normalizedError.set(
+        this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), FIELD_LABEL_KEYS),
+      );
       this.form.enable({ emitEvent: false });
     } finally {
       this.isSubmitting.set(false);
@@ -172,26 +176,26 @@ export class ResetPassword implements AfterViewInit {
     const passwordControl = this.form.controls.newPassword;
 
     if (emailControl.hasError('required')) {
-      errors['Email'] = ["'Email' must not be empty."];
+      errors['Email'] = [this.i18n.t('auth.emailEmpty')];
     } else if (emailControl.hasError('email')) {
-      errors['Email'] = ["'Email' is not a valid email address."];
+      errors['Email'] = [this.i18n.t('auth.emailInvalid')];
     }
 
     if (passwordControl.hasError('required')) {
-      errors['NewPassword'] = ["'New Password' must not be empty."];
+      errors['NewPassword'] = [this.i18n.t('reset.newPasswordEmpty')];
     } else if (passwordControl.hasError('minlength')) {
-      errors['NewPassword'] = ["'New Password' must be at least 8 characters."];
+      errors['NewPassword'] = [this.i18n.t('reset.newPasswordMin')];
     } else if (passwordControl.hasError('pattern')) {
       const value = this.newPasswordValue;
       errors['NewPassword'] = !/[A-Z]/.test(value)
-        ? ['Password must contain at least one uppercase letter.']
-        : ['Password must contain at least one digit.'];
+        ? [this.i18n.t('auth.passwordUpper')]
+        : [this.i18n.t('auth.passwordDigit')];
     }
 
     return {
       kind: 'validation',
       type: '',
-      title: 'Validation failed',
+      title: this.i18n.t('auth.validationFailed'),
       status: 400,
       detail: '',
       traceId: '',

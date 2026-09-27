@@ -1,50 +1,50 @@
 <section class="np-exam-analytics" aria-labelledby="exam-analytics-heading">
-  <a [routerLink]="backPath" data-testid="analytics-back">Back to exams</a>
+  <a [routerLink]="backPath" data-testid="analytics-back">{{ i18n.t('analytics.backToExams') }}</a>
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading exam analytics"
-    fallbackErrorTitle="We couldn't load your exam analytics. Try again."
-    retryLabel="Retry"
+    [loadingLabel]="i18n.t('analytics.loading')"
+    [fallbackErrorTitle]="i18n.t('analytics.loadError')"
+    [retryLabel]="i18n.t('exams.historyRetry')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
-    <h1 id="exam-analytics-heading" data-testid="exam-analytics-heading">Exam analytics</h1>
-    <p>Review your exam performance over time.</p>
+    <h1 id="exam-analytics-heading" data-testid="exam-analytics-heading">{{ i18n.t('analytics.title') }}</h1>
+    <p>{{ i18n.t('analytics.intro') }}</p>
 
     @if (summary(); as overview) {
       @if (overview.attemptCount === 0) {
         <div data-testid="analytics-empty">
           <np-empty-state
             kind="empty"
-            title="No exam analytics yet"
-            description="Complete an exam to see your analytics."
+            [title]="i18n.t('analytics.emptyTitle')"
+            [description]="i18n.t('analytics.emptyText')"
           />
         </div>
       } @else {
         <form
           class="np-exam-analytics-filters"
-          aria-label="Analytics filters"
+          [attr.aria-label]="i18n.t('analytics.filtersLabel')"
           (submit)="$event.preventDefault(); applyFilters()"
         >
           <np-date-control
             controlId="analytics-from-filter"
-            label="From date"
+            [label]="i18n.t('analytics.fromDate')"
             data-testid="analytics-from-filter"
             [value]="draft().from"
             (valueChange)="setDraftFilters({ from: $event })"
           />
           <np-date-control
             controlId="analytics-to-filter"
-            label="To date"
+            [label]="i18n.t('analytics.toDate')"
             data-testid="analytics-to-filter"
             [value]="draft().to"
             (valueChange)="setDraftFilters({ to: $event })"
           />
           <np-select-control
             controlId="analytics-country-filter"
-            label="Country"
+            [label]="i18n.t('exams.countryFilter')"
             data-testid="analytics-country-filter"
             [options]="countryOptions()"
             [value]="draft().countryId"
@@ -52,7 +52,7 @@
           />
           <np-select-control
             controlId="analytics-category-filter"
-            label="Exam category"
+            [label]="i18n.t('exams.categoryFilter')"
             data-testid="analytics-category-filter"
             [options]="categoryOptions()"
             [value]="draft().categoryId"
@@ -62,56 +62,56 @@
             <p role="alert" data-testid="analytics-date-error">{{ dateError() }}</p>
           }
           <div class="np-exam-analytics-filter-actions">
-            <button type="submit" data-testid="analytics-apply">Apply filters</button>
+            <button type="submit" data-testid="analytics-apply">{{ i18n.t('analytics.applyFilters') }}</button>
             <button type="button" data-testid="analytics-clear" (click)="clearFilters()">
-              Clear filters
+              {{ i18n.t('analytics.clearFilters') }}
             </button>
           </div>
         </form>
 
         <section aria-labelledby="analytics-overview-heading">
-          <h2 id="analytics-overview-heading">Overview</h2>
+          <h2 id="analytics-overview-heading">{{ i18n.t('analytics.overview') }}</h2>
           <dl class="np-exam-analytics-overview">
             <div>
-              <dt>Total attempts</dt>
+              <dt>{{ i18n.t('analytics.totalAttempts') }}</dt>
               <dd data-testid="analytics-total-attempts">{{ overview.attemptCount }}</dd>
             </div>
             <div>
-              <dt>Submitted</dt>
+              <dt>{{ i18n.t('analytics.submitted') }}</dt>
               <dd data-testid="analytics-submitted">{{ overview.submittedCount }}</dd>
             </div>
             <div>
-              <dt>Expired</dt>
+              <dt>{{ i18n.t('analytics.expired') }}</dt>
               <dd data-testid="analytics-expired">{{ overview.expiredCount }}</dd>
             </div>
             <div>
-              <dt>In progress</dt>
+              <dt>{{ i18n.t('analytics.inProgress') }}</dt>
               <dd data-testid="analytics-in-progress">{{ overview.inProgressCount }}</dd>
             </div>
             <div>
-              <dt>Passed</dt>
+              <dt>{{ i18n.t('analytics.passed') }}</dt>
               <dd data-testid="analytics-passed">{{ overview.passedCount }}</dd>
             </div>
             <div>
-              <dt>Failed</dt>
+              <dt>{{ i18n.t('analytics.failed') }}</dt>
               <dd data-testid="analytics-failed">{{ overview.failedCount }}</dd>
             </div>
             <div>
-              <dt>Pass rate</dt>
+              <dt>{{ i18n.t('analytics.passRate') }}</dt>
               <dd data-testid="analytics-pass-rate">{{ metric(overview.passRate) }}</dd>
             </div>
             <div>
-              <dt>Average score</dt>
+              <dt>{{ i18n.t('analytics.averageScore') }}</dt>
               <dd data-testid="analytics-average-score">
                 {{ metric(overview.averageScorePercentage) }}
               </dd>
             </div>
             <div>
-              <dt>Best score</dt>
+              <dt>{{ i18n.t('analytics.bestScore') }}</dt>
               <dd data-testid="analytics-best-score">{{ metric(overview.bestScorePercentage) }}</dd>
             </div>
             <div>
-              <dt>Latest score</dt>
+              <dt>{{ i18n.t('analytics.latestScore') }}</dt>
               <dd data-testid="analytics-latest-score">
                 {{ metric(overview.latestScorePercentage) }}
               </dd>
@@ -120,12 +120,12 @@
         </section>
 
         <section aria-labelledby="analytics-by-exam-heading">
-          <h2 id="analytics-by-exam-heading">Performance by exam</h2>
+          <h2 id="analytics-by-exam-heading">{{ i18n.t('analytics.byExam') }}</h2>
           @if (examSection() === 'loading') {
-            <p role="status">Loading exam-level analytics.</p>
+            <p role="status">{{ i18n.t('analytics.examSectionLoading') }}</p>
           } @else if (examSection() === 'error') {
             <div role="alert">
-              <p>We couldn't load exam-level analytics. Try again.</p>
+              <p>{{ i18n.t('analytics.examSectionError') }}</p>
               <button
                 type="button"
                 class="np-exam-analytics-retry"
@@ -136,7 +136,7 @@
               </button>
             </div>
           } @else if ((examPage()?.items.length ?? 0) === 0) {
-            <p role="status">No data is available for these filters.</p>
+            <p role="status">{{ i18n.t('analytics.noData') }}</p>
           } @else {
             <ul class="np-exam-analytics-rows">
               @for (row of examPage()?.items ?? []; track $index) {
@@ -144,23 +144,23 @@
                   <h3>{{ row.examTitle }}</h3>
                   <dl>
                     <div>
-                      <dt>Attempts</dt>
+                      <dt>{{ i18n.t('analytics.attempts') }}</dt>
                       <dd>{{ row.attemptCount }}</dd>
                     </div>
                     <div>
-                      <dt>Pass rate</dt>
+                      <dt>{{ i18n.t('analytics.passRate') }}</dt>
                       <dd>{{ metric(row.passRate) }}</dd>
                     </div>
                     <div>
-                      <dt>Average score</dt>
+                      <dt>{{ i18n.t('analytics.averageScore') }}</dt>
                       <dd>{{ metric(row.averageScorePercentage) }}</dd>
                     </div>
                     <div>
-                      <dt>Best score</dt>
+                      <dt>{{ i18n.t('analytics.bestScore') }}</dt>
                       <dd>{{ metric(row.bestScorePercentage) }}</dd>
                     </div>
                     <div>
-                      <dt>Latest score</dt>
+                      <dt>{{ i18n.t('analytics.latestScore') }}</dt>
                       <dd>{{ metric(row.latestScorePercentage) }}</dd>
                     </div>
                   </dl>
@@ -172,20 +172,20 @@
               [page]="examPage()?.page ?? 1"
               [totalPages]="examPage()?.totalPages ?? 0"
               [totalCount]="examPage()?.totalCount ?? 0"
-              itemLabel="exams"
-              ariaLabel="Performance by exam pagination"
+              [itemLabel]="i18n.t('exams.itemLabel')"
+              [ariaLabel]="i18n.t('analytics.examPagination')"
               (pageRequested)="loadExamPage($event)"
             />
           }
         </section>
 
         <section aria-labelledby="analytics-by-category-heading">
-          <h2 id="analytics-by-category-heading">Performance by category</h2>
+          <h2 id="analytics-by-category-heading">{{ i18n.t('analytics.byCategory') }}</h2>
           @if (categorySection() === 'loading') {
-            <p role="status">Loading category analytics.</p>
+            <p role="status">{{ i18n.t('analytics.categoryLoading') }}</p>
           } @else if (categorySection() === 'error') {
             <div role="alert">
-              <p>We couldn't load category analytics. Try again.</p>
+              <p>{{ i18n.t('analytics.categoryError') }}</p>
               <button
                 type="button"
                 class="np-exam-analytics-retry"
@@ -196,7 +196,7 @@
               </button>
             </div>
           } @else if ((categoryPage()?.items.length ?? 0) === 0) {
-            <p role="status">No data is available for these filters.</p>
+            <p role="status">{{ i18n.t('analytics.noData') }}</p>
           } @else {
             <ul class="np-exam-analytics-rows">
               @for (row of categoryPage()?.items ?? []; track $index) {
@@ -206,19 +206,19 @@
                   }
                   <dl>
                     <div>
-                      <dt>Attempts</dt>
+                      <dt>{{ i18n.t('analytics.attempts') }}</dt>
                       <dd>{{ row.attemptCount }}</dd>
                     </div>
                     <div>
-                      <dt>Pass rate</dt>
+                      <dt>{{ i18n.t('analytics.passRate') }}</dt>
                       <dd>{{ metric(row.passRate) }}</dd>
                     </div>
                     <div>
-                      <dt>Average score</dt>
+                      <dt>{{ i18n.t('analytics.averageScore') }}</dt>
                       <dd>{{ metric(row.averageScorePercentage) }}</dd>
                     </div>
                     <div>
-                      <dt>Best score</dt>
+                      <dt>{{ i18n.t('analytics.bestScore') }}</dt>
                       <dd>{{ metric(row.bestScorePercentage) }}</dd>
                     </div>
                   </dl>
@@ -231,25 +231,25 @@
               [totalPages]="categoryPage()?.totalPages ?? 0"
               [totalCount]="categoryPage()?.totalCount ?? 0"
               itemLabel="categories"
-              ariaLabel="Performance by category pagination"
+              [ariaLabel]="i18n.t('analytics.categoryPagination')"
               (pageRequested)="loadCategoryPage($event)"
             />
           }
         </section>
 
         <section aria-labelledby="analytics-trends-heading" data-testid="analytics-trends">
-          <h2 id="analytics-trends-heading">Performance over time</h2>
+          <h2 id="analytics-trends-heading">{{ i18n.t('analytics.trends') }}</h2>
           @if (trendsSection() === 'loading') {
-            <p role="status">Loading performance-over-time data.</p>
+            <p role="status">{{ i18n.t('analytics.trendsLoading') }}</p>
           } @else if (trendsSection() === 'error') {
             <div role="alert">
-              <p>We couldn't load performance-over-time data. Try again.</p>
+              <p>{{ i18n.t('analytics.trendsError') }}</p>
               <button type="button" class="np-exam-analytics-retry" data-testid="analytics-trends-retry" (click)="retryTrends()">
                 Retry
               </button>
             </div>
           } @else if ((trends()?.length ?? 0) === 0) {
-            <p role="status">No data is available for these filters.</p>
+            <p role="status">{{ i18n.t('analytics.noData') }}</p>
           } @else {
             <ul class="np-exam-analytics-rows">
               @for (point of trends() ?? []; track $index) {
@@ -257,15 +257,15 @@
                   <h3>{{ point.bucketStart | date: 'MMMM y' }}</h3>
                   <dl>
                     <div>
-                      <dt>Attempts</dt>
+                      <dt>{{ i18n.t('analytics.attempts') }}</dt>
                       <dd>{{ point.attemptCount }}</dd>
                     </div>
                     <div>
-                      <dt>Average score</dt>
+                      <dt>{{ i18n.t('analytics.averageScore') }}</dt>
                       <dd>{{ metric(point.averageScorePercentage) }}</dd>
                     </div>
                     <div>
-                      <dt>Pass rate</dt>
+                      <dt>{{ i18n.t('analytics.passRate') }}</dt>
                       <dd>{{ metric(point.passRate) }}</dd>
                     </div>
                   </dl>

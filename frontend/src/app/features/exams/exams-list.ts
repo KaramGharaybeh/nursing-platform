@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { NpLiveRegion } from '../../shared/ui/announcement';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { ExamsApi } from '../../core/api/exams-api';
 import type { CountryOption, ExamCatalogPage } from '../../core/api/exams-api';
 import { NpSelectControl } from '../../shared/ui/form-controls';
@@ -25,6 +26,7 @@ const NO_FILTER = '';
 })
 export class ExamsList implements OnInit {
   private readonly api = inject(ExamsApi);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly result = signal<ExamCatalogPage | undefined>(undefined);
@@ -63,7 +65,7 @@ export class ExamsList implements OnInit {
 
   protected countryOptions(): { value: string; label: string }[] {
     return [
-      { value: NO_FILTER, label: 'All countries' },
+      { value: NO_FILTER, label: this.i18n.t('exams.allCountries') },
       ...this.countries().map((country) => ({ value: country.id, label: country.name })),
     ];
   }
@@ -76,7 +78,7 @@ export class ExamsList implements OnInit {
       }
     }
     return [
-      { value: NO_FILTER, label: 'All categories' },
+      { value: NO_FILTER, label: this.i18n.t('exams.allCategories') },
       ...[...seen].map(([value, label]) => ({ value, label })),
     ];
   }

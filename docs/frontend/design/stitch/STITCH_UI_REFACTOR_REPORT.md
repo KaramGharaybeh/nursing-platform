@@ -1128,3 +1128,51 @@ is the non-Playwright evidence. No Playwright MCP was used.
 Remaining differences above are copy/backend authority or visual-only password affordance, not
 permission to retain the old layout. AUTH-009 form-preservation and other previous contract-bound
 page verdicts remain as reported; no page is newly marked STITCH_ALIGNED_VERIFIED solely from tests.
+
+## Shared Controls Theme and Password Visibility Follow-up
+
+The previous visual-only password-eye classification in AUTH-001/002/008 and the preceding
+follow-up is superseded for the affected fields. The Authentication-owned `AuthTextField` now owns
+the toggle: an actual 44px `type="button"` with visible focus, `aria-pressed`, and a dynamic
+`Show password` / `Hide password` name. Its decorative SVG remains hidden from assistive technology.
+The password input starts masked, toggles between `password` and `text`, keeps its value and
+autocomplete, and re-masks on the second activation. This applies independently to Sign In
+Password, Sign Up Password and Confirm Password, and Reset New password. No auth service, payload,
+form model, validation rule, route, or backend contract changed. Other UI_LOGIC_GAP entries above
+remain subject to their existing classifications.
+
+For system-wide form controls, the existing `NpTextInputControl`, `NpTextareaControl`, and
+`NpDateControl` now render persistent labels above native inputs/textarea/date fields with the
+same approved 44px minimum input height, 8px radius, 14px inline padding, 6px label/control gap,
+and support/error rows. Required and optional labels, value emission, disabled/readonly and
+`aria-describedby` relationships are retained. `NpSelectControl` keeps Angular Material's
+selection/overlay semantics but has a persistent external visual label, the original Material
+label for its accessible name, and project-owned surface/border/height/focus styling. Checkbox,
+radio, file upload, and exam/practice answer radio controls retain their specialized semantics.
+Native select filters inherit the same shared geometry without changing their option lists or
+events. This shared change is scoped to appearance; the Authentication-owned field keeps its
+feature-local behavior and uses the same theme tokens.
+
+`frontend/src/styles/_tokens.scss` now owns semantic surface/text/border/error, control and button
+geometry tokens. `frontend/src/styles/_controls.scss` is loaded after the Material M2 bridge to
+give Material primary, outlined, and text buttons 44px minimum targets, 12px radius, consistent
+padding, Noto Sans hierarchy, 20px icon treatment and visible focus. It also provides a
+low-specificity baseline for plain buttons while preserving more specific page-defined actions.
+The shared Retry action now uses the secondary button treatment. Material warn/destructive color
+continues through the existing project Material theme rather than being replaced by primary teal.
+No new UI library, dependency, token palette, or backend feature was introduced.
+
+**Known visual boundaries:** native file inputs remain a CV-upload-specific control; exam/practice
+answer radios and Material select overlays retain their task-specific interaction shapes; local
+approved screen-specific button styles can still override the low-specificity shared baseline.
+`mat-form-field` remains only for the Material select family, with its floating text visually
+hidden while retaining the Material label in DOM for accessibility. The system-wide change does
+not grant visual approval to any unreviewed page.
+
+The user expressly prohibited Playwright MCP and independent verifier or formal closure checks
+for this pass. Neither was invoked. Narrow implementation safeguards only: focused
+Authentication/password and shared-control tests, lint/stylelint, and a production template/CSS
+build. These checks do not assert browser screenshot parity or full-regression completion. The
+previous reset-password component-style budget warning remains (5.19 kB versus 4 kB warning,
+8 kB error threshold). This follow-up remains uncommitted until applicable governance permits
+closure; no push.

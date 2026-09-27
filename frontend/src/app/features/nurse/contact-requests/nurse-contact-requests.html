@@ -1,8 +1,8 @@
 <section class="np-nurse-contact-requests" aria-labelledby="nurse-contact-requests-title">
   <np-live-region />
 
-  <p class="np-nurse-contact-requests-kicker">Nurse</p>
-  <h1 id="nurse-contact-requests-title">Contact requests</h1>
+  <p class="np-nurse-contact-requests-kicker">{{ i18n.t('contact.kicker') }}</p>
+  <h1 id="nurse-contact-requests-title">{{ i18n.t('contact.title') }}</h1>
 
   @if (notice() !== '') {
     <p class="np-nurse-contact-requests-notice" role="status">{{ notice() }}</p>
@@ -10,8 +10,8 @@
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading your contact requests"
-    fallbackErrorTitle="Your contact requests could not be loaded"
+    [loadingLabel]="i18n.t('contact.loading')"
+    [fallbackErrorTitle]="i18n.t('contact.loadError')"
     (retryRequested)="retry()"
   />
 
@@ -19,7 +19,7 @@
     <div class="np-nurse-contact-requests-filter">
       <np-select-control
         controlId="nurse-contact-requests-status"
-        label="Status"
+        [label]="i18n.t('contact.statusLabel')"
         [required]="false"
         [value]="statusValue"
         [options]="statusOptions"
@@ -30,15 +30,15 @@
     @if (listState() === 'empty') {
       <np-empty-state
         kind="empty"
-        title="No contact requests yet."
-        description="When employers request contact, their requests will appear here."
+        [title]="i18n.t('contact.emptyTitle')"
+        [description]="i18n.t('contact.emptyText')"
       />
     } @else if (listState() === 'no-results') {
       <np-empty-state
         kind="no-results"
-        [title]="'No ' + statusLabel + ' requests.'"
-        description="Try a different status or clear the filter."
-        actionLabel="Clear filter"
+        [title]="i18n.tp('contact.noStatusRequests', { status: statusLabel.toLowerCase() })"
+        [description]="i18n.t('contact.noResultsHint')"
+        [actionLabel]="i18n.t('contact.clearFilter')"
         (actionRequested)="clearFilter()"
       />
     } @else {
@@ -59,8 +59,8 @@
         [page]="page()"
         [totalPages]="result()?.totalPages ?? 0"
         [totalCount]="result()?.totalCount ?? 0"
-        itemLabel="requests"
-        ariaLabel="Contact requests pagination"
+        [itemLabel]="i18n.t('contact.itemLabel')"
+        [ariaLabel]="i18n.t('contact.paginationLabel')"
         (pageRequested)="loadPage($event)"
       />
     }

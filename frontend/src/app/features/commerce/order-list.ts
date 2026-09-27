@@ -5,6 +5,8 @@ import { firstValueFrom } from 'rxjs';
 import { CommercePaymentsApi } from '../../core/api/commerce-payments-api';
 import type { CommerceOrder, CommerceOrderPage } from '../../core/api/commerce-payments-api';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
+import type { TranslationKey } from '../../core/i18n/translations';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { buildCommerceOrderDetailPath, canonicalRoutePath } from '../../core/routing/canonical-routes';
 import { formatMoney } from '../../shared/money';
 import { NpEmptyState } from '../../shared/ui/empty-state';
@@ -12,8 +14,6 @@ import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
 import { NpPagination } from '../../shared/ui/pagination';
 import { orderStatusLabel } from './order-status';
-
-const ERROR_COPY = "We couldn't load your orders. Try again.";
 
 @Component({
   selector: 'np-order-list',
@@ -23,6 +23,7 @@ const ERROR_COPY = "We couldn't load your orders. Try again.";
 })
 export class OrderListScreen implements OnInit {
   private readonly api = inject(CommercePaymentsApi);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly page = signal<CommerceOrderPage | undefined>(undefined);
@@ -37,8 +38,18 @@ export class OrderListScreen implements OnInit {
     return buildCommerceOrderDetailPath(id);
   }
 
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
+  }
+
   protected status(status: CommerceOrder['status']): string {
-    return orderStatusLabel(status);
+    return orderStatusLabel(status, {
+      PendingPayment: this.i18n.t('com.statusPendingPayment'),
+      Paid: this.i18n.t('com.statusPaid'),
+      Failed: this.i18n.t('com.statusFailed'),
+      Cancelled: this.i18n.t('com.statusCancelled'),
+      Expired: this.i18n.t('com.statusExpired'),
+    });
   }
 
   protected title(order: CommerceOrder): string {
@@ -71,7 +82,7 @@ export class OrderListScreen implements OnInit {
         typeof error === 'object' && error !== null && 'error' in error
           ? (error as { error?: unknown }).error : error,
       );
-      this.state.set({ kind: 'error', error: { ...normalized, title: ERROR_COPY, detail: '' }, canRetry: true });
+      this.state.set({ kind: 'error', error: { ...normalized, title: this.i18n.t('com.listLoadError'), detail: '' }, canRetry: true });
     }
   }
 }

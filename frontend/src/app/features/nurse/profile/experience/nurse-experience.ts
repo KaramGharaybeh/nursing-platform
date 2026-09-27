@@ -9,6 +9,7 @@ import type { CountryListItemDto } from '../../../../core/api/generated/models/c
 import type { NurseExperienceDto } from '../../../../core/api/generated/models/nurse-experience-dto';
 import { normalizeProblemDetails } from '../../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../../core/api/problem-details';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../../shared/ui/loading-error-retry';
 import { NurseExperienceForm, type NurseExperienceFormValue } from './nurse-experience-form';
@@ -28,6 +29,7 @@ export class NurseExperience implements OnInit {
   private readonly countriesApi = inject(CountriesApi);
   private readonly announcer = inject(Announcer);
   private readonly deleteConfirmation = new TwoStepConfirmation();
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly experiences = signal<readonly NurseExperienceDto[]>([]);
@@ -43,7 +45,7 @@ export class NurseExperience implements OnInit {
   protected readonly expandedDescriptions = signal<readonly string[]>([]);
 
   protected get formTitle(): string {
-    return this.view() === 'edit' ? 'Edit experience' : 'Add experience';
+    return this.view() === 'edit' ? this.i18n.t('exp.formTitleEdit') : this.i18n.t('exp.add');
   }
 
   protected get formInitial(): NurseExperienceFormValue | undefined {
@@ -108,7 +110,7 @@ export class NurseExperience implements OnInit {
       await this.reloadExperiences();
       this.editing.set(undefined);
       this.view.set('list');
-      this.announcer.announce('Experience saved.');
+      this.announcer.announce(this.i18n.t('exp.saved'));
     } catch (error: unknown) {
       this.formError.set(normalizeProblemDetails(this.errorBody(error)));
     } finally {
@@ -138,13 +140,13 @@ export class NurseExperience implements OnInit {
       await this.reloadExperiences();
       this.editing.set(undefined);
       this.view.set('list');
-      this.announcer.announce('Experience saved.');
+      this.announcer.announce(this.i18n.t('exp.saved'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
         this.editing.set(undefined);
         this.view.set('list');
-        this.notice.set('This position no longer exists. The list has been refreshed.');
-        this.announcer.announce('This position no longer exists.');
+        this.notice.set(this.i18n.t('exp.goneNotice'));
+        this.announcer.announce(this.i18n.t('exp.goneAnnounce'));
         await this.reloadExperiences();
       } else {
         this.formError.set(normalizeProblemDetails(this.errorBody(error)));
@@ -158,7 +160,7 @@ export class NurseExperience implements OnInit {
     this.deleteConfirmation.request();
     this.deleteTargetId.set(record.id);
     this.deleteError.set(undefined);
-    this.announcer.announce(`Confirm deletion of ${record.jobTitle} at ${record.facilityName}?`);
+    this.announcer.announce(this.i18n.tp('exp.confirmDelete', { title: record.jobTitle, facility: record.facilityName }));
   }
 
   protected cancelDelete(): void {
@@ -178,15 +180,17 @@ export class NurseExperience implements OnInit {
     try {
       await firstValueFrom(this.api.deleteExperience(id));
       await this.reloadExperiences();
-      this.announcer.announce('Experience deleted.');
+      this.announcer.announce(this.i18n.t('exp.deleted'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
         await this.reloadExperiences();
-        this.notice.set('That position had already been removed. The list has been refreshed.');
-        this.announcer.announce('Experience was already removed.');
+        this.notice.set(this.i18n.t('exp.alreadyRemoved'));
+        this.announcer.announce(this.i18n.t('exp.alreadyRemovedAnnounce'));
       } else {
         this.deleteTargetId.set(id);
-        this.deleteError.set(normalizeProblemDetails(this.errorBody(error)));
+        this.deleteError.set(
+          this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), {}),
+        );
       }
     } finally {
       this.deletingId.set(undefined);

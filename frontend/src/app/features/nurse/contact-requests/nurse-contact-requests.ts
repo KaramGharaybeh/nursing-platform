@@ -12,16 +12,18 @@ import { NpSelectControl, type NpSelectOption } from '../../../shared/ui/form-co
 import { LoadingErrorRetry } from '../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../shared/ui/loading-error-retry';
 import { NpPagination, resolveListState } from '../../../shared/ui/pagination';
+import { LocalizationService } from '../../../core/i18n/localization.service';
+import type { TranslationKey } from '../../../core/i18n/translations';
 import { NurseContactRequestCard } from './nurse-contact-request-card';
 
 const PAGE_SIZE = 20;
 
-const STATUS_OPTIONS: readonly { value: string; label: string; status?: ContactRequestStatus }[] = [
-  { value: '', label: 'All' },
-  { value: '0', label: 'Pending', status: 0 },
-  { value: '1', label: 'Approved', status: 1 },
-  { value: '2', label: 'Rejected', status: 2 },
-  { value: '3', label: 'Cancelled', status: 3 },
+const STATUS_OPTION_KEYS: readonly { value: string; labelKey: TranslationKey; status?: ContactRequestStatus }[] = [
+  { value: '', labelKey: 'contact.statusAll' },
+  { value: '0', labelKey: 'contact.statusPending', status: 0 },
+  { value: '1', labelKey: 'contact.statusApproved', status: 1 },
+  { value: '2', labelKey: 'contact.statusRejected', status: 2 },
+  { value: '3', labelKey: 'contact.statusCancelled', status: 3 },
 ];
 
 @Component({
@@ -33,6 +35,7 @@ const STATUS_OPTIONS: readonly { value: string; label: string; status?: ContactR
 export class NurseContactRequests implements OnInit {
   private readonly api = inject(ContactRequestsApi);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly result = signal<PaginatedResultOfReceivedContactRequestDto | undefined>(undefined);
@@ -43,19 +46,25 @@ export class NurseContactRequests implements OnInit {
   protected readonly cardErrors = signal<Readonly<Record<string, string>>>({});
 
   protected readonly pageSize = PAGE_SIZE;
-  protected readonly statusOptions: readonly NpSelectOption[] = STATUS_OPTIONS.map(({ value, label }) => ({
-    value,
-    label,
-  }));
+  protected get statusOptions(): readonly NpSelectOption[] {
+    return STATUS_OPTION_KEYS.map(({ value, labelKey }) => ({
+      value,
+      label: this.i18n.t(labelKey),
+    }));
+  }
 
   protected get statusValue(): string {
     const current = this.statusFilter();
-    return STATUS_OPTIONS.find((option) => option.status === current)?.value ?? '';
+    return STATUS_OPTION_KEYS.find((option) => option.status === current)?.value ?? '';
   }
 
   protected get statusLabel(): string {
     const current = this.statusFilter();
-    return STATUS_OPTIONS.find((option) => option.status === current)?.label.toLowerCase() ?? '';
+    const found = STATUS_OPTION_KEYS.find((option) => option.status === current);
+    if (found === undefined) {
+      return '';
+    }
+    return this.i18n.t(found.labelKey);
   }
 
   protected get hasActiveFilter(): boolean {
@@ -80,7 +89,7 @@ export class NurseContactRequests implements OnInit {
   }
 
   protected async updateStatusFilter(value: string): Promise<void> {
-    const selected = STATUS_OPTIONS.find((option) => option.value === value);
+    const selected = STATUS_OPTION_KEYS.find((option) => option.value === value);
     this.statusFilter.set(selected?.status);
     await this.load(1);
   }
@@ -99,11 +108,11 @@ export class NurseContactRequests implements OnInit {
   }
 
   protected async approve(id: string): Promise<void> {
-    await this.mutate(id, () => this.api.approve(id), 'Contact request approved.');
+    await this.mutate(id, () => this.api.approve(id), this.i18n.t('contact.approved'));
   }
 
   protected async reject(id: string): Promise<void> {
-    await this.mutate(id, () => this.api.reject(id), 'Contact request rejected.');
+    await this.mutate(id, () => this.api.reject(id), this.i18n.t('contact.rejected'));
   }
 
   protected isMutating(id: string): boolean {
@@ -127,17 +136,16 @@ export class NurseContactRequests implements OnInit {
       await this.refreshAfterMutation();
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
-        this.notice.set('That request is no longer available. The list has been refreshed.');
-        this.announcer.announce('This request was already decided.');
+        this.notice.set(this.i18n.t('contact.goneNotice'));
+        this.announcer.announce(this.i18n.t('contact.decidedAnnounce'));
         await this.refreshAfterMutation();
       } else if (this.isConflict(error)) {
-        this.notice.set('This request was already decided. The list has been refreshed.');
-        this.announcer.announce('This request was already decided.');
+        this.notice.set(this.i18n.t('contact.decidedNotice'));
+        this.announcer.announce(this.i18n.t('contact.decidedAnnounce'));
         await this.refreshAfterMutation();
       } else {
         const normalized = normalizeProblemDetails(this.errorBody(error));
-        const message =
-          normalized.detail.trim() !== '' ? normalized.detail : 'This action could not be completed. Try again.';
+        const message = this.i18n.backendErrorCopy(normalized.detail, 'contact.actionFallback');
         this.cardErrors.set({ ...this.cardErrors(), [id]: message });
       }
     } finally {

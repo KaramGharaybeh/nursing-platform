@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { PreparationPackageOfferListItemDto } from '../../core/api/generated/models/preparation-package-offer-list-item-dto';
 import { buildPreparationPackageOfferDetailPath } from '../../core/routing/canonical-routes';
+import { LocalizationService } from '../../core/i18n/localization.service';
 
 @Component({
   selector: 'np-offer-card',
@@ -10,6 +11,7 @@ import { buildPreparationPackageOfferDetailPath } from '../../core/routing/canon
   styleUrl: './offer-card.scss',
 })
 export class OfferCard {
+  protected readonly i18n = inject(LocalizationService);
   @Input({ required: true }) offer!: PreparationPackageOfferListItemDto;
 
   protected detailPath(): string {

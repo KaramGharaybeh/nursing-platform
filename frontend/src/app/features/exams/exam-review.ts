@@ -8,6 +8,7 @@ import type { NormalizedProblemDetails } from '../../core/api/problem-details';
 import { buildExamsResultPath } from '../../core/routing/canonical-routes';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
+import { LocalizationService } from '../../core/i18n/localization.service';
 
 const STATUS_EXPIRED = 'Expired';
 
@@ -22,6 +23,7 @@ const GENERIC_RETRY_COPY = "We couldn't load this exam review. Try again.";
 export class ExamReviewScreen implements OnInit {
   private readonly api = inject(ExamsApi);
   private readonly route = inject(ActivatedRoute);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly review = signal<ExamReview | undefined>(undefined);
@@ -45,12 +47,12 @@ export class ExamReviewScreen implements OnInit {
     return this.review()?.items[this.currentIndex()];
   }
 
-  protected questionStatus(question: ExamReviewQuestion): 'Correct' | 'Incorrect' | 'Unanswered' {
+  protected questionStatus(question: ExamReviewQuestion): string {
     const selected = question.options.find((option) => option.isSelected);
     if (selected === undefined) {
-      return 'Unanswered';
+      return this.i18n.t('review.unanswered');
     }
-    return selected.isCorrect ? 'Correct' : 'Incorrect';
+    return selected.isCorrect ? this.i18n.t('review.correct') : this.i18n.t('review.incorrect');
   }
 
   protected isExpired(): boolean {

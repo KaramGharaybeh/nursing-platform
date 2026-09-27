@@ -3,16 +3,16 @@
   @if (contextLine !== '') {
     <p class="np-contact-request-context">{{ contextLine }}</p>
   }
-  <p class="np-contact-request-status">{{ request.status }}</p>
-  <p class="np-contact-request-dates">Received {{ request.createdAt | date: 'medium' }}</p>
+  <p class="np-contact-request-status">{{ statusText }}</p>
+  <p class="np-contact-request-dates">{{ i18n.t('contact.received') }} {{ request.createdAt | date: 'medium' }}</p>
   @if (!isPending && request.respondedAt) {
-    <p class="np-contact-request-dates">Responded {{ request.respondedAt | date: 'medium' }}</p>
+    <p class="np-contact-request-dates">{{ i18n.t('contact.responded') }} {{ request.respondedAt | date: 'medium' }}</p>
   }
 
   @if (isPending) {
     @if (isConfirmingReject) {
       <div class="np-contact-request-confirm">
-        <p role="status">Reject this contact request? This cannot be undone.</p>
+        <p role="status">{{ i18n.t('contact.rejectConfirm') }}</p>
         <div class="np-contact-request-confirm-actions">
           <button
             mat-flat-button
@@ -22,7 +22,7 @@
             [disabled]="isMutating"
             (click)="confirmReject()"
           >
-            Reject
+            {{ i18n.t('contact.rejectVerb') }}
           </button>
           <button
             mat-button
@@ -31,7 +31,7 @@
             [disabled]="isMutating"
             (click)="cancelReject()"
           >
-            Keep
+            {{ i18n.t('contact.keep') }}
           </button>
         </div>
       </div>
@@ -45,7 +45,7 @@
           [disabled]="isMutating"
           (click)="approve()"
         >
-          Approve
+          {{ i18n.t('contact.approve') }}
         </button>
         <button
           mat-button
@@ -55,7 +55,7 @@
           [disabled]="isMutating"
           (click)="requestReject()"
         >
-          Reject
+          {{ i18n.t('contact.rejectVerb') }}
         </button>
       </div>
     }

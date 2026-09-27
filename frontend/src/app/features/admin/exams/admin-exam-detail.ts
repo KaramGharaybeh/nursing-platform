@@ -18,6 +18,8 @@ import type { LoadingErrorRetryState } from '../../../shared/ui/loading-error-re
 import { AdminExamForm } from './admin-exam-form';
 import { adminExamStatusLabel } from './admin-exam-status';
 import { safeAdminExamValidation } from './admin-exam-validation';
+import type { TranslationKey } from '../../../core/i18n/translations';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 
 type DestructiveAction = 'archive' | 'delete';
 
@@ -35,6 +37,7 @@ export class AdminExamDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
+  protected readonly i18n = inject(LocalizationService);
   private readonly confirmHeading = viewChild<ElementRef<HTMLHeadingElement>>('confirmHeading');
   private readonly pageHeading = viewChild<ElementRef<HTMLHeadingElement>>('pageHeading');
   private readonly archiveTrigger = viewChild<ElementRef<HTMLButtonElement>>('archiveTrigger');
@@ -59,8 +62,41 @@ export class AdminExamDetail implements OnInit {
 
   ngOnInit(): void { void this.load(); }
 
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
+  }
+
+  protected tp(key: TranslationKey, params: Record<string, string | number>): string {
+    return this.i18n.tp(key, params);
+  }
+
   protected async retry(): Promise<void> { await this.load(); }
-  protected status(value: string): string { return adminExamStatusLabel(value); }
+  protected status(value: string): string {
+    return adminExamStatusLabel(value, {
+      draft: this.i18n.t('adm.statusDraft'),
+      published: this.i18n.t('adm.statusPublished'),
+      archived: this.i18n.t('adm.statusArchived'),
+      unavailable: this.i18n.t('adm.statusUnavailable'),
+    });
+  }
+
+  private validationLabels(): Record<string, string> {
+    return {
+      CountryId: this.i18n.t('adm.flCountry'),
+      ExamCategoryId: this.i18n.t('adm.flCategory'),
+      Title: this.i18n.t('adm.flTitle'),
+      Slug: this.i18n.t('adm.flSlug'),
+      Description: this.i18n.t('adm.flDescription'),
+      Instructions: this.i18n.t('adm.flInstructions'),
+      DurationMinutes: this.i18n.t('adm.flDuration'),
+      PassingScorePercentage: this.i18n.t('adm.flScore'),
+      IsFree: this.i18n.t('adm.flPriceType'),
+    };
+  }
+
+  private reviewField(label: string): string {
+    return this.i18n.tp('adm.reviewField', { field: label.toLowerCase() });
+  }
 
   protected async beginEdit(): Promise<void> {
     if (!this.canEdit || this.exam()?.status === 'Archived' || !this.exam()) return;
@@ -80,7 +116,7 @@ export class AdminExamDetail implements OnInit {
       this.categories.set(categories);
       this.editing.set(true);
     } catch {
-      this.actionError.set('Exam editing is unavailable. Try again.');
+      this.actionError.set(this.i18n.t('adm.examEditUnavailable'));
     }
   }
 
@@ -95,13 +131,13 @@ export class AdminExamDetail implements OnInit {
       await firstValueFrom(this.api.update(this.examId(), body));
       this.editing.set(false);
       await this.load();
-      this.message.set('Exam updated.');
+      this.message.set(this.i18n.t('adm.examUpdated'));
     } catch (error: unknown) {
-      const validation = safeAdminExamValidation(error);
+      const validation = safeAdminExamValidation(error, this.validationLabels(), (label) => this.reviewField(label));
       if (validation) this.validationError.set(validation);
       else this.actionError.set(this.statusOf(error) === 409
-        ? 'Exam fields can no longer be changed. Reload and review its current state.'
-        : 'Exam could not be saved. Review the fields and try again.');
+        ? this.i18n.t('adm.examConflict')
+        : this.i18n.t('adm.examSaveFailed'));
     } finally { this.busy.set(false); }
   }
 
@@ -140,14 +176,14 @@ export class AdminExamDetail implements OnInit {
         await firstValueFrom(this.api.archive(current.id));
         this.confirming.set(undefined);
         await this.load();
-        this.message.set('Exam archived.');
+        this.message.set(this.i18n.t('adm.examArchived'));
         afterNextRender(() => this.pageHeading()?.nativeElement.focus(), { injector: this.injector });
       }
     } catch {
       this.confirming.set(undefined);
       this.actionError.set(action === 'delete'
-        ? 'This exam cannot be deleted. Reload and review its current state.'
-        : 'This exam could not be archived. Reload and review its current state.');
+        ? this.i18n.t('adm.examDeleteFailed')
+        : this.i18n.t('adm.examArchiveFailed'));
       await this.load();
     } finally { this.busy.set(false); }
   }
@@ -183,7 +219,7 @@ export class AdminExamDetail implements OnInit {
             ? (error as { error?: unknown }).error : error,
         );
         this.state.set({ kind: 'error', error: {
-          ...normalized, title: "We couldn't load this exam. Try again.", detail: '',
+          ...normalized, title: this.i18n.t('adm.examLoadError'), detail: '',
         }, canRetry: true });
       }
     }

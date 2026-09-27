@@ -1,8 +1,17 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { TwoStepConfirmation } from '../../../shared/ui/confirmation';
+import { LocalizationService } from '../../../core/i18n/localization.service';
+import type { TranslationKey } from '../../../core/i18n/translations';
 import type { ReceivedContactRequestDto } from '../../../core/api/generated/models/received-contact-request-dto';
+
+const REQUEST_STATUS_KEYS: Record<string, TranslationKey> = {
+  Pending: 'contact.statusPending',
+  Approved: 'contact.statusApproved',
+  Rejected: 'contact.statusRejected',
+  Cancelled: 'contact.statusCancelled',
+};
 
 @Component({
   selector: 'np-nurse-contact-request-card',
@@ -19,9 +28,15 @@ export class NurseContactRequestCard {
   @Output() readonly rejectConfirmed = new EventEmitter<string>();
 
   private readonly rejectConfirmation = new TwoStepConfirmation();
+  protected readonly i18n = inject(LocalizationService);
 
   protected get isPending(): boolean {
     return this.request.status === 'Pending';
+  }
+
+  protected get statusText(): string {
+    const key = REQUEST_STATUS_KEYS[this.request.status];
+    return key === undefined ? this.request.status : this.i18n.t(key);
   }
 
   protected get isConfirmingReject(): boolean {

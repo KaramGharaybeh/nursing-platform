@@ -1,32 +1,32 @@
 <section class="np-account" aria-labelledby="account-title">
   <np-live-region />
 
-  <p class="np-account-kicker">Account</p>
-  <h1 id="account-title">Account overview</h1>
+  <p class="np-account-kicker">{{ i18n.t('account.kicker') }}</p>
+  <h1 id="account-title">{{ i18n.t('account.title') }}</h1>
 
   <np-loading-error-retry
     [state]="state"
-    loadingLabel="Loading your account"
-    fallbackErrorTitle="Your account could not be loaded"
+    [loadingLabel]="i18n.t('account.loading')"
+    [fallbackErrorTitle]="i18n.t('account.loadError')"
   />
 
   @if (user; as accountUser) {
     @if (!isEditing()) {
       <dl class="np-account-facts">
         <div class="np-account-fact">
-          <dt>Name</dt>
+          <dt>{{ i18n.t('account.name') }}</dt>
           <dd>{{ displayName }}</dd>
         </div>
         <div class="np-account-fact">
-          <dt>Username</dt>
+          <dt>{{ i18n.t('account.username') }}</dt>
           <dd>{{ accountUser.username }}</dd>
         </div>
         <div class="np-account-fact">
-          <dt>Email</dt>
+          <dt>{{ i18n.t('account.email') }}</dt>
           <dd>{{ accountUser.email }}</dd>
         </div>
         <div class="np-account-fact">
-          <dt>Email verification</dt>
+          <dt>{{ i18n.t('account.emailVerification') }}</dt>
           <dd>{{ verificationLabel }}</dd>
         </div>
       </dl>
@@ -38,11 +38,11 @@
           data-testid="edit-personal-details"
           (click)="startEdit()"
         >
-          Edit personal details
+          {{ i18n.t('account.edit') }}
         </button>
       </div>
     } @else {
-      <h2 class="np-account-form-title">Edit personal details</h2>
+      <h2 class="np-account-form-title">{{ i18n.t('account.edit') }}</h2>
       <np-personal-details-form
         [initial]="formInitial"
         [isSubmitting]="isSubmitting()"

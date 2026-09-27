@@ -7,6 +7,7 @@ import type { CurrentUser } from '../../core/auth/current-user';
 import { ProfileApi } from '../../core/api/profile-api';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
 import { PersonalDetailsForm, type PersonalDetailsFormValue } from './personal-details-form';
@@ -21,6 +22,7 @@ export class Account {
   private readonly currentUserStore = inject(CurrentUserStore);
   private readonly profileApi = inject(ProfileApi);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly isEditing = signal(false);
   protected readonly isSubmitting = signal(false);
@@ -47,7 +49,9 @@ export class Account {
   }
 
   protected get verificationLabel(): string {
-    return this.user?.emailVerified === true ? 'Verified' : 'Not verified';
+    return this.user?.emailVerified === true
+      ? this.i18n.t('account.verified')
+      : this.i18n.t('account.notVerified');
   }
 
   protected get formInitial(): PersonalDetailsFormValue {
@@ -80,7 +84,7 @@ export class Account {
       );
       await firstValueFrom(this.currentUserStore.hydrate());
       this.isEditing.set(false);
-      this.announcer.announce('Personal details updated.');
+      this.announcer.announce(this.i18n.t('account.saved'));
     } catch (error: unknown) {
       this.saveError.set(normalizeProblemDetails(this.errorBody(error)));
     } finally {

@@ -1,9 +1,9 @@
 <section class="np-exam-categories" aria-labelledby="categories-heading">
-  <h1 #pageHeading tabindex="-1" id="categories-heading">Exam categories</h1>
+  <h1 #pageHeading tabindex="-1" id="categories-heading">{{ t('adm.catTitle') }}</h1>
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading exam categories"
-    fallbackErrorTitle="We couldn't load exam categories. Try again."
+    [loadingLabel]="t('adm.catLoading')"
+    [fallbackErrorTitle]="t('adm.catLoadError')"
     (retryRequested)="retry()"
   />
 
@@ -12,34 +12,34 @@
     @if (errorMessage()) { <p role="alert" data-testid="category-error">{{ errorMessage() }}</p> }
 
     <div class="np-exam-categories-filters">
-      <label for="category-country-filter">Country</label>
+      <label for="category-country-filter">{{ t('adm.country') }}</label>
       <select #countryFilterSelect id="category-country-filter" [value]="countryFilter()" (change)="filterCountry(countryFilterSelect.value)">
-        <option value="">All countries</option>
+        <option value="">{{ t('adm.allCountries') }}</option>
         @for (country of countries(); track country.id) {
           <option [value]="country.id">{{ country.name }}</option>
         }
       </select>
-      <label for="category-active-filter">Status</label>
+      <label for="category-active-filter">{{ t('adm.status') }}</label>
       <select #activeFilterSelect id="category-active-filter" [value]="activeFilter()" (change)="filterActive(activeFilterSelect.value)">
-        <option value="all">All</option>
-        <option value="active">Active</option>
-        <option value="archived">Archived</option>
+        <option value="all">{{ t('adm.all') }}</option>
+        <option value="active">{{ t('adm.active') }}</option>
+        <option value="archived">{{ t('adm.archived') }}</option>
       </select>
     </div>
 
     @if (canCreate()) {
-      <button mat-flat-button color="primary" type="button" data-testid="add-category" (click)="beginCreate()">Add exam category</button>
+      <button mat-flat-button color="primary" type="button" data-testid="add-category" (click)="beginCreate()">{{ t('adm.addCategory') }}</button>
     }
 
     @if ((page()?.items.length ?? 0) === 0) {
       <np-empty-state
         [kind]="countryFilter() || activeFilter() !== 'all' ? 'no-results' : 'empty'"
-        [title]="countryFilter() || activeFilter() !== 'all' ? 'No matching exam categories' : 'No exam categories yet'"
+        [title]="(countryFilter() || activeFilter() !== 'all' ? t('adm.noMatchCategories') : t('adm.noCategories'))"
       />
     } @else {
       <table class="np-exam-categories-table">
-        <caption>Exam categories</caption>
-        <thead><tr><th scope="col">Country</th><th scope="col">Category</th><th scope="col">Slug</th><th scope="col">Order</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+        <caption>{{ t('adm.catTitle') }}</caption>
+        <thead><tr><th scope="col">{{ t('adm.country') }}</th><th scope="col">{{ t('adm.thCategory') }}</th><th scope="col">{{ t('adm.thSlug') }}</th><th scope="col">{{ t('adm.thOrder') }}</th><th scope="col">{{ t('adm.status') }}</th><th scope="col">{{ t('adm.thActions') }}</th></tr></thead>
         <tbody>
           @for (category of page()?.items ?? []; track category.id) {
             <tr>
@@ -47,18 +47,18 @@
               <th scope="row">{{ category.name }}</th>
               <td>{{ category.slug }}</td>
               <td>{{ category.displayOrder }}</td>
-              <td>{{ category.isActive ? 'Active' : 'Archived' }}</td>
+              <td>{{ category.isActive ? t('adm.active') : t('adm.archived') }}</td>
               <td><div class="np-exam-categories-actions">
                 @if (canEdit()) {
-                  <button mat-button type="button" data-testid="edit-category" [disabled]="actionPending()" (click)="beginEdit(category)">Edit</button>
+                  <button mat-button type="button" data-testid="edit-category" [disabled]="actionPending()" (click)="beginEdit(category)">{{ t('adm.edit') }}</button>
                   @if (category.isActive) {
-                    <button mat-button type="button" data-testid="archive-category" [disabled]="actionPending()" (click)="requestAction(category, 'archive')">Archive</button>
+                    <button mat-button type="button" data-testid="archive-category" [disabled]="actionPending()" (click)="requestAction(category, 'archive')">{{ t('adm.archive') }}</button>
                   } @else {
-                    <button mat-button type="button" data-testid="restore-category" [disabled]="actionPending()" (click)="restore(category)">Restore</button>
+                    <button mat-button type="button" data-testid="restore-category" [disabled]="actionPending()" (click)="restore(category)">{{ t('adm.restore') }}</button>
                   }
                 }
                 @if (canDelete()) {
-                  <button mat-button type="button" data-testid="delete-category" [disabled]="actionPending()" (click)="requestAction(category, 'delete')">Delete</button>
+                  <button mat-button type="button" data-testid="delete-category" [disabled]="actionPending()" (click)="requestAction(category, 'delete')">{{ t('adm.delete') }}</button>
                 }
               </div></td>
             </tr>
@@ -70,65 +70,65 @@
           <li>
             <h2>{{ category.name }}</h2>
             <p>{{ category.countryName }} · {{ category.slug }}</p>
-            <p>Order: {{ category.displayOrder }} · {{ category.isActive ? 'Active' : 'Archived' }}</p>
+            <p>{{ t('adm.orderPrefix') }}: {{ category.displayOrder }} · {{ category.isActive ? t('adm.active') : t('adm.archived') }}</p>
             <div class="np-exam-categories-actions">
               @if (canEdit()) {
-                <button mat-button type="button" [disabled]="actionPending()" (click)="beginEdit(category)">Edit</button>
+                <button mat-button type="button" [disabled]="actionPending()" (click)="beginEdit(category)">{{ t('adm.edit') }}</button>
                 @if (category.isActive) {
-                  <button mat-button type="button" [disabled]="actionPending()" (click)="requestAction(category, 'archive')">Archive</button>
+                  <button mat-button type="button" [disabled]="actionPending()" (click)="requestAction(category, 'archive')">{{ t('adm.archive') }}</button>
                 } @else {
-                  <button mat-button type="button" [disabled]="actionPending()" (click)="restore(category)">Restore</button>
+                  <button mat-button type="button" [disabled]="actionPending()" (click)="restore(category)">{{ t('adm.restore') }}</button>
                 }
               }
-              @if (canDelete()) { <button mat-button type="button" [disabled]="actionPending()" (click)="requestAction(category, 'delete')">Delete</button> }
+              @if (canDelete()) { <button mat-button type="button" [disabled]="actionPending()" (click)="requestAction(category, 'delete')">{{ t('adm.delete') }}</button> }
             </div>
           </li>
         }
       </ul>
       <np-pagination
         [page]="page()?.page ?? 1" [totalPages]="page()?.totalPages ?? 0"
-        [totalCount]="page()?.totalCount ?? 0" itemLabel="categories"
-        ariaLabel="Exam category pagination" (pageRequested)="changePage($event)"
+        [totalCount]="page()?.totalCount ?? 0" [itemLabel]="t('adm.itemCategories')"
+        [ariaLabel]="t('adm.catPagination')" (pageRequested)="changePage($event)"
       />
     }
 
     @if (formOpen()) {
       <form class="np-exam-categories-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
-        <h2 #formHeading tabindex="-1">{{ editing() ? 'Edit exam category' : 'Add exam category' }}</h2>
+        <h2 #formHeading tabindex="-1">{{ editing() ? t('adm.editCategoryTitle') : t('adm.addCategory') }}</h2>
         <np-form-validation-summary [summaryTitle]="validationSummary.title"
           [items]="validationSummary.items" [formErrors]="validationSummary.formErrors" />
-        <np-select-control controlId="category-country" label="Country" [required]="true"
+        <np-select-control controlId="category-country" [label]="t('adm.country')" [required]="true"
           [disabled]="saving() || editing() !== undefined" [value]="form.controls.countryId.value"
           [options]="countryOptions" [errorText]="fieldError('CountryId')" (valueChange)="updateCountry($event)" />
-        <np-text-input-control controlId="category-name" label="Name" type="text"
+        <np-text-input-control controlId="category-name" [label]="t('adm.labelName')" type="text"
           [required]="true" [disabled]="saving()" [value]="form.controls.name.value"
           [errorText]="fieldError('Name')"
           (valueChange)="updateName($event)" />
-        <np-text-input-control controlId="category-slug" label="Slug" type="text"
+        <np-text-input-control controlId="category-slug" [label]="t('adm.labelSlug')" type="text"
           [required]="true" [disabled]="saving()" [value]="form.controls.slug.value"
           [errorText]="fieldError('Slug')"
           (valueChange)="updateSlug($event)" />
-        <np-textarea-control controlId="category-description" label="Description" [required]="false"
+        <np-textarea-control controlId="category-description" [label]="t('adm.labelDescription')" [required]="false"
           [disabled]="saving()" [value]="form.controls.description.value"
           [errorText]="fieldError('Description')"
           (valueChange)="updateDescription($event)" />
-        <np-text-input-control controlId="category-display-order" label="Display order" type="number"
+        <np-text-input-control controlId="category-display-order" [label]="t('adm.labelDisplayOrder')" type="number"
           [required]="true" [disabled]="saving()" [value]="form.controls.displayOrder.value.toString()"
           [errorText]="fieldError('DisplayOrder')"
           (valueChange)="updateDisplayOrder($event)" />
         <div class="np-exam-categories-actions">
-          <button mat-flat-button color="primary" type="submit" data-testid="save-category" [disabled]="saving()">Save exam category</button>
-          <button mat-button type="button" [disabled]="saving()" (click)="closeForm()">Cancel</button>
+          <button mat-flat-button color="primary" type="submit" data-testid="save-category" [disabled]="saving()">{{ t('adm.saveCategory') }}</button>
+          <button mat-button type="button" [disabled]="saving()" (click)="closeForm()">{{ t('adm.cancel') }}</button>
         </div>
       </form>
     }
 
     @if (confirmation(); as choice) {
       <div class="np-exam-categories-confirm" role="group" aria-labelledby="category-confirm-heading">
-        <h2 #confirmHeading tabindex="-1" id="category-confirm-heading">{{ choice.action === 'archive' ? 'Archive exam category?' : 'Delete exam category?' }}</h2>
-        <p>{{ choice.action === 'archive' ? 'This category will be archived if it is still eligible.' : 'This category will be permanently deleted if it is still eligible.' }}</p>
-        <button mat-button type="button" [disabled]="actionPending()" (click)="keepCategory()">Keep category</button>
-        <button mat-flat-button color="primary" type="button" data-testid="confirm-action" [disabled]="actionPending()" (click)="confirmAction()">{{ choice.action === 'archive' ? 'Archive category' : 'Delete category' }}</button>
+        <h2 #confirmHeading tabindex="-1" id="category-confirm-heading">{{ choice.action === 'archive' ? t('adm.archiveTitle') : t('adm.deleteTitle') }}</h2>
+        <p>{{ choice.action === 'archive' ? t('adm.archiveText') : t('adm.deleteText') }}</p>
+        <button mat-button type="button" [disabled]="actionPending()" (click)="keepCategory()">{{ t('adm.keepCategory') }}</button>
+        <button mat-flat-button color="primary" type="button" data-testid="confirm-action" [disabled]="actionPending()" (click)="confirmAction()">{{ choice.action === 'archive' ? t('adm.archiveCategory') : t('adm.deleteCategory') }}</button>
       </div>
     }
   }

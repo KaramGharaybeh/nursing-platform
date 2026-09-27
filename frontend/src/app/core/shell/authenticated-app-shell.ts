@@ -3,12 +3,28 @@ import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { LocalLogout } from '../auth/local-logout';
+import { LocalizationService } from '../i18n/localization.service';
+import type { TranslationKey } from '../i18n/translations';
 import { canonicalRoutePath } from '../routing/canonical-routes';
+import type { CanonicalRouteId } from '../routing/canonical-routes';
 import type { PrimaryNavigationItem } from './primary-navigation';
+import { NpLanguageSwitcher } from '../../shared/ui/language-switcher';
+
+const NAVIGATION_LABEL_KEYS: Record<string, TranslationKey> = {
+  EXAMS_CATALOG: 'shell.navExams',
+  PREPARATION_PACKAGES_ENTITLEMENTS: 'shell.navPreparationPackages',
+  COMMERCE_PRODUCTS: 'shell.navProducts',
+  NURSE_PROFILE_OVERVIEW: 'shell.navProfile',
+  EMPLOYER_HOME: 'shell.navEmployer',
+  EMPLOYER_CANDIDATES: 'shell.navCandidates',
+  EMPLOYER_REQUESTS: 'shell.navRequests',
+  ADMIN_ENTRY: 'shell.navAdmin',
+  ADMIN_USERS: 'shell.navUsers',
+};
 
 @Component({
   selector: 'np-authenticated-app-shell',
-  imports: [RouterLink, CdkTrapFocus],
+  imports: [RouterLink, CdkTrapFocus, NpLanguageSwitcher],
   templateUrl: './authenticated-app-shell.html',
   styleUrl: './authenticated-app-shell.scss',
   host: {
@@ -18,6 +34,7 @@ import type { PrimaryNavigationItem } from './primary-navigation';
 export class AuthenticatedAppShell {
   private readonly logoutService = inject(LocalLogout);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(LocalizationService);
 
   readonly navigationItems = input<readonly PrimaryNavigationItem[]>([]);
   protected readonly mobileNavigationOpen = signal(false);
@@ -51,5 +68,10 @@ export class AuthenticatedAppShell {
   protected signOut(): void {
     this.logoutService.logout();
     void this.router.navigateByUrl(canonicalRoutePath('AUTH_SIGN_IN'));
+  }
+
+  protected navigationLabel(routeId: CanonicalRouteId, fallback: string): string {
+    const key = NAVIGATION_LABEL_KEYS[routeId];
+    return key === undefined ? fallback : this.i18n.t(key);
   }
 }

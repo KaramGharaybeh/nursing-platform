@@ -1,10 +1,10 @@
 <section class="np-order-list" aria-labelledby="orders-heading">
-  <h1 id="orders-heading">Orders</h1>
+  <h1 id="orders-heading">{{ t('com.listTitle') }}</h1>
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading orders"
-    fallbackErrorTitle="We couldn't load your orders. Try again."
-    retryLabel="Retry"
+    [loadingLabel]="t('com.listLoading')"
+    [fallbackErrorTitle]="t('com.listLoadError')"
+    [retryLabel]="t('com.listRetry')"
     (retryRequested)="retry()"
   />
 
@@ -12,19 +12,19 @@
     @if ((page()?.items.length ?? 0) === 0) {
       <np-empty-state
         kind="empty"
-        title="No orders yet"
-        description="Your orders will appear here after you create one."
+        [title]="t('com.emptyTitle')"
+        [description]="t('com.emptyText')"
       />
-      <a [routerLink]="productsPath" data-testid="browse-products">Browse products</a>
+      <a [routerLink]="productsPath" data-testid="browse-products">{{ t('com.browseProducts') }}</a>
     } @else {
       <ul class="np-order-list-rows">
         @for (order of page()?.items ?? []; track order.id) {
           <li>
             <h2>{{ title(order) }}</h2>
-            <p>Created {{ order.createdAt | date: 'medium' }}</p>
+            <p>{{ t('com.created') }} {{ order.createdAt | date: 'medium' }}</p>
             <p>{{ total(order) }}</p>
-            <p>Status: {{ status(order.status) }}</p>
-            <a [routerLink]="detailPath(order.id)" data-testid="order-view">View order</a>
+            <p>{{ t('com.statusLabel') }}: {{ status(order.status) }}</p>
+            <a [routerLink]="detailPath(order.id)" data-testid="order-view">{{ t('com.viewOrder') }}</a>
           </li>
         }
       </ul>
@@ -32,8 +32,8 @@
         [page]="page()?.page ?? 1"
         [totalPages]="page()?.totalPages ?? 0"
         [totalCount]="page()?.totalCount ?? 0"
-        itemLabel="orders"
-        ariaLabel="Order history pagination"
+        [itemLabel]="t('com.itemOrders')"
+        [ariaLabel]="t('com.ordersPagination')"
         (pageRequested)="changePage($event)"
       />
     }

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { PreparationPackageEntitlementsApi } from '../../../core/api/preparation-package-entitlements-api';
 import type { PackageAnalyticalReportDto } from '../../../core/api/generated/models/package-analytical-report-dto';
 import type { PackageAnalyticalReportGuidanceItemDto } from '../../../core/api/generated/models/package-analytical-report-guidance-item-dto';
@@ -19,6 +20,7 @@ import type { LoadingErrorRetryState } from '../../../shared/ui/loading-error-re
 export class PackageReport implements OnInit {
   private readonly api = inject(PreparationPackageEntitlementsApi);
   private readonly route = inject(ActivatedRoute);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly backPath = canonicalRoutePath('PREPARATION_PACKAGES_ENTITLEMENTS');
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
@@ -36,10 +38,10 @@ export class PackageReport implements OnInit {
 
   protected guidanceLabel(item: PackageAnalyticalReportGuidanceItemDto): string | undefined {
     if (item.sourceType === 'StudyMaterialVersion') {
-      return 'Study material';
+      return this.i18n.t('npp.studyMaterial');
     }
     if (item.sourceType === 'PracticeCollectionVersion') {
-      return 'Practice collection';
+      return this.i18n.t('npp.practiceCollection');
     }
     return undefined;
   }

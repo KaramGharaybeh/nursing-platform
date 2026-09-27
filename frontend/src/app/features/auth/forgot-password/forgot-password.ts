@@ -6,7 +6,9 @@ import { firstValueFrom } from 'rxjs';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { AuthTextField } from '../auth-text-field/auth-text-field';
+import { NpLanguageSwitcher } from '../../../shared/ui/language-switcher';
 import {
   NpFormValidationSummary,
   toFieldErrorText,
@@ -18,39 +20,15 @@ type ForgotPasswordForm = FormGroup<{
   email: FormControl<string>;
 }>;
 
-const FIELD_LABELS = Object.freeze({
-  Email: 'Email address',
-});
+const FIELD_LABEL_KEYS = Object.freeze({
+  Email: 'auth.emailLabel',
+} as const);
 
 const CONTROL_IDS = Object.freeze({
   Email: 'auth-forgot-password-email',
 });
 
-const SUCCESS_MESSAGE = 'If the email exists, a password reset link has been sent.';
-
-const REQUIRED_VALIDATION: NormalizedProblemDetails = Object.freeze({
-  kind: 'validation',
-  type: '',
-  title: 'Validation failed',
-  status: 400,
-  detail: '',
-  traceId: '',
-  errors: Object.freeze({
-    Email: Object.freeze(["'Email' must not be empty."]),
-  }),
-});
-
-const EMAIL_VALIDATION: NormalizedProblemDetails = Object.freeze({
-  kind: 'validation',
-  type: '',
-  title: 'Validation failed',
-  status: 400,
-  detail: '',
-  traceId: '',
-  errors: Object.freeze({
-    Email: Object.freeze(["'Email' is not a valid email address."]),
-  }),
-});
+const EMAIL_VALIDATION_ERROR_KEY = 'auth.emailInvalid' as const;
 
 @Component({
   selector: 'np-forgot-password',
@@ -58,6 +36,7 @@ const EMAIL_VALIDATION: NormalizedProblemDetails = Object.freeze({
     MatButtonModule,
     NpFormValidationSummary,
     AuthTextField,
+    NpLanguageSwitcher,
     ReactiveFormsModule,
     RouterLink,
   ],
@@ -67,6 +46,7 @@ const EMAIL_VALIDATION: NormalizedProblemDetails = Object.freeze({
 export class ForgotPassword implements AfterViewInit {
   private readonly forgotPasswordApi = inject(ForgotPasswordApi);
   private readonly host = inject(ElementRef);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
   protected readonly publicOffersPath = canonicalRoutePath('PREPARATION_PACKAGES_OFFERS');
@@ -88,10 +68,12 @@ export class ForgotPassword implements AfterViewInit {
   protected readonly validationSummary = computed(() => toFormValidationSummary(
     this.normalizedError(),
     {
-      fieldLabels: FIELD_LABELS,
+      fieldLabels: {
+        Email: this.i18n.t(FIELD_LABEL_KEYS.Email),
+      },
       controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'The password reset request could not be submitted.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('forgot.formFallback'),
     },
   ));
 
@@ -100,7 +82,7 @@ export class ForgotPassword implements AfterViewInit {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'The password reset request could not be submitted.';
+    return this.i18n.backendErrorCopy(error.detail, 'forgot.formFallback');
   });
 
   protected get emailValue(): string {
@@ -127,7 +109,7 @@ export class ForgotPassword implements AfterViewInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.normalizedError.set(this.emailValue.trim() === '' ? REQUIRED_VALIDATION : EMAIL_VALIDATION);
+      this.normalizedError.set(this.emailValue.trim() === '' ? this.requiredValidation() : this.emailValidation());
       return;
     }
 
@@ -136,9 +118,11 @@ export class ForgotPassword implements AfterViewInit {
 
     try {
       await firstValueFrom(this.forgotPasswordApi.requestPasswordReset({ email: this.emailValue }));
-      this.successMessage.set(SUCCESS_MESSAGE);
+      this.successMessage.set(this.i18n.t('forgot.success'));
     } catch (error: unknown) {
-      this.normalizedError.set(normalizeProblemDetails(this.errorBody(error)));
+      this.normalizedError.set(
+        this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), FIELD_LABEL_KEYS),
+      );
       this.form.enable({ emitEvent: false });
     } finally {
       this.isSubmitting.set(false);
@@ -150,6 +134,26 @@ export class ForgotPassword implements AfterViewInit {
       return '';
     }
     return toFieldErrorText(this.normalizedError()?.errors?.[field]);
+  }
+
+  private singleFieldValidation(messageKey: 'auth.emailEmpty' | 'auth.emailInvalid'): NormalizedProblemDetails {
+    return {
+      kind: 'validation',
+      type: '',
+      title: this.i18n.t('auth.validationFailed'),
+      status: 400,
+      detail: '',
+      traceId: '',
+      errors: { Email: [this.i18n.t(messageKey)] },
+    };
+  }
+
+  private requiredValidation(): NormalizedProblemDetails {
+    return this.singleFieldValidation('auth.emailEmpty');
+  }
+
+  private emailValidation(): NormalizedProblemDetails {
+    return this.singleFieldValidation(EMAIL_VALIDATION_ERROR_KEY);
   }
 
   private clearFeedback(): void {

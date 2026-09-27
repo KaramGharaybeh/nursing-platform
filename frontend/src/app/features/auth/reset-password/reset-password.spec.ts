@@ -112,12 +112,19 @@ describe('AUTH-008 Reset Password', () => {
     const { fixture } = await setup('opaque-token');
     const root = fixture.nativeElement as HTMLElement;
     for (const id of ['auth-reset-password-email', 'auth-reset-password-new-password']) {
-      expect(root.querySelector(`label[for="${id}"] + input#${id}`)).not.toBeNull();
+      expect(root.querySelector(`label[for="${id}"] + .np-auth-field-control input#${id}`)).not.toBeNull();
     }
     expect(root.querySelector('.np-reset-password-form mat-form-field')).toBeNull();
     expect(root.querySelector('#auth-reset-password-new-password-helper')?.closest('np-auth-text-field')).not.toBeNull();
     expect(passwordInput(fixture).getAttribute('aria-describedby')).toContain('auth-reset-password-new-password-helper');
-    expect(root.querySelector('.np-reset-password-eye[aria-hidden="true"]')).not.toBeNull();
+    const toggle = root.querySelector<HTMLButtonElement>('.np-reset-password-field .np-auth-field-visibility');
+    expect(toggle?.getAttribute('aria-label')).toBe('Show password');
+    toggle?.click();
+    fixture.detectChanges();
+    expect(passwordInput(fixture).type).toBe('text');
+    toggle?.click();
+    fixture.detectChanges();
+    expect(passwordInput(fixture).type).toBe('password');
   });
   it('uses the public auth header and single centered reset card without marketing decoration', async () => {
     const { fixture } = await setup(null);

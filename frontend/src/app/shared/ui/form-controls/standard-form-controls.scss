@@ -5,27 +5,91 @@
   text-align: start;
 }
 
+.np-standard-control {
+  display: grid;
+  gap: var(--np-space-optical-6);
+  color: var(--np-color-brand-2);
+  text-align: start;
+}
+
+.np-standard-control-label {
+  color: var(--np-color-brand-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.np-standard-control-required,
+.np-standard-control-error {
+  color: var(--np-color-error);
+}
+
 .np-standard-field {
   inline-size: 100%;
-  min-block-size: 64px;
-  border-radius: 12px;
 }
 
 .np-standard-field-native {
   box-sizing: border-box;
-  min-block-size: 44px;
-  padding-inline: 16px;
+  inline-size: 100%;
+  min-block-size: var(--np-control-height);
+  padding-block: var(--np-space-8);
+  padding-inline: var(--np-control-padding-inline);
+  border: 1px solid var(--np-color-border);
+  border-radius: var(--np-control-radius);
+  background: var(--np-color-surface);
+  color: var(--np-color-brand-2);
+  font: inherit;
+  font-size: 0.875rem;
   text-align: start;
 }
 
+.np-standard-field-native::placeholder {
+  color: var(--np-color-muted-text);
+  opacity: 1;
+}
+
+.np-standard-field-native:focus-visible {
+  border-color: var(--np-color-brand-1);
+  outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+  outline-offset: var(--np-focus-ring-offset);
+}
+
+.np-standard-field-native:disabled {
+  background: var(--np-color-subtle-surface);
+  color: var(--np-color-secondary-text);
+  cursor: not-allowed;
+}
+
+.np-standard-field-native:read-only:not(:disabled) {
+  background: var(--np-color-subtle-surface);
+  color: var(--np-color-brand-2);
+}
+
+.np-standard-field-native.np-standard-control-invalid {
+  border-color: var(--np-color-error);
+}
+
 .np-standard-textarea .np-standard-field-native {
-  min-block-size: 64px;
+  min-block-size: var(--np-space-64);
   resize: vertical;
 }
 
 .np-standard-control-optional {
   margin-inline-start: var(--np-space-8);
+  color: var(--np-color-secondary-text);
   font-size: 0.875em;
+  font-weight: 400;
+}
+
+.np-standard-control-helper,
+.np-standard-control-error {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.np-standard-control-helper {
+  color: var(--np-color-secondary-text);
 }
 
 .np-standard-selection-control {
@@ -40,11 +104,7 @@
   @include mixins.touch-target;
 
   align-items: center;
-  min-inline-size: 44px;
-}
-
-.np-standard-control-error {
-  color: currentcolor;
+  min-inline-size: var(--np-control-height);
 }
 
 .np-standard-radio-control {
@@ -67,7 +127,7 @@
 @media (width < 600px) {
   .np-standard-selection-control mat-checkbox,
   .np-standard-selection-control mat-radio-button {
-    min-inline-size: 48px;
-    min-block-size: 48px;
+    min-inline-size: var(--np-space-48);
+    min-block-size: var(--np-space-48);
   }
 }

@@ -1,7 +1,6 @@
 import { Component, Directive, EventEmitter, Input, Output } from '@angular/core';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 
@@ -16,7 +15,7 @@ export interface NpSelectOption {
 
 let nextControlId = 0;
 
-const STANDARD_FORM_CONTROL_IMPORTS = [MatCheckboxModule, MatFormFieldModule, MatInputModule, MatRadioModule, MatSelectModule];
+const STANDARD_FORM_CONTROL_IMPORTS = [MatCheckboxModule, MatFormFieldModule, MatRadioModule, MatSelectModule];
 
 @Directive()
 abstract class NpStandardControlBase {

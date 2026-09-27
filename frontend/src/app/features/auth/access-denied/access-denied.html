@@ -7,11 +7,12 @@
       </svg>
       Nursing Platform
     </span>
-    <nav aria-label="Public authentication navigation">
-      <a [routerLink]="publicOffersPath">Preparation Packages</a>
-      <a [routerLink]="signInPath">Sign in</a>
-      <a class="np-access-denied-nav-solid" [routerLink]="signUpPath">Sign up</a>
+    <nav [attr.aria-label]="i18n.t('auth.publicNav')">
+      <a [routerLink]="publicOffersPath">{{ i18n.t('auth.prepPackages') }}</a>
+      <a [routerLink]="signInPath">{{ i18n.t('auth.signIn') }}</a>
+      <a class="np-access-denied-nav-solid" [routerLink]="signUpPath">{{ i18n.t('auth.signUp') }}</a>
     </nav>
+    <np-language-switcher />
   </header>
   <div class="np-access-denied-composition">
     <article class="np-access-denied-card">
@@ -20,13 +21,13 @@
           <rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" />
         </svg>
       </span>
-      <h1 id="auth-access-denied-title">Access denied</h1>
-      <p class="np-access-denied-description">You do not have access to this page. Choose a safe destination to continue.</p>
+      <h1 id="auth-access-denied-title">{{ i18n.t('accessDenied.title') }}</h1>
+      <p class="np-access-denied-description">{{ i18n.t('accessDenied.description') }}</p>
       <p class="np-access-denied-action">
-        <a [routerLink]="accountPath">Go to account</a>
+        <a [routerLink]="accountPath">{{ i18n.t('accessDenied.goToAccount') }}</a>
       </p>
-      <span class="np-access-denied-home">Go to home</span>
-      <span class="np-access-denied-sign-in">Sign in</span>
+      <span class="np-access-denied-home">{{ i18n.t('accessDenied.goHome') }}</span>
+      <span class="np-access-denied-sign-in">{{ i18n.t('accessDenied.signInText') }}</span>
     </article>
   </div>
 </section>

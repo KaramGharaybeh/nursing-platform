@@ -17,13 +17,15 @@ import { NpSelectControl } from '../../shared/ui/form-controls';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
 import { NpPagination } from '../../shared/ui/pagination';
+import { LocalizationService } from '../../core/i18n/localization.service';
+import type { TranslationKey } from '../../core/i18n/translations';
 
 export type ExamHistoryStatusFilter = '' | 'InProgress' | 'Submitted' | 'Expired';
 
-const STATUS_LABELS: Record<Exclude<ExamHistoryStatusFilter, ''>, string> = {
-  InProgress: 'In progress',
-  Submitted: 'Completed',
-  Expired: 'Time expired',
+const STATUS_LABEL_KEYS: Record<Exclude<ExamHistoryStatusFilter, ''>, TranslationKey> = {
+  InProgress: 'exams.historyInProgress',
+  Submitted: 'exams.historyCompleted',
+  Expired: 'exams.historyTimeExpired',
 };
 
 const STATUS_NUMBERS: Record<Exclude<ExamHistoryStatusFilter, ''>, number> = {
@@ -44,6 +46,7 @@ export class ExamHistoryScreen implements OnInit {
   private readonly api = inject(ExamsApi);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly page = signal<ExamHistoryPage | undefined>(undefined);
@@ -85,9 +88,10 @@ export class ExamHistoryScreen implements OnInit {
 
   protected statusLabel(status: string): string {
     if (status === 'Abandoned') {
-      return 'Abandoned';
+      return this.i18n.t('exams.statusAbandoned');
     }
-    return STATUS_LABELS[status as Exclude<ExamHistoryStatusFilter, ''>] ?? status;
+    const key = STATUS_LABEL_KEYS[status as Exclude<ExamHistoryStatusFilter, ''>];
+    return key === undefined ? status : this.i18n.t(key);
   }
 
   protected isFinalizedStatus(status: string): boolean {
@@ -108,10 +112,10 @@ export class ExamHistoryScreen implements OnInit {
 
   protected statusOptions(): { value: string; label: string }[] {
     return [
-      { value: '', label: 'All' },
-      { value: 'InProgress', label: 'In progress' },
-      { value: 'Submitted', label: 'Completed' },
-      { value: 'Expired', label: 'Time expired' },
+      { value: '', label: this.i18n.t('exams.historyAll') },
+      { value: 'InProgress', label: this.i18n.t('exams.historyInProgress') },
+      { value: 'Submitted', label: this.i18n.t('exams.historyCompleted') },
+      { value: 'Expired', label: this.i18n.t('exams.historyTimeExpired') },
     ];
   }
 

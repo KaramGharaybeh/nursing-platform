@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import type { CountryListItemDto } from '../../../../core/api/generated/models/country-list-item-dto';
@@ -12,6 +12,7 @@ import {
   type NpSelectOption,
 } from '../../../../shared/ui/form-controls';
 import { NpFormValidationSummary, toFieldErrorText, toFormValidationSummary } from '../../../../shared/ui/form-validation';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 
 const FACILITY_NAME_MAX = 200;
 const JOB_TITLE_MAX = 200;
@@ -37,13 +38,13 @@ type ExperienceForm = FormGroup<{
   description: FormControl<string>;
 }>;
 
-const FIELD_LABELS = Object.freeze({
-  FacilityName: 'Facility name',
-  JobTitle: 'Job title',
-  StartDate: 'Start date',
-  EndDate: 'End date',
-  Description: 'Description',
-});
+const FIELD_LABEL_KEYS = Object.freeze({
+  FacilityName: 'expForm.facilityName',
+  JobTitle: 'expForm.jobTitle',
+  StartDate: 'expForm.startDate',
+  EndDate: 'expForm.endDate',
+  Description: 'expForm.description',
+} as const);
 
 const CONTROL_IDS = Object.freeze({
   FacilityName: 'nurse-experience-facility-name',
@@ -100,11 +101,12 @@ export class NurseExperienceForm implements OnInit {
   });
 
   protected readonly controlIds = CONTROL_IDS;
+  protected readonly i18n = inject(LocalizationService);
   private readonly submittedState = { submitted: false };
   private retainedEndDate = '';
 
   protected get submitLabel(): string {
-    return this.mode === 'edit' ? 'Save changes' : 'Save experience';
+    return this.mode === 'edit' ? this.i18n.t('expForm.submitSave') : this.i18n.t('expForm.submitCreate');
   }
 
   protected get countryOptions(): readonly NpSelectOption[] {
@@ -161,10 +163,16 @@ export class NurseExperienceForm implements OnInit {
 
   protected get validationSummary() {
     return toFormValidationSummary(this.normalizedError(), {
-      fieldLabels: FIELD_LABELS,
+      fieldLabels: {
+        FacilityName: this.i18n.t(FIELD_LABEL_KEYS.FacilityName),
+        JobTitle: this.i18n.t(FIELD_LABEL_KEYS.JobTitle),
+        StartDate: this.i18n.t(FIELD_LABEL_KEYS.StartDate),
+        EndDate: this.i18n.t(FIELD_LABEL_KEYS.EndDate),
+        Description: this.i18n.t(FIELD_LABEL_KEYS.Description),
+      },
       controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'Your work experience could not be saved.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('expForm.formFallback'),
     });
   }
 
@@ -173,7 +181,7 @@ export class NurseExperienceForm implements OnInit {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'Your work experience could not be saved.';
+    return this.i18n.backendErrorCopy(error.detail, 'expForm.formFallback');
   }
 
   ngOnInit(): void {
@@ -264,7 +272,19 @@ export class NurseExperienceForm implements OnInit {
 
   private normalizedError(): NormalizedProblemDetails | undefined {
     const clientFailure = this.submittedState.submitted ? this.clientValidationFailure() : undefined;
-    return clientFailure ?? this.backendError;
+    if (clientFailure !== undefined) {
+      return clientFailure;
+    }
+    return this.safeBackendError(this.backendError);
+  }
+
+  private safeBackendError(
+    error: NormalizedProblemDetails | undefined,
+  ): NormalizedProblemDetails | undefined {
+    if (error === undefined) {
+      return undefined;
+    }
+    return this.i18n.safeBackendError(error, FIELD_LABEL_KEYS);
   }
 
   private clientValidationFailure(): NormalizedProblemDetails | undefined {
@@ -277,35 +297,35 @@ export class NurseExperienceForm implements OnInit {
     const isCurrent = this.form.controls.isCurrent.value;
 
     if (facilityName.hasError('required')) {
-      errors['FacilityName'] = ['Facility name is required.'];
+      errors['FacilityName'] = [this.i18n.t('expForm.facilityRequired')];
     } else if (facilityName.hasError('maxlength')) {
-      errors['FacilityName'] = ['Facility name must be at most 200 characters.'];
+      errors['FacilityName'] = [this.i18n.t('expForm.facilityMax')];
     }
     if (jobTitle.hasError('required')) {
-      errors['JobTitle'] = ['Job title is required.'];
+      errors['JobTitle'] = [this.i18n.t('expForm.jobRequired')];
     } else if (jobTitle.hasError('maxlength')) {
-      errors['JobTitle'] = ['Job title must be at most 200 characters.'];
+      errors['JobTitle'] = [this.i18n.t('expForm.jobMax')];
     }
     if (startDate.hasError('required')) {
-      errors['StartDate'] = ['Start date is required.'];
+      errors['StartDate'] = [this.i18n.t('expForm.startRequired')];
     }
     if (description.hasError('maxlength')) {
-      errors['Description'] = ['Description must be at most 2000 characters.'];
+      errors['Description'] = [this.i18n.t('expForm.descMax')];
     }
     const endValue = endDate.value.trim();
     if (endValue !== '' && startDate.value.trim() !== '' && endValue < startDate.value.trim()) {
-      errors['EndDate'] = ['End date must be on or after the start date.'];
+      errors['EndDate'] = [this.i18n.t('expForm.endAfterStart')];
     }
     if (isCurrent && endValue !== '') {
-      errors['EndDate'] = ['End date must be empty for a current role.'];
+      errors['EndDate'] = [this.i18n.t('expForm.endCurrentRole')];
     }
 
     if (Object.keys(errors).length === 0) {
       return undefined;
     }
-    return { kind: 'validation', type: '', title: 'Validation failed', status: 400, detail: '', traceId: '', errors };
+    return { kind: 'validation', type: '', title: this.i18n.t('auth.validationFailed'), status: 400, detail: '', traceId: '', errors };
   }
-  private fieldError(field: keyof typeof FIELD_LABELS): string {
+  private fieldError(field: keyof typeof FIELD_LABEL_KEYS): string {
     if (!this.submittedState.submitted) {
       return '';
     }

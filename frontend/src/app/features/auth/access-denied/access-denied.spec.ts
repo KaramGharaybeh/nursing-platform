@@ -49,7 +49,7 @@ describe('AUTH-011 Access Denied', () => {
     ) as HTMLAnchorElement | null;
     expect(accountLink).not.toBeNull();
     expect(accountLink?.textContent).toContain('Go to account');
-    expect(fixture.nativeElement.querySelector('button')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.np-access-denied-card button')).toBeNull();
   });
 
   it('does not reference auth/session/token/current-user behavior', () => {

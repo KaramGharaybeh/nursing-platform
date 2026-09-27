@@ -1,43 +1,43 @@
 <section class="np-admin-users" aria-labelledby="admin-users-title">
   <header class="np-admin-users-header">
-    <p class="np-admin-users-kicker">Administration</p>
-    <h1 id="admin-users-title">Admin users</h1>
-    <p>Search users by name, username, or email and open a user to manage their role.</p>
+    <p class="np-admin-users-kicker">{{ t('adm.usersKicker') }}</p>
+    <h1 id="admin-users-title">{{ t('adm.usersTitle') }}</h1>
+    <p>{{ t('adm.usersLead') }}</p>
   </header>
 
   <form class="np-admin-users-search" (ngSubmit)="submitSearch()" novalidate>
     <np-text-input-control
       controlId="admin-users-search"
-      label="Search users"
+      [label]="t('adm.searchUsers')"
       type="search"
-      helperText="Search by name, username, or email."
+      [helperText]="t('adm.searchHelper')"
       [value]="searchValue"
       (valueChange)="updateSearch($event)"
     />
-    <button type="submit" mat-flat-button color="primary">Search</button>
+    <button type="submit" mat-flat-button color="primary">{{ t('adm.search') }}</button>
   </form>
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading users"
-    fallbackErrorTitle="Users could not be loaded"
+    [loadingLabel]="t('adm.usersLoading')"
+    [fallbackErrorTitle]="t('adm.usersLoadError')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (users().length === 0 && searchValue.trim() === '') {
-      <p class="np-admin-users-empty">No users are available yet.</p>
+      <p class="np-admin-users-empty">{{ t('adm.usersEmpty') }}</p>
     } @else if (users().length === 0) {
-      <p class="np-admin-users-empty">No users match your search.</p>
+      <p class="np-admin-users-empty">{{ t('adm.usersNoMatch') }}</p>
     } @else {
-      <div class="np-admin-users-table" role="table" aria-label="Admin users">
+      <div class="np-admin-users-table" role="table" [attr.aria-label]="t('adm.usersTable')">
         <div class="np-admin-users-row np-admin-users-row-heading" role="row">
-          <span role="columnheader">Name</span>
-          <span role="columnheader">Username</span>
-          <span role="columnheader">Email</span>
-          <span role="columnheader">Role</span>
-          <span role="columnheader">Status</span>
-          <span role="columnheader">Action</span>
+          <span role="columnheader">{{ t('adm.thName') }}</span>
+          <span role="columnheader">{{ t('adm.thUsername') }}</span>
+          <span role="columnheader">{{ t('adm.thEmail') }}</span>
+          <span role="columnheader">{{ t('adm.thRole') }}</span>
+          <span role="columnheader">{{ t('adm.status') }}</span>
+          <span role="columnheader">{{ t('adm.thAction') }}</span>
         </div>
         @for (user of users(); track user.id) {
           <div class="np-admin-users-row" role="row">
@@ -45,15 +45,15 @@
             <span role="cell">{{ user.username }}</span>
             <span role="cell">{{ user.email }}</span>
             <span role="cell">{{ displayRoles(user) }}</span>
-            <span role="cell">{{ user.isActive ? 'Active' : 'Inactive' }}</span>
-            <span role="cell"><a [routerLink]="detailPath(user.id)">Open</a></span>
+            <span role="cell">{{ user.isActive ? t('adm.active') : t('adm.inactive') }}</span>
+            <span role="cell"><a [routerLink]="detailPath(user.id)">{{ t('adm.open') }}</a></span>
           </div>
         }
       </div>
-      <nav class="np-admin-users-pagination" aria-label="Users pagination">
-        <button type="button" mat-button (click)="previousPage()" [disabled]="page() <= 1">Previous</button>
-        <span>Page {{ page() }} of {{ totalPages() }} · {{ totalCount() }} users</span>
-        <button type="button" mat-button (click)="nextPage()" [disabled]="page() >= totalPages()">Next</button>
+      <nav class="np-admin-users-pagination" [attr.aria-label]="t('adm.usersPagination')">
+        <button type="button" mat-button (click)="previousPage()" [disabled]="page() <= 1">{{ t('adm.previous') }}</button>
+        <span>{{ tp('adm.pageOf', { page: page(), totalPages: totalPages(), totalCount: totalCount() }) }}</span>
+        <button type="button" mat-button (click)="nextPage()" [disabled]="page() >= totalPages()">{{ t('adm.next') }}</button>
       </nav>
     }
   }

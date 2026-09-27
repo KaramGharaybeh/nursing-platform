@@ -1,29 +1,29 @@
 <section class="np-order-detail" aria-labelledby="order-detail-heading">
-  <a [routerLink]="backPath" data-testid="back-to-orders">Back to orders</a>
-  <h1 #pageHeading tabindex="-1" id="order-detail-heading">Order details</h1>
+  <a [routerLink]="backPath" data-testid="back-to-orders">{{ t('com.detailBack') }}</a>
+  <h1 #pageHeading tabindex="-1" id="order-detail-heading">{{ t('com.detailTitle') }}</h1>
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading order"
-    fallbackErrorTitle="We couldn't load this order. Try again."
-    retryLabel="Retry"
+    [loadingLabel]="t('com.detailLoading')"
+    [fallbackErrorTitle]="t('com.detailLoadError')"
+    [retryLabel]="t('com.detailRetry')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (unavailable()) {
-      <p role="status">This order isn't available.</p>
+      <p role="status">{{ t('com.unavailable') }}</p>
     } @else if (order(); as detail) {
       <h2>{{ detail.items[0].title }}</h2>
       <dl>
-        <dt>Created</dt><dd>{{ detail.createdAt | date: 'medium' }}</dd>
-        <dt>Total</dt><dd>{{ total(detail) }}</dd>
-        <dt>Status</dt><dd>{{ status(detail.status) }}</dd>
+        <dt>{{ t('com.created') }}</dt><dd>{{ detail.createdAt | date: 'medium' }}</dd>
+        <dt>{{ t('com.total') }}</dt><dd>{{ total(detail) }}</dd>
+        <dt>{{ t('com.statusLabel') }}</dt><dd>{{ status(detail.status) }}</dd>
         @if (detail.status === 'Paid' && detail.paidAt) {
-          <dt>Paid on</dt><dd>{{ detail.paidAt | date: 'medium' }}</dd>
+          <dt>{{ t('com.paidOn') }}</dt><dd>{{ detail.paidAt | date: 'medium' }}</dd>
         }
       </dl>
       @if (detail.items.length > 1) {
-        <h2>Items</h2>
+        <h2>{{ t('com.items') }}</h2>
         <ul>
           @for (item of detail.items; track $index) {
             <li>{{ item.title }} — {{ itemTotal(item) }}</li>
@@ -36,14 +36,14 @@
       @if (detail.status === 'PendingPayment') {
         @if (confirming()) {
           <div class="np-order-detail-confirmation" role="group" aria-labelledby="cancel-heading">
-            <h2 #confirmationHeading tabindex="-1" id="cancel-heading">Cancel order?</h2>
-            <p>This order will be cancelled if it is still eligible for cancellation.</p>
-            <button type="button" data-testid="keep-order" [disabled]="cancelling()" (click)="keep()">Keep order</button>
-            <button type="button" data-testid="confirm-cancel" [disabled]="cancelling()" (click)="cancel()">Cancel order</button>
-            @if (cancelling()) { <p role="status">Cancelling order…</p> }
+            <h2 #confirmationHeading tabindex="-1" id="cancel-heading">{{ t('com.cancelTitle') }}</h2>
+            <p>{{ t('com.cancelText') }}</p>
+            <button type="button" data-testid="keep-order" [disabled]="cancelling()" (click)="keep()">{{ t('com.keepOrder') }}</button>
+            <button type="button" data-testid="confirm-cancel" [disabled]="cancelling()" (click)="cancel()">{{ t('com.cancelOrder') }}</button>
+            @if (cancelling()) { <p role="status">{{ t('com.cancelling') }}</p> }
           </div>
         } @else {
-          <button #cancelButton type="button" data-testid="cancel-order" (click)="confirm()">Cancel order</button>
+          <button #cancelButton type="button" data-testid="cancel-order" (click)="confirm()">{{ t('com.cancelOrder') }}</button>
         }
       }
     }

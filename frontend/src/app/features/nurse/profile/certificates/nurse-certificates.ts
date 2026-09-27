@@ -2,6 +2,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Announcer, NpLiveRegion } from '../../../../shared/ui/announcement';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 import { TwoStepConfirmation } from '../../../../shared/ui/confirmation';
 import { NurseProfileApi } from '../../../../core/api/nurse-profile-api';
 import type { NurseCertificateDto } from '../../../../core/api/generated/models/nurse-certificate-dto';
@@ -22,6 +23,7 @@ type CertificatesView = 'list' | 'create' | 'edit';
 export class NurseCertificates implements OnInit {
   private readonly api = inject(NurseProfileApi);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
   private readonly deleteConfirmation = new TwoStepConfirmation();
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
@@ -36,7 +38,7 @@ export class NurseCertificates implements OnInit {
   protected readonly notice = signal('');
 
   protected get formTitle(): string {
-    return this.view() === 'edit' ? 'Edit certificate' : 'Add certificate';
+    return this.view() === 'edit' ? this.i18n.t('cert.formTitleEdit') : this.i18n.t('cert.add');
   }
 
   protected get formInitial(): NurseCertificateFormValue | undefined {
@@ -99,7 +101,7 @@ export class NurseCertificates implements OnInit {
       await this.reloadRecords();
       this.editing.set(undefined);
       this.view.set('list');
-      this.announcer.announce('Certificate saved.');
+      this.announcer.announce(this.i18n.t('cert.saved'));
     } catch (error: unknown) {
       this.formError.set(normalizeProblemDetails(this.errorBody(error)));
     } finally {
@@ -128,13 +130,13 @@ export class NurseCertificates implements OnInit {
       await this.reloadRecords();
       this.editing.set(undefined);
       this.view.set('list');
-      this.announcer.announce('Certificate saved.');
+      this.announcer.announce(this.i18n.t('cert.saved'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
         this.editing.set(undefined);
         this.view.set('list');
-        this.notice.set('This certificate no longer exists. The list has been refreshed.');
-        this.announcer.announce('This certificate no longer exists.');
+        this.notice.set(this.i18n.t('cert.goneNotice'));
+        this.announcer.announce(this.i18n.t('cert.goneAnnounce'));
         await this.reloadRecords();
       } else {
         this.formError.set(normalizeProblemDetails(this.errorBody(error)));
@@ -148,7 +150,7 @@ export class NurseCertificates implements OnInit {
     this.deleteConfirmation.request();
     this.deleteTargetId.set(record.id);
     this.deleteError.set(undefined);
-    this.announcer.announce(`Confirm deletion of ${record.name} from ${record.issuingOrganization}?`);
+    this.announcer.announce(this.i18n.tp('cert.confirmDelete', { name: record.name, issuer: record.issuingOrganization }));
   }
 
   protected cancelDelete(): void {
@@ -168,15 +170,17 @@ export class NurseCertificates implements OnInit {
     try {
       await firstValueFrom(this.api.deleteCertificate(id));
       await this.reloadRecords();
-      this.announcer.announce('Certificate deleted.');
+      this.announcer.announce(this.i18n.t('cert.deleted'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
         await this.reloadRecords();
-        this.notice.set('That certificate had already been removed. The list has been refreshed.');
-        this.announcer.announce('Certificate was already removed.');
+        this.notice.set(this.i18n.t('cert.alreadyRemoved'));
+        this.announcer.announce(this.i18n.t('cert.alreadyRemovedAnnounce'));
       } else {
         this.deleteTargetId.set(id);
-        this.deleteError.set(normalizeProblemDetails(this.errorBody(error)));
+        this.deleteError.set(
+          this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), {}),
+        );
       }
     } finally {
       this.deletingId.set(undefined);

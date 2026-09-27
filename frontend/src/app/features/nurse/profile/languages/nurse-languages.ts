@@ -9,6 +9,7 @@ import { normalizeProblemDetails } from '../../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../../core/api/problem-details';
 import { NpSelectControl, type NpSelectOption } from '../../../../shared/ui/form-controls';
 import { NpFormValidationSummary, toFormValidationSummary } from '../../../../shared/ui/form-validation';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../../shared/ui/loading-error-retry';
 
@@ -31,6 +32,7 @@ export class NurseLanguages implements OnInit {
   private readonly api = inject(NurseProfileApi);
   private readonly languagesApi = inject(LanguagesApi);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly catalog = signal<readonly LanguageListItemDto[]>([]);
@@ -42,10 +44,16 @@ export class NurseLanguages implements OnInit {
   protected readonly submitted = signal(false);
 
   protected readonly maxLanguages = MAX_LANGUAGES;
-  protected readonly proficiencyOptions: readonly NpSelectOption[] = PROFICIENCIES.map((level) => ({
-    value: level,
-    label: level,
-  }));
+  protected get proficiencyOptions(): readonly NpSelectOption[] {
+    const labels: Record<string, string> = {
+      Beginner: this.i18n.t('lang.beginner'),
+      Intermediate: this.i18n.t('lang.intermediate'),
+      Advanced: this.i18n.t('lang.advanced'),
+      Fluent: this.i18n.t('lang.fluent'),
+      Native: this.i18n.t('lang.native'),
+    };
+    return PROFICIENCIES.map((level) => ({ value: level, label: labels[level] ?? level }));
+  }
 
   protected get languageOptions(): readonly NpSelectOption[] {
     return this.catalog().map((language) => ({ value: language.id, label: language.name }));
@@ -53,8 +61,8 @@ export class NurseLanguages implements OnInit {
 
   protected get validationSummary() {
     return toFormValidationSummary(this.normalizedError(), {
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'Your languages could not be saved.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('lang.formFallback'),
     });
   }
 
@@ -63,7 +71,7 @@ export class NurseLanguages implements OnInit {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'Your languages could not be saved.';
+    return this.i18n.backendErrorCopy(error.detail, 'lang.formFallback');
   }
 
   ngOnInit(): void {
@@ -75,12 +83,14 @@ export class NurseLanguages implements OnInit {
   }
 
   protected rowLanguageLabel(index: number): string {
-    return `Language ${index + 1}`;
+    return this.i18n.tp('lang.rowLanguage', { index: index + 1 });
   }
 
   protected rowProficiencyLabel(index: number): string {
     const language = this.catalog().find((entry) => entry.id === this.rows()[index]?.languageId);
-    return language === undefined ? `Proficiency ${index + 1}` : `Proficiency for ${language.name}`;
+    return language === undefined
+      ? this.i18n.tp('lang.rowProficiency', { index: index + 1 })
+      : this.i18n.tp('lang.rowProficiencyFor', { name: language.name });
   }
 
   protected addRow(): void {
@@ -117,16 +127,16 @@ export class NurseLanguages implements OnInit {
       return '';
     }
     if (row.languageId === '') {
-      return 'Select a language.';
+      return this.i18n.t('lang.selectLanguageError');
     }
     if (row.proficiency === '') {
-      return 'Select a proficiency.';
+      return this.i18n.t('lang.selectProficiencyError');
     }
     const duplicate = this.rows().some(
       (other, position) => position !== index && other.languageId !== '' && other.languageId === row.languageId,
     );
     if (duplicate) {
-      return 'This language has already been added.';
+      return this.i18n.t('lang.duplicateError');
     }
     return '';
   }
@@ -150,23 +160,25 @@ export class NurseLanguages implements OnInit {
       this.savedRows.set(next);
       this.rows.set(next);
       this.submitted.set(false);
-      this.announcer.announce('Languages saved.');
+      this.announcer.announce(this.i18n.t('lang.saved'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
-        this.notice.set('Your nurse profile no longer exists. Your languages were not saved.');
-        this.announcer.announce('Your nurse profile no longer exists.');
+        this.notice.set(this.i18n.t('lang.profileGone'));
+        this.announcer.announce(this.i18n.t('lang.profileGoneAnnounce'));
       } else if (this.isConflict(error)) {
         await this.refreshCatalog();
         this.saveError.set({
           kind: 'generic',
           type: '',
-          title: 'Conflict',
+          title: this.i18n.t('lang.conflictTitle'),
           status: 409,
-          detail: 'One or more selected languages are no longer available. Refresh the list and choose again.',
+          detail: this.i18n.t('lang.conflictDetail'),
           traceId: '',
         });
       } else {
-        this.saveError.set(normalizeProblemDetails(this.errorBody(error)));
+        this.saveError.set(
+          this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), {}),
+        );
       }
     } finally {
       this.isSaving.set(false);
@@ -182,7 +194,7 @@ export class NurseLanguages implements OnInit {
           errors[`Row${index + 1}`] = [message];
         }
       });
-      return { kind: 'validation', type: '', title: 'Validation failed', status: 400, detail: '', traceId: '', errors };
+      return { kind: 'validation', type: '', title: this.i18n.t('auth.validationFailed'), status: 400, detail: '', traceId: '', errors };
     }
     return this.saveError();
   }

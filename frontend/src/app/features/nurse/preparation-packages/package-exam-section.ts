@@ -8,6 +8,7 @@ import type { PackageExamSessionStateDto } from '../../../core/api/generated/mod
 import { buildExamsSessionPath, buildPreparationPackageReportPath } from '../../../core/routing/canonical-routes';
 import { TwoStepConfirmation } from '../../../shared/ui/confirmation';
 import { Announcer, NpLiveRegion } from '../../../shared/ui/announcement';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../shared/ui/loading-error-retry';
 
@@ -32,6 +33,7 @@ export class PackageExamSection implements OnInit {
   private readonly examsApi = inject(ExamsApi);
   private readonly router = inject(Router);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
   private readonly confirmation = new TwoStepConfirmation();
 
   readonly entitlementId = input.required<string>();
@@ -77,7 +79,7 @@ export class PackageExamSection implements OnInit {
     this.startError.set(false);
     try {
       const started = await firstValueFrom(this.api.startPackageExamSession(this.entitlementId()));
-      this.announcer.announce('Package exam session started.');
+      this.announcer.announce(this.i18n.t('npp.sessionStarted'));
       await this.router.navigateByUrl(
         buildExamsSessionPath(started.examId, started.sessionId),
       );

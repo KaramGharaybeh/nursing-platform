@@ -148,16 +148,6 @@ h1 {
   position: relative;
 }
 
-.np-sign-in-password-eye {
-  position: absolute;
-  inset-block-start: var(--np-space-36);
-  inset-inline-end: var(--np-space-16);
-  inline-size: var(--np-space-20);
-  block-size: var(--np-space-20);
-  color: #4f6473;
-  pointer-events: none;
-}
-
 .np-sign-in-error {
   margin: 0;
   padding-block: var(--np-space-12);
@@ -175,7 +165,6 @@ h1 {
 
   justify-self: stretch;
   min-block-size: var(--np-space-48);
-  border-radius: var(--np-space-24);
   font-weight: 600;
 
   @include mixins.touch-target(true);

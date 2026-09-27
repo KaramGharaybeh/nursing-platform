@@ -9,6 +9,7 @@ import {
 } from '@angular/router';
 import { AuthSessionBootstrap } from './core/auth/auth-session-bootstrap';
 import { CurrentUserStore } from './core/auth/current-user-store';
+import { LocalizationService } from './core/i18n/localization.service';
 import { LocaleDirectionService } from './core/locale/locale-direction.service';
 import { canonicalRoutePath } from './core/routing/canonical-routes';
 import { PUBLIC_ROUTE_IDS } from './core/routing/route-classification';
@@ -29,6 +30,7 @@ import { routes } from './app.routes';
 })
 export class App {
   private readonly localeDirection = inject(LocaleDirectionService);
+  protected readonly i18n = inject(LocalizationService);
   private readonly router = inject(Router);
   private readonly authSession = inject(AuthSessionBootstrap);
   private readonly currentUserStore = inject(CurrentUserStore);

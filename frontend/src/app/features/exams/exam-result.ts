@@ -7,6 +7,7 @@ import { normalizeProblemDetails } from '../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
 import { buildExamsReviewPath, canonicalRoutePath } from '../../core/routing/canonical-routes';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
 
 const STATUS_SUBMITTED = 'Submitted';
@@ -23,6 +24,7 @@ const GENERIC_RETRY_COPY = "We couldn't load this exam result. Try again.";
 export class ExamResultScreen implements OnInit {
   private readonly api = inject(ExamsApi);
   private readonly route = inject(ActivatedRoute);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly result = signal<ExamFullResult | undefined>(undefined);
@@ -46,10 +48,10 @@ export class ExamResultScreen implements OnInit {
   protected statusLabel(): string | undefined {
     const status = this.result()?.status;
     if (status === STATUS_SUBMITTED) {
-      return 'Completed';
+      return this.i18n.t('result.statusCompleted');
     }
     if (status === STATUS_EXPIRED) {
-      return 'Time expired';
+      return this.i18n.t('result.statusExpired');
     }
     return undefined;
   }

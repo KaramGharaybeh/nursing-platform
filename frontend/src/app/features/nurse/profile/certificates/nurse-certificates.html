@@ -1,8 +1,8 @@
 <section class="np-nurse-certificates" aria-labelledby="nurse-certificates-title">
   <np-live-region />
 
-  <p class="np-nurse-certificates-kicker">Nurse profile</p>
-  <h1 id="nurse-certificates-title">Certificates</h1>
+  <p class="np-nurse-certificates-kicker">{{ i18n.t('profile.kicker') }}</p>
+  <h1 id="nurse-certificates-title">{{ i18n.t('cert.title') }}</h1>
 
   @if (notice() !== '') {
     <p class="np-nurse-certificates-notice" role="status">{{ notice() }}</p>
@@ -10,15 +10,15 @@
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading your certificates"
-    fallbackErrorTitle="Your certificates could not be loaded"
+    [loadingLabel]="i18n.t('cert.loading')"
+    [fallbackErrorTitle]="i18n.t('cert.loadError')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (view() === 'list') {
       <div class="np-nurse-certificates-list-header">
-        <p class="np-nurse-certificates-hint">Your certificates and qualifications as a nurse.</p>
+        <p class="np-nurse-certificates-hint">{{ i18n.t('cert.hint') }}</p>
         <button
           mat-flat-button
           color="primary"
@@ -26,14 +26,14 @@
           data-testid="add-certificate"
           (click)="startCreate()"
         >
-          Add certificate
+          {{ i18n.t('cert.add') }}
         </button>
       </div>
 
       @if (records().length === 0) {
         <div class="np-nurse-certificates-empty">
-          <h2>Certificates</h2>
-          <p>No certificates added yet. Add your certificates to keep your professional profile up to date.</p>
+          <h2>{{ i18n.t('cert.title') }}</h2>
+          <p>{{ i18n.t('cert.emptyText') }}</p>
         </div>
       } @else {
         <ul class="np-nurse-certificates-list">
@@ -44,7 +44,7 @@
                 <p class="np-nurse-certificates-issuer">{{ record.issuingOrganization }}</p>
                 @if (record.credentialId) {
                   <p class="np-nurse-certificates-credential">
-                    Credential ID {{ record.credentialId }}
+                    {{ i18n.t('cert.credentialIdLabel') }} {{ record.credentialId }}
                   </p>
                 }
                 @if (record.credentialUrl) {
@@ -54,7 +54,7 @@
                       [href]="record.credentialUrl"
                       target="_blank"
                       rel="noopener noreferrer"
-                      >Open credential link</a
+                      >{{ i18n.t('cert.openLink') }}</a
                     >
                   </p>
                 }
@@ -67,8 +67,7 @@
                 @if (isConfirmingDelete(record.id)) {
                   <div class="np-nurse-certificates-confirm">
                     <p role="status">
-                      Delete "{{ record.name }} from {{ record.issuingOrganization }}"? This cannot be
-                      undone.
+                      {{ i18n.t('cert.deleteVerb') }} "{{ record.name }} from {{ record.issuingOrganization }}"{{ i18n.t('cert.deleteSuffix') }}
                     </p>
                     <div class="np-nurse-certificates-confirm-actions">
                       <button
@@ -79,7 +78,7 @@
                         [disabled]="isDeleting(record.id)"
                         (click)="confirmDelete()"
                       >
-                        Delete
+                        {{ i18n.t('cert.deleteVerb') }}
                       </button>
                       <button
                         mat-button
@@ -88,12 +87,12 @@
                         [disabled]="isDeleting(record.id)"
                         (click)="cancelDelete()"
                       >
-                        Keep
+                        {{ i18n.t('cert.keep') }}
                       </button>
                     </div>
                     @if (deleteErrorFor(record.id); as error) {
                       <p class="np-nurse-certificates-delete-error" role="alert">
-                        This certificate could not be deleted. {{ error.detail || 'Try again.' }}
+                        {{ i18n.t('cert.deleteError') }} {{ error.detail || i18n.t('cert.tryAgain') }}
                       </p>
                     }
                   </div>
@@ -106,7 +105,7 @@
                       [disabled]="isDeleting(record.id)"
                       (click)="startEdit(record)"
                     >
-                      Edit
+                      {{ i18n.t('cert.edit') }}
                     </button>
                     <button
                       mat-button
@@ -116,7 +115,7 @@
                       [disabled]="isDeleting(record.id)"
                       (click)="requestDelete(record)"
                     >
-                      Delete
+                      {{ i18n.t('cert.deleteVerb') }}
                     </button>
                   </div>
                 }

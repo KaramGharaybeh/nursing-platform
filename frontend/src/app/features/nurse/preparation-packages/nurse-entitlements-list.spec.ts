@@ -161,7 +161,7 @@ describe('NurseEntitlementsList', () => {
     const { fixture } = await setup();
     const content = text(fixture);
 
-    expect(content).toContain('StudyMaterial');
+    expect(content).toContain('Study material');
     expect(content).toContain('Available');
     expect(content).toContain('Not available');
   });

@@ -7,7 +7,9 @@ import { SignUpApi } from '../../../core/api/sign-up-api';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { AuthTextField } from '../auth-text-field/auth-text-field';
+import { NpLanguageSwitcher } from '../../../shared/ui/language-switcher';
 import {
   NpFormValidationSummary,
   toFieldErrorText,
@@ -21,12 +23,12 @@ type SignUpForm = FormGroup<{
   confirmPassword: FormControl<string>;
 }>;
 
-const FIELD_LABELS = Object.freeze({
-  Email: 'Email address',
-  Username: 'Username',
-  Password: 'Password',
-  ConfirmPassword: 'Confirm password',
-});
+const FIELD_LABEL_KEYS = Object.freeze({
+  Email: 'auth.emailLabel',
+  Username: 'signup.usernameLabel',
+  Password: 'auth.passwordLabel',
+  ConfirmPassword: 'signup.confirmLabel',
+} as const);
 
 const CONTROL_IDS = Object.freeze({
   Email: 'auth-sign-up-email',
@@ -41,6 +43,7 @@ const CONTROL_IDS = Object.freeze({
     MatButtonModule,
     NpFormValidationSummary,
     AuthTextField,
+    NpLanguageSwitcher,
     ReactiveFormsModule,
     RouterLink,
   ],
@@ -51,6 +54,7 @@ export class SignUp implements AfterViewInit {
   private readonly signUpApi = inject(SignUpApi);
   private readonly router = inject(Router);
   private readonly host = inject(ElementRef);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly signInPath = canonicalRoutePath('AUTH_SIGN_IN');
   protected readonly publicOffersPath = canonicalRoutePath('PREPARATION_PACKAGES_OFFERS');
@@ -81,10 +85,15 @@ export class SignUp implements AfterViewInit {
   protected readonly validationSummary = computed(() => toFormValidationSummary(
     this.normalizedError(),
     {
-      fieldLabels: FIELD_LABELS,
+      fieldLabels: {
+        Email: this.i18n.t(FIELD_LABEL_KEYS.Email),
+        Username: this.i18n.t(FIELD_LABEL_KEYS.Username),
+        Password: this.i18n.t(FIELD_LABEL_KEYS.Password),
+        ConfirmPassword: this.i18n.t(FIELD_LABEL_KEYS.ConfirmPassword),
+      },
       controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'The account could not be created.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('signup.formFallback'),
     },
   ));
 
@@ -93,7 +102,7 @@ export class SignUp implements AfterViewInit {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'The account could not be created.';
+    return this.i18n.backendErrorCopy(error.detail, 'signup.formFallback');
   });
 
   protected get emailValue(): string {
@@ -174,7 +183,9 @@ export class SignUp implements AfterViewInit {
       }));
       await this.router.navigateByUrl(this.checkEmailPath);
     } catch (error: unknown) {
-      this.normalizedError.set(normalizeProblemDetails(this.errorBody(error)));
+      this.normalizedError.set(
+        this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), FIELD_LABEL_KEYS),
+      );
       this.form.enable({ emitEvent: false });
     } finally {
       this.isSubmitting.set(false);
@@ -189,35 +200,35 @@ export class SignUp implements AfterViewInit {
     const confirm = this.form.controls.confirmPassword;
 
     if (email.hasError('required')) {
-      errors['Email'] = ["'Email' must not be empty."];
+      errors['Email'] = [this.i18n.t('auth.emailEmpty')];
     } else if (email.hasError('email')) {
-      errors['Email'] = ["'Email' is not a valid email address."];
+      errors['Email'] = [this.i18n.t('auth.emailInvalid')];
     }
     if (username.hasError('required')) {
-      errors['Username'] = ["'Username' must not be empty."];
+      errors['Username'] = [this.i18n.t('signup.usernameEmpty')];
     }
     if (password.hasError('required')) {
-      errors['Password'] = ["'Password' must not be empty."];
+      errors['Password'] = [this.i18n.t('auth.passwordEmpty')];
     } else if (password.hasError('minlength')) {
-      errors['Password'] = ["'Password' must be at least 8 characters."];
+      errors['Password'] = [this.i18n.t('auth.passwordMin')];
     } else if (password.hasError('pattern')) {
       errors['Password'] = !/[A-Z]/.test(this.passwordValue)
-        ? ['Password must contain at least one uppercase letter.']
-        : ['Password must contain at least one digit.'];
+        ? [this.i18n.t('auth.passwordUpper')]
+        : [this.i18n.t('auth.passwordDigit')];
     }
     if (confirm.hasError('required')) {
-      errors['ConfirmPassword'] = ["'Confirm password' must not be empty."];
+      errors['ConfirmPassword'] = [this.i18n.t('signup.confirmEmpty')];
     } else if (this.confirmPasswordValue !== this.passwordValue) {
-      errors['ConfirmPassword'] = ['Confirm password must match password.'];
+      errors['ConfirmPassword'] = [this.i18n.t('signup.confirmMismatch')];
     }
 
     if (Object.keys(errors).length === 0) {
       return undefined;
     }
-    return { kind: 'validation', type: '', title: 'Validation failed', status: 400, detail: '', traceId: '', errors };
+    return { kind: 'validation', type: '', title: this.i18n.t('auth.validationFailed'), status: 400, detail: '', traceId: '', errors };
   }
 
-  private fieldError(field: keyof typeof FIELD_LABELS): string {
+  private fieldError(field: keyof typeof FIELD_LABEL_KEYS): string {
     if (!this.submitted()) {
       return '';
     }

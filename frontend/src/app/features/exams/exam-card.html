@@ -9,9 +9,9 @@
   @if (hasCategory()) {
     <p class="np-exam-card-category">{{ exam().categoryName }}</p>
   }
-  <p class="np-exam-card-facts">{{ exam().durationMinutes }} minutes · {{ exam().questionCount }} questions</p>
+  <p class="np-exam-card-facts">{{ exam().durationMinutes }} {{ i18n.t('exams.minutes') }} · {{ exam().questionCount }} {{ i18n.t('exams.questions') }}</p>
   @if (exam().isFree) {
-    <p class="np-exam-card-free">Free</p>
+    <p class="np-exam-card-free">{{ i18n.t('exams.free') }}</p>
   }
-  <a [routerLink]="detailPath()" data-testid="exam-details-link">View details</a>
+  <a [routerLink]="detailPath()" data-testid="exam-details-link">{{ i18n.t('exams.viewDetails') }}</a>
 </article>

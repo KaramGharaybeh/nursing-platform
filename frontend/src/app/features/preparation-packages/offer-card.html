@@ -6,7 +6,7 @@
   <p class="np-offer-country">{{ offer.countryName }}</p>
   <p class="np-offer-category">{{ offer.examCategoryName }}</p>
   <p class="np-offer-exam">{{ offer.examTitle }}</p>
-  <p class="np-offer-counts">{{ offer.materialCount }} study materials · {{ offer.practiceItemCount }} practice items</p>
-  <p class="np-offer-duration">{{ offer.accessDurationDays }} days of access</p>
-  <a [routerLink]="detailPath()" data-testid="offer-details-link">View details</a>
+  <p class="np-offer-counts">{{ offer.materialCount }} {{ i18n.t('pp.studyMaterials') }} · {{ offer.practiceItemCount }} {{ i18n.t('pp.practiceItems') }}</p>
+  <p class="np-offer-duration">{{ offer.accessDurationDays }} {{ i18n.t('pp.daysOfAccess') }}</p>
+  <a [routerLink]="detailPath()" data-testid="offer-details-link">{{ i18n.t('pp.viewDetails') }}</a>
 </article>

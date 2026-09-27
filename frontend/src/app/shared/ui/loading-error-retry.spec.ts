@@ -101,6 +101,25 @@ describe('LoadingErrorRetry', () => {
     expect(query(fixture, '.np-loading-error-retry-detail')).toBeNull();
   });
 
+  it('suppresses backend title and detail in favor of the localized fallback outside the default locale', async () => {
+    localStorage.setItem('np-locale', 'ar');
+    try {
+      const fixture = await setup();
+      await renderState(fixture, {
+        kind: 'error',
+        error: normalizedError({ title: 'Backend title', detail: 'Backend internals.' }),
+        canRetry: false,
+      });
+
+      expect(textContent(fixture)).toContain('Unable to load content');
+      expect(textContent(fixture)).not.toContain('Backend title');
+      expect(textContent(fixture)).not.toContain('Backend internals.');
+      expect(query(fixture, '.np-loading-error-retry-detail')).toBeNull();
+    } finally {
+      localStorage.removeItem('np-locale');
+    }
+  });
+
   it('emits retry only after explicit user action and never automatically', async () => {
     const fixture = await setup();
     let retryCount = 0;

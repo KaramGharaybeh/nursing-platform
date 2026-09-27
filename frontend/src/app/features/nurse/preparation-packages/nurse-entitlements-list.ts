@@ -6,6 +6,7 @@ import type { PaginatedResultOfPackageEntitlementListItemDto } from '../../../co
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
 import { NpEmptyState } from '../../../shared/ui/empty-state';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../shared/ui/loading-error-retry';
 import { NpPagination, resolveListState, type NpListState } from '../../../shared/ui/pagination';
@@ -23,6 +24,7 @@ export class NurseEntitlementsList implements OnInit {
   private readonly api = inject(PreparationPackageEntitlementsApi);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
+  protected readonly i18n = inject(LocalizationService);
   protected readonly result = signal<PaginatedResultOfPackageEntitlementListItemDto | undefined>(undefined);
   protected readonly page = signal(1);
 

@@ -5,12 +5,12 @@ import { CommercePaymentsApi } from '../../core/api/commerce-payments-api';
 import type { CommerceProduct } from '../../core/api/commerce-payments-api';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
+import type { TranslationKey } from '../../core/i18n/translations';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { canonicalRoutePath } from '../../core/routing/canonical-routes';
 import { formatMoney } from '../../shared/money';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
-
-const GENERIC_RETRY_COPY = "We couldn't load this product. Try again.";
 
 @Component({
   selector: 'np-product-detail',
@@ -22,6 +22,7 @@ export class ProductDetailScreen implements OnInit {
   private readonly api = inject(CommercePaymentsApi);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly product = signal<CommerceProduct | undefined>(undefined);
@@ -31,6 +32,10 @@ export class ProductDetailScreen implements OnInit {
 
   ngOnInit(): void {
     void this.load();
+  }
+
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
   }
 
   protected async retry(): Promise<void> {
@@ -87,6 +92,6 @@ export class ProductDetailScreen implements OnInit {
       typeof error === 'object' && error !== null && 'error' in error
         ? normalizeProblemDetails((error as { error?: unknown }).error)
         : normalizeProblemDetails(error);
-    return { ...normalized, title: GENERIC_RETRY_COPY, detail: '' };
+    return { ...normalized, title: this.i18n.t('com.productLoadError'), detail: '' };
   }
 }

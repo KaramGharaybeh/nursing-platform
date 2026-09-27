@@ -11,12 +11,10 @@ import {
   canonicalRoutePath,
 } from '../../core/routing/canonical-routes';
 import { formatMoney } from '../../shared/money';
+import type { TranslationKey } from '../../core/i18n/translations';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
-
-const CONTEXT_RETRY_COPY = "We couldn't load this checkout. Try again.";
-const CREATE_RETRY_COPY = "We couldn't create this order. Try again.";
-const CREATE_CONFLICT_COPY = 'This product can no longer be ordered.';
 
 type CreateError = { readonly kind: 'conflict' } | { readonly kind: 'generic' };
 
@@ -30,6 +28,7 @@ export class CheckoutScreen implements OnInit {
   private readonly api = inject(CommercePaymentsApi);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly product = signal<CommerceProduct | undefined>(undefined);
@@ -100,8 +99,14 @@ export class CheckoutScreen implements OnInit {
     return this.order()?.status === 'PendingPayment';
   }
 
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
+  }
+
   protected createErrorCopy(): string {
-    return this.createError()?.kind === 'conflict' ? CREATE_CONFLICT_COPY : CREATE_RETRY_COPY;
+    return this.createError()?.kind === 'conflict'
+      ? this.i18n.t('com.createConflict')
+      : this.i18n.t('com.createRetry');
   }
 
   private productId(): string {
@@ -145,6 +150,6 @@ export class CheckoutScreen implements OnInit {
       typeof error === 'object' && error !== null && 'error' in error
         ? normalizeProblemDetails((error as { error?: unknown }).error)
         : normalizeProblemDetails(error);
-    return { ...normalized, title: CONTEXT_RETRY_COPY, detail: '' };
+    return { ...normalized, title: this.i18n.t('com.checkoutLoadError'), detail: '' };
   }
 }

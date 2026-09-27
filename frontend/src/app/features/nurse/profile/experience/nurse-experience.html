@@ -1,8 +1,8 @@
 <section class="np-nurse-experience" aria-labelledby="nurse-experience-title">
   <np-live-region />
 
-  <p class="np-nurse-experience-kicker">Nurse profile</p>
-  <h1 id="nurse-experience-title">Work experience</h1>
+  <p class="np-nurse-experience-kicker">{{ i18n.t('profile.kicker') }}</p>
+  <h1 id="nurse-experience-title">{{ i18n.t('exp.title') }}</h1>
 
   @if (notice() !== '') {
     <p class="np-nurse-experience-notice" role="status">{{ notice() }}</p>
@@ -10,15 +10,15 @@
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading your work experience"
-    fallbackErrorTitle="Your work experience could not be loaded"
+    [loadingLabel]="i18n.t('exp.loading')"
+    [fallbackErrorTitle]="i18n.t('exp.loadError')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (view() === 'list') {
       <div class="np-nurse-experience-list-header">
-        <p class="np-nurse-experience-hint">Your employment history as a nurse.</p>
+        <p class="np-nurse-experience-hint">{{ i18n.t('exp.hint') }}</p>
         <button
           mat-flat-button
           color="primary"
@@ -26,14 +26,14 @@
           data-testid="add-experience"
           (click)="startCreate()"
         >
-          Add experience
+          {{ i18n.t('exp.add') }}
         </button>
       </div>
 
       @if (experiences().length === 0) {
         <div class="np-nurse-experience-empty">
-          <h2>Work experience</h2>
-          <p>No positions added yet. Add your employment history to keep your professional profile up to date.</p>
+          <h2>{{ i18n.t('exp.title') }}</h2>
+          <p>{{ i18n.t('exp.emptyText') }}</p>
         </div>
       } @else {
         <ul class="np-nurse-experience-list">
@@ -50,11 +50,11 @@
                   @if (experience.endDate) {
                     {{ formatDate(experience.endDate) }}
                   } @else {
-                    Present
+                    {{ i18n.t('exp.present') }}
                   }
                 </p>
                 @if (experience.isCurrent) {
-                  <p class="np-nurse-experience-current">Current</p>
+                  <p class="np-nurse-experience-current">{{ i18n.t('exp.current') }}</p>
                 }
                 @if (experience.description) {
                   <p
@@ -72,7 +72,7 @@
                       data-testid="experience-toggle-description"
                       (click)="toggleDescription(experience.id)"
                     >
-                      {{ isDescriptionExpanded(experience.id) ? 'Show less' : 'Show more' }}
+                      {{ isDescriptionExpanded(experience.id) ? i18n.t('exp.showLess') : i18n.t('exp.showMore') }}
                     </button>
                   }
                 }
@@ -80,8 +80,7 @@
                 @if (isConfirmingDelete(experience.id)) {
                   <div class="np-nurse-experience-confirm">
                     <p role="status">
-                      Delete "{{ experience.jobTitle }} at {{ experience.facilityName }}"? This cannot be
-                      undone.
+                      {{ i18n.t('exp.deleteVerb') }} "{{ experience.jobTitle }} at {{ experience.facilityName }}"{{ i18n.t('exp.deleteSuffix') }}
                     </p>
                     <div class="np-nurse-experience-confirm-actions">
                       <button
@@ -92,7 +91,7 @@
                         [disabled]="isDeleting(experience.id)"
                         (click)="confirmDelete()"
                       >
-                        Delete
+                        {{ i18n.t('exp.deleteVerb') }}
                       </button>
                       <button
                         mat-button
@@ -101,12 +100,12 @@
                         [disabled]="isDeleting(experience.id)"
                         (click)="cancelDelete()"
                       >
-                        Keep
+                        {{ i18n.t('exp.keep') }}
                       </button>
                     </div>
                     @if (deleteErrorFor(experience.id); as error) {
                       <p class="np-nurse-experience-delete-error" role="alert">
-                        This position could not be deleted. {{ error.detail || 'Try again.' }}
+                        {{ i18n.t('exp.deleteError') }} {{ error.detail || i18n.t('exp.tryAgain') }}
                       </p>
                     }
                   </div>
@@ -119,7 +118,7 @@
                       [disabled]="isDeleting(experience.id)"
                       (click)="startEdit(experience)"
                     >
-                      Edit
+                      {{ i18n.t('exp.edit') }}
                     </button>
                     <button
                       mat-button
@@ -129,7 +128,7 @@
                       [disabled]="isDeleting(experience.id)"
                       (click)="requestDelete(experience)"
                     >
-                      Delete
+                      {{ i18n.t('exp.deleteVerb') }}
                     </button>
                   </div>
                 }

@@ -1,46 +1,45 @@
 <section class="np-checkout" aria-labelledby="checkout-page-heading">
-  <h1 id="checkout-page-heading" data-testid="checkout-page-heading">Checkout</h1>
+  <h1 id="checkout-page-heading" data-testid="checkout-page-heading">{{ t('com.checkoutTitle') }}</h1>
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading checkout"
-    fallbackErrorTitle="We couldn't load this checkout. Try again."
-    retryLabel="Retry"
+    [loadingLabel]="t('com.checkoutLoading')"
+    [fallbackErrorTitle]="t('com.checkoutLoadError')"
+    [retryLabel]="t('com.checkoutRetry')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (missingContext()) {
       <p role="status" data-testid="checkout-no-context">
-        No product was selected for checkout.
+        {{ t('com.noContext') }}
       </p>
-      <a [routerLink]="backPath" data-testid="checkout-back">Back to products</a>
+      <a [routerLink]="backPath" data-testid="checkout-back">{{ t('com.productBack') }}</a>
     } @else if (unavailable()) {
       <p role="status" data-testid="checkout-unavailable">
-        This product is no longer available. It may have been removed, or the link is
-        incorrect.
+        {{ t('com.productUnavailable') }}
       </p>
-      <a [routerLink]="backPath" data-testid="checkout-back">Back to products</a>
+      <a [routerLink]="backPath" data-testid="checkout-back">{{ t('com.productBack') }}</a>
     } @else if (product(); as detail) {
       @if (order(); as created) {
-        <h2 data-testid="checkout-success-heading">Order created.</h2>
+        <h2 data-testid="checkout-success-heading">{{ t('com.successTitle') }}</h2>
         <p>{{ orderTitle() }}</p>
         <p>{{ orderTotal() }}</p>
         @if (orderIsPendingPayment()) {
-          <p role="status">Pending payment</p>
+          <p role="status">{{ t('com.pendingPayment') }}</p>
         }
-        <p>Created {{ created.createdAt | date: 'medium' }}</p>
-        <a [routerLink]="backPath" data-testid="checkout-back">Back to products</a>
+        <p>{{ t('com.created') }} {{ created.createdAt | date: 'medium' }}</p>
+        <a [routerLink]="backPath" data-testid="checkout-back">{{ t('com.productBack') }}</a>
       } @else {
-        <h2 data-testid="checkout-heading">Create order?</h2>
+        <h2 data-testid="checkout-heading">{{ t('com.createTitle') }}</h2>
         <p>{{ detail.name }}</p>
         <p>{{ price() }}</p>
-        <p>An order will be created for this product.</p>
+        <p>{{ t('com.createText') }}</p>
         @if (createError(); as failure) {
           <p role="alert" data-testid="checkout-create-error">{{ createErrorCopy() }}</p>
           @if (failure.kind === 'generic') {
             <button type="button" data-testid="checkout-create-retry" (click)="retryCreate()">
-              Try again
+              {{ t('com.tryAgain') }}
             </button>
           }
         }
@@ -50,11 +49,11 @@
           [disabled]="creating()"
           (click)="create()"
         >
-          Create order
+          {{ t('com.createAction') }}
         </button>
-        <button type="button" data-testid="checkout-cancel" (click)="cancel()">Cancel</button>
+        <button type="button" data-testid="checkout-cancel" (click)="cancel()">{{ t('com.checkoutCancel') }}</button>
         @if (creating()) {
-          <p role="status">Creating order…</p>
+          <p role="status">{{ t('com.creating') }}</p>
         }
       }
     }

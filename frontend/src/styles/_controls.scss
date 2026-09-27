@@ -1,0 +1,179 @@
+/* Project-owned controls layered after the Material M2 bridge. */
+:where(select:not([multiple])) {
+  box-sizing: border-box;
+  min-block-size: var(--np-control-height);
+  padding-block: var(--np-space-8);
+  padding-inline: var(--np-control-padding-inline);
+  border: 1px solid var(--np-color-border);
+  border-radius: var(--np-control-radius);
+  background: var(--np-color-surface);
+  color: var(--np-color-brand-2);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+:where(select:not([multiple]):focus-visible) {
+  border-color: var(--np-color-brand-1);
+  outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+  outline-offset: var(--np-focus-ring-offset);
+}
+
+:where(select:not([multiple]):disabled) {
+  background: var(--np-color-subtle-surface);
+  color: var(--np-color-secondary-text);
+}
+
+:where(button:not([class*='mat-mdc'])) {
+  min-block-size: var(--np-button-height);
+  padding-inline: var(--np-button-padding-inline);
+  border: 1px solid var(--np-color-border);
+  border-radius: var(--np-button-radius);
+  background: var(--np-color-surface);
+  color: var(--np-color-brand-2);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.mat-mdc-form-field.np-standard-select {
+  --mdc-outlined-text-field-outline-color: var(--np-color-border);
+  --mdc-outlined-text-field-hover-outline-color: var(--np-color-border-strong);
+  --mdc-outlined-text-field-focus-outline-color: var(--np-color-brand-1);
+  --mdc-outlined-text-field-error-outline-color: var(--np-color-error);
+
+  inline-size: 100%;
+  font-family: inherit;
+}
+
+.np-standard-select .mat-mdc-text-field-wrapper {
+  block-size: var(--np-control-height);
+  border-radius: var(--np-control-radius);
+  background: var(--np-color-surface);
+}
+
+.np-standard-select .mat-mdc-form-field-infix {
+  min-block-size: var(--np-control-height);
+  padding-block: var(--np-space-12);
+}
+
+.np-standard-select .mat-mdc-select {
+  color: var(--np-color-brand-2);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.np-standard-select .mat-mdc-select-placeholder {
+  color: var(--np-color-muted-text);
+}
+
+.np-standard-select .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+.np-standard-select .mdc-floating-label {
+  opacity: 0;
+}
+
+/* Material MDC owns these BEM class names; use them only inside the project select. */
+/* stylelint-disable selector-class-pattern */
+.np-standard-select .mdc-notched-outline__leading {
+  border-start-start-radius: var(--np-control-radius);
+  border-end-start-radius: var(--np-control-radius);
+}
+
+.np-standard-select .mdc-notched-outline__trailing {
+  border-start-end-radius: var(--np-control-radius);
+  border-end-end-radius: var(--np-control-radius);
+}
+
+.np-standard-select .mdc-notched-outline__notch {
+  border-block-start: 1px solid var(--np-color-border);
+}
+
+.np-standard-select.mat-focused .mdc-notched-outline__notch {
+  border-block-start-color: var(--np-color-brand-1);
+}
+
+.np-standard-select.mat-form-field-invalid .mdc-notched-outline__notch {
+  border-block-start-color: var(--np-color-error);
+}
+/* stylelint-enable selector-class-pattern */
+
+.mat-mdc-form-field.np-standard-select.mat-focused .mat-mdc-text-field-wrapper {
+  outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+  outline-offset: var(--np-focus-ring-offset);
+}
+
+.mat-mdc-form-field.np-standard-select.mat-form-field-disabled .mat-mdc-text-field-wrapper {
+  background: var(--np-color-subtle-surface);
+}
+
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+  min-block-size: var(--np-button-height);
+  padding-inline: var(--np-button-padding-inline);
+  border-radius: var(--np-button-radius);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-raised-button.mat-primary {
+  --mdc-filled-button-container-color: var(--np-color-brand-1);
+  --mdc-filled-button-label-text-color: var(--np-color-surface);
+
+  background: var(--np-color-brand-1);
+  color: var(--np-color-surface);
+}
+
+.mat-mdc-unelevated-button.mat-primary:not(:disabled):hover,
+.mat-mdc-raised-button.mat-primary:not(:disabled):hover {
+  background: var(--np-color-primary-hover);
+}
+
+.mat-mdc-outlined-button {
+  border-color: var(--np-color-border);
+  background: var(--np-color-surface);
+  color: var(--np-color-brand-2);
+}
+
+.mat-mdc-button {
+  color: var(--np-color-brand-2);
+}
+
+/* Material MDC owns its button label class; scope the override to Material buttons. */
+/* stylelint-disable selector-class-pattern */
+.mat-mdc-button .mdc-button__label,
+.mat-mdc-unelevated-button .mdc-button__label,
+.mat-mdc-outlined-button .mdc-button__label,
+.mat-mdc-raised-button .mdc-button__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--np-button-icon-gap);
+}
+/* stylelint-enable selector-class-pattern */
+
+.mat-mdc-unelevated-button:focus-visible,
+.mat-mdc-raised-button:focus-visible,
+.mat-mdc-outlined-button:focus-visible,
+.mat-mdc-button:focus-visible {
+  outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+  outline-offset: var(--np-focus-ring-offset);
+}
+
+.mat-mdc-button .mat-icon,
+.mat-mdc-unelevated-button .mat-icon,
+.mat-mdc-outlined-button .mat-icon,
+.mat-mdc-raised-button .mat-icon,
+.mat-mdc-button svg,
+.mat-mdc-unelevated-button svg,
+.mat-mdc-outlined-button svg,
+.mat-mdc-raised-button svg {
+  inline-size: var(--np-space-20);
+  block-size: var(--np-space-20);
+}

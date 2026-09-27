@@ -1,7 +1,8 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { ExamCatalogItem } from '../../core/api/exams-api';
 import { buildExamsDetailPath } from '../../core/routing/canonical-routes';
+import { LocalizationService } from '../../core/i18n/localization.service';
 
 @Component({
   selector: 'np-exam-card',
@@ -11,6 +12,7 @@ import { buildExamsDetailPath } from '../../core/routing/canonical-routes';
 })
 export class ExamCard {
   readonly exam = input.required<ExamCatalogItem>();
+  protected readonly i18n = inject(LocalizationService);
 
   protected detailPath(): string {
     return buildExamsDetailPath(this.exam().id);

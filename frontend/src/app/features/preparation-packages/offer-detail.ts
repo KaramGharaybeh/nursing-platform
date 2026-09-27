@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { PreparationPackageOffersApi } from '../../core/api/preparation-package-offers-api';
 import type { PreparationPackageOfferDetailDto } from '../../core/api/generated/models/preparation-package-offer-detail-dto';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
 import { canonicalRoutePath } from '../../core/routing/canonical-routes';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
@@ -18,6 +19,7 @@ import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry
 export class OfferDetail implements OnInit {
   private readonly api = inject(PreparationPackageOffersApi);
   private readonly route = inject(ActivatedRoute);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly backPath = canonicalRoutePath('PREPARATION_PACKAGES_OFFERS');
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });

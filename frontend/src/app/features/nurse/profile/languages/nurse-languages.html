@@ -1,8 +1,8 @@
 <section class="np-nurse-languages" aria-labelledby="nurse-languages-title">
   <np-live-region />
 
-  <p class="np-nurse-languages-kicker">Nurse profile</p>
-  <h1 id="nurse-languages-title">Languages</h1>
+  <p class="np-nurse-languages-kicker">{{ i18n.t('profile.kicker') }}</p>
+  <h1 id="nurse-languages-title">{{ i18n.t('lang.title') }}</h1>
 
   @if (notice() !== '') {
     <p class="np-nurse-languages-notice" role="status">{{ notice() }}</p>
@@ -10,8 +10,8 @@
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading your languages"
-    fallbackErrorTitle="Your languages could not be loaded"
+    [loadingLabel]="i18n.t('lang.loading')"
+    [fallbackErrorTitle]="i18n.t('lang.loadError')"
     (retryRequested)="retry()"
   />
 
@@ -27,7 +27,7 @@
     }
 
     @if (rows().length === 0) {
-      <p class="np-nurse-languages-empty">No languages added yet. Add the languages you work in below.</p>
+      <p class="np-nurse-languages-empty">{{ i18n.t('lang.empty') }}</p>
     } @else {
       <ul class="np-nurse-languages-list">
         @for (row of rows(); track $index) {
@@ -39,7 +39,7 @@
               [disabled]="isSaving()"
               [value]="row.languageId"
               [options]="languageOptions"
-              [placeholder]="'Select language'"
+              [placeholder]="i18n.t('lang.selectLanguage')"
               [errorText]="rowError($index)"
               (valueChange)="updateRowLanguage($index, $event)"
             />
@@ -50,11 +50,11 @@
               [disabled]="isSaving()"
               [value]="row.proficiency"
               [options]="proficiencyOptions"
-              [placeholder]="'Select proficiency'"
+              [placeholder]="i18n.t('lang.selectProficiency')"
               (valueChange)="updateRowProficiency($index, $event)"
             />
             <button mat-button type="button" [disabled]="isSaving()" (click)="removeRow($index)">
-              Remove
+              {{ i18n.t('lang.remove') }}
             </button>
           </li>
         }
@@ -70,11 +70,11 @@
         [disabled]="isSaving() || rows().length >= maxLanguages"
         (click)="addRow()"
       >
-        Add language
+        {{ i18n.t('lang.add') }}
       </button>
     </div>
     @if (rows().length >= maxLanguages) {
-      <p class="np-nurse-languages-cap">A maximum of 20 languages can be saved. Remove one to add another.</p>
+      <p class="np-nurse-languages-cap">{{ i18n.tp('lang.cap', { max: maxLanguages }) }}</p>
     }
 
     <div class="np-nurse-languages-actions">
@@ -86,9 +86,9 @@
         [disabled]="isSaving()"
         (click)="save()"
       >
-        Save
+        {{ i18n.t('lang.save') }}
       </button>
-      <button mat-button type="button" [disabled]="isSaving()" (click)="cancel()">Cancel</button>
+      <button mat-button type="button" [disabled]="isSaving()" (click)="cancel()">{{ i18n.t('lang.cancel') }}</button>
     </div>
   }
 </section>

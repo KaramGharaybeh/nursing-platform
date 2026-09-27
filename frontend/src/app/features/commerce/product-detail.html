@@ -1,19 +1,18 @@
 <section class="np-product-detail" aria-labelledby="product-detail-heading">
-  <a [routerLink]="backPath" data-testid="product-detail-back">Back to products</a>
+  <a [routerLink]="backPath" data-testid="product-detail-back">{{ t('com.productBack') }}</a>
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading product"
-    fallbackErrorTitle="We couldn't load this product. Try again."
-    retryLabel="Retry"
+    [loadingLabel]="t('com.productLoading')"
+    [fallbackErrorTitle]="t('com.productLoadError')"
+    [retryLabel]="t('com.productRetry')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (unavailable()) {
       <p role="status" data-testid="product-detail-unavailable">
-        This product is no longer available. It may have been removed, or the link is
-        incorrect.
+        {{ t('com.productUnavailable') }}
       </p>
     } @else if (product(); as detail) {
       <h1 id="product-detail-heading" data-testid="product-detail-heading">{{ detail.name }}</h1>
@@ -26,10 +25,10 @@
       <p>{{ price() }}</p>
       @if (detail.isActive) {
         <button type="button" data-testid="product-detail-purchase" (click)="purchase()">
-          Purchase
+          {{ t('com.purchase') }}
         </button>
       } @else {
-        <p role="status" data-testid="product-detail-unavailable">Unavailable</p>
+        <p role="status" data-testid="product-detail-unavailable">{{ t('com.unavailableState') }}</p>
       }
     }
   }

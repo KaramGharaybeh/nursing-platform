@@ -10,7 +10,9 @@ import { AuthSessionBootstrap } from '../../../core/auth/auth-session-bootstrap'
 import { CurrentUserStore } from '../../../core/auth/current-user-store';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { RETURN_URL_QUERY_KEY, isSafeReturnUrl } from '../../../core/routing/safe-return';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { AuthTextField } from '../auth-text-field/auth-text-field';
+import { NpLanguageSwitcher } from '../../../shared/ui/language-switcher';
 import {
   NpFormValidationSummary,
   toFieldErrorText,
@@ -22,10 +24,10 @@ type SignInForm = FormGroup<{
   password: FormControl<string>;
 }>;
 
-const FIELD_LABELS = Object.freeze({
-  Email: 'Email address',
-  Password: 'Password',
-});
+const FIELD_LABEL_KEYS = Object.freeze({
+  Email: 'auth.emailLabel',
+  Password: 'auth.passwordLabel',
+} as const);
 
 const CONTROL_IDS = Object.freeze({
   Email: 'auth-sign-in-email',
@@ -33,20 +35,6 @@ const CONTROL_IDS = Object.freeze({
 });
 
 const EMAIL_VERIFICATION_REQUIRED_CODE = 'email_verification_required';
-const EMAIL_VERIFICATION_REQUIRED_MESSAGE = 'Please verify your email address before signing in.';
-
-const REQUIRED_VALIDATION: NormalizedProblemDetails = Object.freeze({
-  kind: 'validation',
-  type: '',
-  title: 'Validation failed',
-  status: 400,
-  detail: '',
-  traceId: '',
-  errors: Object.freeze({
-    Email: Object.freeze(["'Email' must not be empty."]),
-    Password: Object.freeze(["'Password' must not be empty."]),
-  }),
-});
 
 @Component({
   selector: 'np-sign-in',
@@ -54,6 +42,7 @@ const REQUIRED_VALIDATION: NormalizedProblemDetails = Object.freeze({
     MatButtonModule,
     NpFormValidationSummary,
     AuthTextField,
+    NpLanguageSwitcher,
     ReactiveFormsModule,
     RouterLink,
   ],
@@ -67,6 +56,7 @@ export class SignIn implements AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly host = inject(ElementRef);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly forgotPasswordPath = canonicalRoutePath('AUTH_FORGOT_PASSWORD');
   protected readonly signUpPath = canonicalRoutePath('AUTH_SIGN_UP');
@@ -84,10 +74,13 @@ export class SignIn implements AfterViewInit {
   protected readonly validationSummary = computed(() => toFormValidationSummary(
     this.normalizedError(),
     {
-      fieldLabels: FIELD_LABELS,
+      fieldLabels: {
+        Email: this.i18n.t(FIELD_LABEL_KEYS.Email),
+        Password: this.i18n.t(FIELD_LABEL_KEYS.Password),
+      },
       controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'The form could not be submitted.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('auth.formFallback'),
     },
   ));
 
@@ -97,9 +90,9 @@ export class SignIn implements AfterViewInit {
       return '';
     }
     if (this.isEmailVerificationRequired(error)) {
-      return EMAIL_VERIFICATION_REQUIRED_MESSAGE;
+      return this.i18n.t('signin.verifyRequired');
     }
-    return error.detail.trim() !== '' ? error.detail : 'The form could not be submitted.';
+    return this.i18n.backendErrorCopy(error.detail, 'auth.formFallback');
   });
 
   protected get emailValue(): string {
@@ -138,7 +131,7 @@ export class SignIn implements AfterViewInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.normalizedError.set(REQUIRED_VALIDATION);
+      this.normalizedError.set(this.requiredValidation());
       return;
     }
 
@@ -154,7 +147,9 @@ export class SignIn implements AfterViewInit {
       await firstValueFrom(this.currentUserStore.hydrate());
       await this.router.navigateByUrl(this.postLoginDestination());
     } catch (error: unknown) {
-      this.normalizedError.set(normalizeProblemDetails(this.errorBody(error)));
+      this.normalizedError.set(
+        this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), FIELD_LABEL_KEYS),
+      );
       this.form.enable({ emitEvent: false });
       this.isSubmitting.set(false);
     }
@@ -173,6 +168,21 @@ export class SignIn implements AfterViewInit {
       return '';
     }
     return toFieldErrorText(this.normalizedError()?.errors?.[field]);
+  }
+
+  private requiredValidation(): NormalizedProblemDetails {
+    return {
+      kind: 'validation',
+      type: '',
+      title: this.i18n.t('auth.validationFailed'),
+      status: 400,
+      detail: '',
+      traceId: '',
+      errors: {
+        Email: [this.i18n.t('auth.emailEmpty')],
+        Password: [this.i18n.t('auth.passwordEmpty')],
+      },
+    };
   }
 
   private clearServerError(): void {

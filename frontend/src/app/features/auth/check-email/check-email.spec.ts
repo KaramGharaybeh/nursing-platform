@@ -60,7 +60,7 @@ describe('AUTH-005 Check Email', () => {
   it('renders no resend, countdown, or delivery guarantee behavior', async () => {
     const fixture = await createComponent();
 
-    expect(fixture.nativeElement.querySelector('button')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.np-check-email-card button')).toBeNull();
   });
 
   it('activates the canonical PUBLIC /auth/verify-email route without guards or redirects', async () => {

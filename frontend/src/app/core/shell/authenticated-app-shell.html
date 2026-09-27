@@ -3,7 +3,7 @@
     Nursing Platform
   </a>
 
-  <nav class="np-auth-shell-nav" data-testid="app-shell-primary-nav" aria-label="Primary navigation">
+  <nav class="np-auth-shell-nav" data-testid="app-shell-primary-nav" [attr.aria-label]="i18n.t('shell.navPrimary')">
     @for (item of navigationItems(); track item.routeId) {
       <a
         class="np-auth-shell-nav-link"
@@ -11,30 +11,32 @@
         [attr.aria-current]="item.active ? 'page' : null"
         [routerLink]="item.path"
       >
-        {{ item.label }}
+        {{ navigationLabel(item.routeId, item.label) }}
       </a>
     }
   </nav>
 
   <a class="np-auth-shell-account" data-testid="app-shell-account" [routerLink]="accountPath">
-    Account
+    {{ i18n.t('shell.account') }}
   </a>
 
   <button class="np-auth-shell-sign-out" data-testid="app-shell-sign-out" type="button" (click)="signOut()">
-    Sign out
+    {{ i18n.t('shell.signOut') }}
   </button>
+
+  <np-language-switcher />
 
   <button
     #menuTrigger
     class="np-auth-shell-menu-trigger"
     data-testid="app-shell-menu-trigger"
     type="button"
-    aria-label="Open navigation menu"
+    [attr.aria-label]="i18n.t('shell.openMenu')"
     [attr.aria-expanded]="mobileNavigationOpen()"
     aria-controls="app-shell-mobile-menu"
     (click)="openMobileNavigation()"
   >
-    Menu
+    {{ i18n.t('shell.openMenu') }}
   </button>
 </header>
 
@@ -43,7 +45,7 @@
     class="np-auth-shell-backdrop"
     data-testid="app-shell-mobile-backdrop"
     type="button"
-    aria-label="Close navigation menu"
+    [attr.aria-label]="i18n.t('shell.closeMenu')"
     (click)="closeMobileNavigation()"
   ></button>
   <aside
@@ -52,7 +54,7 @@
     data-testid="app-shell-mobile-panel"
     role="dialog"
     aria-modal="true"
-    aria-label="Navigation menu"
+    [attr.aria-label]="i18n.t('shell.navMobile')"
     cdkTrapFocus
     [cdkTrapFocusAutoCapture]="true"
   >
@@ -63,10 +65,10 @@
       data-testid="app-shell-mobile-close"
       (click)="closeMobileNavigation()"
     >
-      Close
+      {{ i18n.t('shell.closeMenu') }}
     </button>
 
-    <nav aria-label="Mobile primary navigation">
+    <nav [attr.aria-label]="i18n.t('shell.navMobile')">
       @for (item of navigationItems(); track item.routeId) {
         <a
           class="np-auth-shell-mobile-link"
@@ -74,16 +76,16 @@
           [attr.aria-current]="item.active ? 'page' : null"
           [routerLink]="item.path"
         >
-          {{ item.label }}
+          {{ navigationLabel(item.routeId, item.label) }}
         </a>
       }
     </nav>
 
     <a class="np-auth-shell-mobile-link" data-testid="app-shell-mobile-account" [routerLink]="accountPath">
-      Account
+      {{ i18n.t('shell.account') }}
     </a>
     <button class="np-auth-shell-mobile-sign-out" type="button" (click)="signOut()">
-      Sign out
+      {{ i18n.t('shell.signOut') }}
     </button>
   </aside>
 }

@@ -7,16 +7,17 @@
       </svg>
       Nursing Platform
     </span>
-    <nav aria-label="Public authentication navigation">
-      <a [routerLink]="publicOffersPath">Preparation Packages</a>
-      <a [routerLink]="signInPath">Sign in</a>
-      <a class="np-verify-email-nav-solid" [routerLink]="signUpPath">Sign up</a>
+    <nav [attr.aria-label]="i18n.t('auth.publicNav')">
+      <a [routerLink]="publicOffersPath">{{ i18n.t('auth.prepPackages') }}</a>
+      <a [routerLink]="signInPath">{{ i18n.t('auth.signIn') }}</a>
+      <a class="np-verify-email-nav-solid" [routerLink]="signUpPath">{{ i18n.t('auth.signUp') }}</a>
     </nav>
+    <np-language-switcher />
   </header>
   <div class="np-verify-email-composition">
     <div class="np-verify-email-screen-header">
-      <h1 id="auth-verify-email-title">Verify email</h1>
-      <p>Email verification confirmation</p>
+      <h1 id="auth-verify-email-title">{{ i18n.t('verify.title') }}</h1>
+      <p>{{ i18n.t('verify.subtitle') }}</p>
     </div>
     <div class="np-verify-email-card">
       @if (tokenMissingMessage() !== '') {
@@ -29,7 +30,7 @@
         </span>
         <p class="np-verify-email-error" role="alert">{{ tokenMissingMessage() }}</p>
         <p class="np-verify-email-recovery">
-          <a [routerLink]="signInPath">Back to sign in</a>
+          <a [routerLink]="signInPath">{{ i18n.t('verify.backToSignIn') }}</a>
         </p>
       } @else if (loadingMessage() !== '') {
         <span class="np-verify-email-state-icon" aria-hidden="true">
@@ -51,7 +52,7 @@
           </span>
           <p class="np-verify-email-success" role="status">{{ successMessage() }}</p>
           <p class="np-verify-email-recovery">
-            <a [routerLink]="signInPath">Continue to sign in</a>
+            <a [routerLink]="signInPath">{{ i18n.t('verify.continueSignIn') }}</a>
           </p>
         }
         @if (backendFailureMessage() !== '') {
@@ -64,7 +65,7 @@
           </span>
           <p class="np-verify-email-error" role="alert">{{ backendFailureMessage() }}</p>
           <p class="np-verify-email-recovery">
-            <a [routerLink]="signInPath">Back to sign in</a>
+            <a [routerLink]="signInPath">{{ i18n.t('verify.backToSignIn') }}</a>
           </p>
         }
       }

@@ -20,6 +20,7 @@ import { NpDateControl, NpSelectControl } from '../../shared/ui/form-controls';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
 import { NpPagination } from '../../shared/ui/pagination';
+import { LocalizationService } from '../../core/i18n/localization.service';
 
 type SectionState = 'loading' | 'ready' | 'error';
 
@@ -53,6 +54,7 @@ export class ExamAnalyticsScreen implements OnInit {
   private readonly countriesApi = inject(CountriesApi);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly summary = signal<ExamAnalyticsSummary | undefined>(undefined);
@@ -88,7 +90,7 @@ export class ExamAnalyticsScreen implements OnInit {
   protected applyFilters(): void {
     const draft = this.draft();
     if (draft.from !== '' && draft.to !== '' && draft.from > draft.to) {
-      this.dateError.set('From date must be on or before To date.');
+      this.dateError.set(this.i18n.t('analytics.dateError'));
       return;
     }
     this.dateError.set(null);
@@ -127,7 +129,7 @@ export class ExamAnalyticsScreen implements OnInit {
 
   protected countryOptions(): { value: string; label: string }[] {
     return [
-      { value: NO_FILTER, label: 'All countries' },
+      { value: NO_FILTER, label: this.i18n.t('exams.allCountries') },
       ...this.countries().map((country) => ({ value: country.id, label: country.name })),
     ];
   }
@@ -140,13 +142,13 @@ export class ExamAnalyticsScreen implements OnInit {
       }
     }
     return [
-      { value: NO_FILTER, label: 'All categories' },
+      { value: NO_FILTER, label: this.i18n.t('exams.allCategories') },
       ...[...seen].map(([value, label]) => ({ value, label })),
     ];
   }
 
   protected metric(value: number | null): string {
-    return value === null ? 'Not available' : `${value}%`;
+    return value === null ? this.i18n.t('analytics.notAvailable') : `${value}%`;
   }
 
   private async initialize(): Promise<void> {

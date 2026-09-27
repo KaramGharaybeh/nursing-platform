@@ -160,8 +160,8 @@ describe('NurseEntitlementDetail', () => {
     const { fixture } = await setup();
     const content = text(fixture);
 
-    expect(content).toContain('StudyMaterial');
-    expect(content).toContain('ExamAttempt');
+    expect(content).toContain('Study material');
+    expect(content).toContain('Exam attempt');
     expect(content).toContain('Locked');
     expect(content).toContain('Available');
     expect(content).toContain('Not available');

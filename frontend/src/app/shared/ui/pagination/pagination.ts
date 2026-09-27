@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 
 export type NpListState = 'results' | 'empty' | 'no-results';
 
@@ -34,6 +35,7 @@ export function resolveListState(hasItems: boolean, hasActiveQuery: boolean): Np
   styleUrl: './pagination.scss',
 })
 export class NpPagination {
+  protected readonly i18n = inject(LocalizationService);
   @Input() page = 1;
   @Input() totalPages = 0;
   @Input() totalCount = 0;

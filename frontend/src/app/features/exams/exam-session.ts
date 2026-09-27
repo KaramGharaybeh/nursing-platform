@@ -10,6 +10,7 @@ import type { NormalizedProblemDetails } from '../../core/api/problem-details';
 import { buildExamsDetailPath, buildExamsResultPath } from '../../core/routing/canonical-routes';
 import { TwoStepConfirmation } from '../../shared/ui/confirmation';
 import { Announcer, NpLiveRegion } from '../../shared/ui/announcement';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
 
@@ -26,6 +27,7 @@ export class ExamSessionScreen implements OnInit, OnDestroy {
   private readonly api = inject(ExamsApi);
   private readonly route = inject(ActivatedRoute);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
   private readonly confirmation = new TwoStepConfirmation();
   private timer: ReturnType<typeof setInterval> | undefined = undefined;
   private warned = false;
@@ -112,7 +114,7 @@ export class ExamSessionScreen implements OnInit, OnDestroy {
         ]),
       );
       this.applySession(updated, { preserveLocalSelection: false });
-      this.announcer.announce('Answer saved.');
+      this.announcer.announce(this.i18n.t('session.announceSaved'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
         this.notFound.set(true);
@@ -174,7 +176,7 @@ export class ExamSessionScreen implements OnInit, OnDestroy {
       const submitted = await firstValueFrom(this.api.submitExamSession(sessionId));
       this.result.set(submitted);
       this.stopTimer();
-      this.announcer.announce(submitted.passed ? 'Exam submitted. Passed.' : 'Exam submitted. Not passed.');
+      this.announcer.announce(submitted.passed ? this.i18n.t('session.announcePassed') : this.i18n.t('session.announceFailed'));
       await this.reconcile();
     } catch {
       await this.reconcile();
@@ -191,7 +193,7 @@ export class ExamSessionScreen implements OnInit, OnDestroy {
     this.remainingDisplay.set(Math.max(0, next));
     if (this.remainingDisplay() <= NEAR_EXPIRY_SECONDS && !this.warned && this.remainingDisplay() > 0) {
       this.warned = true;
-      this.announcer.announce('Time is almost up. Submit your exam soon.');
+      this.announcer.announce(this.i18n.t('session.expiryWarning'));
     }
     if (this.remainingDisplay() <= 0) {
       this.stopTimer();
@@ -246,7 +248,7 @@ export class ExamSessionScreen implements OnInit, OnDestroy {
     }
     this.warned = loaded.remainingSeconds <= NEAR_EXPIRY_SECONDS;
     if (this.warned && loaded.status === STATUS_IN_PROGRESS && loaded.remainingSeconds > 0) {
-      this.announcer.announce('Time is almost up. Submit your exam soon.');
+      this.announcer.announce(this.i18n.t('session.expiryWarning'));
     }
     this.remainingDisplay.set(Math.max(0, loaded.remainingSeconds));
     this.restartTimer(loaded.status === STATUS_IN_PROGRESS && loaded.remainingSeconds > 0);

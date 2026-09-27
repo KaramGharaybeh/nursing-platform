@@ -1,14 +1,14 @@
 <section class="np-exams-list" aria-labelledby="exams-title">
   <np-live-region />
 
-  <h1 id="exams-title">Exams</h1>
-  <a [routerLink]="analyticsPath" data-testid="exam-analytics-link">View analytics</a>
-  <a [routerLink]="historyPath" data-testid="exam-history-link">View history</a>
+  <h1 id="exams-title">{{ i18n.t('exams.title') }}</h1>
+  <a [routerLink]="analyticsPath" data-testid="exam-analytics-link">{{ i18n.t('exams.viewAnalytics') }}</a>
+  <a [routerLink]="historyPath" data-testid="exam-history-link">{{ i18n.t('exams.viewHistory') }}</a>
 
   <div class="np-exams-list-filters">
     <np-select-control
       controlId="exams-country-filter"
-      label="Country"
+      [label]="i18n.t('exams.countryFilter')"
       data-testid="exams-country-filter"
       [options]="countryOptions()"
       [value]="countryId()"
@@ -16,7 +16,7 @@
     />
     <np-select-control
       controlId="exams-category-filter"
-      label="Exam category"
+      [label]="i18n.t('exams.categoryFilter')"
       data-testid="exams-category-filter"
       [options]="categoryOptions()"
       [value]="categoryId()"
@@ -26,8 +26,8 @@
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading exams"
-    fallbackErrorTitle="Exams could not be loaded"
+    [loadingLabel]="i18n.t('exams.loading')"
+    [fallbackErrorTitle]="i18n.t('exams.loadError')"
     (retryRequested)="retry()"
   />
 
@@ -35,14 +35,14 @@
     @if (listState() === 'empty') {
       <np-empty-state
         kind="empty"
-        title="No exams available."
-        description="There are no exams to show right now. Please check back later."
+        [title]="i18n.t('exams.emptyTitle')"
+        [description]="i18n.t('exams.emptyText')"
       />
     } @else if (listState() === 'no-results') {
       <np-empty-state
         kind="no-results"
-        title="No exams match the selected filters."
-        description="Try a different country or category."
+        [title]="i18n.t('exams.noResultsTitle')"
+        [description]="i18n.t('exams.noResultsText')"
       />
     } @else {
       <ul class="np-exams-list-items">
@@ -56,8 +56,8 @@
         [page]="page()"
         [totalPages]="result()?.totalPages ?? 0"
         [totalCount]="result()?.totalCount ?? 0"
-        itemLabel="exams"
-        ariaLabel="Exams pagination"
+        [itemLabel]="i18n.t('exams.itemLabel')"
+        [ariaLabel]="i18n.t('exams.paginationLabel')"
         (pageRequested)="loadPage($event)"
       />
     }

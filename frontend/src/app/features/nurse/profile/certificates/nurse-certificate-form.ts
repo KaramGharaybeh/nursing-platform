@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import type { NormalizedProblemDetails } from '../../../../core/api/problem-details';
@@ -7,6 +7,7 @@ import {
   NpTextInputControl,
 } from '../../../../shared/ui/form-controls';
 import { NpFormValidationSummary, toFieldErrorText, toFormValidationSummary } from '../../../../shared/ui/form-validation';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 
 const NAME_MAX = 200;
 const ISSUING_ORGANIZATION_MAX = 200;
@@ -31,14 +32,14 @@ type CertificateForm = FormGroup<{
   credentialUrl: FormControl<string>;
 }>;
 
-const FIELD_LABELS = Object.freeze({
-  Name: 'Certificate name',
-  IssuingOrganization: 'Issuing organization',
-  IssueDate: 'Issue date',
-  ExpirationDate: 'Expiration date',
-  CredentialId: 'Credential ID',
-  CredentialUrl: 'Credential URL',
-});
+const FIELD_LABEL_KEYS = Object.freeze({
+  Name: 'certForm.name',
+  IssuingOrganization: 'certForm.issuer',
+  IssueDate: 'certForm.issueDate',
+  ExpirationDate: 'certForm.expirationDate',
+  CredentialId: 'certForm.credentialId',
+  CredentialUrl: 'certForm.credentialUrl',
+} as const);
 
 const CONTROL_IDS = Object.freeze({
   Name: 'nurse-certificate-name',
@@ -101,10 +102,11 @@ export class NurseCertificateForm implements OnInit {
   });
 
   protected readonly controlIds = CONTROL_IDS;
+  protected readonly i18n = inject(LocalizationService);
   private readonly submittedState = { submitted: false };
 
   protected get submitLabel(): string {
-    return this.mode === 'edit' ? 'Save changes' : 'Save certificate';
+    return this.mode === 'edit' ? this.i18n.t('certForm.submitSave') : this.i18n.t('certForm.submitCreate');
   }
 
   protected get nameValue(): string {
@@ -157,10 +159,17 @@ export class NurseCertificateForm implements OnInit {
 
   protected get validationSummary() {
     return toFormValidationSummary(this.normalizedError(), {
-      fieldLabels: FIELD_LABELS,
+      fieldLabels: {
+        Name: this.i18n.t(FIELD_LABEL_KEYS.Name),
+        IssuingOrganization: this.i18n.t(FIELD_LABEL_KEYS.IssuingOrganization),
+        IssueDate: this.i18n.t(FIELD_LABEL_KEYS.IssueDate),
+        ExpirationDate: this.i18n.t(FIELD_LABEL_KEYS.ExpirationDate),
+        CredentialId: this.i18n.t(FIELD_LABEL_KEYS.CredentialId),
+        CredentialUrl: this.i18n.t(FIELD_LABEL_KEYS.CredentialUrl),
+      },
       controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'Your certificate could not be saved.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('certForm.formFallback'),
     });
   }
 
@@ -169,7 +178,7 @@ export class NurseCertificateForm implements OnInit {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'Your certificate could not be saved.';
+    return this.i18n.backendErrorCopy(error.detail, 'certForm.formFallback');
   }
 
   ngOnInit(): void {
@@ -240,7 +249,19 @@ export class NurseCertificateForm implements OnInit {
 
   private normalizedError(): NormalizedProblemDetails | undefined {
     const clientFailure = this.submittedState.submitted ? this.clientValidationFailure() : undefined;
-    return clientFailure ?? this.backendError;
+    if (clientFailure !== undefined) {
+      return clientFailure;
+    }
+    return this.safeBackendError(this.backendError);
+  }
+
+  private safeBackendError(
+    error: NormalizedProblemDetails | undefined,
+  ): NormalizedProblemDetails | undefined {
+    if (error === undefined) {
+      return undefined;
+    }
+    return this.i18n.safeBackendError(error, FIELD_LABEL_KEYS);
   }
 
   private clientValidationFailure(): NormalizedProblemDetails | undefined {
@@ -253,39 +274,39 @@ export class NurseCertificateForm implements OnInit {
     const credentialUrl = this.form.controls.credentialUrl;
 
     if (name.hasError('required')) {
-      errors['Name'] = ['Certificate name is required.'];
+      errors['Name'] = [this.i18n.t('certForm.nameRequired')];
     } else if (name.hasError('maxlength')) {
-      errors['Name'] = ['Certificate name must be at most 200 characters.'];
+      errors['Name'] = [this.i18n.t('certForm.nameMax')];
     }
     if (issuingOrganization.hasError('required')) {
-      errors['IssuingOrganization'] = ['Issuing organization is required.'];
+      errors['IssuingOrganization'] = [this.i18n.t('certForm.issuerRequired')];
     } else if (issuingOrganization.hasError('maxlength')) {
-      errors['IssuingOrganization'] = ['Issuing organization must be at most 200 characters.'];
+      errors['IssuingOrganization'] = [this.i18n.t('certForm.issuerMax')];
     }
     if (credentialId.hasError('maxlength')) {
-      errors['CredentialId'] = ['Credential ID must be at most 200 characters.'];
+      errors['CredentialId'] = [this.i18n.t('certForm.credentialIdMax')];
     }
     if (credentialUrl.hasError('maxlength')) {
-      errors['CredentialUrl'] = ['Credential URL must be at most 500 characters.'];
+      errors['CredentialUrl'] = [this.i18n.t('certForm.credentialUrlMax')];
     } else {
       const urlValue = credentialUrl.value.trim();
       if (urlValue !== '' && !isAbsoluteHttpUrl(urlValue)) {
-        errors['CredentialUrl'] = ['Credential URL must be an absolute http or https URL.'];
+        errors['CredentialUrl'] = [this.i18n.t('certForm.credentialUrlInvalid')];
       }
     }
     const issueValue = issueDate.value.trim();
     const expirationValue = expirationDate.value.trim();
     if (issueValue !== '' && expirationValue !== '' && expirationValue < issueValue) {
-      errors['ExpirationDate'] = ['Expiration date must be on or after the issue date.'];
+      errors['ExpirationDate'] = [this.i18n.t('certForm.expirationAfterIssue')];
     }
 
     if (Object.keys(errors).length === 0) {
       return undefined;
     }
-    return { kind: 'validation', type: '', title: 'Validation failed', status: 400, detail: '', traceId: '', errors };
+    return { kind: 'validation', type: '', title: this.i18n.t('auth.validationFailed'), status: 400, detail: '', traceId: '', errors };
   }
 
-  private fieldError(field: keyof typeof FIELD_LABELS): string {
+  private fieldError(field: keyof typeof FIELD_LABEL_KEYS): string {
     if (!this.submittedState.submitted) {
       return '';
     }

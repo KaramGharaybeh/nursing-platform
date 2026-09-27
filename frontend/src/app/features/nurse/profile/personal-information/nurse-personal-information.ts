@@ -11,6 +11,7 @@ import { normalizeProblemDetails } from '../../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../../core/api/problem-details';
 import { canonicalRoutePath } from '../../../../core/routing/canonical-routes';
 import { Router } from '@angular/router';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 import { NpCheckboxControl, NpSelectControl, NpTextInputControl, NpTextareaControl } from '../../../../shared/ui/form-controls';
 import type { NpSelectOption } from '../../../../shared/ui/form-controls';
 import { NpFormValidationSummary, toFieldErrorText, toFormValidationSummary } from '../../../../shared/ui/form-validation';
@@ -33,12 +34,12 @@ type PersonalInformationForm = FormGroup<{
   isAvailableForRecruitment: FormControl<boolean>;
 }>;
 
-const FIELD_LABELS = Object.freeze({
-  Headline: 'Headline',
-  ProfessionalSummary: 'Professional summary',
-  LicenseNumber: 'License number',
-  YearsOfExperience: 'Years of experience',
-});
+const FIELD_LABEL_KEYS = Object.freeze({
+  Headline: 'profile.headlineLabel',
+  ProfessionalSummary: 'profile.summaryLabel',
+  LicenseNumber: 'profile.licenseNumberLabel',
+  YearsOfExperience: 'profile.yearsOfExperience',
+} as const);
 
 const CONTROL_IDS = Object.freeze({
   Headline: 'nurse-personal-information-headline',
@@ -69,6 +70,7 @@ export class NursePersonalInformation implements OnInit {
   private readonly api = inject(NurseProfileApi);
   private readonly countriesApi = inject(CountriesApi);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly overviewPath = canonicalRoutePath('NURSE_PROFILE_OVERVIEW');
 
@@ -96,7 +98,7 @@ export class NursePersonalInformation implements OnInit {
   });
 
   protected get title(): string {
-    return this.isCreateMode() ? 'Add personal information' : 'Edit personal information';
+    return this.isCreateMode() ? this.i18n.t('profile.addPersonalInfo') : this.i18n.t('profile.editPersonalInfo');
   }
 
   protected get countryOptions(): readonly NpSelectOption[] {
@@ -149,10 +151,15 @@ export class NursePersonalInformation implements OnInit {
 
   protected get validationSummary() {
     return toFormValidationSummary(this.normalizedError(), {
-      fieldLabels: FIELD_LABELS,
+      fieldLabels: {
+        Headline: this.i18n.t(FIELD_LABEL_KEYS.Headline),
+        ProfessionalSummary: this.i18n.t(FIELD_LABEL_KEYS.ProfessionalSummary),
+        LicenseNumber: this.i18n.t(FIELD_LABEL_KEYS.LicenseNumber),
+        YearsOfExperience: this.i18n.t(FIELD_LABEL_KEYS.YearsOfExperience),
+      },
       controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'Your personal information could not be saved.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('pi.formFallback'),
     });
   }
 
@@ -161,7 +168,7 @@ export class NursePersonalInformation implements OnInit {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'Your personal information could not be saved.';
+    return this.i18n.backendErrorCopy(error.detail, 'pi.formFallback');
   }
 
   ngOnInit(): void {
@@ -230,7 +237,9 @@ export class NursePersonalInformation implements OnInit {
       }));
       await this.router.navigateByUrl(this.overviewPath);
     } catch (error: unknown) {
-      this.normalizedError.set(normalizeProblemDetails(this.errorBody(error)));
+      this.normalizedError.set(
+        this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), FIELD_LABEL_KEYS),
+      );
       this.form.enable({ emitEvent: false });
     } finally {
       this.isSubmitting.set(false);
@@ -297,27 +306,27 @@ export class NursePersonalInformation implements OnInit {
     const years = this.form.controls.yearsOfExperience;
 
     if (headline.hasError('maxlength')) {
-      errors['Headline'] = ['Headline must be at most 160 characters.'];
+      errors['Headline'] = [this.i18n.t('pi.headlineMax')];
     }
     if (professionalSummary.hasError('maxlength')) {
-      errors['ProfessionalSummary'] = ['Professional summary must be at most 2000 characters.'];
+      errors['ProfessionalSummary'] = [this.i18n.t('pi.summaryMax')];
     }
     if (licenseNumber.hasError('maxlength')) {
-      errors['LicenseNumber'] = ['License number must be at most 100 characters.'];
+      errors['LicenseNumber'] = [this.i18n.t('pi.licenseMax')];
     }
     if (years.hasError('required')) {
-      errors['YearsOfExperience'] = ['Years of experience is required.'];
+      errors['YearsOfExperience'] = [this.i18n.t('pi.yearsRequired')];
     } else if (years.hasError('min') || years.hasError('max')) {
-      errors['YearsOfExperience'] = ['Years of experience must be between 0 and 80.'];
+      errors['YearsOfExperience'] = [this.i18n.t('pi.yearsRange')];
     }
 
     if (Object.keys(errors).length === 0) {
       return undefined;
     }
-    return { kind: 'validation', type: '', title: 'Validation failed', status: 400, detail: '', traceId: '', errors };
+    return { kind: 'validation', type: '', title: this.i18n.t('auth.validationFailed'), status: 400, detail: '', traceId: '', errors };
   }
 
-  private fieldError(field: keyof typeof FIELD_LABELS): string {
+  private fieldError(field: keyof typeof FIELD_LABEL_KEYS): string {
     if (!this.submitted()) {
       return '';
     }

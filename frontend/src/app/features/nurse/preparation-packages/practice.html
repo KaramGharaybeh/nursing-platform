@@ -1,44 +1,44 @@
 <section class="np-practice" aria-labelledby="practice-title">
-  <a [routerLink]="backPath" data-testid="practice-back-link">Back to preparation package</a>
+  <a [routerLink]="backPath" data-testid="practice-back-link">{{ i18n.t('npp.practiceBack') }}</a>
 
-  <h1 id="practice-title">Practice</h1>
+  <h1 id="practice-title">{{ i18n.t('npp.practiceTitle') }}</h1>
   <np-live-region />
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading practice"
-    fallbackErrorTitle="Practice could not be loaded"
+    [loadingLabel]="i18n.t('npp.practiceLoading')"
+    [fallbackErrorTitle]="i18n.t('npp.practiceLoadError')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (notFound()) {
       <p role="status" data-testid="practice-missing-notice">
-        This practice is no longer available. It may have been removed, or the link is incorrect.
+        {{ i18n.t('npp.practiceMissing') }}
       </p>
     } @else if (accessEnded()) {
       <p role="status" data-testid="practice-access-ended-notice">
-        Practice access is no longer available. Your previous progress is shown below.
+        {{ i18n.t('npp.practiceAccessEnded') }}
       </p>
       @if (progress(); as endedProgress) {
         <p data-testid="practice-progress-summary">
-          {{ endedProgress.answeredCount }} of {{ endedProgress.totalItems }} answered
+          {{ i18n.tp('npp.progressSummary', { answered: endedProgress.answeredCount, total: endedProgress.totalItems }) }}
         </p>
       }
     } @else if (isEmpty()) {
       <np-empty-state
         kind="empty"
-        title="No practice items available."
-        description="There are no practice items to show right now. Please check back later."
+        [title]="i18n.t('npp.practiceEmptyTitle')"
+        [description]="i18n.t('npp.practiceEmptyText')"
       />
     } @else if (currentItem(); as item) {
       @if (isComplete()) {
-        <p role="status" data-testid="practice-complete-notice">Practice complete</p>
+        <p role="status" data-testid="practice-complete-notice">{{ i18n.t('npp.practiceComplete') }}</p>
       }
-      <p data-testid="practice-position">Question {{ currentIndex() + 1 }} of {{ content()?.totalItems }}</p>
+      <p data-testid="practice-position">{{ i18n.tp('npp.questionOf', { current: currentIndex() + 1, total: content()?.totalItems ?? 0 }) }}</p>
       @if (progress(); as activeProgress) {
         <p data-testid="practice-progress-summary">
-          {{ activeProgress.answeredCount }} of {{ activeProgress.totalItems }} answered
+          {{ i18n.tp('npp.progressSummary', { answered: activeProgress.answeredCount, total: activeProgress.totalItems }) }}
         </p>
       }
       <fieldset class="np-practice-question">
@@ -57,10 +57,10 @@
         }
       </fieldset>
       @if (isAnswered() && isCorrect()) {
-        <p role="status" data-testid="practice-correct-notice">Correct.</p>
+        <p role="status" data-testid="practice-correct-notice">{{ i18n.t('npp.correct') }}</p>
       }
       @if (isAnswered() && !isCorrect()) {
-        <p role="status" data-testid="practice-incorrect-notice">Incorrect.</p>
+        <p role="status" data-testid="practice-incorrect-notice">{{ i18n.t('npp.incorrect') }}</p>
       }
       @if (feedback(); as itemFeedback) {
         <p data-testid="practice-feedback">{{ itemFeedback }}</p>
@@ -72,7 +72,7 @@
           [disabled]="currentIndex() === 0 || submitting()"
           (click)="previous()"
         >
-          Previous
+          {{ i18n.t('npp.previous') }}
         </button>
         <button
           type="button"
@@ -80,7 +80,7 @@
           [disabled]="currentIndex() + 1 >= (content()?.items.length ?? 0) || submitting()"
           (click)="next()"
         >
-          Next
+          {{ i18n.t('npp.next') }}
         </button>
         <button
           type="button"
@@ -88,7 +88,7 @@
           [disabled]="selectedOptionId() === undefined || submitting()"
           (click)="submit()"
         >
-          Submit
+          {{ i18n.t('npp.submit') }}
         </button>
       </div>
     }

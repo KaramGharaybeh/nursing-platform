@@ -6,7 +6,7 @@
     aria-busy="true"
   >
     <span class="np-loading-error-retry-indicator" aria-hidden="true"></span>
-    <span>{{ loadingLabel }}</span>
+    <span>{{ resolvedLoadingLabel }}</span>
   </section>
 } @else if (state.kind === 'error') {
   <section
@@ -20,7 +20,7 @@
     }
     @if (state.canRetry === true) {
       <button class="np-loading-error-retry-retry" type="button" (click)="requestRetry()">
-        {{ retryLabel }}
+        {{ resolvedRetryLabel }}
       </button>
     }
   </section>

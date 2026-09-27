@@ -4,24 +4,19 @@ import { firstValueFrom } from 'rxjs';
 import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
+import { LocalizationService } from '../../../core/i18n/localization.service';
+import { NpLanguageSwitcher } from '../../../shared/ui/language-switcher';
 import { VerifyEmailApi } from './verify-email-api';
-
-const MISSING_TOKEN_MESSAGE = 'This verification link is invalid or missing.';
-
-const LOADING_MESSAGE = 'Verifying email…';
-
-const SUCCESS_MESSAGE = 'Email verified successfully.';
-
-const FAILURE_FALLBACK = 'Email verification failed.';
 
 @Component({
   selector: 'np-verify-email',
-  imports: [RouterLink],
+  imports: [RouterLink, NpLanguageSwitcher],
   templateUrl: './verify-email.html',
   styleUrl: './verify-email.scss',
 })
 export class VerifyEmail implements OnInit {
   private readonly verifyEmailApi = inject(VerifyEmailApi);
+  protected readonly i18n = inject(LocalizationService);
   private readonly verificationToken: string =
     (inject(ActivatedRoute).snapshot.queryParamMap.get('token') ?? '').trim();
 
@@ -36,11 +31,11 @@ export class VerifyEmail implements OnInit {
   protected readonly isTokenMissing = computed(() => this.verificationToken === '');
 
   protected readonly tokenMissingMessage = computed(() =>
-    this.isTokenMissing() ? MISSING_TOKEN_MESSAGE : '',
+    this.isTokenMissing() ? this.i18n.t('verify.missing') : '',
   );
 
   protected readonly loadingMessage = computed(() =>
-    !this.isTokenMissing() && this.isLoading() ? LOADING_MESSAGE : '',
+    !this.isTokenMissing() && this.isLoading() ? this.i18n.t('verify.loading') : '',
   );
 
   protected readonly backendFailureMessage = computed(() => {
@@ -49,9 +44,9 @@ export class VerifyEmail implements OnInit {
       return '';
     }
     if (error.kind === 'validation') {
-      return error.detail.trim() !== '' ? error.detail : FAILURE_FALLBACK;
+      return this.i18n.backendErrorCopy(error.detail, 'verify.failure');
     }
-    return error.detail.trim() !== '' ? error.detail : FAILURE_FALLBACK;
+    return this.i18n.backendErrorCopy(error.detail, 'verify.failure');
   });
 
   async ngOnInit(): Promise<void> {
@@ -65,9 +60,11 @@ export class VerifyEmail implements OnInit {
 
     try {
       await firstValueFrom(this.verifyEmailApi.verifyEmail({ token: this.verificationToken }));
-      this.successMessage.set(SUCCESS_MESSAGE);
+      this.successMessage.set(this.i18n.t('verify.success'));
     } catch (error: unknown) {
-      this.normalizedError.set(normalizeProblemDetails(this.errorBody(error)));
+      this.normalizedError.set(
+        this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), {}),
+      );
     } finally {
       this.isLoading.set(false);
     }

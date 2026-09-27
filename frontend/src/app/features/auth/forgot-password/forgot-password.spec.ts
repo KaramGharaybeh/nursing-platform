@@ -89,7 +89,7 @@ describe('AUTH-007 Forgot Password', () => {
   it('renders the email field with the approved persistent label and native input', async () => {
     const { fixture } = await setup();
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('label[for="auth-forgot-password-email"] + input#auth-forgot-password-email')).not.toBeNull();
+    expect(root.querySelector('label[for="auth-forgot-password-email"] + .np-auth-field-control input#auth-forgot-password-email')).not.toBeNull();
     expect(root.querySelector('.np-forgot-password-form mat-form-field')).toBeNull();
   });
   it('renders a public header and single centered recovery card', async () => {

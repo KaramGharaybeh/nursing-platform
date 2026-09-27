@@ -2,6 +2,8 @@ import { Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { CurrentUserStore } from '../../../core/auth/current-user-store';
+import type { TranslationKey } from '../../../core/i18n/translations';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 import type { CanonicalRouteId } from '../../../core/routing/canonical-routes';
 import { filterEligibleNavigationCandidates } from '../../../core/routing/navigation-permission-policy';
@@ -9,29 +11,29 @@ import type { NavigationUserState } from '../../../core/routing/navigation-permi
 
 interface AdminWorkspaceDestination {
   readonly routeId: CanonicalRouteId;
-  readonly title: string;
-  readonly description: string;
-  readonly group: string;
+  readonly titleKey: TranslationKey;
+  readonly descriptionKey: TranslationKey;
+  readonly groupKey: TranslationKey;
 }
 
 const ADMIN_WORKSPACE_DESTINATIONS: readonly AdminWorkspaceDestination[] = Object.freeze([
   {
     routeId: 'ADMIN_USERS',
-    title: 'Users',
-    description: 'Find user accounts and open safe profile details.',
-    group: 'Access',
+    titleKey: 'adm.destUsersTitle',
+    descriptionKey: 'adm.destUsersDesc',
+    groupKey: 'adm.destUsersGroup',
   },
   {
     routeId: 'ADMIN_REFERENCE_DATA',
-    title: 'Exam categories',
-    description: 'Manage exam categories for supported countries.',
-    group: 'Exams',
+    titleKey: 'adm.destCatTitle',
+    descriptionKey: 'adm.destCatDesc',
+    groupKey: 'adm.destExamsGroup',
   },
   {
     routeId: 'ADMIN_EXAMS',
-    title: 'Manage exams',
-    description: 'View and manage exam records.',
-    group: 'Exams',
+    titleKey: 'adm.destExamsTitle',
+    descriptionKey: 'adm.destExamsDesc',
+    groupKey: 'adm.destExamsGroup',
   },
 ]);
 
@@ -43,6 +45,11 @@ const ADMIN_WORKSPACE_DESTINATIONS: readonly AdminWorkspaceDestination[] = Objec
 })
 export class AdminEntry {
   private readonly currentUserStore = inject(CurrentUserStore);
+  protected readonly i18n = inject(LocalizationService);
+
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
+  }
 
   protected readonly destinations = computed(() => {
     const eligibility = filterEligibleNavigationCandidates(

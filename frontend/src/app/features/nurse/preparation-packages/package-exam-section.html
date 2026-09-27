@@ -1,17 +1,17 @@
 <section class="np-package-exam-section" aria-labelledby="package-exam-title">
-  <h2 id="package-exam-title" data-testid="package-exam-heading">Package exam</h2>
+  <h2 id="package-exam-title" data-testid="package-exam-heading">{{ i18n.t('npp.examTitle') }}</h2>
   <np-live-region />
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading package exam"
-    fallbackErrorTitle="Package exam could not be loaded"
+    [loadingLabel]="i18n.t('npp.examLoading')"
+    [fallbackErrorTitle]="i18n.t('npp.examLoadError')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (uiState() === 'loading') {
-      <p role="status" data-testid="package-exam-loading">Checking package exam status…</p>
+      <p role="status" data-testid="package-exam-loading">{{ i18n.t('npp.examChecking') }}</p>
     } @else if (uiState() === 'start' || uiState() === 'resume') {
       @if (uiState() === 'resume') {
         <button
@@ -20,7 +20,7 @@
           [disabled]="starting()"
           (click)="requestAction()"
         >
-          Resume exam
+          {{ i18n.t('npp.resumeExam') }}
         </button>
       } @else {
         <button
@@ -29,19 +29,19 @@
           [disabled]="starting()"
           (click)="requestAction()"
         >
-          Start exam
+          {{ i18n.t('npp.startExam') }}
         </button>
       }
       @if (isConfirming()) {
         <div data-testid="package-exam-confirm" role="group" aria-labelledby="package-exam-confirm-title">
           @if (uiState() === 'resume') {
-            <h3 id="package-exam-confirm-title" data-testid="package-exam-confirm-title">Resume exam?</h3>
-            <p>Resume your existing timed exam session. The timer has continued since the session started.</p>
+            <h3 id="package-exam-confirm-title" data-testid="package-exam-confirm-title">{{ i18n.t('npp.resumeTitle') }}</h3>
+            <p>{{ i18n.t('npp.resumeText') }}</p>
           } @else {
-            <h3 id="package-exam-confirm-title" data-testid="package-exam-confirm-title">Start exam?</h3>
-            <p>This package includes one exam attempt. Starting the exam uses that attempt. The exam is timed, and the timer continues after you start. You can resume the same active session while it remains in progress.</p>
+            <h3 id="package-exam-confirm-title" data-testid="package-exam-confirm-title">{{ i18n.t('npp.startTitle') }}</h3>
+            <p>{{ i18n.t('npp.startText') }}</p>
           }
-          <button type="button" data-testid="package-exam-cancel" (click)="cancelAction()">Cancel</button>
+          <button type="button" data-testid="package-exam-cancel" (click)="cancelAction()">{{ i18n.t('npp.cancel') }}</button>
           <button
             type="button"
             data-testid="package-exam-confirm-go"
@@ -49,33 +49,33 @@
             (click)="confirmAction()"
           >
             @if (uiState() === 'resume') {
-              Resume exam
+              {{ i18n.t('npp.resumeExam') }}
             } @else {
-              Start exam
+              {{ i18n.t('npp.startExam') }}
             }
           </button>
         </div>
       }
       @if (startError()) {
         <div data-testid="package-exam-start-error" role="alert">
-          <p>The exam could not be started. Please try again later.</p>
-          <button type="button" data-testid="package-exam-state-retry" (click)="retryState()">Check again</button>
+          <p>{{ i18n.t('npp.startError') }}</p>
+          <button type="button" data-testid="package-exam-state-retry" (click)="retryState()">{{ i18n.t('npp.checkAgain') }}</button>
         </div>
       }
     } @else if (uiState() === 'completed') {
-      <p role="status" data-testid="package-exam-completed">Exam completed</p>
-      <a [routerLink]="reportPath()" data-testid="package-exam-report-link">View exam report</a>
+      <p role="status" data-testid="package-exam-completed">{{ i18n.t('npp.completed') }}</p>
+      <a [routerLink]="reportPath()" data-testid="package-exam-report-link">{{ i18n.t('npp.viewReport') }}</a>
     } @else if (uiState() === 'expired') {
-      <p role="status" data-testid="package-exam-expired">Exam expired</p>
-      <a [routerLink]="reportPath()" data-testid="package-exam-report-link">View exam report</a>
+      <p role="status" data-testid="package-exam-expired">{{ i18n.t('npp.expired') }}</p>
+      <a [routerLink]="reportPath()" data-testid="package-exam-report-link">{{ i18n.t('npp.viewReport') }}</a>
     } @else if (uiState() === 'used') {
-      <p role="status" data-testid="package-exam-used">Exam attempt used</p>
+      <p role="status" data-testid="package-exam-used">{{ i18n.t('npp.used') }}</p>
     } @else if (uiState() === 'packageExpired') {
-      <p role="status" data-testid="package-exam-package-expired">Package expired</p>
+      <p role="status" data-testid="package-exam-package-expired">{{ i18n.t('npp.packageExpired') }}</p>
     } @else {
       <div data-testid="package-exam-state-error" role="alert">
-        <p>Package exam status could not be loaded.</p>
-        <button type="button" data-testid="package-exam-state-retry" (click)="retryState()">Try again</button>
+        <p>{{ i18n.t('npp.stateError') }}</p>
+        <button type="button" data-testid="package-exam-state-retry" (click)="retryState()">{{ i18n.t('npp.tryAgain') }}</button>
       </div>
     }
   }

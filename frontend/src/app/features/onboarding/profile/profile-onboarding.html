@@ -1,8 +1,8 @@
 <section class="np-profile-onboarding" aria-labelledby="onboarding-profile-title">
   <div class="np-profile-onboarding-card">
-    <p class="np-profile-onboarding-kicker">Profile onboarding</p>
-    <h1 id="onboarding-profile-title">Complete your profile</h1>
-    <p class="np-profile-onboarding-instruction">Add your first and last name to continue.</p>
+    <p class="np-profile-onboarding-kicker">{{ i18n.t('onboarding.kicker') }}</p>
+    <h1 id="onboarding-profile-title">{{ i18n.t('onboarding.title') }}</h1>
+    <p class="np-profile-onboarding-instruction">{{ i18n.t('onboarding.instruction') }}</p>
 
     @if (backendFailureMessage() === '') {
       <np-form-validation-summary
@@ -19,7 +19,7 @@
     <form class="np-profile-onboarding-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <np-text-input-control
         controlId="onboarding-profile-first-name"
-        label="First name"
+        [label]="i18n.t('details.firstName')"
         type="text"
         [required]="true"
         [disabled]="isSubmitting()"
@@ -30,7 +30,7 @@
 
       <np-text-input-control
         controlId="onboarding-profile-last-name"
-        label="Last name"
+        [label]="i18n.t('details.lastName')"
         type="text"
         [required]="true"
         [disabled]="isSubmitting()"
@@ -39,7 +39,7 @@
         (valueChange)="updateLastName($event)"
       />
 
-      <button type="submit" mat-flat-button color="primary" [disabled]="isSubmitting()">Save profile</button>
+      <button type="submit" mat-flat-button color="primary" [disabled]="isSubmitting()">{{ i18n.t('onboarding.submit') }}</button>
     </form>
   </div>
 </section>

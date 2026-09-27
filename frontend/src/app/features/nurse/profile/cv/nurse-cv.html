@@ -1,8 +1,8 @@
 <section class="np-nurse-cv" aria-labelledby="nurse-cv-title">
   <np-live-region />
 
-  <p class="np-nurse-cv-kicker">Nurse profile</p>
-  <h1 id="nurse-cv-title">CV</h1>
+  <p class="np-nurse-cv-kicker">{{ i18n.t('profile.kicker') }}</p>
+  <h1 id="nurse-cv-title">{{ i18n.t('cv.title') }}</h1>
 
   @if (notice() !== '') {
     <p class="np-nurse-cv-notice" role="status">{{ notice() }}</p>
@@ -10,27 +10,27 @@
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading your CV"
-    fallbackErrorTitle="Your CV could not be loaded"
+    [loadingLabel]="i18n.t('cv.loading')"
+    [fallbackErrorTitle]="i18n.t('cv.loadError')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (!hasDocument) {
       <div class="np-nurse-cv-empty">
-        <h2>CV</h2>
-        <p>No CV uploaded yet. Add your CV to keep your professional profile up to date.</p>
+        <h2>{{ i18n.t('cv.title') }}</h2>
+        <p>{{ i18n.t('cv.emptyText') }}</p>
       </div>
     } @else if (document(); as cvDocument) {
       <article class="np-nurse-cv-card" aria-labelledby="nurse-cv-document-title">
         <h2 id="nurse-cv-document-title">{{ cvDocument.fileName }}</h2>
         <p class="np-nurse-cv-meta">
-          {{ formatFileSize(cvDocument.fileSizeBytes) }} · uploaded {{ cvDocument.uploadedAt | date: 'medium' }}
+          {{ formatFileSize(cvDocument.fileSizeBytes) }} · {{ i18n.t('profile.uploadedAt') }} {{ cvDocument.uploadedAt | date: 'medium' }}
         </p>
         @if (!picking()) {
           <div class="np-nurse-cv-card-actions">
             <button mat-flat-button color="primary" type="button" data-testid="replace-cv" (click)="startPicking()">
-              Replace CV
+              {{ i18n.t('cv.replace') }}
             </button>
             @if (!isConfirmingDelete()) {
               <button
@@ -41,13 +41,13 @@
                 [disabled]="isDeleting()"
                 (click)="requestDelete()"
               >
-                Delete CV
+                {{ i18n.t('cv.deleteCv') }}
               </button>
             }
           </div>
           @if (isConfirmingDelete()) {
             <div class="np-nurse-cv-confirm">
-              <p role="status">Delete your CV? This cannot be undone.</p>
+              <p role="status">{{ i18n.t('cv.deleteConfirm') }}</p>
               <div class="np-nurse-cv-confirm-actions">
                 <button
                   mat-flat-button
@@ -57,7 +57,7 @@
                   [disabled]="isDeleting()"
                   (click)="confirmDelete()"
                 >
-                  Delete
+                  {{ i18n.t('cv.deleteVerb') }}
                 </button>
                 <button
                   mat-button
@@ -66,12 +66,12 @@
                   [disabled]="isDeleting()"
                   (click)="cancelDelete()"
                 >
-                  Keep
+                  {{ i18n.t('cv.keep') }}
                 </button>
               </div>
               @if (deleteError(); as error) {
                 <p class="np-nurse-cv-error" role="alert">
-                  Your CV could not be deleted. {{ error.detail || 'Try again.' }}
+                  {{ i18n.t('cv.deleteError') }} {{ error.detail || i18n.t('cv.tryAgain') }}
                 </p>
               }
             </div>
@@ -83,15 +83,15 @@
     @if (!hasDocument && !picking()) {
       <div class="np-nurse-cv-actions">
         <button mat-flat-button color="primary" type="button" data-testid="upload-cv" (click)="startPicking()">
-          Upload CV
+          {{ i18n.t('cv.upload') }}
         </button>
       </div>
     }
 
     @if (picking()) {
       <div class="np-nurse-cv-picker">
-        <h2>{{ hasDocument ? 'Replace your CV' : 'Upload your CV' }}</h2>
-        <label class="np-nurse-cv-file-label" for="nurse-cv-file">Choose a PDF, DOC, or DOCX file</label>
+        <h2>{{ hasDocument ? i18n.t('cv.replaceTitle') : i18n.t('cv.uploadTitle') }}</h2>
+        <label class="np-nurse-cv-file-label" for="nurse-cv-file">{{ i18n.t('cv.fileLabel') }}</label>
         <input
           #fileInput
           id="nurse-cv-file"
@@ -111,7 +111,7 @@
         }
         @if (uploadError(); as error) {
           <p class="np-nurse-cv-error" role="alert">
-            Your CV could not be uploaded. {{ error.detail || 'Try again.' }}
+            {{ i18n.t('cv.uploadError') }} {{ error.detail || i18n.t('cv.tryAgain') }}
           </p>
         }
         <div class="np-nurse-cv-picker-actions">
@@ -125,9 +125,9 @@
           >
             {{ uploadLabel }}
           </button>
-          <button mat-button type="button" [disabled]="isUploading()" (click)="cancelPicking()">Cancel</button>
+          <button mat-button type="button" [disabled]="isUploading()" (click)="cancelPicking()">{{ i18n.t('cv.cancel') }}</button>
           @if (selectedFile() !== undefined) {
-            <button mat-button type="button" [disabled]="isUploading()" (click)="clearSelection()">Clear</button>
+            <button mat-button type="button" [disabled]="isUploading()" (click)="clearSelection()">{{ i18n.t('cv.clear') }}</button>
           }
         </div>
       </div>

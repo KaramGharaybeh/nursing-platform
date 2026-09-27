@@ -7,7 +7,7 @@
       [disabled]="isPreviousDisabled"
       (click)="requestPrevious()"
     >
-      Previous
+      {{ i18n.t('pagination.previous') }}
     </button>
     <span class="np-pagination-status">{{ statusText }}</span>
     <button
@@ -17,7 +17,7 @@
       [disabled]="isNextDisabled"
       (click)="requestNext()"
     >
-      Next
+      {{ i18n.t('pagination.next') }}
     </button>
   </nav>
 }

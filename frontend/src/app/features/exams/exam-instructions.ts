@@ -10,6 +10,7 @@ import type { NormalizedProblemDetails } from '../../core/api/problem-details';
 import { buildExamsDetailPath, buildExamsSessionPath } from '../../core/routing/canonical-routes';
 import { TwoStepConfirmation } from '../../shared/ui/confirmation';
 import { Announcer, NpLiveRegion } from '../../shared/ui/announcement';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
 
@@ -26,6 +27,7 @@ export class ExamInstructions implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
   private readonly confirmation = new TwoStepConfirmation();
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
@@ -89,7 +91,7 @@ export class ExamInstructions implements OnInit {
     let session: ExamSessionStart | undefined = undefined;
     try {
       session = await firstValueFrom(this.api.startExamSession(this.examId()));
-      this.announcer.announce('Exam session started.');
+      this.announcer.announce(this.i18n.t('exams.sessionStarted'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
         this.notFound.set(true);

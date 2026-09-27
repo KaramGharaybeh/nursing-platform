@@ -17,6 +17,8 @@ import { LoadingErrorRetry } from '../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../shared/ui/loading-error-retry';
 import { NpPagination } from '../../../shared/ui/pagination';
 import { NpFormValidationSummary, toFieldErrorText, toFormValidationSummary } from '../../../shared/ui/form-validation';
+import type { TranslationKey } from '../../../core/i18n/translations';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 
 type CategoryForm = FormGroup<{
   countryId: FormControl<string>;
@@ -26,11 +28,8 @@ type CategoryForm = FormGroup<{
   displayOrder: FormControl<number>;
 }>;
 type ConfirmAction = 'archive' | 'delete';
+type CategoryField = 'CountryId' | 'Name' | 'Slug' | 'Description' | 'DisplayOrder';
 const PAGE_SIZE = 20;
-const FIELD_LABELS = Object.freeze({
-  CountryId: 'Country', Name: 'Name', Slug: 'Slug',
-  Description: 'Description', DisplayOrder: 'Display order',
-});
 const CONTROL_IDS = Object.freeze({
   CountryId: 'category-country', Name: 'category-name', Slug: 'category-slug',
   Description: 'category-description', DisplayOrder: 'category-display-order',
@@ -48,6 +47,7 @@ export class ExamCategoriesScreen implements OnInit {
   private readonly countriesApi = inject(CountriesApi);
   private readonly user = inject(CurrentUserStore);
   private readonly injector = inject(Injector);
+  protected readonly i18n = inject(LocalizationService);
   private readonly confirmHeading = viewChild<ElementRef<HTMLHeadingElement>>('confirmHeading');
   private readonly formHeading = viewChild<ElementRef<HTMLHeadingElement>>('formHeading');
   private readonly pageHeading = viewChild.required<ElementRef<HTMLHeadingElement>>('pageHeading');
@@ -68,15 +68,33 @@ export class ExamCategoriesScreen implements OnInit {
   protected readonly errorMessage = signal('');
   private readonly validationError = signal<NormalizedProblemDetails | undefined>(undefined);
 
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
+  }
+
+  protected tp(key: TranslationKey, params: Record<string, string | number>): string {
+    return this.i18n.tp(key, params);
+  }
+
+  protected fieldLabels(): Record<CategoryField, string> {
+    return {
+      CountryId: this.i18n.t('adm.country'),
+      Name: this.i18n.t('adm.labelName'),
+      Slug: this.i18n.t('adm.labelSlug'),
+      Description: this.i18n.t('adm.labelDescription'),
+      DisplayOrder: this.i18n.t('adm.labelDisplayOrder'),
+    };
+  }
+
   protected get validationSummary() {
     return toFormValidationSummary(this.validationError(), {
-      fieldLabels: FIELD_LABELS, controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'Exam category could not be saved.',
+      fieldLabels: this.fieldLabels(), controlIds: CONTROL_IDS,
+      summaryTitle: this.i18n.t('adm.checkFields'),
+      formErrorFallback: this.i18n.t('adm.catSaveFallback'),
     });
   }
 
-  protected fieldError(field: keyof typeof FIELD_LABELS): string {
+  protected fieldError(field: CategoryField): string {
     return toFieldErrorText(this.validationError()?.errors?.[field]);
   }
 
@@ -141,7 +159,7 @@ export class ExamCategoriesScreen implements OnInit {
       this.formOpen.set(true);
       afterNextRender(() => this.formHeading()?.nativeElement.focus(), { injector: this.injector });
     } catch {
-      this.errorMessage.set('This exam category is not available to edit. Refresh the list.');
+      this.errorMessage.set(this.i18n.t('adm.catEditUnavailable'));
     }
   }
 
@@ -164,7 +182,7 @@ export class ExamCategoriesScreen implements OnInit {
     if (this.form.invalid || fields.name.trim() === '' || fields.slug.trim() === '' ||
       !Number.isInteger(fields.displayOrder) || !Number.isFinite(fields.displayOrder)) {
       this.form.markAllAsTouched();
-      this.errorMessage.set('Complete the required fields before saving.');
+      this.errorMessage.set(this.i18n.t('adm.completeRequired'));
       return;
     }
     this.saving.set(true);
@@ -185,23 +203,23 @@ export class ExamCategoriesScreen implements OnInit {
       else await firstValueFrom(this.api.create(body));
       this.formOpen.set(false);
       await this.load();
-      this.message.set(selected ? 'Exam category updated.' : 'Exam category created.');
+      this.message.set(selected ? this.i18n.t('adm.catUpdated') : this.i18n.t('adm.catCreated'));
     } catch (error: unknown) {
       const body = typeof error === 'object' && error !== null && 'error' in error
         ? (error as { error?: unknown }).error : error;
       const normalized = normalizeProblemDetails(body);
       if (normalized.kind === 'validation') {
         const safeErrors: Record<string, readonly string[]> = {};
-        for (const field of Object.keys(FIELD_LABELS) as (keyof typeof FIELD_LABELS)[]) {
+        for (const field of Object.keys(this.fieldLabels()) as CategoryField[]) {
           if (normalized.errors?.[field]?.length || normalized.errors?.[`Request.${field}`]?.length) {
-            safeErrors[field] = [`Review ${FIELD_LABELS[field].toLowerCase()}.`];
+            safeErrors[field] = [this.i18n.tp('adm.reviewField', { field: this.fieldLabels()[field].toLowerCase() })];
           }
         }
         this.validationError.set({ ...normalized, errors: safeErrors, detail: '', title: '' });
       } else {
         this.errorMessage.set(this.statusOf(error) === 409
-          ? 'This exam category conflicts with current data. Review the fields and try again.'
-          : 'Exam category could not be saved. Try again.');
+          ? this.i18n.t('adm.catConflict')
+          : this.i18n.t('adm.catSaveFailed'));
       }
     } finally {
       this.saving.set(false);
@@ -236,12 +254,12 @@ export class ExamCategoriesScreen implements OnInit {
       else await firstValueFrom(this.api.archive(choice.category.id));
       this.confirmation.set(undefined);
       await this.load();
-      this.message.set(choice.action === 'delete' ? 'Exam category deleted.' : 'Exam category archived.');
+      this.message.set(choice.action === 'delete' ? this.i18n.t('adm.catDeleted') : this.i18n.t('adm.catArchived'));
     } catch {
       this.confirmation.set(undefined);
       this.errorMessage.set(choice.action === 'delete'
-        ? "This exam category couldn't be deleted. Refresh the list before trying again."
-        : "This exam category couldn't be archived. Refresh the list before trying again.");
+        ? this.i18n.t('adm.catDeleteFailed')
+        : this.i18n.t('adm.catArchiveFailed'));
       await this.load();
     } finally {
       this.actionPending.set(false);
@@ -256,9 +274,9 @@ export class ExamCategoriesScreen implements OnInit {
     try {
       await firstValueFrom(this.api.restore(category.id));
       await this.load();
-      this.message.set('Exam category restored.');
+      this.message.set(this.i18n.t('adm.catRestored'));
     } catch {
-      this.errorMessage.set("This exam category couldn't be restored. Refresh the list before trying again.");
+      this.errorMessage.set(this.i18n.t('adm.catRestoreFailed'));
       await this.load();
     } finally { this.actionPending.set(false); }
   }
@@ -297,7 +315,7 @@ export class ExamCategoriesScreen implements OnInit {
     } catch (error: unknown) {
       const normalized = normalizeProblemDetails(error);
       this.state.set({ kind: 'error', error: {
-        ...normalized, title: "We couldn't load exam categories. Try again.", detail: '',
+        ...normalized, title: this.i18n.t('adm.catLoadError'), detail: '',
       }, canRetry: true });
     }
   }

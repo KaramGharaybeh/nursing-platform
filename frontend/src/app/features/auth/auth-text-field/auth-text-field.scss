@@ -16,19 +16,23 @@
   line-height: 1.4;
 }
 
+.np-auth-field-control {
+  position: relative;
+}
+
 .np-auth-field-required,
 .np-auth-field-error {
-  color: #b3261e;
+  color: var(--np-color-error);
 }
 
 .np-auth-field-input {
   box-sizing: border-box;
   inline-size: 100%;
-  min-block-size: var(--np-space-44);
+  min-block-size: var(--np-control-height);
   padding-block: var(--np-space-8);
-  padding-inline: var(--np-space-optical-14);
-  border: 1px solid #c9ddda;
-  border-radius: var(--np-space-8);
+  padding-inline: var(--np-control-padding-inline);
+  border: 1px solid var(--np-color-border);
+  border-radius: var(--np-control-radius);
   background: var(--np-color-surface);
   color: var(--np-color-brand-2);
   font: inherit;
@@ -36,8 +40,43 @@
   text-align: start;
 }
 
+.np-auth-field-input-with-toggle {
+  padding-inline-end: var(--np-space-48);
+}
+
+.np-auth-field-visibility {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  min-inline-size: var(--np-control-height);
+  min-block-size: var(--np-control-height);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--np-control-radius);
+  background: transparent;
+  color: var(--np-color-secondary-text);
+  cursor: pointer;
+}
+
+.np-auth-field-visibility svg {
+  inline-size: var(--np-space-20);
+  block-size: var(--np-space-20);
+}
+
+.np-auth-field-visibility:focus-visible {
+  outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+  outline-offset: var(--np-focus-ring-offset);
+}
+
+.np-auth-field-visibility:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
 .np-auth-field-input::placeholder {
-  color: #5f7280;
+  color: var(--np-color-muted-text);
   opacity: 1;
 }
 
@@ -48,13 +87,13 @@
 }
 
 .np-auth-field-input:disabled {
-  background: #f3f6f8;
-  color: #4f6473;
+  background: var(--np-color-subtle-surface);
+  color: var(--np-color-secondary-text);
   cursor: not-allowed;
 }
 
 .np-auth-field-input-error {
-  border-color: #b3261e;
+  border-color: var(--np-color-error);
 }
 
 .np-auth-field-helper,
@@ -65,5 +104,5 @@
 }
 
 .np-auth-field-helper {
-  color: #4f6473;
+  color: var(--np-color-secondary-text);
 }

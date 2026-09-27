@@ -1,37 +1,37 @@
 <section class="np-admin-user-detail" aria-labelledby="admin-user-detail-title">
-  <a [routerLink]="usersPath">Back to users</a>
+  <a [routerLink]="usersPath">{{ t('adm.backToUsers') }}</a>
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading user"
-    fallbackErrorTitle="User could not be loaded"
+    [loadingLabel]="t('adm.userLoading')"
+    [fallbackErrorTitle]="t('adm.userLoadError')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready' && user(); as loadedUser) {
     <header class="np-admin-user-detail-header">
-      <p class="np-admin-user-detail-kicker">Role management</p>
+      <p class="np-admin-user-detail-kicker">{{ t('adm.roleKicker') }}</p>
       <h1 id="admin-user-detail-title">{{ displayName(loadedUser) }}</h1>
       <p>{{ loadedUser.username }} · {{ loadedUser.email }}</p>
     </header>
 
     <dl class="np-admin-user-detail-summary">
-      <div><dt>Current role</dt><dd>{{ displayRoles(loadedUser) }}</dd></div>
-      <div><dt>Status</dt><dd>{{ loadedUser.isActive ? 'Active' : 'Inactive' }}</dd></div>
-      <div><dt>Email status</dt><dd>{{ loadedUser.emailVerified ? 'Verified' : 'Not verified' }}</dd></div>
+      <div><dt>{{ t('adm.currentRole') }}</dt><dd>{{ displayRoles(loadedUser) }}</dd></div>
+      <div><dt>{{ t('adm.status') }}</dt><dd>{{ loadedUser.isActive ? t('adm.active') : t('adm.inactive') }}</dd></div>
+      <div><dt>{{ t('adm.emailStatus') }}</dt><dd>{{ loadedUser.emailVerified ? t('adm.verified') : t('adm.notVerified') }}</dd></div>
     </dl>
 
     <form class="np-admin-user-detail-form" novalidate>
       <np-select-control
         controlId="admin-user-role"
-        label="Business role"
+        [label]="t('adm.businessRole')"
         [required]="true"
         [disabled]="savePending()"
         [value]="roleValue"
         [options]="roleOptions"
         (valueChange)="updateRole($event)"
       />
-      <button type="button" mat-flat-button color="primary" [disabled]="savePending()" (click)="saveRole()">Save role</button>
+      <button type="button" mat-flat-button color="primary" [disabled]="savePending()" (click)="saveRole()">{{ t('adm.saveRole') }}</button>
     </form>
 
     @if (saveStatus() !== '') {

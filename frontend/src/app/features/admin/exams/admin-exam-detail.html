@@ -1,42 +1,42 @@
 <section class="np-admin-exam-detail" aria-labelledby="admin-exam-detail-heading">
-  <a [routerLink]="backPath" data-testid="back-to-exams">Back to admin exams</a>
-  <np-loading-error-retry [state]="state()" loadingLabel="Loading exam"
-    fallbackErrorTitle="We couldn't load this exam. Try again." (retryRequested)="retry()" />
+  <a [routerLink]="backPath" data-testid="back-to-exams">{{ t('adm.backToExams') }}</a>
+  <np-loading-error-retry [state]="state()" [loadingLabel]="t('adm.examLoading')"
+    [fallbackErrorTitle]="t('adm.examLoadError')" (retryRequested)="retry()" />
 
   @if (state().kind === 'ready') {
     @if (unavailable()) {
-      <h1 id="admin-exam-detail-heading">Exam unavailable</h1>
-      <p role="status">This exam isn't available.</p>
+      <h1 id="admin-exam-detail-heading">{{ t('adm.examUnavailableTitle') }}</h1>
+      <p role="status">{{ t('adm.examUnavailable') }}</p>
     } @else if (exam(); as detail) {
       <h1 #pageHeading tabindex="-1" id="admin-exam-detail-heading">{{ detail.title }}</h1>
       <dl>
-        <dt>Country</dt><dd>{{ detail.countryName }}</dd>
-        <dt>Category</dt><dd>{{ detail.categoryName || 'No category' }}</dd>
-        <dt>Slug</dt><dd>{{ detail.slug }}</dd>
-        <dt>Duration</dt><dd>{{ detail.durationMinutes }} minutes</dd>
-        <dt>Passing score</dt><dd>{{ detail.passingScorePercentage }}%</dd>
-        <dt>Status</dt><dd>{{ status(detail.status) }}</dd>
-        <dt>Price type</dt><dd>{{ detail.isFree ? 'Free' : 'Paid' }}</dd>
-        @if (detail.publishedAt) { <dt>Published</dt><dd>{{ detail.publishedAt | date: 'medium' }}</dd> }
+        <dt>{{ t('adm.country') }}</dt><dd>{{ detail.countryName }}</dd>
+        <dt>{{ t('adm.filterCategory') }}</dt><dd>{{ detail.categoryName || t('adm.noCategory') }}</dd>
+        <dt>{{ t('adm.thSlug') }}</dt><dd>{{ detail.slug }}</dd>
+        <dt>{{ t('adm.duration') }}</dt><dd>{{ tp('adm.durationValue', { minutes: detail.durationMinutes }) }}</dd>
+        <dt>{{ t('adm.passingScore') }}</dt><dd>{{ detail.passingScorePercentage }}%</dd>
+        <dt>{{ t('adm.status') }}</dt><dd>{{ status(detail.status) }}</dd>
+        <dt>{{ t('adm.filterPriceType') }}</dt><dd>{{ detail.isFree ? t('adm.free') : t('adm.paid') }}</dd>
+        @if (detail.publishedAt) { <dt>{{ t('adm.published') }}</dt><dd>{{ detail.publishedAt | date: 'medium' }}</dd> }
       </dl>
-      @if (detail.description) { <h2>Description</h2><p>{{ detail.description }}</p> }
-      @if (detail.instructions) { <h2>Instructions</h2><p>{{ detail.instructions }}</p> }
+      @if (detail.description) { <h2>{{ t('adm.description') }}</h2><p>{{ detail.description }}</p> }
+      @if (detail.instructions) { <h2>{{ t('adm.instructions') }}</h2><p>{{ detail.instructions }}</p> }
       @if (message()) { <p role="status">{{ message() }}</p> }
       @if (actionError()) { <p role="alert">{{ actionError() }}</p> }
       @if (!editing() && !confirming()) {
         <div class="np-admin-exam-detail-actions">
           @if (canEdit && detail.status !== 'Archived') {
-            <button type="button" data-testid="edit-exam" [disabled]="busy()" (click)="beginEdit()">Edit</button>
-            <button #archiveTrigger type="button" data-testid="archive-exam" [disabled]="busy()" (click)="requestAction('archive')">Archive</button>
+            <button type="button" data-testid="edit-exam" [disabled]="busy()" (click)="beginEdit()">{{ t('adm.edit') }}</button>
+            <button #archiveTrigger type="button" data-testid="archive-exam" [disabled]="busy()" (click)="requestAction('archive')">{{ t('adm.archive') }}</button>
           }
           @if (canDelete && detail.status === 'Draft') {
-            <button #deleteTrigger type="button" data-testid="delete-exam" [disabled]="busy()" (click)="requestAction('delete')">Delete</button>
+            <button #deleteTrigger type="button" data-testid="delete-exam" [disabled]="busy()" (click)="requestAction('delete')">{{ t('adm.delete') }}</button>
           }
         </div>
       }
       @if (editing()) {
         <section aria-labelledby="edit-exam-heading">
-          <h2 id="edit-exam-heading">Edit exam</h2>
+          <h2 id="edit-exam-heading">{{ t('adm.editExamTitle') }}</h2>
           <np-admin-exam-form [exam]="detail" [countries]="countries()" [categories]="categories()" [pending]="busy()"
             [serverError]="validationError()"
             (submitted)="save($event)" (cancelled)="closeEdit()" />
@@ -44,10 +44,10 @@
       }
       @if (confirming(); as action) {
         <div class="np-admin-exam-detail-confirm" role="group" aria-labelledby="confirm-exam-heading">
-          <h2 #confirmHeading tabindex="-1" id="confirm-exam-heading">{{ action === 'archive' ? 'Archive exam?' : 'Delete exam?' }}</h2>
-          <p>{{ action === 'archive' ? 'This exam will be archived if it is still eligible.' : 'This draft exam will be permanently deleted if it has no versions or sessions.' }}</p>
-          <button type="button" [disabled]="busy()" (click)="keepExam()">Keep exam</button>
-          <button type="button" data-testid="confirm-action" [disabled]="busy()" (click)="confirmAction()">{{ action === 'archive' ? 'Archive exam' : 'Delete exam' }}</button>
+          <h2 #confirmHeading tabindex="-1" id="confirm-exam-heading">{{ action === 'archive' ? t('adm.archiveExamQ') : t('adm.deleteExamQ') }}</h2>
+          <p>{{ action === 'archive' ? t('adm.archiveExamText') : t('adm.deleteExamText') }}</p>
+          <button type="button" [disabled]="busy()" (click)="keepExam()">{{ t('adm.keepExam') }}</button>
+          <button type="button" data-testid="confirm-action" [disabled]="busy()" (click)="confirmAction()">{{ action === 'archive' ? t('adm.archiveExam') : t('adm.deleteExam') }}</button>
         </div>
       }
     }

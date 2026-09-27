@@ -1,8 +1,8 @@
 <section class="np-nurse-education" aria-labelledby="nurse-education-title">
   <np-live-region />
 
-  <p class="np-nurse-education-kicker">Nurse profile</p>
-  <h1 id="nurse-education-title">Education</h1>
+  <p class="np-nurse-education-kicker">{{ i18n.t('profile.kicker') }}</p>
+  <h1 id="nurse-education-title">{{ i18n.t('edu.title') }}</h1>
 
   @if (notice() !== '') {
     <p class="np-nurse-education-notice" role="status">{{ notice() }}</p>
@@ -10,15 +10,15 @@
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading your education"
-    fallbackErrorTitle="Your education could not be loaded"
+    [loadingLabel]="i18n.t('edu.loading')"
+    [fallbackErrorTitle]="i18n.t('edu.loadError')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (view() === 'list') {
       <div class="np-nurse-education-list-header">
-        <p class="np-nurse-education-hint">Your education history as a nurse.</p>
+        <p class="np-nurse-education-hint">{{ i18n.t('edu.hint') }}</p>
         <button
           mat-flat-button
           color="primary"
@@ -26,14 +26,14 @@
           data-testid="add-education"
           (click)="startCreate()"
         >
-          Add education
+          {{ i18n.t('edu.add') }}
         </button>
       </div>
 
       @if (records().length === 0) {
         <div class="np-nurse-education-empty">
-          <h2>Education</h2>
-          <p>No education added yet. Add your education history to keep your professional profile up to date.</p>
+          <h2>{{ i18n.t('edu.title') }}</h2>
+          <p>{{ i18n.t('edu.emptyText') }}</p>
         </div>
       } @else {
         <ul class="np-nurse-education-list">
@@ -67,7 +67,7 @@
                       data-testid="education-toggle-description"
                       (click)="toggleDescription(record.id)"
                     >
-                      {{ isDescriptionExpanded(record.id) ? 'Show less' : 'Show more' }}
+                      {{ isDescriptionExpanded(record.id) ? i18n.t('edu.showLess') : i18n.t('edu.showMore') }}
                     </button>
                   }
                 }
@@ -75,8 +75,7 @@
                 @if (isConfirmingDelete(record.id)) {
                   <div class="np-nurse-education-confirm">
                     <p role="status">
-                      Delete "{{ record.degree }} at {{ record.institutionName }}"? This cannot be
-                      undone.
+                      {{ i18n.t('edu.deleteVerb') }} "{{ record.degree }} at {{ record.institutionName }}"{{ i18n.t('edu.deleteSuffix') }}
                     </p>
                     <div class="np-nurse-education-confirm-actions">
                       <button
@@ -87,7 +86,7 @@
                         [disabled]="isDeleting(record.id)"
                         (click)="confirmDelete()"
                       >
-                        Delete
+                        {{ i18n.t('edu.deleteVerb') }}
                       </button>
                       <button
                         mat-button
@@ -96,12 +95,12 @@
                         [disabled]="isDeleting(record.id)"
                         (click)="cancelDelete()"
                       >
-                        Keep
+                        {{ i18n.t('edu.keep') }}
                       </button>
                     </div>
                     @if (deleteErrorFor(record.id); as error) {
                       <p class="np-nurse-education-delete-error" role="alert">
-                        This education record could not be deleted. {{ error.detail || 'Try again.' }}
+                        {{ i18n.t('edu.deleteError') }} {{ error.detail || i18n.t('edu.tryAgain') }}
                       </p>
                     }
                   </div>
@@ -114,7 +113,7 @@
                       [disabled]="isDeleting(record.id)"
                       (click)="startEdit(record)"
                     >
-                      Edit
+                      {{ i18n.t('edu.edit') }}
                     </button>
                     <button
                       mat-button
@@ -124,7 +123,7 @@
                       [disabled]="isDeleting(record.id)"
                       (click)="requestDelete(record)"
                     >
-                      Delete
+                      {{ i18n.t('edu.deleteVerb') }}
                     </button>
                   </div>
                 }

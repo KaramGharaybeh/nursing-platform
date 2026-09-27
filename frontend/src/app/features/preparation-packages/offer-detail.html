@@ -1,17 +1,17 @@
 <section class="np-offer-detail" aria-labelledby="offer-detail-title">
-  <a [routerLink]="backPath" data-testid="offer-back-link">Back to preparation packages</a>
+  <a [routerLink]="backPath" data-testid="offer-back-link">{{ i18n.t('pp.detailBack') }}</a>
 
   <np-loading-error-retry
     [state]="state()"
-    loadingLabel="Loading preparation package"
-    fallbackErrorTitle="Preparation package could not be loaded"
+    [loadingLabel]="i18n.t('pp.detailLoading')"
+    [fallbackErrorTitle]="i18n.t('pp.detailLoadError')"
     (retryRequested)="retry()"
   />
 
   @if (state().kind === 'ready') {
     @if (notFound()) {
       <p role="status" data-testid="offer-missing-notice">
-        This preparation package is no longer available. It may have been removed, or the link is incorrect.
+        {{ i18n.t('pp.detailMissing') }}
       </p>
     } @else if (offer(); as detail) {
       <header class="np-offer-detail-header">
@@ -22,15 +22,15 @@
       </header>
 
       <dl class="np-offer-detail-facts">
-        <div><dt>Country</dt><dd>{{ detail.countryName }}</dd></div>
-        <div><dt>Exam category</dt><dd>{{ detail.examCategoryName }}</dd></div>
-        <div><dt>Included exam</dt><dd>{{ detail.examTitle }}</dd></div>
-        <div><dt>Study materials</dt><dd>{{ detail.materialCount }}</dd></div>
-        <div><dt>Practice items</dt><dd>{{ detail.practiceItemCount }}</dd></div>
-        <div><dt>Access duration</dt><dd>{{ detail.accessDurationDays }} days</dd></div>
+        <div><dt>{{ i18n.t('pp.country') }}</dt><dd>{{ detail.countryName }}</dd></div>
+        <div><dt>{{ i18n.t('pp.examCategory') }}</dt><dd>{{ detail.examCategoryName }}</dd></div>
+        <div><dt>{{ i18n.t('pp.includedExam') }}</dt><dd>{{ detail.examTitle }}</dd></div>
+        <div><dt>{{ i18n.t('pp.studyMaterials') }}</dt><dd>{{ detail.materialCount }}</dd></div>
+        <div><dt>{{ i18n.t('pp.practiceItems') }}</dt><dd>{{ detail.practiceItemCount }}</dd></div>
+        <div><dt>{{ i18n.t('pp.accessDuration') }}</dt><dd>{{ detail.accessDurationDays }} {{ i18n.t('pp.days') }}</dd></div>
       </dl>
 
-      <h2>Package contents</h2>
+      <h2>{{ i18n.t('pp.contents') }}</h2>
       @if (detail.components.length > 0) {
         <ul class="np-offer-detail-components">
           @for (component of detail.components; track $index) {
@@ -43,7 +43,7 @@
           }
         </ul>
       } @else {
-        <p class="np-offer-detail-no-components">No package contents are listed for this offer.</p>
+        <p class="np-offer-detail-no-components">{{ i18n.t('pp.noContents') }}</p>
       }
     }
   }

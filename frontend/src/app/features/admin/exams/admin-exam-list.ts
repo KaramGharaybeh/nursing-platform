@@ -20,6 +20,8 @@ import { NpPagination } from '../../../shared/ui/pagination';
 import { AdminExamForm } from './admin-exam-form';
 import { adminExamStatusLabel } from './admin-exam-status';
 import { safeAdminExamValidation } from './admin-exam-validation';
+import type { TranslationKey } from '../../../core/i18n/translations';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 
 @Component({
   selector: 'np-admin-exam-list',
@@ -33,6 +35,7 @@ export class AdminExamList implements OnInit {
   private readonly categoriesApi = inject(AdminExamCategoriesApi);
   private readonly user = inject(CurrentUserStore);
   private readonly injector = inject(Injector);
+  protected readonly i18n = inject(LocalizationService);
   private readonly formHeading = viewChild<ElementRef<HTMLHeadingElement>>('formHeading');
   private readonly createTrigger = viewChild<ElementRef<HTMLButtonElement>>('createTrigger');
 
@@ -63,8 +66,19 @@ export class AdminExamList implements OnInit {
 
   ngOnInit(): void { void this.initialize(); }
 
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
+  }
+
   protected detailPath(id: string): string { return buildAdminExamDetailPath(id); }
-  protected status(exam: AdminExamDto): string { return adminExamStatusLabel(exam.status); }
+  protected status(exam: AdminExamDto): string {
+    return adminExamStatusLabel(exam.status, {
+      draft: this.i18n.t('adm.statusDraft'),
+      published: this.i18n.t('adm.statusPublished'),
+      archived: this.i18n.t('adm.statusArchived'),
+      unavailable: this.i18n.t('adm.statusUnavailable'),
+    });
+  }
   protected async retry(): Promise<void> {
     if (this.lookupsReady()) await this.load();
     else await this.initialize();
@@ -112,11 +126,21 @@ export class AdminExamList implements OnInit {
       await firstValueFrom(this.api.create(body));
       this.formOpen.set(false);
       await this.load();
-      this.message.set('Exam created.');
+      this.message.set(this.i18n.t('adm.examCreated'));
     } catch (error: unknown) {
-      const validation = safeAdminExamValidation(error);
+      const validation = safeAdminExamValidation(error, {
+        CountryId: this.i18n.t('adm.flCountry'),
+        ExamCategoryId: this.i18n.t('adm.flCategory'),
+        Title: this.i18n.t('adm.flTitle'),
+        Slug: this.i18n.t('adm.flSlug'),
+        Description: this.i18n.t('adm.flDescription'),
+        Instructions: this.i18n.t('adm.flInstructions'),
+        DurationMinutes: this.i18n.t('adm.flDuration'),
+        PassingScorePercentage: this.i18n.t('adm.flScore'),
+        IsFree: this.i18n.t('adm.flPriceType'),
+      }, (label) => this.i18n.tp('adm.reviewField', { field: label.toLowerCase() }));
       if (validation) this.validationError.set(validation);
-      else this.saveError.set('Exam could not be created. Review the fields and try again.');
+      else this.saveError.set(this.i18n.t('adm.examCreateFailed'));
     } finally { this.saving.set(false); }
   }
 
@@ -165,7 +189,7 @@ export class AdminExamList implements OnInit {
       ? (error as { error?: unknown }).error : error;
     const normalized = normalizeProblemDetails(detail);
     this.state.set({ kind: 'error', error: {
-      ...normalized, title: "We couldn't load admin exams. Try again.", detail: '',
+      ...normalized, title: this.i18n.t('adm.examsLoadError'), detail: '',
     }, canRetry: true });
   }
 }

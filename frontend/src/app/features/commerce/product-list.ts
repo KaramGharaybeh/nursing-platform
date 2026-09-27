@@ -6,14 +6,14 @@ import type { CommerceProductPage } from '../../core/api/commerce-payments-api';
 import type { CommerceProduct } from '../../core/api/commerce-payments-api';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
+import type { TranslationKey } from '../../core/i18n/translations';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { buildCommerceProductDetailPath } from '../../core/routing/canonical-routes';
 import { formatMoney } from '../../shared/money';
 import { NpEmptyState } from '../../shared/ui/empty-state';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
 import { NpPagination } from '../../shared/ui/pagination';
-
-const GENERIC_RETRY_COPY = "We couldn't load products. Try again.";
 
 @Component({
   selector: 'np-product-list',
@@ -23,6 +23,7 @@ const GENERIC_RETRY_COPY = "We couldn't load products. Try again.";
 })
 export class ProductListScreen implements OnInit {
   private readonly api = inject(CommercePaymentsApi);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly page = signal<CommerceProductPage | undefined>(undefined);
@@ -30,6 +31,10 @@ export class ProductListScreen implements OnInit {
 
   ngOnInit(): void {
     void this.load();
+  }
+
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
   }
 
   protected async retry(): Promise<void> {
@@ -66,6 +71,6 @@ export class ProductListScreen implements OnInit {
       typeof error === 'object' && error !== null && 'error' in error
         ? normalizeProblemDetails((error as { error?: unknown }).error)
         : normalizeProblemDetails(error);
-    return { ...normalized, title: GENERIC_RETRY_COPY, detail: '' };
+    return { ...normalized, title: this.i18n.t('com.productsLoadError'), detail: '' };
   }
 }

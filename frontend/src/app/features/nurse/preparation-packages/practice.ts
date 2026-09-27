@@ -10,6 +10,7 @@ import { normalizeProblemDetails } from '../../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
 import { buildCanonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { Announcer, NpLiveRegion } from '../../../shared/ui/announcement';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { NpEmptyState } from '../../../shared/ui/empty-state';
 import { LoadingErrorRetry } from '../../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../../shared/ui/loading-error-retry';
@@ -27,6 +28,7 @@ export class Practice implements OnInit {
   private readonly api = inject(PreparationPackagePracticeApi);
   private readonly route = inject(ActivatedRoute);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly notFound = signal(false);
@@ -116,7 +118,7 @@ export class Practice implements OnInit {
       this.feedbackByItem.set({ ...this.feedbackByItem(), [item.practiceItemId]: result.immediateFeedback });
       this.applySubmissionResult(result);
       await this.refreshProgress();
-      this.announcer.announce(result.state === STATE_ANSWERED_CORRECT ? 'Correct.' : 'Incorrect.');
+      this.announcer.announce(result.state === STATE_ANSWERED_CORRECT ? this.i18n.t('npp.correct') : this.i18n.t('npp.incorrect'));
     } catch (error: unknown) {
       if (this.isConflict(error)) {
         this.accessEnded.set(true);

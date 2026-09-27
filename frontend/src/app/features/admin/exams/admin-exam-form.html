@@ -1,28 +1,28 @@
 <form class="np-admin-exam-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <np-form-validation-summary [summaryTitle]="validationSummary.title"
     [items]="validationSummary.items" [formErrors]="validationSummary.formErrors" />
-  <np-select-control controlId="exam-country" label="Country" [required]="true" [disabled]="pending()"
+  <np-select-control controlId="exam-country" [label]="t('adm.country')" [required]="true" [disabled]="pending()"
     [value]="form.controls.countryId.value" [options]="countryOptions"
     [errorText]="fieldError('CountryId')" (valueChange)="updateCountry($event)" />
-  <np-select-control controlId="exam-category" label="Exam category" [required]="false" [disabled]="pending()"
+  <np-select-control controlId="exam-category" [label]="t('adm.labelExamCategory')" [required]="false" [disabled]="pending()"
     [value]="form.controls.examCategoryId.value" [options]="categoryOptions"
     (valueChange)="updateCategory($event)" />
-  <np-text-input-control controlId="exam-title" label="Title" [required]="true" [disabled]="pending()"
+  <np-text-input-control controlId="exam-title" [label]="t('adm.labelTitle')" [required]="true" [disabled]="pending()"
     [value]="form.controls.title.value" [errorText]="fieldError('Title')" (valueChange)="updateTitle($event)" />
-  <np-text-input-control controlId="exam-slug" label="Slug" [required]="true" [disabled]="pending()"
+  <np-text-input-control controlId="exam-slug" [label]="t('adm.labelSlug')" [required]="true" [disabled]="pending()"
     [value]="form.controls.slug.value" [errorText]="fieldError('Slug')" (valueChange)="updateSlug($event)" />
-  <np-textarea-control controlId="exam-description" label="Description" [required]="false" [disabled]="pending()"
+  <np-textarea-control controlId="exam-description" [label]="t('adm.labelDescription')" [required]="false" [disabled]="pending()"
     [value]="form.controls.description.value" [errorText]="fieldError('Description')" (valueChange)="updateDescription($event)" />
-  <np-textarea-control controlId="exam-instructions" label="Instructions" [required]="false" [disabled]="pending()"
+  <np-textarea-control controlId="exam-instructions" [label]="t('adm.instructions')" [required]="false" [disabled]="pending()"
     [value]="form.controls.instructions.value" [errorText]="fieldError('Instructions')" (valueChange)="updateInstructions($event)" />
-  <np-text-input-control controlId="exam-duration" label="Duration (minutes)" type="number" [required]="true" [disabled]="pending()"
+  <np-text-input-control controlId="exam-duration" [label]="t('adm.labelDuration')" type="number" [required]="true" [disabled]="pending()"
     [value]="form.controls.durationMinutes.value.toString()" [errorText]="fieldError('DurationMinutes')" (valueChange)="updateDuration($event)" />
-  <np-text-input-control controlId="exam-score" label="Passing score (%)" type="number" [required]="true" [disabled]="pending()"
+  <np-text-input-control controlId="exam-score" [label]="t('adm.labelScore')" type="number" [required]="true" [disabled]="pending()"
     [value]="form.controls.passingScorePercentage.value.toString()" [errorText]="fieldError('PassingScorePercentage')" (valueChange)="updateScore($event)" />
-  <np-checkbox-control controlId="exam-free" label="Free exam" [checked]="form.controls.isFree.value"
+  <np-checkbox-control controlId="exam-free" [label]="t('adm.labelFree')" [checked]="form.controls.isFree.value"
     [disabled]="pending()" (checkedChange)="updateFree($event)" />
   <div class="np-admin-exam-form-actions">
-    <button mat-flat-button color="primary" type="submit" data-testid="save-exam" [disabled]="pending()">Save exam</button>
-    <button mat-button type="button" [disabled]="pending()" (click)="cancelled.emit()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit" data-testid="save-exam" [disabled]="pending()">{{ t('adm.saveExam') }}</button>
+    <button mat-button type="button" [disabled]="pending()" (click)="cancelled.emit()">{{ t('adm.cancel') }}</button>
   </div>
 </form>

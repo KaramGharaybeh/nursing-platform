@@ -148,6 +148,17 @@ describe('standard form controls', () => {
     expect(summary?.getAttribute('aria-label')).toBeNull();
   });
 
+  it('renders persistent labels above native text, textarea, and date controls', () => {
+    for (const id of ['email-field', 'license-field', 'summary-field', 'start-date-field']) {
+      const control = query<HTMLElement>(fixture, `#${id}`);
+      const label = query<HTMLLabelElement>(fixture, `label[for="${id}"]`);
+      expect(control).not.toBeNull();
+      expect(label).not.toBeNull();
+      expect(label?.parentElement).toBe(control?.parentElement);
+      expect(control?.closest('mat-form-field')).toBeNull();
+    }
+  });
+
   it('associates helper and structural error text without implementing validation behavior', () => {
     const email = query<HTMLInputElement>(fixture, '#email-field');
     const helper = query<HTMLElement>(fixture, '#email-field-helper');
@@ -184,11 +195,14 @@ describe('standard form controls', () => {
     expect(query<HTMLElement>(fixture, 'mat-radio-group')?.textContent).toContain('Night shift');
   });
 
-  it('uses semantic Material controls with programmatic label relationships', () => {
+  it('uses native labeled text/date inputs and preserves Material selection semantics', () => {
     expect(query(fixture, 'mat-form-field')).not.toBeNull();
-    expect(query(fixture, 'input[matInput]')).not.toBeNull();
-    expect(query(fixture, 'textarea[matInput]')).not.toBeNull();
+    expect(query(fixture, 'input[matInput]')).toBeNull();
+    expect(query(fixture, 'textarea[matInput]')).toBeNull();
+    expect(query(fixture, 'label[for="email-field"]')).not.toBeNull();
+    expect(query(fixture, 'label[for="summary-field"]')).not.toBeNull();
     expect(query(fixture, 'mat-select')).not.toBeNull();
+    expect(query(fixture, 'mat-form-field mat-label')?.textContent).toContain('Country');
     expect(query(fixture, 'mat-checkbox')).not.toBeNull();
     expect(query(fixture, 'mat-radio-group')).not.toBeNull();
     expect(query(fixture, 'mat-radio-button')).not.toBeNull();
@@ -210,11 +224,11 @@ describe('standard form controls', () => {
   it('uses logical layout and approved form dimensions without parallel brand colors', () => {
     const styles = readText(`${formControlsDir}/standard-form-controls.scss`);
 
-    expect(styles).toContain('min-block-size: 64px');
-    expect(styles).toContain('border-radius: 12px');
-    expect(styles).toContain('padding-inline: 16px');
-    expect(styles).toContain('min-inline-size: 44px');
-    expect(styles).toContain('min-block-size: 48px');
+    expect(styles).toContain('min-block-size: var(--np-control-height)');
+    expect(styles).toContain('border-radius: var(--np-control-radius)');
+    expect(styles).toContain('padding-inline: var(--np-control-padding-inline)');
+    expect(styles).toContain('min-inline-size: var(--np-control-height)');
+    expect(styles).toContain('min-block-size: var(--np-space-48)');
     expect(styles).toContain('text-align: start');
     expect(styles).not.toMatch(/#[0-9A-Fa-f]{3,8}\b/);
     expect(styles).not.toContain('margin-left');

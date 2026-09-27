@@ -9,6 +9,7 @@ import { NpEmptyState } from '../../shared/ui/empty-state';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
 import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
 import { NpPagination, resolveListState, type NpListState } from '../../shared/ui/pagination';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { OfferCard } from './offer-card';
 
 const PAGE_SIZE = 20;
@@ -21,6 +22,7 @@ const PAGE_SIZE = 20;
 })
 export class OffersList implements OnInit {
   private readonly api = inject(PreparationPackageOffersApi);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly result = signal<PaginatedResultOfPreparationPackageOfferListItemDto | undefined>(undefined);

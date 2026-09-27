@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import type { CountryListItemDto } from '../../../../core/api/generated/models/country-list-item-dto';
@@ -11,6 +11,7 @@ import {
   type NpSelectOption,
 } from '../../../../shared/ui/form-controls';
 import { NpFormValidationSummary, toFieldErrorText, toFormValidationSummary } from '../../../../shared/ui/form-validation';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 
 const INSTITUTION_NAME_MAX = 200;
 const DEGREE_MAX = 200;
@@ -37,14 +38,14 @@ type EducationForm = FormGroup<{
   description: FormControl<string>;
 }>;
 
-const FIELD_LABELS = Object.freeze({
-  InstitutionName: 'Institution name',
-  Degree: 'Degree',
-  FieldOfStudy: 'Field of study',
-  StartDate: 'Start date',
-  EndDate: 'End date',
-  Description: 'Description',
-});
+const FIELD_LABEL_KEYS = Object.freeze({
+  InstitutionName: 'eduForm.institutionName',
+  Degree: 'eduForm.degree',
+  FieldOfStudy: 'eduForm.fieldOfStudy',
+  StartDate: 'eduForm.startDate',
+  EndDate: 'eduForm.endDate',
+  Description: 'eduForm.description',
+} as const);
 
 const CONTROL_IDS = Object.freeze({
   InstitutionName: 'nurse-education-institution-name',
@@ -103,10 +104,11 @@ export class NurseEducationForm implements OnInit {
   });
 
   protected readonly controlIds = CONTROL_IDS;
+  protected readonly i18n = inject(LocalizationService);
   private readonly submittedState = { submitted: false };
 
   protected get submitLabel(): string {
-    return this.mode === 'edit' ? 'Save changes' : 'Save education';
+    return this.mode === 'edit' ? this.i18n.t('eduForm.submitSave') : this.i18n.t('eduForm.submitCreate');
   }
 
   protected get countryOptions(): readonly NpSelectOption[] {
@@ -167,10 +169,17 @@ export class NurseEducationForm implements OnInit {
 
   protected get validationSummary() {
     return toFormValidationSummary(this.normalizedError(), {
-      fieldLabels: FIELD_LABELS,
+      fieldLabels: {
+        InstitutionName: this.i18n.t(FIELD_LABEL_KEYS.InstitutionName),
+        Degree: this.i18n.t(FIELD_LABEL_KEYS.Degree),
+        FieldOfStudy: this.i18n.t(FIELD_LABEL_KEYS.FieldOfStudy),
+        StartDate: this.i18n.t(FIELD_LABEL_KEYS.StartDate),
+        EndDate: this.i18n.t(FIELD_LABEL_KEYS.EndDate),
+        Description: this.i18n.t(FIELD_LABEL_KEYS.Description),
+      },
       controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'Your education could not be saved.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('eduForm.formFallback'),
     });
   }
 
@@ -179,7 +188,7 @@ export class NurseEducationForm implements OnInit {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'Your education could not be saved.';
+    return this.i18n.backendErrorCopy(error.detail, 'eduForm.formFallback');
   }
 
   ngOnInit(): void {
@@ -257,7 +266,19 @@ export class NurseEducationForm implements OnInit {
 
   private normalizedError(): NormalizedProblemDetails | undefined {
     const clientFailure = this.submittedState.submitted ? this.clientValidationFailure() : undefined;
-    return clientFailure ?? this.backendError;
+    if (clientFailure !== undefined) {
+      return clientFailure;
+    }
+    return this.safeBackendError(this.backendError);
+  }
+
+  private safeBackendError(
+    error: NormalizedProblemDetails | undefined,
+  ): NormalizedProblemDetails | undefined {
+    if (error === undefined) {
+      return undefined;
+    }
+    return this.i18n.safeBackendError(error, FIELD_LABEL_KEYS);
   }
 
   private clientValidationFailure(): NormalizedProblemDetails | undefined {
@@ -270,34 +291,34 @@ export class NurseEducationForm implements OnInit {
     const description = this.form.controls.description;
 
     if (institutionName.hasError('required')) {
-      errors['InstitutionName'] = ['Institution name is required.'];
+      errors['InstitutionName'] = [this.i18n.t('eduForm.institutionRequired')];
     } else if (institutionName.hasError('maxlength')) {
-      errors['InstitutionName'] = ['Institution name must be at most 200 characters.'];
+      errors['InstitutionName'] = [this.i18n.t('eduForm.institutionMax')];
     }
     if (degree.hasError('required')) {
-      errors['Degree'] = ['Degree is required.'];
+      errors['Degree'] = [this.i18n.t('eduForm.degreeRequired')];
     } else if (degree.hasError('maxlength')) {
-      errors['Degree'] = ['Degree must be at most 200 characters.'];
+      errors['Degree'] = [this.i18n.t('eduForm.degreeMax')];
     }
     if (fieldOfStudy.hasError('maxlength')) {
-      errors['FieldOfStudy'] = ['Field of study must be at most 200 characters.'];
+      errors['FieldOfStudy'] = [this.i18n.t('eduForm.fieldMax')];
     }
     if (description.hasError('maxlength')) {
-      errors['Description'] = ['Description must be at most 2000 characters.'];
+      errors['Description'] = [this.i18n.t('eduForm.descMax')];
     }
     const startValue = startDate.value.trim();
     const endValue = endDate.value.trim();
     if (startValue !== '' && endValue !== '' && endValue < startValue) {
-      errors['EndDate'] = ['End date must be on or after the start date.'];
+      errors['EndDate'] = [this.i18n.t('eduForm.endAfterStart')];
     }
 
     if (Object.keys(errors).length === 0) {
       return undefined;
     }
-    return { kind: 'validation', type: '', title: 'Validation failed', status: 400, detail: '', traceId: '', errors };
+    return { kind: 'validation', type: '', title: this.i18n.t('auth.validationFailed'), status: 400, detail: '', traceId: '', errors };
   }
 
-  private fieldError(field: keyof typeof FIELD_LABELS): string {
+  private fieldError(field: keyof typeof FIELD_LABEL_KEYS): string {
     if (!this.submittedState.submitted) {
       return '';
     }

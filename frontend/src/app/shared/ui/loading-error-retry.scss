@@ -34,11 +34,13 @@
   @include mixins.touch-target;
 
   justify-self: start;
-  padding-inline: var(--np-space-4);
-  border: var(--np-focus-ring-width) solid currentcolor;
-  border-radius: var(--np-focus-ring-offset);
-  background: transparent;
-  color: inherit;
+  padding-inline: var(--np-button-padding-inline);
+  border: 1px solid var(--np-color-border);
+  border-radius: var(--np-button-radius);
+  background: var(--np-color-surface);
+  color: var(--np-color-brand-2);
   font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
 }

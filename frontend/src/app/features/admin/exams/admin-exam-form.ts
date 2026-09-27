@@ -1,4 +1,4 @@
-import { Component, effect, input, output, signal } from '@angular/core';
+import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import type { AdminExamCategoryDto } from '../../../core/api/generated/models/admin-exam-category-dto';
@@ -9,12 +9,12 @@ import { NpCheckboxControl, NpSelectControl, NpTextInputControl, NpTextareaContr
 import type { NpSelectOption } from '../../../shared/ui/form-controls';
 import { NpFormValidationSummary, toFieldErrorText, toFormValidationSummary } from '../../../shared/ui/form-validation';
 import type { NormalizedProblemDetails } from '../../../core/api/problem-details';
+import type { TranslationKey } from '../../../core/i18n/translations';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 
 const MAX_DURATION = 480;
-const FIELD_LABELS = Object.freeze({
-  CountryId: 'Country', Title: 'Title', Slug: 'Slug', DurationMinutes: 'Duration',
-  PassingScorePercentage: 'Passing score', Description: 'Description', Instructions: 'Instructions',
-});
+type ExamFormField = 'CountryId' | 'Title' | 'Slug' | 'DurationMinutes' |
+  'PassingScorePercentage' | 'Description' | 'Instructions';
 const CONTROL_IDS = Object.freeze({
   CountryId: 'exam-country', Title: 'exam-title', Slug: 'exam-slug',
   DurationMinutes: 'exam-duration', PassingScorePercentage: 'exam-score',
@@ -36,6 +36,7 @@ export class AdminExamForm {
   readonly serverError = input<NormalizedProblemDetails | undefined>(undefined);
   readonly submitted = output<CreateAdminExamRequest>();
   readonly cancelled = output<void>();
+  protected readonly i18n = inject(LocalizationService);
 
   private readonly localError = signal<NormalizedProblemDetails | undefined>(undefined);
 
@@ -68,9 +69,25 @@ export class AdminExamForm {
     return this.countries().map((item) => ({ value: item.id, label: item.name }));
   }
 
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
+  }
+
+  protected fieldLabels(): Record<ExamFormField, string> {
+    return {
+      CountryId: this.i18n.t('adm.country'),
+      Title: this.i18n.t('adm.labelTitle'),
+      Slug: this.i18n.t('adm.labelSlug'),
+      DurationMinutes: this.i18n.t('adm.labelDurationShort'),
+      PassingScorePercentage: this.i18n.t('adm.labelScoreShort'),
+      Description: this.i18n.t('adm.labelDescription'),
+      Instructions: this.i18n.t('adm.instructions'),
+    };
+  }
+
   protected get categoryOptions(): readonly NpSelectOption[] {
     return [
-      { value: '', label: 'No category' },
+      { value: '', label: this.i18n.t('adm.noCategory') },
       ...this.categories().filter((item) => item.countryId === this.form.controls.countryId.value &&
         (item.isActive || item.id === this.form.controls.examCategoryId.value))
         .map((item) => ({ value: item.id, label: item.name })),
@@ -79,12 +96,12 @@ export class AdminExamForm {
 
   protected get validationSummary() {
     return toFormValidationSummary(this.localError() ?? this.serverError(), {
-      fieldLabels: FIELD_LABELS, controlIds: CONTROL_IDS, summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'Exam could not be saved.',
+      fieldLabels: this.fieldLabels(), controlIds: CONTROL_IDS, summaryTitle: this.i18n.t('adm.checkFields'),
+      formErrorFallback: this.i18n.t('adm.examSaveFallback'),
     });
   }
 
-  protected fieldError(field: keyof typeof FIELD_LABELS): string {
+  protected fieldError(field: ExamFormField): string {
     return toFieldErrorText((this.localError() ?? this.serverError())?.errors?.[field]);
   }
 
@@ -106,15 +123,15 @@ export class AdminExamForm {
     if (this.pending()) return;
     const value = this.form.getRawValue();
     const errors: Record<string, readonly string[]> = {};
-    if (!value.countryId) errors['CountryId'] = ['Choose a country.'];
-    if (!value.title.trim() || value.title.length > 200) errors['Title'] = ['Enter a title of at most 200 characters.'];
-    if (!value.slug.trim() || value.slug.length > 160) errors['Slug'] = ['Enter a slug of at most 160 characters.'];
-    if (value.description.length > 2000) errors['Description'] = ['Description is too long.'];
-    if (value.instructions.length > 4000) errors['Instructions'] = ['Instructions are too long.'];
+    if (!value.countryId) errors['CountryId'] = [this.i18n.t('adm.formChooseCountry')];
+    if (!value.title.trim() || value.title.length > 200) errors['Title'] = [this.i18n.t('adm.formTitle')];
+    if (!value.slug.trim() || value.slug.length > 160) errors['Slug'] = [this.i18n.t('adm.formSlug')];
+    if (value.description.length > 2000) errors['Description'] = [this.i18n.t('adm.formDescription')];
+    if (value.instructions.length > 4000) errors['Instructions'] = [this.i18n.t('adm.formInstructions')];
     if (!Number.isInteger(value.durationMinutes) || value.durationMinutes < 1 || value.durationMinutes > MAX_DURATION)
-      errors['DurationMinutes'] = ['Duration must be between 1 and 480 minutes.'];
+      errors['DurationMinutes'] = [this.i18n.t('adm.formDuration')];
     if (!Number.isFinite(value.passingScorePercentage) || value.passingScorePercentage < 0 || value.passingScorePercentage > 100)
-      errors['PassingScorePercentage'] = ['Passing score must be between 0 and 100 percent.'];
+      errors['PassingScorePercentage'] = [this.i18n.t('adm.formScore')];
     if (Object.keys(errors).length > 0) {
       this.form.markAllAsTouched();
       this.localError.set({ kind: 'validation', type: '', title: '', status: 400, detail: '', traceId: '', errors });

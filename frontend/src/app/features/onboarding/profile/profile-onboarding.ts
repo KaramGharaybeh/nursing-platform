@@ -9,6 +9,7 @@ import type { NormalizedProblemDetails } from '../../../core/api/problem-details
 import { CurrentUserStore } from '../../../core/auth/current-user-store';
 import { canonicalRoutePath } from '../../../core/routing/canonical-routes';
 import { RETURN_URL_QUERY_KEY, isSafeReturnUrl } from '../../../core/routing/safe-return';
+import { LocalizationService } from '../../../core/i18n/localization.service';
 import { NpTextInputControl } from '../../../shared/ui/form-controls';
 import {
   NpFormValidationSummary,
@@ -21,7 +22,7 @@ type ProfileForm = FormGroup<{
   lastName: FormControl<string>;
 }>;
 
-const FIELD_LABELS = Object.freeze({ FirstName: 'First name', LastName: 'Last name' });
+const FIELD_LABEL_KEYS = Object.freeze({ FirstName: 'details.firstName', LastName: 'details.lastName' } as const);
 const CONTROL_IDS = Object.freeze({
   FirstName: 'onboarding-profile-first-name',
   LastName: 'onboarding-profile-last-name',
@@ -38,6 +39,7 @@ export class ProfileOnboarding {
   private readonly currentUserStore = inject(CurrentUserStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly form: ProfileForm = new FormGroup({
     firstName: new FormControl(this.currentUserStore.currentUser()?.firstName ?? '', {
@@ -57,10 +59,13 @@ export class ProfileOnboarding {
   protected readonly validationSummary = computed(() => toFormValidationSummary(
     this.normalizedError(),
     {
-      fieldLabels: FIELD_LABELS,
+      fieldLabels: {
+        FirstName: this.i18n.t(FIELD_LABEL_KEYS.FirstName),
+        LastName: this.i18n.t(FIELD_LABEL_KEYS.LastName),
+      },
       controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'Profile could not be saved.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('onboarding.formFallback'),
     },
   ));
 
@@ -69,7 +74,7 @@ export class ProfileOnboarding {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'Profile could not be saved.';
+    return this.i18n.backendErrorCopy(error.detail, 'onboarding.formFallback');
   });
 
   protected get firstNameValue(): string {
@@ -118,7 +123,9 @@ export class ProfileOnboarding {
       await firstValueFrom(this.currentUserStore.hydrate());
       await this.router.navigateByUrl(this.destination());
     } catch (error: unknown) {
-      this.normalizedError.set(normalizeProblemDetails(this.errorBody(error)));
+      this.normalizedError.set(
+        this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), FIELD_LABEL_KEYS),
+      );
       this.form.enable({ emitEvent: false });
     } finally {
       this.isSubmitting.set(false);
@@ -136,15 +143,15 @@ export class ProfileOnboarding {
   private validationFailure(): NormalizedProblemDetails {
     const errors: Record<string, readonly string[]> = {};
     if (this.form.controls.firstName.hasError('required')) {
-      errors['FirstName'] = ["'First name' must not be empty."];
+      errors['FirstName'] = [this.i18n.t('onboarding.firstEmpty')];
     }
     if (this.form.controls.lastName.hasError('required')) {
-      errors['LastName'] = ["'Last name' must not be empty."];
+      errors['LastName'] = [this.i18n.t('onboarding.lastEmpty')];
     }
-    return { kind: 'validation', type: '', title: 'Validation failed', status: 400, detail: '', traceId: '', errors };
+    return { kind: 'validation', type: '', title: this.i18n.t('auth.validationFailed'), status: 400, detail: '', traceId: '', errors };
   }
 
-  private fieldError(field: keyof typeof FIELD_LABELS): string {
+  private fieldError(field: keyof typeof FIELD_LABEL_KEYS): string {
     if (!this.submitted()) {
       return '';
     }

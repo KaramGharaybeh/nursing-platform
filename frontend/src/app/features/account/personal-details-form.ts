@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
+import { LocalizationService } from '../../core/i18n/localization.service';
 import { NpTextInputControl } from '../../shared/ui/form-controls';
 import { NpFormValidationSummary, toFieldErrorText, toFormValidationSummary } from '../../shared/ui/form-validation';
 
@@ -17,10 +18,10 @@ type DetailsForm = FormGroup<{
   lastName: FormControl<string>;
 }>;
 
-const FIELD_LABELS = Object.freeze({
-  FirstName: 'First name',
-  LastName: 'Last name',
-});
+const FIELD_LABEL_KEYS = Object.freeze({
+  FirstName: 'details.firstName',
+  LastName: 'details.lastName',
+} as const);
 
 const CONTROL_IDS = Object.freeze({
   FirstName: 'account-personal-details-first-name',
@@ -40,6 +41,7 @@ export class PersonalDetailsForm implements OnInit {
 
   @Output() readonly save = new EventEmitter<PersonalDetailsFormValue>();
   @Output() readonly cancelled = new EventEmitter<void>();
+  protected readonly i18n = inject(LocalizationService);
 
   protected readonly form: DetailsForm = new FormGroup({
     firstName: new FormControl('', {
@@ -73,10 +75,13 @@ export class PersonalDetailsForm implements OnInit {
 
   protected get validationSummary() {
     return toFormValidationSummary(this.normalizedError(), {
-      fieldLabels: FIELD_LABELS,
+      fieldLabels: {
+        FirstName: this.i18n.t(FIELD_LABEL_KEYS.FirstName),
+        LastName: this.i18n.t(FIELD_LABEL_KEYS.LastName),
+      },
       controlIds: CONTROL_IDS,
-      summaryTitle: 'Check the highlighted fields',
-      formErrorFallback: 'Your personal details could not be saved.',
+      summaryTitle: this.i18n.t('auth.checkFields'),
+      formErrorFallback: this.i18n.t('details.formFallback'),
     });
   }
 
@@ -85,7 +90,7 @@ export class PersonalDetailsForm implements OnInit {
     if (error === undefined || error.kind === 'validation') {
       return '';
     }
-    return error.detail.trim() !== '' ? error.detail : 'Your personal details could not be saved.';
+    return this.i18n.backendErrorCopy(error.detail, 'details.formFallback');
   }
 
   ngOnInit(): void {
@@ -128,7 +133,19 @@ export class PersonalDetailsForm implements OnInit {
 
   private normalizedError(): NormalizedProblemDetails | undefined {
     const clientFailure = this.submittedState.submitted ? this.clientValidationFailure() : undefined;
-    return clientFailure ?? this.backendError;
+    if (clientFailure !== undefined) {
+      return clientFailure;
+    }
+    return this.safeBackendError(this.backendError);
+  }
+
+  private safeBackendError(
+    error: NormalizedProblemDetails | undefined,
+  ): NormalizedProblemDetails | undefined {
+    if (error === undefined) {
+      return undefined;
+    }
+    return this.i18n.safeBackendError(error, FIELD_LABEL_KEYS);
   }
 
   private clientValidationFailure(): NormalizedProblemDetails | undefined {
@@ -137,23 +154,23 @@ export class PersonalDetailsForm implements OnInit {
     const lastName = this.form.controls.lastName;
 
     if (firstName.value.trim() === '') {
-      errors['FirstName'] = ['First name is required.'];
+      errors['FirstName'] = [this.i18n.t('details.firstRequired')];
     } else if (firstName.hasError('maxlength')) {
-      errors['FirstName'] = ['First name must be at most 100 characters.'];
+      errors['FirstName'] = [this.i18n.t('details.firstMax')];
     }
     if (lastName.value.trim() === '') {
-      errors['LastName'] = ['Last name is required.'];
+      errors['LastName'] = [this.i18n.t('details.lastRequired')];
     } else if (lastName.hasError('maxlength')) {
-      errors['LastName'] = ['Last name must be at most 100 characters.'];
+      errors['LastName'] = [this.i18n.t('details.lastMax')];
     }
 
     if (Object.keys(errors).length === 0) {
       return undefined;
     }
-    return { kind: 'validation', type: '', title: 'Validation failed', status: 400, detail: '', traceId: '', errors };
+    return { kind: 'validation', type: '', title: this.i18n.t('auth.validationFailed'), status: 400, detail: '', traceId: '', errors };
   }
 
-  private fieldError(field: keyof typeof FIELD_LABELS): string {
+  private fieldError(field: keyof typeof FIELD_LABEL_KEYS): string {
     if (!this.submittedState.submitted) {
       return '';
     }

@@ -10,94 +10,94 @@
   }
 
   <fieldset class="np-nurse-education-form-group">
-    <legend>Program</legend>
+    <legend>{{ i18n.t('eduForm.groupProgram') }}</legend>
 
     <np-text-input-control
       [controlId]="controlIds.Degree"
-      label="Degree"
+      [label]="i18n.t('eduForm.degree')"
       type="text"
       [required]="true"
       [disabled]="isSubmitting"
       [value]="degreeValue"
       [errorText]="degreeError"
-      helperText="The degree or qualification you earned."
+      [helperText]="i18n.t('eduForm.degreeHelper')"
       (valueChange)="updateDegree($event)"
     />
 
     <np-text-input-control
       [controlId]="controlIds.FieldOfStudy"
-      label="Field of study"
+      [label]="i18n.t('eduForm.fieldOfStudy')"
       type="text"
       [required]="false"
       [disabled]="isSubmitting"
       [value]="fieldOfStudyValue"
       [errorText]="fieldOfStudyError"
-      helperText="Optional. For example, Critical Care Nursing."
+      [helperText]="i18n.t('eduForm.fieldHelper')"
       (valueChange)="updateFieldOfStudy($event)"
     />
 
     <np-text-input-control
       [controlId]="controlIds.InstitutionName"
-      label="Institution name"
+      [label]="i18n.t('eduForm.institutionName')"
       type="text"
       [required]="true"
       [disabled]="isSubmitting"
       [value]="institutionNameValue"
       [errorText]="institutionNameError"
-      helperText="The university, college, or institute."
+      [helperText]="i18n.t('eduForm.institutionHelper')"
       (valueChange)="updateInstitutionName($event)"
     />
   </fieldset>
 
   <fieldset class="np-nurse-education-form-group">
-    <legend>Place and time</legend>
+    <legend>{{ i18n.t('eduForm.groupPlace') }}</legend>
 
     <np-select-control
       [controlId]="controlIds.Country"
-      label="Country"
+      [label]="i18n.t('eduForm.country')"
       [required]="false"
       [disabled]="isSubmitting"
       [value]="countryValue"
       [options]="countryOptions"
-      helperText="Optional. The country where this institution is located."
+      [helperText]="i18n.t('eduForm.countryHelper')"
       (valueChange)="updateCountry($event)"
     />
 
     <np-date-control
       [controlId]="controlIds.StartDate"
-      label="Start date"
+      [label]="i18n.t('eduForm.startDate')"
       [required]="false"
       [disabled]="isSubmitting"
       [value]="startDateValue"
       [errorText]="startDateError"
-      helperText="Optional. The date you started this program."
+      [helperText]="i18n.t('eduForm.startHelper')"
       (valueChange)="updateStartDate($event)"
     />
 
     <np-date-control
       [controlId]="controlIds.EndDate"
-      label="End date"
+      [label]="i18n.t('eduForm.endDate')"
       [required]="false"
       [disabled]="isSubmitting"
       [value]="endDateValue"
       [errorText]="endDateError"
-      helperText="Optional. Leave empty for ongoing or open-ended education."
+      [helperText]="i18n.t('eduForm.endHelper')"
       (valueChange)="updateEndDate($event)"
     />
   </fieldset>
 
   <fieldset class="np-nurse-education-form-group">
-    <legend>Details</legend>
+    <legend>{{ i18n.t('eduForm.groupDetails') }}</legend>
 
     <np-textarea-control
       [controlId]="controlIds.Description"
-      label="Description"
+      [label]="i18n.t('eduForm.description')"
       [rows]="4"
       [required]="false"
       [disabled]="isSubmitting"
       [value]="descriptionValue"
       [errorText]="descriptionError"
-      helperText="Optional. Up to 2000 characters."
+      [helperText]="i18n.t('eduForm.descHelper')"
       (valueChange)="updateDescription($event)"
     />
   </fieldset>
@@ -106,6 +106,6 @@
     <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
       {{ submitLabel }}
     </button>
-    <button mat-button type="button" [disabled]="isSubmitting" (click)="cancel()">Cancel</button>
+    <button mat-button type="button" [disabled]="isSubmitting" (click)="cancel()">{{ i18n.t('details.cancel') }}</button>
   </div>
 </form>

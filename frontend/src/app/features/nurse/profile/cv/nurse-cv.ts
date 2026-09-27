@@ -3,6 +3,7 @@ import { Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angul
 import { MatButtonModule } from '@angular/material/button';
 import { firstValueFrom } from 'rxjs';
 import { Announcer, NpLiveRegion } from '../../../../shared/ui/announcement';
+import { LocalizationService } from '../../../../core/i18n/localization.service';
 import { TwoStepConfirmation } from '../../../../shared/ui/confirmation';
 import { NurseProfileApi } from '../../../../core/api/nurse-profile-api';
 import type { NurseCvDocumentDto } from '../../../../core/api/generated/models/nurse-cv-document-dto';
@@ -45,6 +46,7 @@ export function isAcceptedCvFile(file: File): boolean {
 export class NurseCv implements OnInit {
   private readonly api = inject(NurseProfileApi);
   private readonly announcer = inject(Announcer);
+  protected readonly i18n = inject(LocalizationService);
   private readonly deleteConfirmation = new TwoStepConfirmation();
 
   @ViewChild('fileInput') private readonly fileInput?: ElementRef<HTMLInputElement>;
@@ -66,7 +68,7 @@ export class NurseCv implements OnInit {
   }
 
   protected get uploadLabel(): string {
-    return this.hasDocument ? 'Replace CV' : 'Upload CV';
+    return this.hasDocument ? this.i18n.t('cv.replace') : this.i18n.t('cv.upload');
   }
 
   protected get selectedFileSizeLabel(): string {
@@ -134,9 +136,11 @@ export class NurseCv implements OnInit {
       this.document.set(saved);
       this.picking.set(false);
       this.clearSelection();
-      this.announcer.announce(hadDocument ? 'CV replaced.' : 'CV uploaded.');
+      this.announcer.announce(hadDocument ? this.i18n.t('cv.replaced') : this.i18n.t('cv.uploaded'));
     } catch (error: unknown) {
-      this.uploadError.set(normalizeProblemDetails(this.errorBody(error)));
+      this.uploadError.set(
+        this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), {}),
+      );
     } finally {
       this.isUploading.set(false);
     }
@@ -164,14 +168,16 @@ export class NurseCv implements OnInit {
     try {
       await firstValueFrom(this.api.deleteCv());
       this.document.set(undefined);
-      this.announcer.announce('CV deleted.');
+      this.announcer.announce(this.i18n.t('cv.deleted'));
     } catch (error: unknown) {
       if (this.isNotFound(error)) {
         this.document.set(undefined);
-        this.notice.set('Your CV had already been removed.');
-        this.announcer.announce('CV was already removed.');
+        this.notice.set(this.i18n.t('cv.alreadyRemoved'));
+        this.announcer.announce(this.i18n.t('cv.alreadyRemovedAnnounce'));
       } else {
-        this.deleteError.set(normalizeProblemDetails(this.errorBody(error)));
+        this.deleteError.set(
+          this.i18n.safeBackendError(normalizeProblemDetails(this.errorBody(error)), {}),
+        );
       }
     } finally {
       this.isDeleting.set(false);
@@ -187,17 +193,17 @@ export class NurseCv implements OnInit {
 
   private describeFileProblem(file: File): string | undefined {
     if (file.size <= 0) {
-      return 'The selected file must not be empty.';
+      return this.i18n.t('cv.fileEmpty');
     }
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      return 'The selected file must be 5 MB or smaller.';
+      return this.i18n.t('cv.fileTooLarge');
     }
     if (!ALLOWED_EXTENSIONS.includes(cvFileExtension(file.name))) {
-      return 'This file type is not supported. Choose a PDF, DOC, or DOCX file.';
+      return this.i18n.t('cv.fileType');
     }
     const contentType = file.type.toLowerCase();
     if (!ALLOWED_CONTENT_TYPES.some((allowed) => allowed === contentType)) {
-      return 'This file type is not supported. Choose a PDF, DOC, or DOCX file.';
+      return this.i18n.t('cv.fileType');
     }
     return undefined;
   }

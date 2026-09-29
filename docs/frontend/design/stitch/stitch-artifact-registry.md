@@ -465,6 +465,28 @@ This is a scoped design revision, not a reopening or invalidation of closed Exam
 
 Initial EXM-005 candidate `7e88cba698e04344adf536f12200d1d7` is superseded by the refined revision; neither it nor the human reference is accepted wholesale. Visual pixel fidelity, mobile and RTL runtime geometry require human visual check; static HTML inspection alone does not prove them. No new route or scoring semantics result from these design artifacts.
 
+## Public Landing Generated Candidate
+
+Generation checkpoint: 2026-09-27. DESIGN-ONLY exploration of a future public Landing/Home entry experience in the active v2 Stitch workspace, directly validated through generated HTML. This is a visual candidate pending human visual review. It does not mark Angular implementation complete, does not decide the default runtime route, does not implement `/` or `/home` redirect behavior, does not create backend/API/authentication/authorization behavior, does not modify existing product screens, and does not authorize implementation work.
+
+Active workspace used for this candidate:
+
+| Field | Value |
+|---|---|
+| Stitch project | `projects/17116545761229201855` (`Nursing Platform — System Redesign v2`) |
+| Stitch design system | `assets/6536256059106605307` (`Nursing Platform — Core Design System v2`) |
+| Canonical design source | `docs/frontend/design/stitch/DESIGN.md` |
+
+| Screen name | Stitch screen | Validation status | Notes |
+|---|---|---|---|---|
+| Public / Landing / Home / Desktop | `projects/17116545761229201855/screens/faa1a2df724d4c528a40d3aecd3327d6` | GENERATED_COPY_REFINED_PENDING_HUMAN_REVIEW | Copy-refined landing candidate. Direct HTML validation found public top bar (brand/home, Exams, Preparation Packages, For Employers, Sign in, Create account), restrained hero with single `h1` plus primary/secondary CTAs, four product-area cards (profile, mock exams, preparation packages, employers), three-step How-it-works strip, nurse/employer entry cards, and neutral footer. No statistics, counts, rates, logos, testimonials, ratings, prices, guarantees, placement promises, geographic claims, certifications, regulatory claims, authenticated data, or invented capabilities found. Focused refinement removed verification-adjacent `verified` wording, deferred-workspace `workspace` language, and `jurisdictions` wording. Interactive-looking elements carry no behavior; unsupported future interactions are `UI_LOGIC_GAP — DESIGN_ONLY` (see GOAL report). |
+
+Rejected/superseded Public Landing attempts from this checkpoint:
+
+| Stitch screen | Disposition | Reason |
+|---|---|---|
+| `projects/17116545761229201855/screens/9760a35e67464724a914a0620ffa2f6e` | SUPERSEDED_BY_COPY_REFINEMENT | Initial landing candidate superseded by copy-refined replacement `faa1a2df724d4c528a40d3aecd3327d6`; used verification-adjacent `verified` wording and deferred-workspace `workspace` language. |
+
 ## Tool Evidence
 
 | Step | Result |

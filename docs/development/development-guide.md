@@ -124,6 +124,12 @@ Expected response:
 }
 ```
 
+## Development exam data
+
+After `ReferenceDataSeeder` supplies the US country, Development startup runs `DevelopmentExamSeeder` through `DatabaseInitializer`. It creates a Development-only category and a free exam with published version 1 containing exactly 30 ordered, unique, simple-addition questions. Each question has four active numeric options with one correct answer, so the normal exam-session flow can be exercised locally. The seed is excluded from Test and Production; the test-suite provisioning contract in `docs/testing/` remains separate.
+
+The seed uses the existing Exam schema and needs no migration. The 2026-09-29 preflight found no earlier single-question Development seed to replace or retain. `DatabaseInitializer` retains its two-argument constructor and resolves the host environment inside the initialization scope; an initial review found the constructor change incompatible with `WebApiTestFactory`, and the correction passed rereview. `backend/tests/NursingPlatform.Infrastructure.Tests/Persistence/DevelopmentExamSeederTests.cs` owns the executable seed assertions. The corrected checkpoint recorded a build with zero errors/warnings, 183/183 non-PostgreSQL infrastructure tests, and a clean diff check. Those historical results are not a fresh verification of the current dirty tree.
+
 ---
 
 # Database

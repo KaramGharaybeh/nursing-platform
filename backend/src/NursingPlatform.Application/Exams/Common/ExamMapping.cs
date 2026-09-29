@@ -89,6 +89,7 @@ internal static class ExamMapping
                     Text = q.QuestionTextSnapshot,
                     Points = q.Points,
                     SelectedExamSessionAnswerOptionId = selectedByQuestion.GetValueOrDefault(q.Id),
+                    IsFlagged = q.IsFlagged,
                     Options = optionsByQuestion.GetValueOrDefault(q.Id, [])
                         .Select(o => new ExamSessionAnswerOptionDto
                         {

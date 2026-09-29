@@ -174,6 +174,16 @@ public class ExamConfigurationTests
     }
 
     [Fact]
+    public void ExamSessionQuestionConfiguration_PersistsFlagAsRequired()
+    {
+        var property = CreateDbContext().Model.FindEntityType(typeof(ExamSessionQuestion))!
+            .FindProperty(nameof(ExamSessionQuestion.IsFlagged));
+
+        Assert.NotNull(property);
+        Assert.False(property.IsNullable);
+    }
+
+    [Fact]
     public void ExamConfiguration_ConfiguresAnswerUniqueness()
     {
         var index = CreateDbContext().Model.FindEntityType(typeof(ExamSessionAnswer))!.GetIndexes()

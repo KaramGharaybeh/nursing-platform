@@ -8,7 +8,9 @@ using MediatR;
 using Moq;
 using NursingPlatform.Application.Common.Exceptions;
 using NursingPlatform.Application.Common.Models;
+using NursingPlatform.Application.Exams.Commands.ClearExamSessionAnswer;
 using NursingPlatform.Application.Exams.Commands.SaveExamSessionAnswers;
+using NursingPlatform.Application.Exams.Commands.SetExamSessionQuestionFlag;
 using NursingPlatform.Application.Exams.Commands.StartExamSession;
 using NursingPlatform.Application.Exams.Commands.SubmitExamSession;
 using NursingPlatform.Application.Exams.DTOs;
@@ -79,6 +81,8 @@ public class ExamEndpointsTests
     [InlineData("POST", "/api/v1/exams/11111111-1111-1111-1111-111111111111/sessions")]
     [InlineData("GET", "/api/v1/exam-sessions/11111111-1111-1111-1111-111111111111")]
     [InlineData("PUT", "/api/v1/exam-sessions/11111111-1111-1111-1111-111111111111/answers")]
+    [InlineData("DELETE", "/api/v1/exam-sessions/11111111-1111-1111-1111-111111111111/answers/22222222-2222-2222-2222-222222222222")]
+    [InlineData("PUT", "/api/v1/exam-sessions/11111111-1111-1111-1111-111111111111/questions/22222222-2222-2222-2222-222222222222/flag")]
     [InlineData("POST", "/api/v1/exam-sessions/11111111-1111-1111-1111-111111111111/submit")]
     [InlineData("GET", "/api/v1/exam-sessions/11111111-1111-1111-1111-111111111111/result")]
     [InlineData("GET", "/api/v1/exam-sessions/11111111-1111-1111-1111-111111111111/review")]
@@ -288,6 +292,64 @@ public class ExamEndpointsTests
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public async Task ClearExamSessionAnswer_WithValidationFailure_ReturnsValidationProblemDetails()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<ClearExamSessionAnswerCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ValidationException([new ValidationFailure("ExamSessionQuestionId", "Question id is required.")]));
+
+        var response = await _client.DeleteAsync($"/api/v1/exam-sessions/{Guid.NewGuid()}/answers/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public async Task ClearExamSessionAnswer_WithInvalidTransition_ReturnsConflict()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<ClearExamSessionAnswerCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Only in-progress exam sessions can accept answers."));
+
+        var response = await _client.DeleteAsync($"/api/v1/exam-sessions/{Guid.NewGuid()}/answers/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SetExamSessionQuestionFlag_WithValidationFailure_ReturnsValidationProblemDetails()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<SetExamSessionQuestionFlagCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ValidationException([new ValidationFailure("ExamSessionId", "Session id is required.")]));
+
+        var response = await _client.PutAsJsonAsync(
+            $"/api/v1/exam-sessions/{Guid.NewGuid()}/questions/{Guid.NewGuid()}/flag",
+            new { isFlagged = true });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public async Task SetExamSessionQuestionFlag_WithInvalidTransition_ReturnsConflict()
+    {
+        NurseEndpointTestAuth.Authorize(_client, Guid.NewGuid());
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<SetExamSessionQuestionFlagCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Only in-progress exam sessions can accept answers."));
+
+        var response = await _client.PutAsJsonAsync(
+            $"/api/v1/exam-sessions/{Guid.NewGuid()}/questions/{Guid.NewGuid()}/flag",
+            new { isFlagged = true });
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
     }
 
     [Fact]

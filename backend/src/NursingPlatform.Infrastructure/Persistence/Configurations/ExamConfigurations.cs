@@ -240,6 +240,7 @@ public class ExamSessionQuestionConfiguration : IEntityTypeConfiguration<ExamSes
         builder.HasIndex(q => new { q.ExamSessionId, q.DisplayOrder, q.Id });
         builder.Property(q => q.QuestionTextSnapshot).IsRequired().HasMaxLength(4000);
         builder.Property(q => q.ExplanationSnapshot).HasMaxLength(4000);
+        builder.Property(q => q.IsFlagged).IsRequired();
         builder.HasOne(q => q.ExamSession)
             .WithMany()
             .HasForeignKey(q => q.ExamSessionId)

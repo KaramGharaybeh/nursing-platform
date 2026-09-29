@@ -6,7 +6,9 @@ using NursingPlatform.Application.Employers.Commands.UpsertMyEmployerOrganizatio
 using NursingPlatform.Application.Employers.Commands.UpsertMyEmployerProfile;
 using NursingPlatform.Application.Employers.Queries.GetMyEmployerOrganization;
 using NursingPlatform.Application.Employers.Queries.GetMyEmployerProfile;
+using NursingPlatform.Application.Exams.Commands.ClearExamSessionAnswer;
 using NursingPlatform.Application.Exams.Commands.SaveExamSessionAnswers;
+using NursingPlatform.Application.Exams.Commands.SetExamSessionQuestionFlag;
 using NursingPlatform.Application.Exams.Commands.StartExamSession;
 using NursingPlatform.Application.Exams.Commands.SubmitExamSession;
 using NursingPlatform.Application.Exams.Admin.AnswerOptions;
@@ -460,6 +462,40 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("SaveExamSessionAnswers")
+        .Produces<ExamSessionDto>(StatusCodes.Status200OK)
+        .RequireAuthorization();
+
+        api.MapDelete("/exam-sessions/{id:guid}/answers/{questionId:guid}", async (
+            Guid id,
+            Guid questionId,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ClearExamSessionAnswerCommand
+            {
+                ExamSessionId = id,
+                ExamSessionQuestionId = questionId
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ClearExamSessionAnswer")
+        .Produces<ExamSessionDto>(StatusCodes.Status200OK)
+        .RequireAuthorization();
+
+        api.MapPut("/exam-sessions/{id:guid}/questions/{questionId:guid}/flag", async (
+            Guid id,
+            Guid questionId,
+            SetExamSessionQuestionFlagRequest request,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new SetExamSessionQuestionFlagCommand
+            {
+                ExamSessionId = id,
+                ExamSessionQuestionId = questionId,
+                Request = request
+            });
+            return Results.Ok(result);
+        })
+        .WithName("SetExamSessionQuestionFlag")
         .Produces<ExamSessionDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 

@@ -5,6 +5,7 @@ import { ExamSessionAnswerOptionDto } from '../models/exam-session-answer-option
 export interface ExamSessionQuestionDto {
   displayOrder: number;
   id: string;
+  isFlagged: boolean;
   options: Array<ExamSessionAnswerOptionDto>;
   points: number;
   selectedExamSessionAnswerOptionId?: (string | null);

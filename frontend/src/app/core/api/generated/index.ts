@@ -135,6 +135,7 @@ export type { RetryableProblemDetails } from './models/retryable-problem-details
 export type { RotateRefreshTokenCommand } from './models/rotate-refresh-token-command';
 export type { SaveExamSessionAnswerItemRequest } from './models/save-exam-session-answer-item-request';
 export type { SaveExamSessionAnswersRequest } from './models/save-exam-session-answers-request';
+export type { SetExamSessionQuestionFlagRequest } from './models/set-exam-session-question-flag-request';
 export type { StartPaymentCheckoutRequest } from './models/start-payment-checkout-request';
 export type { StudyMaterialType } from './models/study-material-type';
 export type { SubmitPackagePracticeAnswerRequest } from './models/submit-package-practice-answer-request';
@@ -220,6 +221,10 @@ export type { GetExamSession$Params as GetExamSession$Params } from './fn/nursin
 export { getExamSession as getExamSession } from './fn/nursing-platform-web-api/get-exam-session';
 export type { SaveExamSessionAnswers$Params as SaveExamSessionAnswers$Params } from './fn/nursing-platform-web-api/save-exam-session-answers';
 export { saveExamSessionAnswers as saveExamSessionAnswers } from './fn/nursing-platform-web-api/save-exam-session-answers';
+export type { ClearExamSessionAnswer$Params as ClearExamSessionAnswer$Params } from './fn/nursing-platform-web-api/clear-exam-session-answer';
+export { clearExamSessionAnswer as clearExamSessionAnswer } from './fn/nursing-platform-web-api/clear-exam-session-answer';
+export type { SetExamSessionQuestionFlag$Params as SetExamSessionQuestionFlag$Params } from './fn/nursing-platform-web-api/set-exam-session-question-flag';
+export { setExamSessionQuestionFlag as setExamSessionQuestionFlag } from './fn/nursing-platform-web-api/set-exam-session-question-flag';
 export type { SubmitExamSession$Params as SubmitExamSession$Params } from './fn/nursing-platform-web-api/submit-exam-session';
 export { submitExamSession as submitExamSession } from './fn/nursing-platform-web-api/submit-exam-session';
 export type { GetExamSessionResult$Params as GetExamSessionResult$Params } from './fn/nursing-platform-web-api/get-exam-session-result';

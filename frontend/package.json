@@ -9,7 +9,7 @@
     "test": "ng test",
     "test:e2e:auth": "playwright test --config playwright.config.ts",
     "check:dependencies": "node ./scripts/check-dependencies.mjs",
-    "generate:api": "ng-openapi-gen --input ../docs/frontend/design/integration/openapi/development-openapi-2026-09-03.json --output src/app/core/api/generated --services false --promises false --module false --index-file true --enum-style alias --use-temp-dir true",
+    "generate:api": "ng-openapi-gen --input ../docs/frontend/design/integration/openapi/development-openapi-2026-09-28.json --output src/app/core/api/generated --services false --promises false --module false --index-file true --enum-style alias --use-temp-dir true",
     "lint": "ng lint",
     "lint:styles": "stylelint \"src/**/*.scss\"",
     "storybook": "storybook dev -p 6006",

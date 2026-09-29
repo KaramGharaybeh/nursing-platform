@@ -130,6 +130,7 @@ export type { RetryableProblemDetails } from './models/retryable-problem-details
 export type { RotateRefreshTokenCommand } from './models/rotate-refresh-token-command';
 export type { SaveExamSessionAnswerItemRequest } from './models/save-exam-session-answer-item-request';
 export type { SaveExamSessionAnswersRequest } from './models/save-exam-session-answers-request';
+export type { SetExamSessionQuestionFlagRequest } from './models/set-exam-session-question-flag-request';
 export type { StartPaymentCheckoutRequest } from './models/start-payment-checkout-request';
 export type { StudyMaterialType } from './models/study-material-type';
 export type { SubmitPackagePracticeAnswerRequest } from './models/submit-package-practice-answer-request';

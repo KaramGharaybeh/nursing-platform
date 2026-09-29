@@ -142,7 +142,68 @@
   background: var(--np-color-active-surface);
 }
 
-.np-exam-session-unsaved,
+.np-exam-session-nav {
+  margin-block-start: var(--np-space-24);
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--np-space-8);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: var(--np-space-44);
+    min-block-size: var(--np-space-44);
+    padding-inline: var(--np-space-8);
+    border: 1px solid var(--np-color-border);
+    border-radius: var(--np-button-radius);
+    background: var(--np-color-surface);
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+  }
+}
+
+.np-exam-session-nav-answered {
+  border-color: var(--np-color-brand-1);
+  background: var(--np-color-active-surface);
+}
+
+.np-exam-session-nav-current {
+  border-color: var(--np-color-brand-3);
+  box-shadow: inset 0 0 0 1px var(--np-color-brand-3);
+}
+
+.np-exam-session-nav-flagged {
+  border-block-start: var(--np-space-4) solid var(--np-color-brand-2);
+}
+
+.np-exam-session-nav-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-8) var(--np-space-16);
+  margin: var(--np-space-12) 0 0;
+  color: var(--np-color-secondary-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.np-exam-session-question-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-12);
+  margin-block-start: var(--np-space-16);
+  padding-block-start: var(--np-space-16);
+  border-block-start: 1px solid var(--np-color-border);
+}
+
+.np-exam-session-saving,
 .np-exam-session-saved {
   margin: var(--np-space-16) 0 0;
   padding-block-start: var(--np-space-16);
@@ -151,6 +212,26 @@
 }
 
 .np-exam-session-saved { color: var(--np-color-brand-1); }
+
+.np-exam-session-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  padding: 0;
+  border: 0;
+  background: rgb(16 42 58 / var(--np-scrim-opacity));
+}
+
+.np-exam-session-confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  overflow: auto;
+  box-sizing: border-box;
+  inline-size: min(40rem, calc(100vw - var(--np-space-32)));
+  max-block-size: calc(100dvh - var(--np-space-32));
+  margin: auto;
+}
 
 .np-exam-session-actions {
   display: flex;
@@ -239,7 +320,9 @@
   .np-exam-session a,
   .np-exam-session button { min-block-size: var(--np-space-48); }
 
+  .np-exam-session-nav button { flex: 1 1 var(--np-space-48); }
   .np-exam-session-actions > div { inline-size: 100%; }
   .np-exam-session-actions button { flex: 1; }
+  .np-exam-session-question-actions button { flex: 1; }
   .np-exam-session-confirm-actions button { flex: 1; }
 }

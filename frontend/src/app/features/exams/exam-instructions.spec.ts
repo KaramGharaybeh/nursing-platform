@@ -351,6 +351,82 @@ describe('ExamInstructions (T-FE-068)', () => {
     expect(byTestId(fixture, 'instructions-start')).toBeNull();
     expect(byTestId(fixture, 'instructions-confirm-go')).not.toBeNull();
   });
+
+  it('opens Start confirmation as a modal dialog above inert background with zero POST', async () => {
+    const { fixture, api } = await setup();
+
+    (byTestId(fixture, 'instructions-start') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    const dialog = byTestId(fixture, 'instructions-confirm') as HTMLElement;
+    expect(dialog.getAttribute('role')).toBe('dialog');
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.getAttribute('aria-labelledby')).toBe('instructions-confirm-title');
+    expect(byTestId(fixture, 'instructions-body')?.hasAttribute('inert')).toBe(true);
+    expect(byTestId(fixture, 'instructions-confirm-backdrop')).not.toBeNull();
+    expect(api.startCalls).toEqual([]);
+  });
+
+  it('Cancel closes the modal without mutation and restores Start trigger focus', async () => {
+    const { fixture, api } = await setup();
+
+    (byTestId(fixture, 'instructions-start') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+    expect(document.activeElement).toBe(byTestId(fixture, 'instructions-cancel'));
+
+    (byTestId(fixture, 'instructions-cancel') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.startCalls).toEqual([]);
+    expect(byTestId(fixture, 'instructions-confirm')).toBeNull();
+    expect(byTestId(fixture, 'instructions-body')?.hasAttribute('inert')).toBe(false);
+    expect(document.activeElement).toBe(byTestId(fixture, 'instructions-start'));
+  });
+
+  it('Escape closes the modal without submitting', async () => {
+    const { fixture, api } = await setup();
+
+    (byTestId(fixture, 'instructions-start') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+    expect(byTestId(fixture, 'instructions-confirm')).not.toBeNull();
+
+    (byTestId(fixture, 'instructions-confirm') as HTMLElement).dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'instructions-confirm')).toBeNull();
+    expect(api.startCalls).toEqual([]);
+    expect(document.activeElement).toBe(byTestId(fixture, 'instructions-start'));
+  });
+
+  it('Resume opens the modal with resume copy and Cancel restores the Resume trigger', async () => {
+    const stub = new ExamsApiStub();
+    stub.resumable = attempt();
+    const { fixture, api } = await setup(stub);
+
+    (byTestId(fixture, 'instructions-resume') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    const dialog = byTestId(fixture, 'instructions-confirm') as HTMLElement;
+    expect(dialog.getAttribute('role')).toBe('dialog');
+    expect(text(fixture)).toContain('Resuming the exam');
+    expect(api.startCalls).toEqual([]);
+
+    (byTestId(fixture, 'instructions-cancel') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'instructions-confirm')).toBeNull();
+    expect(api.startCalls).toEqual([]);
+    expect(document.activeElement).toBe(byTestId(fixture, 'instructions-resume'));
+  });
 });
 
 describe('ExamInstructions route', () => {

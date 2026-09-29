@@ -162,10 +162,28 @@
   gap: var(--np-space-12);
   margin-block-start: var(--np-space-16);
 
-  button:first-child {
+  button:last-child {
     background: var(--np-color-brand-3);
     color: var(--np-color-surface);
   }
+}
+
+.np-exam-instructions-backdrop {
+  position: fixed;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: rgb(16 42 58 / var(--np-scrim-opacity));
+}
+
+.np-exam-instructions-confirmation-modal {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+  box-sizing: border-box;
+  inline-size: min(40rem, calc(100vw - var(--np-space-32)));
+  max-block-size: calc(100dvh - var(--np-space-32));
+  margin: auto;
 }
 
 .np-exam-instructions button {
@@ -210,4 +228,5 @@
 
   .np-exam-instructions-resume-notice button,
   .np-exam-instructions-actions button { inline-size: 100%; }
+  .np-exam-instructions-confirm-actions button { flex: 1; }
 }

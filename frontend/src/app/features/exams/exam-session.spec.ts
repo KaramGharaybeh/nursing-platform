@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { Subject, of, throwError } from 'rxjs';
+import { ReplaySubject, Subject, of, throwError } from 'rxjs';
 import { routes } from '../../app.routes';
 import { ExamsApi } from '../../core/api/exams-api';
 import type { ExamSession, ExamSessionResult } from '../../core/api/exams-api';
@@ -10,6 +10,7 @@ function question(
   id: string,
   order: number,
   selected: string | null,
+  flagged = false,
   options: { id: string; text: string }[] = [
     { id: `${id}-a`, text: `${id} option one` },
     { id: `${id}-b`, text: `${id} option two` },
@@ -21,6 +22,7 @@ function question(
     points: 1,
     displayOrder: order,
     selectedExamSessionAnswerOptionId: selected,
+    isFlagged: flagged,
     options: options.map((option, index) => ({
       examSessionAnswerOptionId: option.id,
       text: option.text,
@@ -50,6 +52,8 @@ class ExamsApiStub {
   current: ExamSession = session();
   sessionError: unknown = undefined;
   saved: { sessionId: string; answers: { examSessionQuestionId: string; selectedExamSessionAnswerOptionId: string }[] }[] = [];
+  cleared: { sessionId: string; questionId: string }[] = [];
+  flagged: { sessionId: string; questionId: string; isFlagged: boolean }[] = [];
   submitCalls: string[] = [];
   submitError: unknown = undefined;
   submitResult: ExamSessionResult = {
@@ -95,6 +99,30 @@ class ExamsApiStub {
         item.examSessionQuestionId === answer.examSessionQuestionId
           ? { ...item, selectedExamSessionAnswerOptionId: answer.selectedExamSessionAnswerOptionId }
           : item,
+      ),
+    };
+    return of(this.current);
+  }
+
+  clearExamSessionAnswer(sessionId: string, questionId: string) {
+    this.cleared.push({ sessionId, questionId });
+    this.current = {
+      ...this.current,
+      items: this.current.items.map((item) =>
+        item.examSessionQuestionId === questionId
+          ? { ...item, selectedExamSessionAnswerOptionId: null }
+          : item,
+      ),
+    };
+    return of(this.current);
+  }
+
+  setExamSessionQuestionFlag(sessionId: string, questionId: string, isFlagged: boolean) {
+    this.flagged.push({ sessionId, questionId, isFlagged });
+    this.current = {
+      ...this.current,
+      items: this.current.items.map((item) =>
+        item.examSessionQuestionId === questionId ? { ...item, isFlagged } : item,
       ),
     };
     return of(this.current);
@@ -160,9 +188,9 @@ describe('ExamSession screen (T-FE-069)', () => {
 
   it('restores persisted answers when navigating', async () => {
     const { fixture } = await setup();
-    const component = fixture.componentInstance as unknown as { next(): void };
+    const component = fixture.componentInstance as unknown as { next(): Promise<void> };
 
-    component.next();
+    await component.next();
     fixture.detectChanges();
     await settle(fixture);
 
@@ -185,8 +213,10 @@ describe('ExamSession screen (T-FE-069)', () => {
     expect(text(fixture)).not.toMatch(/correct answer|answer key|rationale|explanation/i);
   });
 
-  it('selecting an option does not call Save', async () => {
+  it('selecting an option auto-persists without any Save answer action', async () => {
     const { fixture, api } = await setup();
+
+    expect(byTestId(fixture, 'session-save')).toBeNull();
 
     ((fixture.nativeElement as HTMLElement).querySelector(
       '[data-testid="session-option"] input',
@@ -194,46 +224,29 @@ describe('ExamSession screen (T-FE-069)', () => {
     fixture.detectChanges();
     await settle(fixture);
 
-    expect(api.saved).toEqual([]);
-    expect(byTestId(fixture, 'session-save')).not.toBeNull();
-  });
-
-  it('explicit Save persists the current answer from the authoritative response', async () => {
-    const { fixture, api } = await setup();
-
-    ((fixture.nativeElement as HTMLElement).querySelectorAll(
-      '[data-testid="session-option"] input',
-    )[1] as HTMLInputElement).click();
-    fixture.detectChanges();
-    (byTestId(fixture, 'session-save') as HTMLButtonElement).click();
-    fixture.detectChanges();
-    await settle(fixture);
-
     expect(api.saved).toEqual([
-      { sessionId: 'session-9', answers: [{ examSessionQuestionId: 'q-1', selectedExamSessionAnswerOptionId: 'q-1-b' }] },
+      { sessionId: 'session-9', answers: [{ examSessionQuestionId: 'q-1', selectedExamSessionAnswerOptionId: 'q-1-a' }] },
     ]);
     expect(text(fixture)).toContain('Answer saved.');
   });
 
-  it('re-answer then Save overwrites via the backend contract', async () => {
+  it('re-answer auto-persists the overwrite via the backend contract', async () => {
     const stub = new ExamsApiStub();
     stub.current = session({
       items: [question('q-1', 1, 'q-1-a'), question('q-2', 2, null)],
     });
     const { fixture, api } = await setup(stub);
-    const component = fixture.componentInstance as unknown as { previous(): void };
+    const component = fixture.componentInstance as unknown as { previous(): Promise<void> };
 
     expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 2 of 2');
 
-    component.previous();
+    await component.previous();
     fixture.detectChanges();
     await settle(fixture);
 
     ((fixture.nativeElement as HTMLElement).querySelectorAll(
       '[data-testid="session-option"] input',
     )[1] as HTMLInputElement).click();
-    fixture.detectChanges();
-    (byTestId(fixture, 'session-save') as HTMLButtonElement).click();
     fixture.detectChanges();
     await settle(fixture);
 
@@ -242,21 +255,184 @@ describe('ExamSession screen (T-FE-069)', () => {
     ]);
   });
 
-  it('Previous and Next change only the displayed question without saving', async () => {
+  it('Previous and Next send no requests when nothing is pending', async () => {
     const { fixture, api } = await setup();
-    const component = fixture.componentInstance as unknown as { next(): void; previous(): void };
+    const component = fixture.componentInstance as unknown as { next(): Promise<void>; previous(): Promise<void> };
 
-    component.next();
+    await component.next();
     fixture.detectChanges();
     await settle(fixture);
     expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 2 of 2');
 
-    component.previous();
+    await component.previous();
     fixture.detectChanges();
     await settle(fixture);
     expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 1 of 2');
     expect(api.saved).toEqual([]);
+    expect(api.cleared).toEqual([]);
+    expect(api.flagged).toEqual([]);
     expect((byTestId(fixture, 'session-prev') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('navigation waits for the pending autosave before moving', async () => {
+    const stub = new ExamsApiStub();
+    // Replay so the value emitted below still reaches the serialized mutation
+    // queue, which subscribes one microtask after enqueue.
+    const pending = new ReplaySubject<ExamSession>(1);
+    stub.saveExamSessionAnswers = (
+      sessionId: string,
+      answers: { examSessionQuestionId: string; selectedExamSessionAnswerOptionId: string }[],
+    ) => {
+      stub.saved.push({ sessionId, answers });
+      return pending.asObservable();
+    };
+    const { fixture, api } = await setup(stub);
+    const component = fixture.componentInstance as unknown as { next(): Promise<void> };
+
+    ((fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input',
+    ) as HTMLInputElement).click();
+    fixture.detectChanges();
+
+    const navigation = component.next();
+    fixture.detectChanges();
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 1 of 2');
+
+    pending.next(stub.current);
+    pending.complete();
+    await navigation;
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.saved).toHaveLength(1);
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 2 of 2');
+  });
+
+  it('navigation stays put when the pending save fails and retains the choice', async () => {
+    const stub = new ExamsApiStub();
+    stub.saveExamSessionAnswers = (
+      sessionId: string,
+      answers: { examSessionQuestionId: string; selectedExamSessionAnswerOptionId: string }[],
+    ) => {
+      stub.saved.push({ sessionId, answers });
+      return throwError(() => ({ status: 500 }));
+    };
+    const { fixture, api } = await setup(stub);
+    const component = fixture.componentInstance as unknown as { next(): Promise<void> };
+
+    ((fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input',
+    ) as HTMLInputElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-save-error')).not.toBeNull();
+
+    await component.next();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 1 of 2');
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="session-option"] input:checked',
+      ),
+    ).not.toBeNull();
+    expect(api.saved).toHaveLength(1);
+  });
+
+  it('renders a numbered Question Navigation with current, answered and flagged states', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({
+      items: [question('q-1', 1, 'q-1-a', true), question('q-2', 2, null), question('q-3', 3, 'q-3-a')],
+    });
+    const { fixture } = await setup(stub);
+    const nav = byTestId(fixture, 'session-nav') as HTMLElement;
+    const items = [...nav.querySelectorAll('[data-testid="session-nav-item"]')];
+
+    expect(nav.getAttribute('aria-label')).toContain('Question navigation');
+    expect(items).toHaveLength(3);
+    expect(items.map((item) => item.textContent?.trim())).toEqual(['1', '2', '3']);
+    expect(items[0].getAttribute('aria-label')).toMatch(/question 1.*answered.*flagged/i);
+    expect(items[1].getAttribute('aria-label')).toMatch(/question 2.*unanswered/i);
+    // The screen resumes at the first unanswered question (q-2, index 1), so the
+    // current marker belongs there, not on the first item.
+    expect(items[0].getAttribute('aria-current')).toBeNull();
+    expect(items[1].getAttribute('aria-current')).toBe('true');
+  });
+
+  it('direct navigation moves to the chosen question after pending persistence settles', async () => {
+    const { fixture } = await setup();
+    const component = fixture.componentInstance as unknown as { goToQuestion(index: number): Promise<void> };
+
+    await component.goToQuestion(1);
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 2 of 2');
+    expect(byTestId(fixture, 'session-prompt')?.textContent).toContain('q-2 prompt');
+  });
+
+  it('Clear selection persists a true unanswered state through DELETE', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({
+      items: [question('q-1', 1, 'q-1-a'), question('q-2', 2, 'q-2-a')],
+    });
+    const { fixture, api } = await setup(stub);
+
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 1 of 2');
+
+    (byTestId(fixture, 'session-clear') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.cleared).toEqual([{ sessionId: 'session-9', questionId: 'q-1' }]);
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="session-option"] input:checked',
+      ),
+    ).toBeNull();
+  });
+
+  it('hides Clear selection when the question has no local or persisted selection', async () => {
+    const { fixture, api } = await setup();
+
+    expect(byTestId(fixture, 'session-clear')).toBeNull();
+    expect(api.cleared).toEqual([]);
+  });
+
+  it('Flag persists the review marker independently of the answer', async () => {
+    const { fixture, api } = await setup();
+    const flag = byTestId(fixture, 'session-flag') as HTMLButtonElement;
+
+    expect(flag.textContent).toContain('Flag');
+    expect(flag.getAttribute('aria-pressed')).toBe('false');
+
+    flag.click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.flagged).toEqual([{ sessionId: 'session-9', questionId: 'q-1', isFlagged: true }]);
+    expect(api.saved).toEqual([]);
+    expect((byTestId(fixture, 'session-flag') as HTMLButtonElement).getAttribute('aria-pressed')).toBe(
+      'true',
+    );
+  });
+
+  it('Unflag persists desired false state without touching the answer', async () => {
+    const stub = new ExamsApiStub();
+    // Both answered so resume lands on index 0 (q-1, flagged); otherwise the
+    // screen resumes on the unanswered q-2 and the click would flag that one.
+    stub.current = session({ items: [question('q-1', 1, 'q-1-a', true), question('q-2', 2, 'q-2-a')] });
+    const { fixture, api } = await setup(stub);
+
+    (byTestId(fixture, 'session-flag') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.flagged).toEqual([{ sessionId: 'session-9', questionId: 'q-1', isFlagged: false }]);
+    expect(api.saved).toEqual([]);
+    expect(api.cleared).toEqual([]);
   });
 
   it('initializes the countdown from RemainingSeconds without announcing every tick', async () => {
@@ -314,7 +490,9 @@ describe('ExamSession screen (T-FE-069)', () => {
     expect(byTestId(fixture, 'session-terminal-notice')?.textContent).toContain(
       'The exam session has expired.',
     );
-    expect(byTestId(fixture, 'session-save')).toBeNull();
+    expect(byTestId(fixture, 'session-clear')).toBeNull();
+    expect(byTestId(fixture, 'session-flag')).toBeNull();
+    expect(byTestId(fixture, 'session-nav')).toBeNull();
     expect(byTestId(fixture, 'session-submit-open')).toBeNull();
     expect(api.submitCalls).toEqual([]);
   });
@@ -335,7 +513,7 @@ describe('ExamSession screen (T-FE-069)', () => {
     }
   });
 
-  it('reconciles an expired save without claiming success', async () => {
+  it('reconciles an expired autosave without claiming success', async () => {
     const stub = new ExamsApiStub();
     let loads = 0;
     stub.saveExamSessionAnswers = () => throwError(() => ({ status: 409 }));
@@ -352,8 +530,6 @@ describe('ExamSession screen (T-FE-069)', () => {
       '[data-testid="session-option"] input',
     ) as HTMLInputElement).click();
     fixture.detectChanges();
-    (byTestId(fixture, 'session-save') as HTMLButtonElement).click();
-    fixture.detectChanges();
     await settle(fixture);
 
     expect(byTestId(fixture, 'session-terminal-notice')).not.toBeNull();
@@ -366,23 +542,23 @@ describe('ExamSession screen (T-FE-069)', () => {
     const { fixture, api } = await setup(stub);
 
     expect(byTestId(fixture, 'session-terminal-notice')).not.toBeNull();
-    expect(byTestId(fixture, 'session-save')).toBeNull();
+    expect(byTestId(fixture, 'session-clear')).toBeNull();
+    expect(byTestId(fixture, 'session-flag')).toBeNull();
     expect(byTestId(fixture, 'session-submit-open')).toBeNull();
     expect(api.saved).toEqual([]);
     expect(api.submitCalls).toEqual([]);
   });
 
-  it('submit confirmation counts only persisted answers and Cancel sends zero POST', async () => {
+  it('submit opens a modal dialog with persisted facts and Cancel sends zero POST', async () => {
     const { fixture, api } = await setup();
 
-    ((fixture.nativeElement as HTMLElement).querySelector(
-      '[data-testid="session-option"] input',
-    ) as HTMLInputElement).click();
-    fixture.detectChanges();
     (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
     fixture.detectChanges();
+    await settle(fixture);
 
-    expect(byTestId(fixture, 'session-confirm')).not.toBeNull();
+    const dialog = byTestId(fixture, 'session-confirm') as HTMLElement;
+    expect(dialog.getAttribute('role')).toBe('dialog');
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
     expect(text(fixture)).toContain('1 questions are unanswered');
 
     (byTestId(fixture, 'session-confirm-cancel') as HTMLButtonElement).click();
@@ -390,6 +566,103 @@ describe('ExamSession screen (T-FE-069)', () => {
     await settle(fixture);
 
     expect(api.submitCalls).toEqual([]);
+    expect(byTestId(fixture, 'session-confirm')).toBeNull();
+  });
+
+  it('submit waits for a pending autosave so facts reflect settled persistence', async () => {
+    const stub = new ExamsApiStub();
+    // Replay so the value emitted below still reaches the serialized mutation
+    // queue, which subscribes one microtask after enqueue.
+    const pending = new ReplaySubject<ExamSession>(1);
+    stub.saveExamSessionAnswers = (
+      sessionId: string,
+      answers: { examSessionQuestionId: string; selectedExamSessionAnswerOptionId: string }[],
+    ) => {
+      stub.saved.push({ sessionId, answers });
+      return pending.asObservable();
+    };
+    const { fixture } = await setup(stub);
+
+    ((fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input',
+    ) as HTMLInputElement).click();
+    fixture.detectChanges();
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-confirm')).toBeNull();
+
+    pending.next({
+      ...stub.current,
+      items: stub.current.items.map((item) =>
+        item.examSessionQuestionId === 'q-1'
+          ? { ...item, selectedExamSessionAnswerOptionId: 'q-1-a' }
+          : item,
+      ),
+    });
+    pending.complete();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-confirm')).not.toBeNull();
+    expect(text(fixture)).toContain('All questions have a saved answer.');
+  });
+
+  it('submit stays put when the pending save fails', async () => {
+    const stub = new ExamsApiStub();
+    stub.saveExamSessionAnswers = () => throwError(() => ({ status: 500 }));
+    const { fixture, api } = await setup(stub);
+
+    ((fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input',
+    ) as HTMLInputElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-confirm')).toBeNull();
+    expect(byTestId(fixture, 'session-save-error')).not.toBeNull();
+    expect(api.submitCalls).toEqual([]);
+  });
+
+  it('submit modal blocks background interaction and restores trigger focus on Cancel', async () => {
+    const { fixture } = await setup();
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-body')?.hasAttribute('inert')).toBe(true);
+    expect(document.activeElement).toBe(byTestId(fixture, 'session-confirm-cancel'));
+
+    (byTestId(fixture, 'session-confirm-cancel') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-body')?.hasAttribute('inert')).toBe(false);
+    expect(document.activeElement).toBe(byTestId(fixture, 'session-submit-open'));
+  });
+
+  it('Escape closes the submit modal without submitting', async () => {
+    const { fixture, api } = await setup();
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+    expect(byTestId(fixture, 'session-confirm')).not.toBeNull();
+
+    (byTestId(fixture, 'session-confirm') as HTMLElement).dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-confirm')).toBeNull();
+    expect(api.submitCalls).toEqual([]);
+    expect(document.activeElement).toBe(byTestId(fixture, 'session-submit-open'));
   });
 
   it('confirming submit posts once and renders backend transient aggregates', async () => {
@@ -397,6 +670,7 @@ describe('ExamSession screen (T-FE-069)', () => {
 
     (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
     fixture.detectChanges();
+    await settle(fixture);
     (byTestId(fixture, 'session-confirm-go') as HTMLButtonElement).click();
     fixture.detectChanges();
     await settle(fixture);
@@ -428,7 +702,7 @@ describe('ExamSession screen (T-FE-069)', () => {
     expect(byTestId(fixture, 'session-timer')).toBeNull();
   });
 
-  it('renders a backend-backed session header, one question card and explicit save controls', async () => {
+  it('renders a backend-backed session header, navigation, one question card and no save control', async () => {
     const { fixture } = await setup();
     const root = fixture.nativeElement as HTMLElement;
 
@@ -437,11 +711,13 @@ describe('ExamSession screen (T-FE-069)', () => {
     expect(root.querySelector('.np-exam-session-header [data-testid="session-timer"]')?.textContent).toContain('60:00');
     expect(root.querySelectorAll('.np-exam-session-card fieldset')).toHaveLength(1);
     expect(root.querySelectorAll('.np-exam-session-card [data-testid="session-option"]')).toHaveLength(2);
-    expect(byTestId(fixture, 'session-save')).not.toBeNull();
+    expect(byTestId(fixture, 'session-save')).toBeNull();
+    expect(byTestId(fixture, 'session-nav')).not.toBeNull();
+    expect(byTestId(fixture, 'session-flag')).not.toBeNull();
     expect(byTestId(fixture, 'session-confirm')).toBeNull();
   });
 
-  it('shows only persisted selection as saved, never the unsaved local radio choice', async () => {
+  it('shows a saving state while autosaving, then the persisted saved status', async () => {
     const stub = new ExamsApiStub();
     stub.current = session({ items: [question('q-1', 1, 'q-1-a')] });
     const { fixture } = await setup(stub);
@@ -449,27 +725,49 @@ describe('ExamSession screen (T-FE-069)', () => {
 
     ((fixture.nativeElement as HTMLElement).querySelectorAll('[data-testid="session-option"] input')[1] as HTMLInputElement).click();
     fixture.detectChanges();
+    expect(byTestId(fixture, 'session-saving')).not.toBeNull();
 
-    expect(byTestId(fixture, 'session-unsaved-notice')).not.toBeNull();
-    expect(byTestId(fixture, 'session-saved-status')).toBeNull();
-    expect(stub.saved).toEqual([]);
+    await settle(fixture);
+    expect(byTestId(fixture, 'session-saving')).toBeNull();
+    expect(byTestId(fixture, 'session-saved-status')).not.toBeNull();
+    expect(stub.saved).toEqual([
+      { sessionId: 'session-9', answers: [{ examSessionQuestionId: 'q-1', selectedExamSessionAnswerOptionId: 'q-1-b' }] },
+    ]);
   });
 
-  it('shows a non-routable submit confirmation with persisted total/unanswered facts and one confirm action', async () => {
+  it('shows a modal submit dialog with persisted total/unanswered facts and one confirm action', async () => {
     const stub = new ExamsApiStub();
     stub.current = session({ examTitle: 'Clinical Skills', items: [question('q-1', 1, null), question('q-2', 2, 'q-2-a'), question('q-3', 3, 'q-3-a')] });
     const { fixture, api } = await setup(stub);
     (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
     fixture.detectChanges();
+    await settle(fixture);
 
     const confirm = byTestId(fixture, 'session-confirm') as HTMLElement;
+    expect(confirm.getAttribute('role')).toBe('dialog');
+    expect(confirm.getAttribute('aria-modal')).toBe('true');
     expect(confirm.textContent).toContain('Clinical Skills');
     expect([...confirm.querySelectorAll('.np-exam-session-confirm-facts > div')].map((fact) => [
       fact.querySelector('dt')?.textContent?.trim(), fact.querySelector('dd')?.textContent?.trim(),
     ])).toEqual([['Total questions', '3'], ['Answered', '2'], ['Unanswered', '1']]);
-    expect(byTestId(fixture, 'session-submit-open')).toBeNull();
     expect(confirm.querySelectorAll('[data-testid="session-confirm-go"]')).toHaveLength(1);
     expect(api.submitCalls).toEqual([]);
+  });
+
+  it('shows the persisted flagged count in the submit dialog only when flags exist', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({
+      items: [question('q-1', 1, 'q-1-a', true), question('q-2', 2, null)],
+    });
+    const { fixture } = await setup(stub);
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    const confirm = byTestId(fixture, 'session-confirm') as HTMLElement;
+    expect(confirm.textContent).toContain('Flagged');
+    expect(confirm.textContent).toContain('1');
   });
 
   it('keeps confirmation facts visible and disables actions during the single in-flight submit', async () => {
@@ -482,6 +780,7 @@ describe('ExamSession screen (T-FE-069)', () => {
     const { fixture } = await setup(stub);
     (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
     fixture.detectChanges();
+    await settle(fixture);
     (byTestId(fixture, 'session-confirm-go') as HTMLButtonElement).click();
     fixture.detectChanges();
 
@@ -506,6 +805,7 @@ describe('ExamSession transient result View full result entry (T-FE-071)', () =>
 
     (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
     fixture.detectChanges();
+    await settle(fixture);
     (byTestId(fixture, 'session-confirm-go') as HTMLButtonElement).click();
     fixture.detectChanges();
     await settle(fixture);

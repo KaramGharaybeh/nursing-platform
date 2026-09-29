@@ -4,6 +4,7 @@ import type { Observable } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ApiConfiguration } from './generated/api-configuration';
+import { clearExamSessionAnswer } from './generated/fn/nursing-platform-web-api/clear-exam-session-answer';
 import { getExam } from './generated/fn/nursing-platform-web-api/get-exam';
 import { getExamSession } from './generated/fn/nursing-platform-web-api/get-exam-session';
 import { getExamSessionResult } from './generated/fn/nursing-platform-web-api/get-exam-session-result';
@@ -16,6 +17,7 @@ import { listCountries } from './generated/fn/nursing-platform-web-api/list-coun
 import { listExams } from './generated/fn/nursing-platform-web-api/list-exams';
 import { listMyExamAttempts } from './generated/fn/nursing-platform-web-api/list-my-exam-attempts';
 import { saveExamSessionAnswers } from './generated/fn/nursing-platform-web-api/save-exam-session-answers';
+import { setExamSessionQuestionFlag } from './generated/fn/nursing-platform-web-api/set-exam-session-question-flag';
 import { startExamSession } from './generated/fn/nursing-platform-web-api/start-exam-session';
 import { submitExamSession } from './generated/fn/nursing-platform-web-api/submit-exam-session';
 import type { ExamAttemptDto } from './generated/models/exam-attempt-dto';
@@ -69,6 +71,7 @@ export interface ExamSessionQuestion {
   readonly points: number;
   readonly displayOrder: number;
   readonly selectedExamSessionAnswerOptionId: string | null;
+  readonly isFlagged: boolean;
   readonly options: ExamSessionAnswerOption[];
 }
 
@@ -304,6 +307,25 @@ export class ExamsApi {
     }).pipe(map((response) => adaptExamSession(response.body)));
   }
 
+  clearExamSessionAnswer(sessionId: string, questionId: string): Observable<ExamSession> {
+    return clearExamSessionAnswer(this.http, this.config.rootUrl, {
+      id: sessionId,
+      questionId,
+    }).pipe(map((response) => adaptExamSession(response.body)));
+  }
+
+  setExamSessionQuestionFlag(
+    sessionId: string,
+    questionId: string,
+    isFlagged: boolean,
+  ): Observable<ExamSession> {
+    return setExamSessionQuestionFlag(this.http, this.config.rootUrl, {
+      id: sessionId,
+      questionId,
+      body: { isFlagged },
+    }).pipe(map((response) => adaptExamSession(response.body)));
+  }
+
   submitExamSession(sessionId: string): Observable<ExamSessionResult> {
     return submitExamSession(this.http, this.config.rootUrl, { id: sessionId }).pipe(
       map((response) => adaptExamSessionResult(response.body)),
@@ -404,6 +426,7 @@ function adaptSessionQuestion(item: unknown): ExamSessionQuestion {
     points: asNumber(record['points'], 0),
     displayOrder: asNumber(record['displayOrder'], 0),
     selectedExamSessionAnswerOptionId: asNullableString(record['selectedExamSessionAnswerOptionId']),
+    isFlagged: record['isFlagged'] === true,
     options,
   };
 }

@@ -1,5 +1,6 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { firstValueFrom } from 'rxjs';
 import { ExamsApi } from '../../core/api/exams-api';
 import type { ExamSessionStart } from '../../core/api/exams-api';
@@ -8,7 +9,6 @@ import type { ExamDetail as ExamDetailModel } from '../../core/api/exams-api';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
 import { buildExamsDetailPath, buildExamsSessionPath } from '../../core/routing/canonical-routes';
-import { TwoStepConfirmation } from '../../shared/ui/confirmation';
 import { Announcer, NpLiveRegion } from '../../shared/ui/announcement';
 import { LocalizationService } from '../../core/i18n/localization.service';
 import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
@@ -18,9 +18,12 @@ type ResumeState = 'loading' | 'ready' | 'error';
 
 @Component({
   selector: 'np-exam-instructions',
-  imports: [LoadingErrorRetry, NpLiveRegion, RouterLink],
+  imports: [CdkTrapFocus, LoadingErrorRetry, NpLiveRegion, RouterLink],
   templateUrl: './exam-instructions.html',
   styleUrl: './exam-instructions.scss',
+  host: {
+    '(keydown.escape)': 'escapeModal()',
+  },
 })
 export class ExamInstructions implements OnInit {
   private readonly api = inject(ExamsApi);
@@ -28,7 +31,15 @@ export class ExamInstructions implements OnInit {
   private readonly router = inject(Router);
   private readonly announcer = inject(Announcer);
   protected readonly i18n = inject(LocalizationService);
-  private readonly confirmation = new TwoStepConfirmation();
+  // Confirmation state is a signal (not the plain TwoStepConfirmation helper) so the
+  // zoneless template re-renders the Start/Resume modal when it changes. Semantics stay
+  // identical: idle -> confirming on request, back to idle on cancel/confirm, and
+  // confirmAction authorizes exactly one Start/Resume POST from confirming.
+  private readonly confirmationState = signal<'idle' | 'confirming'>('idle');
+
+  @ViewChild('startTrigger') private readonly startTrigger?: ElementRef<HTMLButtonElement>;
+  @ViewChild('resumeTrigger') private readonly resumeTrigger?: ElementRef<HTMLButtonElement>;
+  @ViewChild('modalCancel') private readonly modalCancel?: ElementRef<HTMLButtonElement>;
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
   protected readonly notFound = signal(false);
@@ -70,22 +81,45 @@ export class ExamInstructions implements OnInit {
   }
 
   protected isConfirming(): boolean {
-    return this.confirmation.state === 'confirming';
+    return this.confirmationState() === 'confirming';
+  }
+
+  protected modalOpen(): boolean {
+    return this.isConfirming();
   }
 
   protected requestAction(): void {
+    if (this.isConfirming() || this.starting()) {
+      return;
+    }
     this.startError.set(false);
-    this.confirmation.request();
+    this.confirmationState.set('confirming');
+    setTimeout(() => this.modalCancel?.nativeElement.focus(), 0);
   }
 
   protected cancelAction(): void {
-    this.confirmation.cancel();
+    if (this.starting()) {
+      return;
+    }
+    const resuming = this.isResuming();
+    this.confirmationState.set('idle');
+    setTimeout(() => {
+      const trigger = resuming ? this.resumeTrigger : this.startTrigger;
+      trigger?.nativeElement.focus();
+    }, 0);
+  }
+
+  protected escapeModal(): void {
+    if (this.isConfirming() && !this.starting()) {
+      this.cancelAction();
+    }
   }
 
   protected async confirmAction(): Promise<void> {
-    if (!this.confirmation.confirm() || this.starting()) {
+    if (this.confirmationState() !== 'confirming' || this.starting()) {
       return;
     }
+    this.confirmationState.set('idle');
     this.starting.set(true);
     this.startError.set(false);
     let session: ExamSessionStart | undefined = undefined;

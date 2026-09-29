@@ -45,7 +45,7 @@ Primary authority: `exams-screen-approval-packet.md`, `system-design-contract.md
 | Field | Contract |
 |---|---|
 | Data | Backend instructions, duration, question count, passing score. |
-| Actions | Start/Resume opens confirmation; confirmed action calls backend start/resume and routes to session. Cancel/back returns to detail. |
+| Actions | Start/Resume opens a modal dialog above the unchanged instructions page; explicit confirm alone calls backend start/resume and routes to session. Cancel closes without mutation and restores trigger focus. |
 | States | Ready, confirmation, start/resume loading, 409 conflict, not found/error. |
 | Status | `CONTRACT_READY`. |
 
@@ -53,10 +53,10 @@ Primary authority: `exams-screen-approval-packet.md`, `system-design-contract.md
 
 | Field | Contract |
 |---|---|
-| Purpose | Answer one question at a time, save, navigate previous/next, submit. |
+| Purpose | Answer one question at a time with automatic persistence, navigate previous/next or by Question Navigation, submit. |
 | Data | Question text, points, ordered options, selected option, timer/expiry facts, question position. Before finalization no correctness, answers, explanations, or keys. |
-| Form/action | Option selection radio/list; Save answer explicit; Previous/Next; Submit opens `EXM-006`. Backend save/submit authoritative. |
-| States | Loading, answering, saved status, near-expiry, expired, submit confirm, submitting, transient result, 409/not found/error. |
+| Form/action | Option selection auto-persists; Clear selection persists true unanswered; Flag/Unflag persists a session-scoped review marker independent of the answer; numbered Question Navigation exposes current/answered/unanswered/flagged states; Previous/Next/direct navigation wait for pending persistence; Submit opens the `EXM-006` modal. No Save answer button. Backend save/clear/flag/submit authoritative. |
+| States | Loading, answering, saving/saved/save-failure with retry and retained selection, near-expiry, expired, submit modal, submitting, transient result, 409/not found/error. |
 | Status | `CONTRACT_READY`. |
 
 ## EXM-006 Submit Confirmation
@@ -64,8 +64,8 @@ Primary authority: `exams-screen-approval-packet.md`, `system-design-contract.md
 | Field | Contract |
 |---|---|
 | Identity | Non-routable state inside exam session. |
-| Data | Total/unanswered count from current session selections; no correctness. |
-| Actions | Cancel returns to session; Submit finalizes through backend; duplicate submit blocked; success routes/enables result. |
+| Data | Total/answered/unanswered count from persisted session selections after pending mutations settle; optional flagged count from persisted session marker; no correctness. |
+| Actions | Semantic modal dialog above unchanged session; Cancel closes without submit and restores focus; explicit Submit after pending persistence finalizes through backend; duplicate submit blocked; success enables result. |
 | Status | `CONTRACT_READY`. |
 
 ## EXM-007 Exam Result

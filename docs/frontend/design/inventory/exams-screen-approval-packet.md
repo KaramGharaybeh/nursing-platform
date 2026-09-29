@@ -149,6 +149,10 @@ exception/code text, `LoadingErrorRetry` for recoverable failures,
 context-preserving retry, global 401/session handling, canonical back links,
 no screen-owned authorization invention.
 
+### 2026-09-28 human interaction correction (new goal; prior flow closure preserved)
+
+`EXAMS-INTERACTION-CORRECTIONS-2026-09-28` explicitly supersedes **E61-10's explicit Save answer/no autosave** and expands E61-9's one-question-at-a-time pager to include visible direct Question Navigation while retaining one displayed question and backend order. Selection/change auto-enters persistence; Next, Previous, direct navigation and Submit wait for pending saves, stay put on failure and retain the choice for retry. Clear selection must persist a genuinely unanswered state; Flag/Unflag is a persisted attempt-scoped review marker independent of answer/scoring. EXM-004 Start/Resume and EXM-006 Submit confirmation are modal dialogs, not inline panels. No change to E61-11 server timer, E61-12 scoring/submission truth, authorization, or pre-finalization non-exposure. Design evidence and candidate limitations: `docs/frontend/design/stitch/stitch-artifact-registry.md` (Exams Interaction Corrections section). This addendum authorizes only these interactions; it does not retroactively invalidate the verified original task.
+
 ## 6. Field and non-exposure authority
 
 Display verbatim/safe: `Title`, non-empty `Description`/`Instructions`

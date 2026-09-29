@@ -313,6 +313,7 @@ function sessionResponse(overrides: Record<string, unknown> = {}) {
         text: 'First prompt',
         points: 1,
         selectedExamSessionAnswerOptionId: null,
+        isFlagged: false,
         options: [
           { id: 'o-1a', displayOrder: 1, text: 'First option one' },
           { id: 'o-1b', displayOrder: 2, text: 'First option two' },
@@ -324,6 +325,7 @@ function sessionResponse(overrides: Record<string, unknown> = {}) {
         text: 'Second prompt',
         points: 1,
         selectedExamSessionAnswerOptionId: 'o-2a',
+        isFlagged: true,
         options: [
           { id: 'o-2a', displayOrder: 1, text: 'Second option one' },
           { id: 'o-2b', displayOrder: 2, text: 'Second option two' },
@@ -371,6 +373,8 @@ describe('exams-api exam session (T-FE-069)', () => {
     expect(session.remainingSeconds).toBe(3600);
     expect(session.items.map((item) => item.examSessionQuestionId)).toEqual(['q-1', 'q-2']);
     expect(session.items[1].selectedExamSessionAnswerOptionId).toBe('o-2a');
+    expect(session.items[0].isFlagged).toBe(false);
+    expect(session.items[1].isFlagged).toBe(true);
     expect(session.items[0].options.map((option) => option.text)).toEqual([
       'First option one',
       'First option two',
@@ -391,6 +395,43 @@ describe('exams-api exam session (T-FE-069)', () => {
     expect(request.request.body).toEqual({
       answers: [{ examSessionQuestionId: 'q-1', selectedExamSessionAnswerOptionId: 'o-1b' }],
     });
+    request.flush(sessionResponse());
+    await expect(result).resolves.toMatchObject({ id: 'session-9' });
+  });
+
+  it('clears an answer with DELETE on the question answer row and adapts the session', async () => {
+    const result = firstValueFrom(api.clearExamSessionAnswer('session-9', 'q-2'));
+    const request = httpMock.expectOne('/api/v1/exam-sessions/session-9/answers/q-2');
+
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.body).toBeNull();
+    request.flush(sessionResponse());
+    const session = await result;
+
+    expect(session.id).toBe('session-9');
+    expect(session.items[1].selectedExamSessionAnswerOptionId).toBe('o-2a');
+    expect(session.items[1].isFlagged).toBe(true);
+  });
+
+  it('sets the flag with PUT desired state and adapts the session', async () => {
+    const result = firstValueFrom(api.setExamSessionQuestionFlag('session-9', 'q-1', true));
+    const request = httpMock.expectOne('/api/v1/exam-sessions/session-9/questions/q-1/flag');
+
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({ isFlagged: true });
+    request.flush(sessionResponse());
+    const session = await result;
+
+    expect(session.id).toBe('session-9');
+    expect(session.items[0].isFlagged).toBe(false);
+  });
+
+  it('unsets the flag with PUT desired false state', async () => {
+    const result = firstValueFrom(api.setExamSessionQuestionFlag('session-9', 'q-2', false));
+    const request = httpMock.expectOne('/api/v1/exam-sessions/session-9/questions/q-2/flag');
+
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual({ isFlagged: false });
     request.flush(sessionResponse());
     await expect(result).resolves.toMatchObject({ id: 'session-9' });
   });

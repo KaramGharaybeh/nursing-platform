@@ -453,6 +453,18 @@ Rejected/superseded Shared/System P3 attempts from this checkpoint:
 | `SYS-007` | `projects/17116545761229201855/screens/9442d040634240c797d2a89eddd9575e` | SUPERSEDED_BY_P3_VISUAL_CONSISTENCY | Prior no-results artifact superseded by P3 reusable-state polish replacement `20436ca9abda42608e0a8acff063a4d9`; product body remains unchanged. |
 | `SYS-007` | `projects/17116545761229201855/screens/3fadf841740d4f669801abe28e80dadf` | REJECTED_NOT_AUTHORITY | First P3 replacement added product navigation and `Sign Out` casing drift. Superseded by accepted P3 retry `20436ca9abda42608e0a8acff063a4d9`. |
 
+## Exams Interaction Corrections — 2026-09-28 (new human-authorized goal)
+
+This is a scoped design revision, not a reopening or invalidation of closed Exams Flow 1–4. The human explicitly approves **only the Question Navigation portion** of `bc5f741783be48b3b8769eaacf304596` as visual authority; no other difference in that candidate becomes approved. The earlier EXM-004 `148914b9eb4b464297bc349780b30374`, EXM-005 `0bc85228c1e3481aa324918f4aa3acb8`, and EXM-006 `088376370f414da6830bb0558da88ffc` remain historical baseline evidence. The new human decision owns modal confirmations, autosave, Clear selection, and session-scoped Flag/Unflag, superseding only contradictory interaction assumptions.
+
+| Screen | Revision | Disposition | Bounded design content |
+|---|---|---|---|
+| EXM-005 | `projects/17116545761229201855/screens/cd29684d598c4b92b05d48afcace4b59` | GENERATED_REFINED_FOR_GOAL; direct HTML inspected | Visible numbered Question Navigation, text/icon answered/current/unanswered/flagged states; Clear selection, Flag/Unflag and autosave feedback; no Save answer. Only the navigator portion derives from human-referenced `bc5f7417…`. Sample numbers, clinical text, token/structure drift and background-autosave promise are illustrative, never backend truth. |
+| EXM-004 | `projects/17116545761229201855/screens/60074b8e35be48d9b9d00d8528412bf7` | GENERATED_FOR_GOAL; direct HTML inspected | Start/Resume confirmation as a real modal above inert instructions page. Reject invented candidate clinical instructions, environment reminder, sample facts/identity and extra shell actions. Existing backend-supplied facts and EN/AR copy own runtime. |
+| EXM-006 | `projects/17116545761229201855/screens/f5844c0434244ead99add69406d13fdb` | GENERATED_FOR_GOAL; direct HTML inspected | Submit confirmation modal above inert session; total/answered/unanswered from actual persisted session, optional actual flagged count; loading/cancel/safe failure states. Reject sample counts, state-demo tabs, unsupported retry promises and unrelated shell/chrome. |
+
+Initial EXM-005 candidate `7e88cba698e04344adf536f12200d1d7` is superseded by the refined revision; neither it nor the human reference is accepted wholesale. Visual pixel fidelity, mobile and RTL runtime geometry require human visual check; static HTML inspection alone does not prove them. No new route or scoring semantics result from these design artifacts.
+
 ## Tool Evidence
 
 | Step | Result |

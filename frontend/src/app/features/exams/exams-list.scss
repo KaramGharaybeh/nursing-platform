@@ -191,6 +191,34 @@
   np-empty-state { display: block; }
 }
 
+.np-exams-list-profile-text {
+  margin: 0;
+  max-inline-size: 60ch;
+  line-height: 1.6;
+}
+
+.np-exams-list-profile-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: var(--np-button-height);
+  padding-inline: var(--np-space-16);
+  border: 1px solid var(--np-color-brand-1);
+  border-radius: var(--np-control-radius);
+  background: var(--np-color-brand-1);
+  color: var(--np-color-surface);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover { background: var(--np-color-primary-hover); }
+
+  &:focus-visible {
+    outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+    outline-offset: var(--np-focus-ring-offset);
+  }
+}
+
 @include responsive.respond-from(tablet) {
   .np-exams-list-filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -211,5 +239,6 @@
   .np-exams-list-actions a,
   .np-exams-list-filter-actions button,
   .np-exams-list-pages button,
+  .np-exams-list-profile-cta,
   .np-exams-list-status button { min-block-size: var(--np-space-48); }
 }

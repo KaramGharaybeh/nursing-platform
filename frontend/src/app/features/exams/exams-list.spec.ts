@@ -4,6 +4,9 @@ import { of, throwError } from 'rxjs';
 import { routes } from '../../app.routes';
 import { ExamsApi } from '../../core/api/exams-api';
 import type { CountryOption, ExamCatalogItem, ExamCatalogPage } from '../../core/api/exams-api';
+import { NurseProfileApi } from '../../core/api/nurse-profile-api';
+import type { NurseProfileDto } from '../../core/api/generated/models/nurse-profile-dto';
+import { LocaleDirectionService } from '../../core/locale/locale-direction.service';
 import { ExamsList } from './exams-list';
 
 const ITEM_1: ExamCatalogItem = {
@@ -67,17 +70,46 @@ class ExamsApiStub {
   }
 }
 
-async function setup(stub?: ExamsApiStub): Promise<{ fixture: ComponentFixture<ExamsList>; api: ExamsApiStub }> {
+const PROFILE: NurseProfileDto = {
+  id: 'profile-1',
+  userId: 'user-1',
+  isAvailableForRecruitment: false,
+  yearsOfExperience: 3,
+};
+
+class NurseProfileApiStub {
+  profile: NurseProfileDto = PROFILE;
+  profileError: unknown = undefined;
+  profileRequests = 0;
+
+  getProfile() {
+    this.profileRequests += 1;
+    if (this.profileError !== undefined) {
+      return throwError(() => this.profileError);
+    }
+    return of(this.profile);
+  }
+}
+
+async function setup(
+  stub?: ExamsApiStub,
+  profileStub?: NurseProfileApiStub,
+): Promise<{ fixture: ComponentFixture<ExamsList>; api: ExamsApiStub; profiles: NurseProfileApiStub }> {
   const api = stub ?? new ExamsApiStub();
+  const profiles = profileStub ?? new NurseProfileApiStub();
   TestBed.resetTestingModule();
   await TestBed.configureTestingModule({
     imports: [ExamsList],
-    providers: [provideRouter([]), { provide: ExamsApi, useValue: api }],
+    providers: [
+      provideRouter([]),
+      { provide: ExamsApi, useValue: api },
+      { provide: NurseProfileApi, useValue: profiles },
+    ],
   }).compileComponents();
   const fixture = TestBed.createComponent(ExamsList);
   fixture.detectChanges();
   await settle(fixture);
-  return { fixture, api };
+  return { fixture, api, profiles };
 }
 
 async function settle(fixture: ComponentFixture<ExamsList>): Promise<void> {
@@ -321,5 +353,100 @@ describe('Exams routes', () => {
     expect(typeof route?.loadComponent).toBe('function');
     expect(route?.canActivate?.length).toBe(3);
     expect(route?.data).toEqual({ routeId: 'EXAMS_DETAIL' });
+  });
+});
+
+describe('ExamsList missing NurseProfile', () => {
+  function missingProfileStubs(): { exams: ExamsApiStub; profiles: NurseProfileApiStub } {
+    const exams = new ExamsApiStub();
+    const profiles = new NurseProfileApiStub();
+    profiles.profileError = { status: 404 };
+    return { exams, profiles };
+  }
+
+  it('loads the exams catalog when the nurse profile exists', async () => {
+    const { fixture, api, profiles } = await setup();
+
+    expect(profiles.profileRequests).toBe(1);
+    expect(api.requested).toEqual([{ page: 1, countryId: undefined, categoryId: undefined }]);
+    expect(text(fixture)).toContain('NCLEX Readiness');
+    expect(byTestId(fixture, 'exams-missing-profile')).toBeNull();
+  });
+
+  it('renders the informational card without the generic error when the nurse profile is missing', async () => {
+    const { exams, profiles } = missingProfileStubs();
+    const { fixture } = await setup(exams, profiles);
+    const root = fixture.nativeElement as HTMLElement;
+    const card = byTestId(fixture, 'exams-missing-profile');
+
+    expect(card).not.toBeNull();
+    expect(card?.getAttribute('role')).toBe('status');
+    expect(card?.classList.contains('np-exams-list-status')).toBe(true);
+    expect(card?.textContent).toContain(
+      'Please complete your nursing profile before viewing the available exams.',
+    );
+    expect(byTestId(fixture, 'exams-missing-profile-cta')?.textContent).toContain('Go to profile');
+    expect(root.querySelector('[role="alert"]')).toBeNull();
+    expect(root.querySelector('#exams-country-filter')).toBeNull();
+    expect(text(fixture)).not.toContain('NCLEX Readiness');
+  });
+
+  it('does not request the exams catalog when the nurse profile is missing', async () => {
+    const { exams, profiles } = missingProfileStubs();
+    await setup(exams, profiles);
+
+    expect(profiles.profileRequests).toBe(1);
+    expect(exams.requested).toEqual([]);
+  });
+
+  it('points the missing-profile CTA to /nurse/profile as a keyboard-accessible link', async () => {
+    const { exams, profiles } = missingProfileStubs();
+    const { fixture } = await setup(exams, profiles);
+    const cta = byTestId(fixture, 'exams-missing-profile-cta');
+
+    expect(cta?.tagName).toBe('A');
+    expect(cta?.getAttribute('href')).toBe('/nurse/profile');
+  });
+
+  it('renders Arabic copy with RTL direction when the nurse profile is missing', async () => {
+    const { exams, profiles } = missingProfileStubs();
+    const { fixture } = await setup(exams, profiles);
+    const locale = TestBed.inject(LocaleDirectionService);
+    try {
+      locale.setLocale('ar');
+      await settle(fixture);
+
+      expect(byTestId(fixture, 'exams-missing-profile')?.textContent).toContain(
+        'عزيزي المستخدم، يرجى التوجه إلى ملفك الشخصي واستكمال بيانات ملفك التمريضي حتى تتمكن من مشاهدة الامتحانات المتاحة.',
+      );
+      expect(byTestId(fixture, 'exams-missing-profile-cta')?.textContent).toContain(
+        'الذهاب إلى الملف الشخصي',
+      );
+      expect(document.documentElement.dir).toBe('rtl');
+      expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
+    } finally {
+      locale.setLocale('en');
+    }
+  });
+
+  it('uses the existing safe error state when profile lookup fails unexpectedly', async () => {
+    const exams = new ExamsApiStub();
+    const profiles = new NurseProfileApiStub();
+    profiles.profileError = { status: 500 };
+    const { fixture, api } = await setup(exams, profiles);
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(byTestId(fixture, 'exams-missing-profile')).toBeNull();
+    expect(root.querySelector('[role="alert"]')).not.toBeNull();
+    expect(text(fixture)).toContain('Exams could not be loaded');
+    expect(text(fixture)).not.toContain('NCLEX Readiness');
+    expect(api.requested).toEqual([]);
+
+    profiles.profileError = undefined;
+    (root.querySelector('.np-loading-error-retry-retry') as HTMLButtonElement).click();
+    await settle(fixture);
+
+    expect(api.requested).toEqual([{ page: 1, countryId: undefined, categoryId: undefined }]);
+    expect(text(fixture)).toContain('NCLEX Readiness');
   });
 });

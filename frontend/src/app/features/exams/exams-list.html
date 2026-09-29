@@ -18,6 +18,13 @@
     </nav>
   </header>
 
+  @if (profileMissing()) {
+    <div class="np-exams-list-status" role="status" data-testid="exams-missing-profile">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" /></svg>
+      <p class="np-exams-list-profile-text">{{ i18n.t('exams.missingProfileText') }}</p>
+      <a class="np-exams-list-profile-cta" [routerLink]="profilePath" data-testid="exams-missing-profile-cta">{{ i18n.t('exams.missingProfileCta') }}</a>
+    </div>
+  } @else {
   <section class="np-exams-list-filters" aria-labelledby="exams-filter-heading">
     <h2 id="exams-filter-heading" class="u-visually-hidden">{{ i18n.t('exams.filterHeading') }}</h2>
     <div class="np-exams-list-filter">
@@ -82,5 +89,6 @@
         }
       </section>
     }
+  }
   }
 </section>

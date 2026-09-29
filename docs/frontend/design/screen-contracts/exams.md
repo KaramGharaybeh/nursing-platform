@@ -20,7 +20,10 @@ Primary authority: `exams-screen-approval-packet.md`, `system-design-contract.md
 | List/card data | `title`, `description`, `country`, `category`, `duration`, `questionCount`, free/paid marker only when backend supplies. Order from backend. No raw IDs. |
 | Filters/pagination | Country and category filters; backend paging. Empty and no-results distinct. |
 | Actions | View details; View analytics; View history. No purchase CTA in this contract. |
+| Missing NurseProfile | If the profile lookup returns HTTP 404, show an informational in-page status card with localized English/Arabic copy and a CTA to `/nurse/profile`. Do not request the exam catalog, redirect, or show the generic catalog error in this state. A present profile follows the catalog path; other lookup failures retain the error/retry path. The card uses status semantics and RTL-safe layout. |
 | Status | `CONTRACT_READY`. |
+
+The missing-profile state was implemented and passed focused automated review on 2026-09-29. Human visual review of the English, Arabic, and RTL presentation is still pending; this note does not mark that visual check approved.
 
 ## EXM-002 Exam Detail
 

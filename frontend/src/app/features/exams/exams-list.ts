@@ -5,6 +5,7 @@ import { NpLiveRegion } from '../../shared/ui/announcement';
 import { LocalizationService } from '../../core/i18n/localization.service';
 import { ExamsApi } from '../../core/api/exams-api';
 import type { CountryOption, ExamCatalogPage } from '../../core/api/exams-api';
+import { NurseProfileApi } from '../../core/api/nurse-profile-api';
 import { canonicalRoutePath } from '../../core/routing/canonical-routes';
 import { normalizeProblemDetails } from '../../core/api/problem-details';
 import type { NormalizedProblemDetails } from '../../core/api/problem-details';
@@ -25,9 +26,11 @@ const NO_FILTER = '';
 })
 export class ExamsList implements OnInit {
   private readonly api = inject(ExamsApi);
+  private readonly profiles = inject(NurseProfileApi);
   protected readonly i18n = inject(LocalizationService);
 
   protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
+  protected readonly profileMissing = signal(false);
   protected readonly result = signal<ExamCatalogPage | undefined>(undefined);
   protected readonly page = signal(1);
   protected readonly countryId = signal(NO_FILTER);
@@ -42,6 +45,7 @@ export class ExamsList implements OnInit {
   protected readonly analyticsPath = canonicalRoutePath('EXAMS_ANALYTICS');
 
   protected readonly historyPath = canonicalRoutePath('EXAMS_HISTORY');
+  protected readonly profilePath = canonicalRoutePath('NURSE_PROFILE_OVERVIEW');
   protected readonly pageNumbers = computed(() => {
     const total = this.result()?.totalPages ?? 0;
     const first = Math.min(Math.max(1, this.page() - 1), Math.max(1, total - 2));
@@ -60,7 +64,7 @@ export class ExamsList implements OnInit {
   }
 
   protected async retry(): Promise<void> {
-    await this.load(this.page());
+    await this.initialize();
   }
 
   protected async loadPage(page: number): Promise<void> {
@@ -113,6 +117,19 @@ export class ExamsList implements OnInit {
   }
 
   private async initialize(): Promise<void> {
+    this.state.set({ kind: 'loading' });
+    this.profileMissing.set(false);
+    try {
+      await firstValueFrom(this.profiles.getProfile());
+    } catch (error: unknown) {
+      if (this.isNotFound(error)) {
+        this.profileMissing.set(true);
+        this.state.set({ kind: 'ready' });
+        return;
+      }
+      this.state.set({ kind: 'error', error: this.normalizeError(error), canRetry: true });
+      return;
+    }
     try {
       this.countries.set(await firstValueFrom(this.api.listCountries()));
     } catch {
@@ -155,6 +172,15 @@ export class ExamsList implements OnInit {
 
   private selectedFilter(value: string): string | undefined {
     return value === NO_FILTER ? undefined : value;
+  }
+
+  private isNotFound(error: unknown): boolean {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'status' in error &&
+      (error as { status?: unknown }).status === 404
+    );
   }
 
   private normalizeError(error: unknown): NormalizedProblemDetails {

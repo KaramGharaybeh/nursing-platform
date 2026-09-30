@@ -87,7 +87,7 @@ Storage provider, material upload/download/delivery, offline access, workspace/d
 |---|---|---|
 | Desktop design-documentation program | `docs/frontend/design/GOAL_STATE.md` | Authoritative program state |
 | Program plan and gates | `docs/frontend/design/MASTER_PLAN.md` | Authoritative program plan |
-| Legacy AUTH-001 durable state | `.agent/goal-state.md` | Untouched legacy evidence; not the owner of this program |
+| Legacy AUTH-001 durable state | `.agent/goal-state.md` | Historical Phase 0 evidence location; file later retired after evidence preservation and is not a current dependency |
 | Legacy AUTH-001 tracker | `docs/design/screens/authentication/auth-001-sign-in-tracker.md` | Untouched draft evidence |
 | Page 09 review records | `docs/design/reviews/page-09-user-flows-audit.md` and `page-09-user-flows-fix-tracker.md` | Untouched legacy evidence with an open classification discrepancy |
 

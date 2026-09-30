@@ -25,7 +25,8 @@ TestResults/
 # .NET
 **/bin/
 **/obj/
-
+.run-local.sh
+.csv
 # Visual Studio
 .vs/
 *.user
@@ -58,3 +59,24 @@ Thumbs.db
 # Local OpenCode goal/checkpoint state and delegation packets
 .agent/goal-state.md
 .agent/delegation-packet.json
+./Playwright
+run-local-with-mailpit.sh
+.opencode/
+.gitignore
+.playwright-mcp
+
+opencode.jsonc
+.opencode/agents/*
+
+Playwright MCP Full Review/
+logs/backend.log
+logs/frontend.log
+docs/frontend/design/integration/openapi/development-openapi-2026-09-28.json
+.agent/batch2-admin-categories-verifier.json
+.agent/final-handoff-verifier.json
+.agent/batch3-admin-exams-verifier.json
+.agent/batch1-com0708-verifier.json
+.opencode/
+
+.agent/goal-state.md
+skills/ui-ux-pro-max/data/stacks/laravel.csv

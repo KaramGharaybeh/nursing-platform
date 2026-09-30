@@ -1,5 +1,7 @@
 # Unified Auth Profile Admin Implementation Plan
 
+> **Historical execution plan — not current task authority.** Its dated worker and `.agent` instructions record the original campaign; use current project rules and the owning ledger for new work.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace role-specific public registration with unified server-authoritative sign-up, add backend-owned username/profile-onboarding state, and implement protected Admin role management with verified backend, OpenAPI, generated-client, frontend, and E2E coverage.

@@ -32,7 +32,7 @@ Every unresolved conflict remains explicit. No agent may infer a route, permissi
 | DISC-PEN-014 | Only spacing/shape and elevation/state token sets were reported; no color token set, typography token set, or token theme exists. | Live token inventory | Foundation owner, Phase 2 | Open |
 | DISC-REP-001 | Historical Phase 0 Figma/Penpot wording has been superseded for the active Stitch redesign by DEC-PH0-020. | `docs/frontend/design/governance/decision-log.md` DEC-PH0-020; active governance reconciliation | Karam/reviewer during repository integration | Superseded for active Stitch redesign; historical evidence preserved |
 | DISC-REP-002 | `CURRENT_TASK.md` awaits selection of the next implementation phase and `TASKS.md` keeps Frontend at Phase 10, while this design-documentation program is active. | Live milestone and roadmap | Karam | Resolved for Phase 0 only by explicit bounded authorization; implementation remains unauthorized |
-| DISC-REP-003 | `.agent/goal-state.md` describes active responsive/RTL AUTH-001 work, conflicting with the Desktop-only program goal. | Legacy and program goal-state files | Karam | Ownership resolved; legacy file intentionally untouched |
+| DISC-REP-003 | `.agent/goal-state.md` described active responsive/RTL AUTH-001 work, conflicting with the Desktop-only program goal at the Phase 0 snapshot. | Legacy and program goal-state files | Karam | Ownership resolved; legacy file later retired after evidence preservation; historical discrepancy only |
 | DISC-REP-004 | The frontend architecture is approved, but `frontend/` is uninitialized. | README and live filesystem audit | Future frontend implementation owner | Not a defect; implementation remains not started |
 
 ## Phase 1 contract questions

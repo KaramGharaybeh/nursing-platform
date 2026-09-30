@@ -8,8 +8,10 @@ created_at: 2026-07-23
 timezone: Asia/Amman
 design_authority: approved visual foundations plus approved Stitch redesign artifacts; legacy Penpot/design artifacts only when explicitly re-approved
 design_scope: Desktop browser
-manager_model: openai/gpt-5.5
+manager_model: openai/gpt-6-sol
 ```
+
+> The dated model and execution sections below record the original design-program workflow. Sections 16–19 and their agent, packet, and Skill instructions are historical and do not govern current work. Current execution authority is in `PROJECT_RULES.md`, `AGENTS.md`, and the owning ledgers; approved product/design decisions and human visual gates remain in force.
 
 ## 1. Intended outcome
 
@@ -40,7 +42,7 @@ The following decisions are fixed unless Karam explicitly changes them:
 | DEC-006 | Angular 22, Angular Material, Angular CDK where required, SCSS, and a project-owned custom Angular Material theme are the approved frontend direction. |
 | DEC-007 | WCAG 2.2 AA is mandatory. |
 | DEC-008 | Arabic and RTL are future production requirements; current Desktop LTR work must preserve readiness without creating RTL boards now. |
-| DEC-009 | Current repository orchestration is governed by `docs/development/model-orchestration.md`: `openai/gpt-5.5` is the sole OpenAI orchestrator/final gate, approved non-OpenAI workers may provide bounded execution/review evidence, and no delegated worker or alternate OpenAI model may approve or reject specifications, gates, or agent-produced artifacts. Historical design-program model names in older sections are superseded. |
+| DEC-009 | At the time this design decision was recorded, repository orchestration used `openai/gpt-6-sol` as sole orchestrator/final gate. A later three-role runtime superseded that arrangement and was itself retired during OpenCode independence cleanup; product/design approval authority remains unchanged. Historical design-program model names in older sections are not current routing instructions. |
 | DEC-010 | Human visual review by Karam is required before a Penpot page becomes visually approved. |
 | DEC-011 | An agent must never invent a route, permission, field, validation rule, state transition, business rule, API behavior, performance budget, or visual-diff threshold. |
 | DEC-012 | `claude-fable-5.md` is excluded from this program because it is unrelated to Nursing Platform requirements. |
@@ -606,11 +608,11 @@ The following are discovery candidates, not approved page files:
 
 No candidate becomes a Markdown page until it has an approved page-registry entry.
 
-## 16. Agent orchestration
+## 16. Historical agent orchestration (retired)
 
 ### 16.1 Non-delegable manager
 
-`openai/gpt-5.5` owns the current OpenAI orchestration/final-gate role under `docs/development/model-orchestration.md`:
+At the time, `openai/gpt-6-sol` held the orchestration/final-gate role for this design program:
 
 - the authoritative plan and goal state;
 - task decomposition and task packets;
@@ -628,14 +630,14 @@ No worker may edit shared governance, inventory, traceability, or goal-state fil
 
 | Role | Default model | Scope |
 |---|---|---|
-| Markdown author | Approved non-OpenAI worker per `docs/development/model-orchestration.md` | Evidence extraction and page drafts from narrow approved packets only |
-| Independent reviewer | Approved non-OpenAI supporting reviewer per `docs/development/model-orchestration.md` | Findings against evidence and schema; no edits or approvals |
+| Markdown author | Approved non-OpenAI worker at the time | Evidence extraction and page drafts from narrow approved packets only |
+| Independent reviewer | Approved non-OpenAI supporting reviewer at the time | Findings against evidence and schema; no edits or approvals |
 | Penpot executor | Separately authorized bounded executor under current repository orchestration | Serial execution of approved Penpot packets; no independent design decisions |
-| Manager/final reviewer | `openai/gpt-5.5` | Non-delegable decisions and gates |
+| Manager/final reviewer | `openai/gpt-6-sol` | Non-delegable decisions and gates |
 
 The author and reviewer defaults must pass a pilot containing one simple page and one high-risk page. Measure omission rate, unsupported claims, source accuracy, schema compliance, correction rate, calls, tokens, and elapsed time.
 
-If the default author fails the pilot twice, the manager must escalate under `docs/development/model-orchestration.md`; authoring must not be promoted to another OpenAI model. There is no automatic model roulette.
+The historical pilot rule called for escalation after two failed author attempts; it did not authorize automatic model substitution.
 
 `opencode/big-pickle` is outside the critical path:
 
@@ -668,7 +670,7 @@ Never mix modules or unrelated page families in one batch.
 - Penpot has one executor and one write lease; Penpot writes are always serial.
 - The manager and Penpot executor do not mutate the same artifact concurrently.
 
-## 17. Required skill sequence in OpenCode
+## 17. Historical Skill sequence in OpenCode (retired)
 
 The exact installed skill instructions take precedence, but the expected sequence is:
 
@@ -707,7 +709,7 @@ The exact installed skill instructions take precedence, but the expected sequenc
 
 Use `test-driven-development` later when implementing linters or automated tests. Use `finishing-a-development-branch` only when closing a milestone. Use `using-git-worktrees` when real parallel repository edits require isolation.
 
-## 18. Agent task packet contract
+## 18. Historical agent task packet contract (retired)
 
 Every worker receives a bounded packet containing:
 
@@ -740,7 +742,7 @@ STOP_REASON
 
 If an evidenced rule is unavailable, the worker reports `OPEN-QUESTION`. It may not fill the gap with a likely convention.
 
-## 19. Usage budgets and retry policy
+## 19. Historical usage budgets and retry policy (retired)
 
 ### 19.1 Model calls per batch
 
@@ -1075,7 +1077,7 @@ Karam accepted G0 on 2026-08-12 as a frontend design governance/re-entry baselin
 ```text
 TASK: NPS-DES-G0-ACCEPTANCE-20260812
 STATUS: G0 accepted for governance/re-entry only; Phase 1 not authorized
-MANAGER: openai/gpt-5.5
+MANAGER: openai/gpt-6-sol
 
 REVIEW:
 - docs/frontend/design/MASTER_PLAN.md

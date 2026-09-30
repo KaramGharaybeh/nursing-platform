@@ -5,13 +5,15 @@ document_id: NPS-DES-STATE-001
 version: 1.4
 updated_at: 2026-08-12
 timezone: Asia/Amman
-manager_model: openai/gpt-5.5
+manager_model: openai/gpt-6-sol
 design_authority: approved visual foundations plus approved Stitch redesign artifacts; legacy Penpot/design artifacts only when explicitly re-approved
 viewport_scope: Desktop browser
 current_phase: PHASE-1-EVIDENCE-PACKET-AWAITING-AUTHORIZATION
 current_batch: none
 overall_status: g0-accepted-governance-only-phase-1-not-authorized
 ```
+
+> The dated model allocation, phase status, next action, and resume instructions below are historical design-program state, not current execution authority. Current execution authority is in `PROJECT_RULES.md`, `AGENTS.md`, and the owning ledgers. Approved product/design decisions and human visual gates remain in force.
 
 ## Goal
 
@@ -40,7 +42,7 @@ Create evidence-backed Markdown specifications and, for the active system-wide r
 | DEC-006 | Angular 22 + Angular Material/CDK + SCSS + custom Material theme | Locked and present in the live frontend architecture working copy |
 | DEC-007 | WCAG 2.2 AA | Locked |
 | DEC-008 | Future Arabic and RTL readiness | Locked |
-| DEC-009 | Current repository orchestration is governed by `docs/development/model-orchestration.md`: `openai/gpt-5.5` is the sole OpenAI orchestrator/final gate, approved non-OpenAI workers may provide bounded execution/review evidence, and no delegated worker or alternate OpenAI model may approve or reject specifications, gates, or agent-produced artifacts | Locked |
+| DEC-009 | At the time this design decision was recorded, repository orchestration used `openai/gpt-6-sol` as sole orchestrator/final gate. A later three-role runtime superseded that arrangement and was itself retired during OpenCode independence cleanup; product/design approval authority remains unchanged. | Historical / superseded |
 | DEC-010 | Karam/technical-lead approval remains required for final visual approval gates | Locked |
 | DEC-011 | Storybook may provide future production component/screen visual evidence after separate tooling authorization but never self-approves screens or creates requirements | Locked |
 | DEC-012 | The 2026-09-20 system-wide redesign uses Google Stitch as the active visual-design workspace. Human-approved Stitch screens own new visual composition; legacy Penpot/design artifacts remain reference evidence unless explicitly re-approved. | Locked |
@@ -103,15 +105,15 @@ The detailed object IDs, library inventory, and discrepancy evidence are central
 | Phase 7 — Penpot Desktop page waves | Not started | G7 | No Penpot writes authorized |
 | Phase 8 — Automation-ready handoff | Not started | G8 | Future within Desktop documentation program |
 
-## Model allocation
+## Historical model allocation (retired)
 
 | Role | Model | Qualification/status |
 |---|---|---|
-| Manager and final agent reviewer | `openai/gpt-5.5` | Locked by `docs/development/model-orchestration.md` |
-| Markdown author | Approved non-OpenAI worker per `docs/development/model-orchestration.md` | Requires bounded packet and review gate |
-| Independent reviewer | Approved non-OpenAI supporting reviewer per `docs/development/model-orchestration.md` | Findings only; no approval authority |
+| Manager and final agent reviewer | `openai/gpt-6-sol` | Historical allocation; no current model requirement |
+| Markdown author | Approved non-OpenAI worker at the time | Historical bounded-packet workflow |
+| Independent reviewer | Approved non-OpenAI supporting reviewer at the time | Historical review workflow; no approval authority |
 | Penpot executor | Separately authorized bounded executor under current repository orchestration | Not authorized until a future approved Penpot checkpoint |
-| Big Pickle | Approved non-OpenAI worker only when routed by `docs/development/model-orchestration.md` | No approval, tracker, or Penpot-write authority |
+| Big Pickle | Approved non-OpenAI worker only under the retired routing workflow | No approval, tracker, or Penpot-write authority |
 
 ## Usage state
 
@@ -146,13 +148,13 @@ actual_pilot_usage: not-measured
 - Penpot findings remain evidence only and grant no visual approval.
 - All unresolved source, Penpot, and contract discrepancies remain assigned in `governance/open-questions.md`.
 
-## Exact next action
+## Historical next action (superseded)
 
 Authorize a bounded Preparation Package Phase 1 Evidence Packet that records the current backend/OpenAPI contract evidence for implemented package areas only.
 
 Do not create page specifications, modify Penpot, or change frontend/backend source until separately authorized.
 
-## Resume instruction
+## Historical resume instruction (superseded)
 
 ```text
 Read docs/frontend/design/MASTER_PLAN.md and docs/frontend/design/GOAL_STATE.md.
@@ -168,7 +170,7 @@ Do not modify Penpot, AUTH-001, Page 09, .agent/goal-state.md, CURRENT_TASK.md, 
 |---|---|---|
 | 2026-07-23 | Penpot-only, Desktop-first, Markdown-per-page strategy locked | Current user decision |
 | 2026-07-23 | Uploaded project documentation fully read and audited | 4,193-line source dump |
-| 2026-07-23 | Historical manager model selected for original design-program plan | Superseded by current repository orchestration: `openai/gpt-5.5` |
+| 2026-07-23 | Historical manager model selected for original design-program plan | Superseded by current repository orchestration: `openai/gpt-6-sol` |
 | 2026-07-23 | Master plan and initial goal-state ledger created | `NPS-DES-PLAN-001`, `NPS-DES-STATE-001` |
 | 2026-07-23 | Read-only live repository and 11-page Penpot inventories completed | Commit `2c60554f`; Penpot file `01813f71-6684-8025-8008-5d0437a49666` |
 | 2026-07-23 | Phase 0 documentation-only reconciliation authorized | `NPS-DES-PH0-G0-RECONCILE` |

@@ -22,7 +22,7 @@ Only explicit decisions from Karam or approved repository authorities may be rec
 | DEC-PH0-004 | RTL is future scope. | Karam, 2026-07-23 | Current Desktop work preserves readiness but creates or repairs no RTL boards. |
 | DEC-PH0-005 | AUTH-001 and Page 09 remain legacy/draft evidence and must not be modified. | Karam, 2026-07-23 | Existing boards, trackers, audits, and completion claims are preserved for later evidence reconciliation. |
 | DEC-PH0-006 | `docs/frontend/design/GOAL_STATE.md` owns this design-documentation program. | Karam, 2026-07-23 | Resume and checkpoint decisions for this program come from the in-repository design goal state. |
-| DEC-PH0-007 | `.agent/goal-state.md` remains untouched legacy state. | Karam, 2026-07-23 | It is not synchronized, corrected, or used to expand current scope. |
+| DEC-PH0-007 | `.agent/goal-state.md` remained untouched legacy state during Phase 0. | Karam, 2026-07-23 | It was not synchronized, corrected, or used to expand Phase 0 scope; the file was later retired after evidence preservation. |
 | DEC-PH0-008 | The live Penpot inventory is evidence, not visual approval. | Karam, 2026-07-23 | No page or board receives approved status from Phase 0 inspection. |
 | DEC-PH0-009 | Validator runtime behavior, OpenAPI capture, 422 mapping, and admin payment permissions are Phase 1 open questions. | Karam, 2026-07-23 | Phase 0 records but does not answer or implement these contract questions. |
 | DEC-PH0-010 | The existing active milestone and roadmap files remain unchanged. | Approved task boundary, 2026-07-23 | Explicit Phase 0 authorization is a bounded documentation exception and does not mark Administration, Frontend, or any implementation phase complete. |

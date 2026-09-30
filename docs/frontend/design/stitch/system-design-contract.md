@@ -37,7 +37,7 @@ Visual authority for this redesign:
 
 ## 2. Stitch Capability Discovery And Usage Plan
 
-Observed Stitch MCP capability surface in the current OpenCode session exposes 15 tools:
+The historical 2026-09-20 Stitch MCP capability survey observed 15 tools; this inventory does not require a particular assistant host:
 
 | Capability | Exposed tool | Later-phase use | Phase 1 use |
 |---|---|---|---|

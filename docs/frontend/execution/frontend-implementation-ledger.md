@@ -2,7 +2,7 @@
 
 This ledger is the authoritative detailed execution record for `GOAL-FE-001` frontend Goal → Milestone → Task → Subtask → Verification Gate work.
 
-It is a governance and tracking document only. It does not authorize implementation by itself. Implementation may proceed only through an explicit task authorization or the Standing Implementation Authorization in this ledger and `docs/development/model-orchestration.md`.
+It is a governance and tracking document only. It does not authorize implementation by itself. Implementation may proceed only through explicit task authorization or the Standing Implementation Authorization below, subject to repository and domain authority.
 
 ## 1. Authority
 
@@ -21,14 +21,14 @@ Authoritative frontend rules remain in:
 
 Task/Gate IDs, Subtask IDs, predecessor relationships, and the DAG remain the traceability record;
 they are not deleted. But a Task ID is not automatically a separate human interaction, session,
-verifier invocation, full-suite run, or commit:
+independent review, full-suite run, or commit:
 
 - Task/Gate = traceability and acceptance unit;
-- batch = operational implementation and review unit (one stable diff, one verifier review with
+- batch = operational implementation and review unit (one stable diff, one independent read-only review with
   per-Task acceptance mapping);
 - GOAL = human-authorized outcome boundary.
 
-Agents must NOT read this full multi-thousand-line ledger by default. Normal work locates and reads
+Contributors should not read this full multi-thousand-line ledger by default. Normal work locates and reads
 only the target Task(s), declared predecessor Gate(s), relevant screen row(s), applicable
 blocker/contract row(s), and applicable Gate criteria; historical Task records are on-demand
 evidence. Classification `VERIFIED` and feature-implementation `VERIFIED` remain distinct: a
@@ -56,17 +56,17 @@ Standing Implementation Authorization replaces the need for a separate user “s
 - no unresolved `DESIGN`, `BACKEND`, `CONTRACT_CLARIFICATION`, `SECURITY`, `DEPENDENCY`, `TOOLING_APPROVAL`, `SCOPE`, `EXTERNAL`, or runtime-deployment decision requires human authority;
 - no missing screen-family approval, per-screen `APPROVED` decision, required Penpot/design approval, required Storybook visual evidence, or visual/source decision is required;
 - no dependency installation/change, database change, migration, backend/OpenAPI mutation, Penpot mutation, Storybook installation/configuration, CI/tooling approval, or external-provider decision is required;
-- Task risk is Low or Medium under `docs/development/model-orchestration.md`;
-- implementation can stay inside a bounded `ALLOWED_FILES` packet;
+- Task risk is Low or Medium based on the scope and consequences of the change; High or High-Precision work requires explicit human authority;
+- implementation can stay inside explicitly bounded, authorized file scope;
 - focused tests/source-contract tests and the Gate's full deterministic evidence can be produced with existing approved tooling.
 
-When those conditions are satisfied, `dev-orchestrator` may select the next eligible Task from the DAG, implement bounded work directly, run focused verification, and proceed to the next eligible Task within the same authorized GOAL, working inspect → implement → focused verify → continue until a coherent batch boundary. It obtains the mandatory independent verifier PASS once per coherent Low/Medium batch (with per-Task acceptance mapping) before governance-authorized closure, and it may consult `expert` only when the escalation criteria in `docs/development/model-orchestration.md` apply.
+When those conditions are satisfied, work may proceed through the next eligible Task from the DAG within the same human-authorized GOAL: inspect → implement → focused verify → continue until a coherent batch boundary. Before closure, each stable Low/Medium batch requires independent read-only review with a PASS and per-Task acceptance mapping. Unresolved consequential risk or authority questions require a human decision under the stop conditions below.
 
-Standing authorization never authorizes pushing, destructive Git operations, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, Storybook installation/configuration, business/product decisions, or High/High-Precision implementation escalation. Exact-scope local staging/committing at coherent batch checkpoints is allowed only when the active GOAL explicitly authorizes that exact action (cached diff inspected, unrelated hunks excluded, batch-appropriate verification passed, no push).
+Standing authorization never authorizes pushing, destructive Git operations, dependency changes, database changes, migrations, backend/OpenAPI/Penpot mutation, Storybook installation/configuration, business/product decisions, or High/High-Precision implementation escalation. Exact-scope local staging/committing at coherent batch checkpoints is allowed only when the active human-authorized GOAL explicitly authorizes that exact action (cached diff inspected, unrelated hunks excluded, batch-appropriate verification passed, no push).
 
 ### Automatic Task selection
 
-The Orchestrator must select Tasks by DAG eligibility, not by Task number alone. A Task is eligible only when all declared predecessor Gates are `VERIFIED`, the Standing Implementation Authorization conditions pass, and no blocker type applies. Blocked Tasks do not block unrelated eligible branches unless a declared dependency requires them. Range dependencies such as `GATE-FE-T008..T012` require every Gate in that inclusive range to be `VERIFIED`.
+Select Tasks by DAG eligibility, not by Task number alone. A Task is eligible only when all declared predecessor Gates are `VERIFIED`, the Standing Implementation Authorization conditions pass, and no blocker type applies. Blocked Tasks do not block unrelated eligible branches unless a declared dependency requires them. Range dependencies such as `GATE-FE-T008..T012` require every Gate in that inclusive range to be `VERIFIED`.
 
 Example: `T-FE-013` must not run while any required predecessor Gate is not `VERIFIED`; after `GATE-FE-T009` closes, it still requires every predecessor in `GATE-FE-T008..T012` to remain `VERIFIED` before eligibility.
 
@@ -81,20 +81,16 @@ Continuous execution MUST STOP and ask for user/technical-lead authority when an
 - security, authentication, authorization, payment, entitlement, exam/session/report, file-authorization, privacy, or production-hardening correctness is uncertain;
 - backend source and canonical OpenAPI conflict, or a required API/DTO/error/permission contract cannot be established;
 - database work, migration creation/application, backend mutation, OpenAPI mutation, Penpot mutation, or Storybook tooling/configuration is required;
-- Task scope or `ALLOWED_FILES` cannot be bounded safely;
-- High-risk or High-Precision implementation requires escalation under the orchestration policy;
-- staging, committing, pushing, reset, clean, stash, checkout/restore, or repository-history alteration is requested without an explicit GOAL authorization covering that exact action (push always requires separate authorization);
+- Task scope or authorized file boundaries cannot be established safely;
+- High-risk or High-Precision implementation requires explicit human authority;
+- staging, committing, pushing, reset, clean, stash, checkout/restore, or repository-history alteration is requested without explicit human authorization covering that exact action (push always requires separate authorization);
 - repository authority conflicts cannot be resolved deterministically.
 
 Do not self-approve these stops.
 
 ### Testing and evidence invariant
 
-Every implementation Task must satisfy its Gate evidence. Where behavior, logic, source contracts, styling contracts, routing, API mapping, security presentation, or error behavior is testable, focused unit/component/source-contract tests are mandatory and must verify behavior or relationships rather than weak string-presence checks. After focused verification, run the build/integration/full checks appropriate to the combined batch risk (shared shell/routing/auth changes, generated client or API contract changes, dependency/toolchain/config changes, broadly consumed shared infrastructure, consequential behavior, release/integration checkpoints, an explicit Gate requirement, or a finding that creates broad regression risk) — not a full regression after every micro-Task. Documentation-only and classification-only work needs diff/scope/consistency validation, not unrelated product suites. The worker and Orchestrator must report exact command evidence; tests passing alone is insufficient unless requirement coverage is also checked.
-
-### Usage-efficiency invariant
-
-For normal Low/Medium eligible Tasks, `dev-orchestrator` uses the configured free model for bounded discovery, implementation, and primary verification, then invokes the independent free `verifier` once per coherent batch with explicit Task/Gate acceptance mapping. `expert` is reserved for justified consequential reasoning and does not act as a routine final reviewer. The orchestrator does not create implementation workers or repeat delegated work because implementation remains its responsibility.
+Every implementation Task must satisfy its Gate evidence. Where behavior, logic, source contracts, styling contracts, routing, API mapping, security presentation, or error behavior is testable, focused unit/component/source-contract tests are mandatory and must verify behavior or relationships rather than weak string-presence checks. After focused verification, run the build/integration/full checks appropriate to the combined batch risk (shared shell/routing/auth changes, generated client or API contract changes, dependency/toolchain/config changes, broadly consumed shared infrastructure, consequential behavior, release/integration checkpoints, an explicit Gate requirement, or a finding that creates broad regression risk) — not a full regression after every micro-Task. Documentation-only and classification-only work needs diff/scope/consistency validation, not unrelated product suites. The task record must report exact command evidence; tests passing alone is insufficient unless requirement coverage is also checked.
 
 ## 2. Canonical Status and Blocker Model
 

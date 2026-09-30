@@ -11,12 +11,12 @@ The documentation is organized by topic, with each document acting as the author
 # Reading Order
 
 When starting work on the project, use targeted reads instead of ingesting every document:
-load the explicit human GOAL, the compact `PROGRESS.md` handoff, the active `.agent/goal-state.md`
-when one exists, and current Git branch/HEAD/status; then read only the authority relevant to the
-work, as routed by `docs/development/model-orchestration.md`. The historical record
+load the explicit human task, `PROJECT_RULES.md`, `AGENTS.md`, the compact `PROGRESS.md` handoff,
+and current Git branch/HEAD/status; then read only the task-relevant authority from this index
+and the owning execution ledger. The historical record
 (`PROGRESS_HISTORY.md`, old design-program files, superseded packets) is on-demand evidence only.
 
-The full topic map below remains the authority index for its respective area:
+The topic map below identifies current authorities and explicitly labeled historical references:
 
 1. Product Vision
 2. System Architecture
@@ -26,8 +26,7 @@ The full topic map below remains the authority index for its respective area:
 6. API Design
 7. Engineering Standards
 8. Development Guide
-9. Model Orchestration
-10. Deployment Guide
+9. Deployment Guide
 
 ---
 
@@ -151,16 +150,6 @@ Location:
 
 ```
 docs/development/development-guide.md
-```
-
-### model-orchestration.md
-
-Defines the authority for model routing, delegation, independent review, evidence, and escalation for OpenCode multi-agent work in this repository.
-
-Location:
-
-```
-docs/development/model-orchestration.md
 ```
 
 ---

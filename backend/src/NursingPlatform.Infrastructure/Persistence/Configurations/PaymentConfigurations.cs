@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NursingPlatform.Domain.Payments;
+using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.Infrastructure.Persistence.Configurations;
 
@@ -46,18 +47,47 @@ public class PaymentOrderItemConfiguration : IEntityTypeConfiguration<PaymentOrd
     {
         builder.ToTable("PaymentOrderItems");
         builder.HasKey(i => i.Id);
+        builder.Ignore(i => i.Product);
         builder.HasIndex(i => new { i.OrderId, i.Id });
+        builder.HasIndex(i => new { i.SourceType, i.SourceId });
         builder.Property(i => i.ProductNameSnapshot).IsRequired().HasMaxLength(200);
         builder.Property(i => i.ProductTypeSnapshot).HasConversion<string>().IsRequired().HasMaxLength(32);
+        builder.Property(i => i.SourceType).HasConversion<string>().IsRequired().HasMaxLength(32);
+        builder.Property(i => i.SourceId).IsRequired();
         builder.Property(i => i.Currency).IsRequired().HasMaxLength(3);
         builder.HasOne(i => i.Order)
             .WithMany(o => o.Items)
             .HasForeignKey(i => i.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(i => i.Product)
-            .WithMany()
-            .HasForeignKey(i => i.ProductId)
+        builder.HasOne(i => i.PackageOrderItemSnapshot)
+            .WithOne()
+            .HasForeignKey<PackageOrderItemSnapshot>(s => s.PaymentOrderItemId)
             .OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+public class PackageOrderItemSnapshotConfiguration : IEntityTypeConfiguration<PackageOrderItemSnapshot>
+{
+    public void Configure(EntityTypeBuilder<PackageOrderItemSnapshot> builder)
+    {
+        builder.ToTable("PackageOrderItemSnapshots");
+        builder.HasKey(s => s.Id);
+        builder.HasIndex(s => s.PaymentOrderItemId).IsUnique();
+        builder.HasIndex(s => new { s.PackageDefinitionId, s.PackageVersionId });
+        builder.HasIndex(s => s.PackageOfferId);
+        builder.Property(s => s.PackageOfferTitle).IsRequired().HasMaxLength(200);
+        builder.Property(s => s.PackageOfferSlug).IsRequired().HasMaxLength(160);
+        builder.Property(s => s.PackageOfferSummary).HasMaxLength(2000);
+        builder.Property(s => s.PackageDefinitionTitle).IsRequired().HasMaxLength(200);
+        builder.Property(s => s.PackageDefinitionSlug).IsRequired().HasMaxLength(160);
+        builder.Property(s => s.IncludedExamTitle).IsRequired().HasMaxLength(200);
+        builder.Property(s => s.Currency).IsRequired().HasMaxLength(3);
+        builder.Property(s => s.PriceAmountMinor).IsRequired();
+        builder.Property(s => s.AccessDurationDays).IsRequired();
+        builder.Property(s => s.OrderCreatedAt).IsRequired();
+        builder.Property("_studyMaterialVersionIds")
+            .HasColumnName("StudyMaterialVersionIds")
+            .IsRequired();
     }
 }
 

@@ -1,23 +1,29 @@
 using MediatR;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.OpenApi;
 using NursingPlatform.Application.Authorization;
 using NursingPlatform.Application.Employers.Commands.UpsertMyEmployerOrganization;
 using NursingPlatform.Application.Employers.Commands.UpsertMyEmployerProfile;
 using NursingPlatform.Application.Employers.Queries.GetMyEmployerOrganization;
 using NursingPlatform.Application.Employers.Queries.GetMyEmployerProfile;
+using NursingPlatform.Application.Exams.Commands.ClearExamSessionAnswer;
 using NursingPlatform.Application.Exams.Commands.SaveExamSessionAnswers;
+using NursingPlatform.Application.Exams.Commands.SetExamSessionQuestionFlag;
 using NursingPlatform.Application.Exams.Commands.StartExamSession;
 using NursingPlatform.Application.Exams.Commands.SubmitExamSession;
 using NursingPlatform.Application.Exams.Admin.AnswerOptions;
 using NursingPlatform.Application.Exams.Admin.Categories;
+using NursingPlatform.Application.Exams.Admin.DTOs;
 using NursingPlatform.Application.Exams.Admin.Exams;
 using NursingPlatform.Application.Exams.Admin.Questions;
 using NursingPlatform.Application.Exams.Admin.Versions;
 using NursingPlatform.Application.Exams.Analytics.Common;
+using NursingPlatform.Application.Exams.Analytics.DTOs;
 using NursingPlatform.Application.Exams.Analytics.Queries.GetMyExamAnalyticsSummary;
 using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsByCategory;
 using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsByExam;
 using NursingPlatform.Application.Exams.Analytics.Queries.ListMyExamAnalyticsTrends;
+using NursingPlatform.Application.Exams.DTOs;
 using NursingPlatform.Application.Exams.Queries.GetExam;
 using NursingPlatform.Application.Exams.Queries.GetExamSession;
 using NursingPlatform.Application.Exams.Queries.GetExamSessionResult;
@@ -26,14 +32,20 @@ using NursingPlatform.Application.Exams.Queries.ListExams;
 using NursingPlatform.Application.Exams.Queries.ListMyExamAttempts;
 using NursingPlatform.Application.Identity.Commands.ForgotPassword;
 using NursingPlatform.Application.Identity.Commands.Login;
+using NursingPlatform.Application.Identity.Commands.PublicRegister;
 using NursingPlatform.Application.Identity.Commands.Register;
 using NursingPlatform.Application.Identity.Commands.RotateRefreshToken;
 using NursingPlatform.Application.Identity.Commands.ResetPassword;
 using NursingPlatform.Application.Identity.Commands.SendVerificationEmail;
+using NursingPlatform.Application.Identity.Commands.UpdateCurrentUserProfile;
+using NursingPlatform.Application.Identity.Commands.UpdateUserRoles;
 using NursingPlatform.Application.Identity.Commands.VerifyEmail;
+using NursingPlatform.Application.Identity.Common;
+using NursingPlatform.Application.Identity.DTOs;
 using NursingPlatform.Application.Identity.Queries.GetCurrentUser;
 using NursingPlatform.Application.Identity.Queries.GetUser;
 using NursingPlatform.Application.Identity.Queries.ListUsers;
+using NursingPlatform.Application.Common.Models;
 using NursingPlatform.Application.Nurses.Commands.CreateNurseCertificate;
 using NursingPlatform.Application.Nurses.Commands.CreateNurseEducation;
 using NursingPlatform.Application.Nurses.Commands.CreateNurseExperience;
@@ -48,6 +60,7 @@ using NursingPlatform.Application.Nurses.Commands.UpdateNurseLanguages;
 using NursingPlatform.Application.Nurses.Commands.UpdateNurseSkills;
 using NursingPlatform.Application.Nurses.Commands.UploadNurseCv;
 using NursingPlatform.Application.Nurses.Commands.UpsertNurseProfile;
+using NursingPlatform.Application.Nurses.DTOs;
 using NursingPlatform.Application.Nurses.Queries.GetCurrentNurseCv;
 using NursingPlatform.Application.Nurses.Queries.GetCurrentNurseProfile;
 using NursingPlatform.Application.Nurses.Queries.ListCurrentNurseCertificates;
@@ -60,6 +73,7 @@ using NursingPlatform.Application.Payments.Commands.CancelMyPaymentOrder;
 using NursingPlatform.Application.Payments.Commands.CompleteSandboxPaymentCheckout;
 using NursingPlatform.Application.Payments.Commands.CreateMyPaymentOrder;
 using NursingPlatform.Application.Payments.Commands.StartMyPaymentCheckout;
+using NursingPlatform.Application.Payments.DTOs;
 using NursingPlatform.Application.Payments.Queries.GetMyPaymentOrder;
 using NursingPlatform.Application.Payments.Queries.GetPaymentProduct;
 using NursingPlatform.Application.Payments.Queries.ListMyPaymentOrders;
@@ -68,7 +82,12 @@ using NursingPlatform.Application.Recruitment.Commands.ApproveReceivedContactReq
 using NursingPlatform.Application.Recruitment.Commands.CancelContactRequest;
 using NursingPlatform.Application.Recruitment.Commands.CreateContactRequest;
 using NursingPlatform.Application.Recruitment.Commands.RejectReceivedContactRequest;
+using NursingPlatform.Application.Recruitment.DTOs;
 using NursingPlatform.Application.Recruitment.Queries.GetMyContactRequest;
+using NursingPlatform.Application.ReferenceData.Countries.DTOs;
+using NursingPlatform.Application.ReferenceData.Countries.Queries.ListCountries;
+using NursingPlatform.Application.ReferenceData.Languages.DTOs;
+using NursingPlatform.Application.ReferenceData.Languages.Queries.ListLanguages;
 using NursingPlatform.Application.Recruitment.Queries.ListCandidates;
 using NursingPlatform.Application.Recruitment.Queries.ListMyContactRequests;
 using NursingPlatform.Application.Recruitment.Queries.ListReceivedContactRequests;
@@ -76,6 +95,7 @@ using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Payments;
 using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Infrastructure.Persistence;
+using NursingPlatform.WebApi.Contracts;
 using NursingPlatform.WebApi.Middleware;
 using Serilog;
 
@@ -96,6 +116,11 @@ public static class ApplicationBuilderExtensions
         }
 
         app.UseHttpsRedirection();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseCors(ServiceCollectionExtensions.LocalDevelopmentCorsPolicy);
+        }
 
         app.UseAuthentication();
         app.UseAuthorization();
@@ -126,12 +151,16 @@ public static class ApplicationBuilderExtensions
     {
         var api = app.MapGroup("/api/v1");
 
+        api.MapPreparationPackageEndpoints();
+
         api.MapPost("/auth/login", async (LoginCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
         .WithName("Login")
+        .Produces<AuthResult>(StatusCodes.Status200OK)
+        .Produces<CodedProblemDetailsContract>(StatusCodes.Status403Forbidden, "application/problem+json")
         .AllowAnonymous();
 
         api.MapPost("/auth/refresh", async (RotateRefreshTokenCommand command, ISender sender) =>
@@ -140,6 +169,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("RefreshToken")
+        .Produces<AuthResult>(StatusCodes.Status200OK)
         .AllowAnonymous();
 
         api.MapPost("/auth/register", async (RegisterUserRequest request, ISender sender) =>
@@ -147,6 +177,7 @@ public static class ApplicationBuilderExtensions
             var command = new RegisterUserCommand
             {
                 Email = request.Email,
+                Username = request.Username,
                 Password = request.Password,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
@@ -159,6 +190,46 @@ public static class ApplicationBuilderExtensions
         })
         .WithName("RegisterUser")
         .RequirePermission(Permissions.Users.Create);
+
+        api.MapPost("/auth/sign-up", async (PublicRegisterRequest request, ISender sender) =>
+        {
+            await sender.Send(new PublicRegisterCommand
+            {
+                Email = request.Email,
+                Username = request.Username,
+                Password = request.Password,
+                RoleName = PublicRegistrationRoleNames.Nurse
+            });
+
+            return Results.Accepted();
+        })
+        .WithName("PublicSignUp")
+        .Produces(StatusCodes.Status202Accepted)
+        .AllowAnonymous();
+
+        api.MapPost("/auth/register/nurse", () => Results.StatusCode(StatusCodes.Status410Gone))
+        .WithName("PublicRegisterNurseRetired")
+        .Produces(StatusCodes.Status410Gone)
+        .AllowAnonymous();
+
+        api.MapPost("/auth/register/employer", () => Results.StatusCode(StatusCodes.Status410Gone))
+        .WithName("PublicRegisterEmployerRetired")
+        .Produces(StatusCodes.Status410Gone)
+        .AllowAnonymous();
+
+        api.MapPut("/me/profile", async (UpdateCurrentUserProfileRequest request, ISender sender) =>
+        {
+            var result = await sender.Send(new UpdateCurrentUserProfileCommand
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName
+            });
+
+            return Results.Ok(result);
+        })
+        .WithName("UpdateCurrentUserProfile")
+        .Produces<UpdateCurrentUserProfileResponse>(StatusCodes.Status200OK)
+        .RequireAuthorization();
 
         api.MapPost("/auth/send-verification-email", async (ISender sender) =>
         {
@@ -206,6 +277,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(user);
         })
         .WithName("GetCurrentUser")
+        .Produces<UserDetailDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/users", async (
@@ -230,6 +302,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListUsers")
+        .Produces<PaginatedResult<UserListItemDto>>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Users.View);
 
         api.MapGet("/users/{id:guid}", async (Guid id, ISender sender) =>
@@ -238,7 +311,25 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(user);
         })
         .WithName("GetUser")
+        .Produces<UserDetailDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Users.View);
+
+        api.MapPut("/admin/users/{userId:guid}/role", async (
+            Guid userId,
+            UpdateUserRolesRequest request,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new UpdateUserRolesCommand
+            {
+                UserId = userId,
+                RoleName = request.RoleName
+            });
+
+            return Results.Ok(result);
+        })
+        .WithName("UpdateAdminUserRole")
+        .Produces<UpdateUserRolesResponse>(StatusCodes.Status200OK)
+        .RequirePermission(Permissions.Users.Edit);
 
         api.MapGet("/recruitment/candidates", async (
             int? page,
@@ -263,6 +354,25 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListRecruitmentCandidates")
+        .Produces<PaginatedResult<CandidateListItemDto>>(StatusCodes.Status200OK)
+        .RequireAuthorization();
+
+        api.MapGet("/countries", async (ISender sender) =>
+        {
+            var result = await sender.Send(new ListCountriesQuery());
+            return Results.Ok(result);
+        })
+        .WithName("ListCountries")
+        .Produces<IReadOnlyList<CountryListItemDto>>(StatusCodes.Status200OK)
+        .RequireAuthorization();
+
+        api.MapGet("/languages", async (ISender sender) =>
+        {
+            var result = await sender.Send(new ListLanguagesQuery());
+            return Results.Ok(result);
+        })
+        .WithName("ListLanguages")
+        .Produces<IReadOnlyList<LanguageListItemDto>>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/exams", async (
@@ -282,6 +392,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListExams")
+        .Produces<PaginatedResult<ExamCatalogItemDto>>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/exams/{id:guid}", async (Guid id, ISender sender) =>
@@ -290,6 +401,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetExam")
+        .Produces<ExamDetailDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/payment/products", async (
@@ -307,6 +419,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListPaymentProducts")
+        .Produces<PaginatedResult<PaymentProductDto>>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/payment/products/{id:guid}", async (Guid id, ISender sender) =>
@@ -315,6 +428,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetPaymentProduct")
+        .Produces<PaymentProductDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapPost("/exams/{id:guid}/sessions", async (Guid id, ISender sender) =>
@@ -323,6 +437,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("StartExamSession")
+        .Produces<ExamSessionDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/exam-sessions/{id:guid}", async (Guid id, ISender sender) =>
@@ -331,6 +446,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetExamSession")
+        .Produces<ExamSessionDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapPut("/exam-sessions/{id:guid}/answers", async (
@@ -346,6 +462,41 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("SaveExamSessionAnswers")
+        .Produces<ExamSessionDto>(StatusCodes.Status200OK)
+        .RequireAuthorization();
+
+        api.MapDelete("/exam-sessions/{id:guid}/answers/{questionId:guid}", async (
+            Guid id,
+            Guid questionId,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new ClearExamSessionAnswerCommand
+            {
+                ExamSessionId = id,
+                ExamSessionQuestionId = questionId
+            });
+            return Results.Ok(result);
+        })
+        .WithName("ClearExamSessionAnswer")
+        .Produces<ExamSessionDto>(StatusCodes.Status200OK)
+        .RequireAuthorization();
+
+        api.MapPut("/exam-sessions/{id:guid}/questions/{questionId:guid}/flag", async (
+            Guid id,
+            Guid questionId,
+            SetExamSessionQuestionFlagRequest request,
+            ISender sender) =>
+        {
+            var result = await sender.Send(new SetExamSessionQuestionFlagCommand
+            {
+                ExamSessionId = id,
+                ExamSessionQuestionId = questionId,
+                Request = request
+            });
+            return Results.Ok(result);
+        })
+        .WithName("SetExamSessionQuestionFlag")
+        .Produces<ExamSessionDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapPost("/exam-sessions/{id:guid}/submit", async (Guid id, ISender sender) =>
@@ -354,6 +505,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("SubmitExamSession")
+        .Produces<ExamSessionResultDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/exam-sessions/{id:guid}/result", async (Guid id, ISender sender) =>
@@ -362,6 +514,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetExamSessionResult")
+        .Produces<ExamSessionResultDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/exam-sessions/{id:guid}/review", async (Guid id, ISender sender) =>
@@ -370,6 +523,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetExamSessionReview")
+        .Produces<ExamSessionReviewDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         var admin = api.MapGroup("/admin");
@@ -391,6 +545,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminListExamCategories")
+        .Produces<PaginatedResult<AdminExamCategoryDto>>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.View);
 
         admin.MapGet("/exam-categories/{id:guid}", async (Guid id, ISender sender) =>
@@ -399,6 +554,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminGetExamCategory")
+        .Produces<AdminExamCategoryDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.View);
 
         admin.MapPost("/exam-categories", async (CreateAdminExamCategoryRequest request, ISender sender) =>
@@ -407,6 +563,7 @@ public static class ApplicationBuilderExtensions
             return Results.Created($"/api/v1/admin/exam-categories/{result.Id}", result);
         })
         .WithName("AdminCreateExamCategory")
+        .Produces<AdminExamCategoryDto>(StatusCodes.Status201Created)
         .RequirePermission(Permissions.Exams.Create);
 
         admin.MapPut("/exam-categories/{id:guid}", async (Guid id, UpdateAdminExamCategoryRequest request, ISender sender) =>
@@ -415,6 +572,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminUpdateExamCategory")
+        .Produces<AdminExamCategoryDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapPost("/exam-categories/{id:guid}/archive", async (Guid id, ISender sender) =>
@@ -423,6 +581,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminArchiveExamCategory")
+        .Produces<AdminExamCategoryDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapPost("/exam-categories/{id:guid}/restore", async (Guid id, ISender sender) =>
@@ -431,6 +590,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminRestoreExamCategory")
+        .Produces<AdminExamCategoryDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapDelete("/exam-categories/{id:guid}", async (Guid id, ISender sender) =>
@@ -439,6 +599,7 @@ public static class ApplicationBuilderExtensions
             return Results.NoContent();
         })
         .WithName("AdminDeleteExamCategory")
+        .Produces(StatusCodes.Status204NoContent)
         .RequirePermission(Permissions.Exams.Delete);
 
         admin.MapGet("/exams", async (
@@ -462,6 +623,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminListExams")
+        .Produces<PaginatedResult<AdminExamDto>>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.View);
 
         admin.MapGet("/exams/{id:guid}", async (Guid id, ISender sender) =>
@@ -470,6 +632,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminGetExam")
+        .Produces<AdminExamDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.View);
 
         admin.MapPost("/exams", async (CreateAdminExamRequest request, ISender sender) =>
@@ -478,6 +641,7 @@ public static class ApplicationBuilderExtensions
             return Results.Created($"/api/v1/admin/exams/{result.Id}", result);
         })
         .WithName("AdminCreateExam")
+        .Produces<AdminExamDto>(StatusCodes.Status201Created)
         .RequirePermission(Permissions.Exams.Create);
 
         admin.MapPut("/exams/{id:guid}", async (Guid id, UpdateAdminExamRequest request, ISender sender) =>
@@ -486,6 +650,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminUpdateExam")
+        .Produces<AdminExamDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapPost("/exams/{id:guid}/archive", async (Guid id, ISender sender) =>
@@ -494,6 +659,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("AdminArchiveExam")
+        .Produces<AdminExamDto>(StatusCodes.Status200OK)
         .RequirePermission(Permissions.Exams.Edit);
 
         admin.MapDelete("/exams/{id:guid}", async (Guid id, ISender sender) =>
@@ -502,6 +668,7 @@ public static class ApplicationBuilderExtensions
             return Results.NoContent();
         })
         .WithName("AdminDeleteExam")
+        .Produces(StatusCodes.Status204NoContent)
         .RequirePermission(Permissions.Exams.Delete);
 
         admin.MapGet("/payment/products", async (
@@ -716,6 +883,7 @@ public static class ApplicationBuilderExtensions
             return Results.Created($"/api/v1/recruitment/contact-requests/{result.Id}", result);
         })
         .WithName("CreateRecruitmentContactRequest")
+        .Produces<ContactRequestDto>(StatusCodes.Status201Created)
         .RequireAuthorization();
 
         api.MapGet("/recruitment/contact-requests", async (
@@ -733,6 +901,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("ListMyRecruitmentContactRequests")
+        .Produces<PaginatedResult<ContactRequestDto>>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapGet("/recruitment/contact-requests/{id:guid}", async (Guid id, ISender sender) =>
@@ -741,6 +910,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("GetMyRecruitmentContactRequest")
+        .Produces<ContactRequestDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         api.MapPost("/recruitment/contact-requests/{id:guid}/cancel", async (Guid id, ISender sender) =>
@@ -749,6 +919,7 @@ public static class ApplicationBuilderExtensions
             return Results.Ok(result);
         })
         .WithName("CancelRecruitmentContactRequest")
+        .Produces<ContactRequestDto>(StatusCodes.Status200OK)
         .RequireAuthorization();
 
         var employerProfile = api.MapGroup("/me/employer-profile")
@@ -807,28 +978,32 @@ public static class ApplicationBuilderExtensions
             var result = await sender.Send(new GetCurrentNurseProfileQuery());
             return Results.Ok(result);
         })
-        .WithName("GetCurrentNurseProfile");
+        .WithName("GetCurrentNurseProfile")
+        .Produces<NurseProfileDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapPut("/", async (UpsertNurseProfileCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("UpsertCurrentNurseProfile");
+        .WithName("UpsertCurrentNurseProfile")
+        .Produces<NurseProfileDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/experiences", async (ISender sender) =>
         {
             var result = await sender.Send(new ListCurrentNurseExperiencesQuery());
             return Results.Ok(result);
         })
-        .WithName("ListCurrentNurseExperiences");
+        .WithName("ListCurrentNurseExperiences")
+        .Produces<IReadOnlyList<NurseExperienceDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/experiences", async (CreateNurseExperienceCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("CreateNurseExperience");
+        .WithName("CreateNurseExperience")
+        .Produces<NurseExperienceDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapPut("/experiences/{id:guid}", async (Guid id, UpdateNurseExperienceCommand request, ISender sender) =>
         {
@@ -846,28 +1021,32 @@ public static class ApplicationBuilderExtensions
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("UpdateNurseExperience");
+        .WithName("UpdateNurseExperience")
+        .Produces<NurseExperienceDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapDelete("/experiences/{id:guid}", async (Guid id, ISender sender) =>
         {
             await sender.Send(new DeleteNurseExperienceCommand(id));
             return Results.NoContent();
         })
-        .WithName("DeleteNurseExperience");
+        .WithName("DeleteNurseExperience")
+        .Produces(StatusCodes.Status204NoContent);
 
         nurseProfile.MapGet("/education", async (ISender sender) =>
         {
             var result = await sender.Send(new ListCurrentNurseEducationQuery());
             return Results.Ok(result);
         })
-        .WithName("ListCurrentNurseEducation");
+        .WithName("ListCurrentNurseEducation")
+        .Produces<IReadOnlyList<NurseEducationDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/education", async (CreateNurseEducationCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("CreateNurseEducation");
+        .WithName("CreateNurseEducation")
+        .Produces<NurseEducationDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapPut("/education/{id:guid}", async (Guid id, UpdateNurseEducationCommand request, ISender sender) =>
         {
@@ -885,28 +1064,32 @@ public static class ApplicationBuilderExtensions
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("UpdateNurseEducation");
+        .WithName("UpdateNurseEducation")
+        .Produces<NurseEducationDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapDelete("/education/{id:guid}", async (Guid id, ISender sender) =>
         {
             await sender.Send(new DeleteNurseEducationCommand(id));
             return Results.NoContent();
         })
-        .WithName("DeleteNurseEducation");
+        .WithName("DeleteNurseEducation")
+        .Produces(StatusCodes.Status204NoContent);
 
         nurseProfile.MapGet("/certificates", async (ISender sender) =>
         {
             var result = await sender.Send(new ListCurrentNurseCertificatesQuery());
             return Results.Ok(result);
         })
-        .WithName("ListCurrentNurseCertificates");
+        .WithName("ListCurrentNurseCertificates")
+        .Produces<IReadOnlyList<NurseCertificateDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/certificates", async (CreateNurseCertificateCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("CreateNurseCertificate");
+        .WithName("CreateNurseCertificate")
+        .Produces<NurseCertificateDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapPut("/certificates/{id:guid}", async (Guid id, UpdateNurseCertificateCommand request, ISender sender) =>
         {
@@ -923,42 +1106,48 @@ public static class ApplicationBuilderExtensions
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("UpdateNurseCertificate");
+        .WithName("UpdateNurseCertificate")
+        .Produces<NurseCertificateDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapDelete("/certificates/{id:guid}", async (Guid id, ISender sender) =>
         {
             await sender.Send(new DeleteNurseCertificateCommand(id));
             return Results.NoContent();
         })
-        .WithName("DeleteNurseCertificate");
+        .WithName("DeleteNurseCertificate")
+        .Produces(StatusCodes.Status204NoContent);
 
         nurseProfile.MapGet("/languages", async (ISender sender) =>
         {
             var result = await sender.Send(new ListCurrentNurseLanguagesQuery());
             return Results.Ok(result);
         })
-        .WithName("ListCurrentNurseLanguages");
+        .WithName("ListCurrentNurseLanguages")
+        .Produces<IReadOnlyList<NurseLanguageDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapPut("/languages", async (UpdateNurseLanguagesCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("UpdateNurseLanguages");
+        .WithName("UpdateNurseLanguages")
+        .Produces<IReadOnlyList<NurseLanguageDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/skills", async (ISender sender) =>
         {
             var result = await sender.Send(new ListCurrentNurseSkillsQuery());
             return Results.Ok(result);
         })
-        .WithName("ListCurrentNurseSkills");
+        .WithName("ListCurrentNurseSkills")
+        .Produces<IReadOnlyList<NurseSkillDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapPut("/skills", async (UpdateNurseSkillsCommand command, ISender sender) =>
         {
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("UpdateNurseSkills");
+        .WithName("UpdateNurseSkills")
+        .Produces<IReadOnlyList<NurseSkillDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/contact-requests", async (
             int? page,
@@ -974,21 +1163,24 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListReceivedContactRequests");
+        .WithName("ListReceivedContactRequests")
+        .Produces<PaginatedResult<ReceivedContactRequestDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/contact-requests/{id:guid}/approve", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new ApproveReceivedContactRequestCommand { Id = id });
             return Results.Ok(result);
         })
-        .WithName("ApproveReceivedContactRequest");
+        .WithName("ApproveReceivedContactRequest")
+        .Produces<ReceivedContactRequestDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/contact-requests/{id:guid}/reject", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new RejectReceivedContactRequestCommand { Id = id });
             return Results.Ok(result);
         })
-        .WithName("RejectReceivedContactRequest");
+        .WithName("RejectReceivedContactRequest")
+        .Produces<ReceivedContactRequestDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/exam-analytics/summary", async (
             DateTime? from,
@@ -1008,7 +1200,8 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("GetMyExamAnalyticsSummary");
+        .WithName("GetMyExamAnalyticsSummary")
+        .Produces<ExamAnalyticsSummaryDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/exam-analytics/by-exam", async (
             DateTime? from,
@@ -1032,7 +1225,8 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListMyExamAnalyticsByExam");
+        .WithName("ListMyExamAnalyticsByExam")
+        .Produces<PaginatedResult<ExamAnalyticsByExamDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/exam-analytics/by-category", async (
             DateTime? from,
@@ -1054,7 +1248,8 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListMyExamAnalyticsByCategory");
+        .WithName("ListMyExamAnalyticsByCategory")
+        .Produces<PaginatedResult<ExamAnalyticsByCategoryDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/exam-analytics/trends", async (
             DateTime? from,
@@ -1076,7 +1271,8 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListMyExamAnalyticsTrends");
+        .WithName("ListMyExamAnalyticsTrends")
+        .Produces<IReadOnlyList<ExamAnalyticsTrendPointDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/exam-attempts", async (
             int? page,
@@ -1092,14 +1288,20 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListMyExamAttempts");
+        .WithName("ListMyExamAttempts")
+        .Produces<PaginatedResult<ExamAttemptDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/payment/orders", async (CreatePaymentOrderRequest request, ISender sender) =>
         {
             var result = await sender.Send(new CreateMyPaymentOrderCommand { Request = request });
             return Results.Created($"/api/v1/me/nurse-profile/payment/orders/{result.Id}", result);
         })
-        .WithName("CreateMyPaymentOrder");
+        .WithName("CreateMyPaymentOrder")
+        .Produces<PaymentOrderDto>(StatusCodes.Status201Created)
+        .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict);
 
         nurseProfile.MapGet("/payment/orders", async (
             int? page,
@@ -1115,21 +1317,24 @@ public static class ApplicationBuilderExtensions
             });
             return Results.Ok(result);
         })
-        .WithName("ListMyPaymentOrders");
+        .WithName("ListMyPaymentOrders")
+        .Produces<PaginatedResult<PaymentOrderDto>>(StatusCodes.Status200OK);
 
         nurseProfile.MapGet("/payment/orders/{id:guid}", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new GetMyPaymentOrderQuery { Id = id });
             return Results.Ok(result);
         })
-        .WithName("GetMyPaymentOrder");
+        .WithName("GetMyPaymentOrder")
+        .Produces<PaymentOrderDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/payment/orders/{id:guid}/cancel", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new CancelMyPaymentOrderCommand { Id = id });
             return Results.Ok(result);
         })
-        .WithName("CancelMyPaymentOrder");
+        .WithName("CancelMyPaymentOrder")
+        .Produces<PaymentOrderDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/payment/orders/{orderId:guid}/checkout", async (
             Guid orderId,
@@ -1146,7 +1351,13 @@ public static class ApplicationBuilderExtensions
             httpContext.Response.Headers.CacheControl = "no-store";
             return Results.Ok(result);
         })
-        .WithName("StartMyPaymentCheckout");
+        .WithName("StartMyPaymentCheckout")
+        .Produces<PaymentCheckoutSessionDto>(StatusCodes.Status200OK)
+        .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status401Unauthorized)
+        .ProducesProblem(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status409Conflict)
+        .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
 
         if (app.Environment.IsDevelopment() || string.Equals(app.Environment.EnvironmentName, "Test", StringComparison.OrdinalIgnoreCase))
         {
@@ -1164,6 +1375,12 @@ public static class ApplicationBuilderExtensions
                 return Results.Ok(result);
             })
             .WithName("CompleteSandboxPaymentCheckout")
+            .Produces<PaymentCompletionDto>(StatusCodes.Status200OK)
+            .ProducesValidationProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status503ServiceUnavailable)
             .RequireAuthorization();
         }
 
@@ -1172,7 +1389,8 @@ public static class ApplicationBuilderExtensions
             var result = await sender.Send(new GetCurrentNurseCvQuery());
             return Results.Ok(result);
         })
-        .WithName("GetCurrentNurseCv");
+        .WithName("GetCurrentNurseCv")
+        .Produces<NurseCvDocumentDto>(StatusCodes.Status200OK);
 
         nurseProfile.MapPost("/cv", async (HttpRequest request, ISender sender) =>
         {
@@ -1199,14 +1417,44 @@ public static class ApplicationBuilderExtensions
             var result = await sender.Send(command);
             return Results.Ok(result);
         })
-        .WithName("UploadNurseCv");
+        .WithName("UploadNurseCv")
+        .Produces<NurseCvDocumentDto>(StatusCodes.Status200OK)
+        .AddOpenApiOperationTransformer((operation, _, _) =>
+        {
+            operation.RequestBody = new OpenApiRequestBody
+            {
+                Required = true,
+                Content = new Dictionary<string, OpenApiMediaType>
+                {
+                    ["multipart/form-data"] = new OpenApiMediaType
+                    {
+                        Schema = new OpenApiSchema
+                        {
+                            Type = JsonSchemaType.Object,
+                            Required = new HashSet<string>(StringComparer.Ordinal) { "file" },
+                            Properties = new Dictionary<string, IOpenApiSchema>
+                            {
+                                ["file"] = new OpenApiSchema
+                                {
+                                    Type = JsonSchemaType.String,
+                                    Format = "binary"
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            return Task.CompletedTask;
+        });
 
         nurseProfile.MapDelete("/cv", async (ISender sender) =>
         {
             await sender.Send(new DeleteNurseCvCommand());
             return Results.NoContent();
         })
-        .WithName("DeleteNurseCv");
+        .WithName("DeleteNurseCv")
+        .Produces(StatusCodes.Status204NoContent);
 
         return app;
     }

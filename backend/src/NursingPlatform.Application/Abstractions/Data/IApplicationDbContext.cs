@@ -4,6 +4,7 @@ using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
 using NursingPlatform.Domain.Payments;
+using NursingPlatform.Domain.PreparationPackages;
 using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Domain.ReferenceData;
 
@@ -38,6 +39,8 @@ public interface IApplicationDbContext
     DbSet<ExamAnswerOption> ExamAnswerOptions { get; }
     DbSet<ExamAccessGrant> ExamAccessGrants { get; }
     DbSet<ExamSession> ExamSessions { get; }
+    DbSet<ExamSessionProvenance> ExamSessionProvenances => throw new NotSupportedException(
+        "This IApplicationDbContext implementation does not expose exam session provenance persistence.");
     DbSet<ExamSessionQuestion> ExamSessionQuestions { get; }
     DbSet<ExamSessionAnswerOption> ExamSessionAnswerOptions { get; }
     DbSet<ExamSessionAnswer> ExamSessionAnswers { get; }
@@ -45,6 +48,31 @@ public interface IApplicationDbContext
     DbSet<PaymentOrder> PaymentOrders { get; }
     DbSet<PaymentOrderItem> PaymentOrderItems { get; }
     DbSet<PaymentCheckoutSession> PaymentCheckoutSessions { get; }
+    DbSet<PackageOrderItemSnapshot> PackageOrderItemSnapshots { get; }
+    DbSet<PackagePurchaseEntitlement> PackagePurchaseEntitlements { get; }
+    DbSet<PackageBenefitRight> PackageBenefitRights { get; }
+    DbSet<PackagePracticeProgress> PackagePracticeProgresses => throw new NotSupportedException(
+        "This IApplicationDbContext implementation does not expose package practice progress persistence.");
+    DbSet<PackageAnalyticalReport> PackageAnalyticalReports => throw new NotSupportedException(
+        "This IApplicationDbContext implementation does not expose package analytical report persistence.");
+    DbSet<PackageAnalyticalReportTopicResult> PackageAnalyticalReportTopicResults => throw new NotSupportedException(
+        "This IApplicationDbContext implementation does not expose package analytical report topic persistence.");
+    DbSet<PackageAnalyticalReportGuidanceItem> PackageAnalyticalReportGuidanceItems => throw new NotSupportedException(
+        "This IApplicationDbContext implementation does not expose package analytical report guidance persistence.");
+    DbSet<PreparationPackageDefinition> PreparationPackageDefinitions { get; }
+    DbSet<PreparationPackageVersion> PreparationPackageVersions { get; }
+    DbSet<PreparationPackageVersionMaterial> PreparationPackageVersionMaterials { get; }
+    DbSet<PreparationPackageOffer> PreparationPackageOffers { get; }
+    DbSet<StudyMaterial> StudyMaterials { get; }
+    DbSet<StudyMaterialVersion> StudyMaterialVersions { get; }
+    DbSet<StudyMaterialVersionTopic> StudyMaterialVersionTopics { get; }
+    DbSet<PracticeCollection> PracticeCollections { get; }
+    DbSet<PracticeCollectionVersion> PracticeCollectionVersions { get; }
+    DbSet<PracticeItem> PracticeItems { get; }
+    DbSet<PracticeAnswerOption> PracticeAnswerOptions { get; }
+    DbSet<ReportingTopic> ReportingTopics { get; }
+    DbSet<ReportingProfilePublication> ReportingProfilePublications { get; }
+    DbSet<ReportingProfileQuestionAssignment> ReportingProfileQuestionAssignments { get; }
     Task<IApplicationDbTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
     Task<int> AcquirePaymentCheckoutProviderLeaseAsync(
         Guid checkoutSessionId,
@@ -58,6 +86,10 @@ public interface IApplicationDbContext
         DateTime paidAt,
         CancellationToken cancellationToken = default);
     bool IsUniqueEffectiveExamAccessGrantViolation(DbUpdateException exception);
+    bool IsUniqueInProgressExamSessionViolation(DbUpdateException exception);
+    bool IsUniquePackageAnalyticalReportSessionViolation(DbUpdateException exception) => false;
+    bool IsUniqueUserEmailViolation(DbUpdateException exception) => false;
+    bool IsUniqueUsernameViolation(DbUpdateException exception) => false;
     Task<int> ExecuteContactRequestTransitionAsync(
         Guid id,
         Guid ownerProfileId,

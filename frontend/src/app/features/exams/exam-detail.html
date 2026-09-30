@@ -1,0 +1,54 @@
+<section class="np-exam-detail" aria-labelledby="exam-detail-title">
+  <a class="np-exam-detail-back" [routerLink]="backPath" data-testid="exam-back-link">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m6 6-6-6 6-6" /></svg>
+    {{ i18n.t('exams.backToExams') }}
+  </a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('exams.detailLoading')"
+    [fallbackErrorTitle]="i18n.t('exams.detailLoadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (notFound()) {
+      <p role="status" data-testid="exam-missing-notice">{{ i18n.t('exams.missing') }}</p>
+    } @else if (exam(); as detail) {
+      <div class="np-exam-detail-hero">
+        @if (isStartable()) { <span class="np-exam-detail-badge">{{ i18n.t('exams.readyToStart') }}</span> }
+        <h1 id="exam-detail-title">{{ detail.title }}</h1>
+        @if (hasDescription()) { <p class="np-exam-detail-description">{{ detail.description }}</p> }
+      </div>
+
+      <dl class="np-exam-detail-facts">
+        @if (hasCountry()) {
+          <div><dt>{{ i18n.t('exams.country') }}</dt><dd>{{ detail.countryName }}</dd></div>
+        }
+        @if (hasCategory()) {
+          <div><dt>{{ i18n.t('exams.category') }}</dt><dd>{{ detail.categoryName }}</dd></div>
+        }
+        <div><dt>{{ i18n.t('exams.duration') }}</dt><dd>{{ detail.durationMinutes }} {{ i18n.t('exams.minutes') }}</dd></div>
+        <div><dt>{{ i18n.t('exams.passingScore') }}</dt><dd>{{ detail.passingScorePercentage }}% <span>({{ detail.questionCount }} {{ i18n.t('exams.questions') }})</span></dd></div>
+      </dl>
+
+      <section class="np-exam-detail-summary" aria-labelledby="exam-summary-heading">
+        <h2 id="exam-summary-heading">{{ i18n.t('exams.instructionsSummary') }}</h2>
+        <p>{{ hasInstructions() ? detail.instructions : i18n.t('exams.noInstructions') }}</p>
+      </section>
+
+      @if (requiresPurchase()) {
+        <p role="status" class="np-exam-detail-unavailable" data-testid="exam-requires-purchase">{{ i18n.t('exams.requiresPurchase') }}</p>
+      }
+      <div class="np-exam-detail-actions">
+        <a [routerLink]="backPath" data-testid="exam-bottom-back-link">{{ i18n.t('exams.backToExams') }}</a>
+        @if (isStartable()) {
+          <a class="np-exam-detail-primary" [routerLink]="instructionsPath()" data-testid="exam-instructions-link">
+            {{ i18n.t('exams.viewInstructions') }}
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+          </a>
+        }
+      </div>
+    }
+  }
+</section>

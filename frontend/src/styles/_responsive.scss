@@ -1,0 +1,17 @@
+@use 'abstracts/responsive';
+
+:root {
+  --np-page-gutter: 16px;
+}
+
+@include responsive.respond-from(tablet) {
+  :root {
+    --np-page-gutter: 24px;
+  }
+}
+
+@include responsive.respond-from(desktop) {
+  :root {
+    --np-page-gutter: 32px;
+  }
+}

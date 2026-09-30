@@ -1,0 +1,68 @@
+<section class="np-nurse-contact-requests" aria-labelledby="nurse-contact-requests-title">
+  <np-live-region />
+
+  <p class="np-nurse-contact-requests-kicker">{{ i18n.t('contact.kicker') }}</p>
+  <h1 id="nurse-contact-requests-title">{{ i18n.t('contact.title') }}</h1>
+
+  @if (notice() !== '') {
+    <p class="np-nurse-contact-requests-notice" role="status">{{ notice() }}</p>
+  }
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('contact.loading')"
+    [fallbackErrorTitle]="i18n.t('contact.loadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    <div class="np-nurse-contact-requests-filter">
+      <np-select-control
+        controlId="nurse-contact-requests-status"
+        [label]="i18n.t('contact.statusLabel')"
+        [required]="false"
+        [value]="statusValue"
+        [options]="statusOptions"
+        (valueChange)="updateStatusFilter($event)"
+      />
+    </div>
+
+    @if (listState() === 'empty') {
+      <np-empty-state
+        kind="empty"
+        [title]="i18n.t('contact.emptyTitle')"
+        [description]="i18n.t('contact.emptyText')"
+      />
+    } @else if (listState() === 'no-results') {
+      <np-empty-state
+        kind="no-results"
+        [title]="i18n.tp('contact.noStatusRequests', { status: statusLabel.toLowerCase() })"
+        [description]="i18n.t('contact.noResultsHint')"
+        [actionLabel]="i18n.t('contact.clearFilter')"
+        (actionRequested)="clearFilter()"
+      />
+    } @else {
+      <ul class="np-nurse-contact-requests-list">
+        @for (request of result()?.items ?? []; track request.id) {
+          <li>
+            <np-nurse-contact-request-card
+              [request]="request"
+              [isMutating]="isMutating(request.id)"
+              [mutationError]="cardError(request.id)"
+              (approveRequested)="approve($event)"
+              (rejectConfirmed)="reject($event)"
+            />
+          </li>
+        }
+      </ul>
+      <np-pagination
+        [page]="page()"
+        [totalPages]="result()?.totalPages ?? 0"
+        [totalCount]="result()?.totalCount ?? 0"
+        [itemLabel]="i18n.t('contact.itemLabel')"
+        [ariaLabel]="i18n.t('contact.paginationLabel')"
+        (pageRequested)="loadPage($event)"
+      />
+    }
+  }
+</section>

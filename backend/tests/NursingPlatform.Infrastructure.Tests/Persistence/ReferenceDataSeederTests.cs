@@ -28,7 +28,7 @@ public class ReferenceDataSeederTests
     }
 
     [Fact]
-    public async Task SeedAsync_SuperAdmin_GetsAllTwentyPermissions()
+    public async Task SeedAsync_SuperAdmin_GetsAllPermissions()
     {
         var context = CreateDbContext();
 
@@ -38,11 +38,11 @@ public class ReferenceDataSeederTests
             .Where(rp => rp.Role.Name == "SuperAdmin")
             .CountAsync();
 
-        Assert.Equal(20, pairs);
+        Assert.Equal(28, pairs);
     }
 
     [Fact]
-    public async Task SeedAsync_Admin_GetsAllTwentyPermissions()
+    public async Task SeedAsync_Admin_GetsAllPermissions()
     {
         var context = CreateDbContext();
 
@@ -52,7 +52,7 @@ public class ReferenceDataSeederTests
             .Where(rp => rp.Role.Name == "Admin")
             .CountAsync();
 
-        Assert.Equal(20, pairs);
+        Assert.Equal(28, pairs);
     }
 
     [Fact]
@@ -84,6 +84,31 @@ public class ReferenceDataSeederTests
     }
 
     [Fact]
+    public async Task SeedAsync_WhenExistingRolesAreMissingExpert_AddsExpertWithoutDuplicatingRoles()
+    {
+        var context = CreateDbContext();
+        context.Set<Role>().AddRange(
+        [
+            new() { Id = new Guid("F8091A2B-3C4D-45E6-F708-192A3B4C5D6E"), Name = "SuperAdmin", Description = "Full system access" },
+            new() { Id = new Guid("091A2B3C-4D5E-46F7-0819-2A3B4C5D6E7F"), Name = "Admin", Description = "Administrative access" },
+            new() { Id = new Guid("1A2B3C4D-5E6F-4708-192A-3B4C5D6E7F80"), Name = "Nurse", Description = "Nurse user" },
+            new() { Id = new Guid("2B3C4D5E-6F70-4819-2A3B-4C5D6E7F8091"), Name = "Employer", Description = "Employer user" }
+        ]);
+        await context.SaveChangesAsync();
+
+        await ReferenceDataSeeder.SeedAsync(context);
+
+        var roles = await context.Set<Role>().ToListAsync();
+        Assert.Equal(5, roles.Count);
+        Assert.Single(roles, role =>
+            role.Id == new Guid("3C4D5E6F-7081-492A-3B4C-5D6E7F8091A2") &&
+            role.Name == "Expert" &&
+            role.Description == "Expert user");
+        Assert.Equal(roles.Count, roles.Select(role => role.Name).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(roles.Count, roles.Select(role => role.Id).Distinct().Count());
+    }
+
+    [Fact]
     public async Task SeedAsync_WhenCalledTwice_DoesNotDuplicateRolePermissions()
     {
         var context = CreateDbContext();
@@ -92,7 +117,7 @@ public class ReferenceDataSeederTests
         await ReferenceDataSeeder.SeedAsync(context);
 
         var pairCount = await context.Set<RolePermission>().CountAsync();
-        Assert.Equal(40, pairCount);
+        Assert.Equal(56, pairCount);
     }
 
     [Fact]
@@ -112,7 +137,7 @@ public class ReferenceDataSeederTests
         await ReferenceDataSeeder.SeedAsync(context);
 
         var pairCount = await context.Set<RolePermission>().CountAsync();
-        Assert.Equal(40, pairCount);
+        Assert.Equal(56, pairCount);
     }
 
     [Fact]
@@ -139,7 +164,7 @@ public class ReferenceDataSeederTests
         await ReferenceDataSeeder.SeedAsync(context);
 
         var allPairs = await context.Set<RolePermission>().ToListAsync();
-        Assert.Equal(40, allPairs.Count);
+        Assert.Equal(56, allPairs.Count);
         Assert.Single(allPairs, rp =>
             rp.RoleId == superAdmin.Id && rp.PermissionId == usersView.Id);
     }
@@ -166,12 +191,50 @@ public class ReferenceDataSeederTests
         await ReferenceDataSeeder.SeedAsync(context);
 
         var allPairs = await context.Set<RolePermission>().ToListAsync();
-        Assert.Equal(40, allPairs.Count);
+        Assert.Equal(56, allPairs.Count);
 
         var experimentalPermission = await context.Set<Permission>()
             .FirstAsync(p => p.Name == "Experimental.Manage");
         var extraGranted = allPairs.Count(rp =>
             rp.PermissionId == experimentalPermission.Id);
         Assert.Equal(0, extraGranted);
+    }
+
+    [Fact]
+    public async Task PreparationPackagePermissionSeedData_IncludesDedicatedPermissions()
+    {
+        var context = CreateDbContext();
+        var expectedPermissions = new[]
+        {
+            "PreparationPackages.View",
+            "PreparationPackages.Manage",
+            "PreparationPackages.Publish",
+            "PreparationPackageOffers.Manage",
+            "StudyMaterials.Manage",
+            "PracticeCollections.Manage",
+            "ReportingTopics.Manage",
+            "ReportingProfiles.Manage"
+        };
+
+        await ReferenceDataSeeder.SeedAsync(context);
+
+        var permissionNames = await context.Set<Permission>()
+            .Select(permission => permission.Name)
+            .ToListAsync();
+
+        Assert.All(expectedPermissions, permission => Assert.Contains(permission, permissionNames));
+    }
+
+    [Fact]
+    public async Task PreparationPackagePermissionSeedData_HasNoDuplicateNamesOrIds()
+    {
+        var context = CreateDbContext();
+
+        await ReferenceDataSeeder.SeedAsync(context);
+
+        var permissions = await context.Set<Permission>().ToListAsync();
+
+        Assert.Equal(permissions.Count, permissions.Select(permission => permission.Id).Distinct().Count());
+        Assert.Equal(permissions.Count, permissions.Select(permission => permission.Name).Distinct(StringComparer.Ordinal).Count());
     }
 }

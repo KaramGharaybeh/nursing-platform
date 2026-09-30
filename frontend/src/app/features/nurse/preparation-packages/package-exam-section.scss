@@ -1,0 +1,13 @@
+.np-package-exam-section {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+.np-package-exam-section h2 {
+  margin: var(--np-space-24) 0 0;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}

@@ -1,0 +1,18 @@
+<article class="np-entitlement-card" data-testid="entitlement-card">
+  <h3>{{ entitlement.packageOfferTitle }}</h3>
+  <p class="np-entitlement-definition">{{ entitlement.packageDefinitionTitle }}</p>
+  <p class="np-entitlement-exam">{{ entitlement.includedExamTitle }}</p>
+  <p class="np-entitlement-status">{{ statusText(entitlement.status) }}</p>
+  <p class="np-entitlement-dates">{{ i18n.t('npp.accessStarts') }} {{ entitlement.accessStartsAt | date: 'medium' }}</p>
+  <p class="np-entitlement-dates">{{ i18n.t('npp.accessEnds') }} {{ entitlement.accessEndsAt | date: 'medium' }}</p>
+  @if (entitlement.benefitRights.length > 0) {
+    <ul class="np-entitlement-rights">
+      @for (right of entitlement.benefitRights; track $index) {
+        <li>
+          {{ rightTypeText(right.rightType) }} — {{ statusText(right.status) }} ({{ availabilityLabel(right.isAvailable) }}@if (right.isDormant) {, {{ i18n.t('npp.dormant') }} })
+        </li>
+      }
+    </ul>
+  }
+  <a [routerLink]="detailPath()" data-testid="entitlement-details-link">{{ i18n.t('npp.viewDetails') }}</a>
+</article>

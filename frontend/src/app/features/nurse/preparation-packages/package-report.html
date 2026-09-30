@@ -1,0 +1,52 @@
+<section class="np-package-report" aria-labelledby="package-report-title">
+  <a [routerLink]="backPath" data-testid="package-report-back-link">{{ i18n.t('npp.reportBack') }}</a>
+
+  <h1 id="package-report-title">{{ i18n.t('npp.reportTitle') }}</h1>
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('npp.reportLoading')"
+    [fallbackErrorTitle]="i18n.t('npp.reportLoadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (unavailable()) {
+      <p role="status" data-testid="package-report-unavailable">{{ i18n.t('npp.reportUnavailable') }}</p>
+    } @else if (notFinalized()) {
+      <p role="status" data-testid="package-report-unavailable">{{ i18n.t('npp.reportNotFinalized') }}</p>
+    } @else if (report(); as detail) {
+      <dl class="np-package-report-summary">
+        <div><dt>{{ i18n.t('npp.reportCorrect') }}</dt><dd data-testid="package-report-correct">{{ detail.correctCount }}</dd></div>
+        <div><dt>{{ i18n.t('npp.reportQuestions') }}</dt><dd data-testid="package-report-questions">{{ detail.questionCount }}</dd></div>
+        <div><dt>{{ i18n.t('npp.reportPercentage') }}</dt><dd data-testid="package-report-percentage">{{ detail.percentage }}%</dd></div>
+      </dl>
+      <h2>{{ i18n.t('npp.reportTopics') }}</h2>
+      @if (detail.topicResults.length > 0) {
+        <ul class="np-package-report-topics">
+          @for (topic of detail.topicResults; track topic.reportingTopicId) {
+            <li data-testid="package-report-topic">
+              <p data-testid="package-report-topic-name">{{ topic.topicName }}</p>
+              <p>{{ topic.correctCount }} of {{ topic.scoredQuestionCount }} · {{ topic.percentage }}%</p>
+            </li>
+          }
+        </ul>
+      }
+      <h2>{{ i18n.t('npp.reportGuidance') }}</h2>
+      @if (hasGuidance()) {
+        <ul class="np-package-report-guidance">
+          @for (item of detail.guidanceItems; track $index) {
+            <li data-testid="package-report-guidance">
+              @if (guidanceLabel(item); as label) {
+                <p>{{ label }}</p>
+              }
+              <p>{{ item.title }}</p>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p>{{ i18n.t('npp.reportNoGuidance') }}</p>
+      }
+    }
+  }
+</section>

@@ -1,0 +1,54 @@
+<div class="np-auth-field">
+  <label class="np-auth-field-label" [for]="controlId()">
+    {{ label() }}
+    @if (required()) {
+      <span class="np-auth-field-required" aria-hidden="true">*</span>
+    }
+  </label>
+  <div class="np-auth-field-control">
+    <input
+      class="np-auth-field-input"
+      [class.np-auth-field-input-error]="errorText() !== ''"
+      [class.np-auth-field-input-with-toggle]="type() === 'password' && showVisibilityToggle()"
+      [id]="controlId()"
+      [type]="inputType()"
+      [value]="value()"
+      [placeholder]="placeholder()"
+      [required]="required()"
+      [disabled]="disabled()"
+      [attr.aria-invalid]="errorText() !== '' ? 'true' : null"
+      [attr.aria-describedby]="(helperText() !== '' ? controlId() + '-helper' : '') + (helperText() !== '' && errorText() !== '' ? ' ' : '') + (errorText() !== '' ? controlId() + '-error' : '') || null"
+      (input)="updateValue($event)"
+    />
+    @if (type() === 'password' && showVisibilityToggle()) {
+      <button
+        class="np-auth-field-visibility"
+        type="button"
+        [disabled]="disabled()"
+        [attr.aria-label]="passwordVisible() ? i18n.t('auth.hidePassword') : i18n.t('auth.showPassword')"
+        [attr.aria-pressed]="passwordVisible()"
+        (click)="toggleVisibility()"
+      >
+        @if (passwordVisible()) {
+        <svg data-icon="visibility-off" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+          <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+          <line x1="1" y1="1" x2="23" y2="23" />
+        </svg>
+        } @else {
+        <svg data-icon="visibility" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          <path d="M2.5 12C3.7 8 7.5 5 12 5s8.3 3 9.5 7c-1.2 4-5 7-9.5 7S3.7 16 2.5 12Z" />
+        </svg>
+        }
+      </button>
+    }
+  </div>
+  @if (helperText() !== '') {
+    <p class="np-auth-field-helper" [id]="controlId() + '-helper'">{{ helperText() }}</p>
+  }
+  @if (errorText() !== '') {
+    <p class="np-auth-field-error" [id]="controlId() + '-error'">{{ errorText() }}</p>
+  }
+</div>

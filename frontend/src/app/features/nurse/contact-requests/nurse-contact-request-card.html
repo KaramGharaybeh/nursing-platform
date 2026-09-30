@@ -1,0 +1,66 @@
+<article class="np-contact-request-card" data-testid="contact-request-card">
+  <h3>{{ request.organizationName }}</h3>
+  @if (contextLine !== '') {
+    <p class="np-contact-request-context">{{ contextLine }}</p>
+  }
+  <p class="np-contact-request-status">{{ statusText }}</p>
+  <p class="np-contact-request-dates">{{ i18n.t('contact.received') }} {{ request.createdAt | date: 'medium' }}</p>
+  @if (!isPending && request.respondedAt) {
+    <p class="np-contact-request-dates">{{ i18n.t('contact.responded') }} {{ request.respondedAt | date: 'medium' }}</p>
+  }
+
+  @if (isPending) {
+    @if (isConfirmingReject) {
+      <div class="np-contact-request-confirm">
+        <p role="status">{{ i18n.t('contact.rejectConfirm') }}</p>
+        <div class="np-contact-request-confirm-actions">
+          <button
+            mat-flat-button
+            color="warn"
+            type="button"
+            data-testid="request-confirm-reject"
+            [disabled]="isMutating"
+            (click)="confirmReject()"
+          >
+            {{ i18n.t('contact.rejectVerb') }}
+          </button>
+          <button
+            mat-button
+            type="button"
+            data-testid="request-keep"
+            [disabled]="isMutating"
+            (click)="cancelReject()"
+          >
+            {{ i18n.t('contact.keep') }}
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div class="np-contact-request-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          data-testid="request-approve"
+          [disabled]="isMutating"
+          (click)="approve()"
+        >
+          {{ i18n.t('contact.approve') }}
+        </button>
+        <button
+          mat-button
+          type="button"
+          class="np-contact-request-reject"
+          data-testid="request-reject"
+          [disabled]="isMutating"
+          (click)="requestReject()"
+        >
+          {{ i18n.t('contact.rejectVerb') }}
+        </button>
+      </div>
+    }
+  }
+  @if (mutationError !== '') {
+    <p class="np-contact-request-error" role="alert">{{ mutationError }}</p>
+  }
+</article>

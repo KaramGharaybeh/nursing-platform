@@ -33,7 +33,8 @@ The project is designed with a strong focus on scalability, maintainability, sec
 - Standalone Components
 - Angular Signals
 - RxJS
-- Tailwind CSS
+- Angular Material
+- SCSS
 
 ## Infrastructure
 
@@ -97,15 +98,7 @@ Run the Web API.
 dotnet run --project src/NursingPlatform.WebApi
 ```
 
-Run the frontend.
-
-```bash
-cd ../frontend
-
-npm install
-
-npm start
-```
+The frontend workspace has not been initialized. Frontend scaffold and run commands will be documented only after an approved Frontend Foundation specification and implementation plan are executed.
 
 ---
 
@@ -220,7 +213,7 @@ This project is licensed under a private license.
 
 # AI Development Workflow
 
-This project is designed to be developed with AI coding assistants such as OpenCode, BigPickle, Claude, and GPT.
+This project can be developed with AI coding assistants that follow the current project rules and task-specific authorities.
 
 Before implementing any feature, AI agents must follow the workflow defined in:
 

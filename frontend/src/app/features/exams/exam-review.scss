@@ -1,0 +1,164 @@
+@use '../../../styles/abstracts/responsive' as responsive;
+
+.np-exam-review {
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 56rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24) var(--np-space-48);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-exam-review-back {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--np-button-height);
+  margin-block-end: var(--np-space-24);
+}
+
+.np-exam-review-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-16);
+  margin-block-end: var(--np-space-24);
+  padding-block-end: var(--np-space-24);
+  border-block-end: 1px solid var(--np-color-border);
+
+  h1 {
+    margin: 0;
+    font-size: 1.875rem;
+    line-height: 1.3;
+  }
+
+  [data-testid='exam-review-title'] {
+    margin: var(--np-space-8) 0 0;
+    color: var(--np-color-secondary-text);
+  }
+
+  [data-testid='exam-review-expired'] {
+    margin: 0;
+    padding: var(--np-space-8) var(--np-space-16);
+    border: 1px solid var(--np-color-border-strong);
+    border-radius: var(--np-button-radius);
+    background: var(--np-color-subtle-surface);
+    font-weight: 600;
+  }
+}
+
+.np-exam-review-card {
+  border: 1px solid var(--np-color-border);
+  border-radius: var(--np-space-16);
+  background: var(--np-color-surface);
+}
+
+.np-exam-review-card-header,
+.np-exam-review-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-12);
+  padding: var(--np-space-16) var(--np-space-24);
+  background: var(--np-color-subtle-surface);
+}
+
+.np-exam-review-card-header {
+  border-block-end: 1px solid var(--np-color-border);
+
+  p { margin: 0; }
+
+  [data-testid='exam-review-position'] { font-weight: 700; }
+
+  [data-testid='exam-review-status'] {
+    padding: var(--np-space-4) var(--np-space-12);
+    border: 1px solid var(--np-color-border-strong);
+    border-radius: var(--np-button-radius);
+    background: var(--np-color-surface);
+    font-weight: 600;
+  }
+}
+
+.np-exam-review-card-body { padding: var(--np-space-24); }
+
+.np-exam-review-card h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.np-exam-review-options {
+  display: grid;
+  gap: var(--np-space-12);
+  margin: var(--np-space-24) 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--np-space-12);
+    min-inline-size: 0;
+    padding: var(--np-space-16);
+    border: 1px solid var(--np-color-border);
+    border-radius: var(--np-button-radius);
+  }
+
+  strong {
+    padding: var(--np-space-4) var(--np-space-8);
+    border: 1px solid var(--np-color-border-strong);
+    border-radius: var(--np-button-radius);
+    font-size: 0.875rem;
+  }
+
+  .np-exam-review-option-selected { border-color: var(--np-color-brand-3); }
+
+  .np-exam-review-option-correct { background: var(--np-color-active-surface); }
+}
+
+.np-exam-review-explanation {
+  margin-block-start: var(--np-space-24);
+  padding: var(--np-space-20);
+  border: 1px solid var(--np-color-border-strong);
+  border-radius: var(--np-button-radius);
+  background: var(--np-color-active-surface);
+
+  h3 { margin: 0; }
+
+  p {
+    margin-block-end: 0;
+    white-space: pre-line;
+  }
+}
+
+.np-exam-review-card-footer {
+  border-block-start: 1px solid var(--np-color-border);
+
+  button:last-child:not(:disabled) {
+    border-color: var(--np-color-brand-1);
+    background: var(--np-color-brand-1);
+    color: var(--np-color-surface);
+  }
+}
+
+.np-exam-review a:focus-visible,
+.np-exam-review button:focus-visible {
+  outline: var(--np-focus-ring-width) solid var(--np-focus-ring-color);
+  outline-offset: var(--np-focus-ring-offset);
+}
+
+@include responsive.respond-from(tablet) {
+  .np-exam-review-card-body { padding: var(--np-space-32); }
+}
+
+@media (width < 600px) {
+  .np-exam-review a,
+  .np-exam-review button { min-block-size: var(--np-space-48); }
+
+  .np-exam-review-card-footer button { flex: 1; }
+}

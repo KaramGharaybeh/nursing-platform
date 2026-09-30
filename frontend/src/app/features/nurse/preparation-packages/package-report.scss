@@ -1,0 +1,51 @@
+.np-package-report {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-package-report h1 {
+  margin: var(--np-space-16) 0 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-package-report h2 {
+  margin: var(--np-space-24) 0 0;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+.np-package-report-summary {
+  display: grid;
+  gap: var(--np-space-8);
+  margin: var(--np-space-16) 0 0;
+}
+
+.np-package-report-summary div {
+  display: grid;
+  gap: var(--np-space-4);
+}
+
+.np-package-report-summary dt {
+  font-weight: 600;
+}
+
+.np-package-report-summary dd {
+  margin: 0;
+}
+
+.np-package-report-topics,
+.np-package-report-guidance {
+  display: grid;
+  gap: var(--np-space-16);
+  margin: var(--np-space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}

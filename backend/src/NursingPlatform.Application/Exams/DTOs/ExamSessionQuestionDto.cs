@@ -7,5 +7,6 @@ public class ExamSessionQuestionDto
     public string Text { get; set; } = string.Empty;
     public int Points { get; set; }
     public Guid? SelectedExamSessionAnswerOptionId { get; set; }
+    public bool IsFlagged { get; set; }
     public IReadOnlyList<ExamSessionAnswerOptionDto> Options { get; set; } = [];
 }

@@ -1,0 +1,115 @@
+@use '@angular/material' as mat;
+@use 'tokens';
+
+/* stylelint-disable color-hex-length -- T-FE-009 keeps exact six-digit approved color constants. */
+$np-material-primary-palette: (
+  50: #006B66,
+  100: #006B66,
+  200: #006B66,
+  300: #006B66,
+  400: #006B66,
+  500: #006B66,
+  600: #006B66,
+  700: #006B66,
+  800: #006B66,
+  900: #006B66,
+  A100: #006B66,
+  A200: #006B66,
+  A400: #006B66,
+  A700: #006B66,
+  contrast: (
+    50: #FFFFFF,
+    100: #FFFFFF,
+    200: #FFFFFF,
+    300: #FFFFFF,
+    400: #FFFFFF,
+    500: #FFFFFF,
+    600: #FFFFFF,
+    700: #FFFFFF,
+    800: #FFFFFF,
+    900: #FFFFFF,
+    A100: #FFFFFF,
+    A200: #FFFFFF,
+    A400: #FFFFFF,
+    A700: #FFFFFF,
+  ),
+);
+$np-material-accent-palette: (
+  50: #173B57,
+  100: #173B57,
+  200: #173B57,
+  300: #173B57,
+  400: #173B57,
+  500: #173B57,
+  600: #173B57,
+  700: #173B57,
+  800: #173B57,
+  900: #173B57,
+  A100: #173B57,
+  A200: #173B57,
+  A400: #173B57,
+  A700: #173B57,
+  contrast: (
+    50: #FFFFFF,
+    100: #FFFFFF,
+    200: #FFFFFF,
+    300: #FFFFFF,
+    400: #FFFFFF,
+    500: #FFFFFF,
+    600: #FFFFFF,
+    700: #FFFFFF,
+    800: #FFFFFF,
+    900: #FFFFFF,
+    A100: #FFFFFF,
+    A200: #FFFFFF,
+    A400: #FFFFFF,
+    A700: #FFFFFF,
+  ),
+);
+$np-material-warn-palette: (
+  50: #B3261E,
+  100: #B3261E,
+  200: #B3261E,
+  300: #B3261E,
+  400: #B3261E,
+  500: #B3261E,
+  600: #B3261E,
+  700: #B3261E,
+  800: #B3261E,
+  900: #B3261E,
+  A100: #B3261E,
+  A200: #B3261E,
+  A400: #B3261E,
+  A700: #B3261E,
+  contrast: (
+    50: #FFFFFF,
+    100: #FFFFFF,
+    200: #FFFFFF,
+    300: #FFFFFF,
+    400: #FFFFFF,
+    500: #FFFFFF,
+    600: #FFFFFF,
+    700: #FFFFFF,
+    800: #FFFFFF,
+    900: #FFFFFF,
+    A100: #FFFFFF,
+    A200: #FFFFFF,
+    A400: #FFFFFF,
+    A700: #FFFFFF,
+  ),
+);
+$np-material-primary: mat.m2-define-palette($np-material-primary-palette, 500);
+$np-material-accent: mat.m2-define-palette($np-material-accent-palette, 500);
+$np-material-warn: mat.m2-define-palette($np-material-warn-palette, 500);
+$np-material-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $np-material-primary,
+      accent: $np-material-accent,
+      warn: $np-material-warn,
+    ),
+  )
+);
+
+@include mat.all-component-themes($np-material-theme);
+/* stylelint-enable color-hex-length */

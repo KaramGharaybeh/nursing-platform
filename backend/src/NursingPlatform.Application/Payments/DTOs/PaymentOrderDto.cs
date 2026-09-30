@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace NursingPlatform.Application.Payments.DTOs;
 
 public class PaymentOrderDto
@@ -5,6 +7,7 @@ public class PaymentOrderDto
     public Guid Id { get; set; }
     public string Status { get; set; } = string.Empty;
     public string Currency { get; set; } = string.Empty;
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long TotalAmountMinor { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

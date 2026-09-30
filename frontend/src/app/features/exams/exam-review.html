@@ -1,0 +1,84 @@
+<section class="np-exam-review" aria-labelledby="exam-review-heading">
+  <a class="np-exam-review-back" [routerLink]="backPath()" data-testid="exam-review-back">{{ i18n.t('review.backToResult') }}</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('review.loading')"
+    [fallbackErrorTitle]="i18n.t('review.loadError')"
+    [retryLabel]="i18n.t('review.retry')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (unavailable()) {
+      <p role="status" data-testid="exam-review-unavailable">{{ i18n.t('review.unavailable') }}</p>
+    } @else if (notFinalized()) {
+      <p role="status" data-testid="exam-review-not-finalized">
+        {{ i18n.t('review.notFinalized') }}
+      </p>
+    } @else if (review(); as loaded) {
+      <header class="np-exam-review-header">
+        <div>
+          <h1 id="exam-review-heading" data-testid="exam-review-heading">{{ i18n.t('review.title') }}</h1>
+          @if (loaded.examTitle !== null) {
+            <p data-testid="exam-review-title">{{ loaded.examTitle }}</p>
+          }
+        </div>
+        @if (isExpired()) {
+          <p role="status" data-testid="exam-review-expired">{{ i18n.t('review.expired') }}</p>
+        }
+      </header>
+      @if (currentQuestion(); as question) {
+        <article class="np-exam-review-card" data-testid="exam-review-question" aria-labelledby="exam-review-prompt">
+          <div class="np-exam-review-card-header">
+            <p data-testid="exam-review-position">
+              {{ i18n.tp('session.questionOf', { current: currentIndex() + 1, total: loaded.items.length }) }}
+            </p>
+            <p role="status" data-testid="exam-review-status">{{ questionStatus(question) }}</p>
+            <p data-testid="exam-review-points">{{ i18n.t('review.points') }}: {{ question.pointsEarned }} {{ i18n.t('common.of') }} {{ question.points }}</p>
+          </div>
+          <div class="np-exam-review-card-body">
+            <h2 id="exam-review-prompt" data-testid="exam-review-prompt">{{ question.text }}</h2>
+            <ul class="np-exam-review-options">
+              @for (option of question.options; track option.displayOrder) {
+                <li data-testid="exam-review-option" [class.np-exam-review-option-selected]="option.isSelected" [class.np-exam-review-option-correct]="option.isCorrect">
+                  <span>{{ option.text }}</span>
+                  @if (option.isSelected) {
+                    <strong>{{ i18n.t('review.yourAnswer') }}</strong>
+                  }
+                  @if (option.isCorrect) {
+                    <strong>{{ i18n.t('review.correctAnswer') }}</strong>
+                  }
+                </li>
+              }
+            </ul>
+            @if (question.explanation !== null) {
+              <section class="np-exam-review-explanation" aria-labelledby="exam-review-explanation-title">
+                <h3 id="exam-review-explanation-title" data-testid="exam-review-explanation-title">{{ i18n.t('review.explanation') }}</h3>
+                <p data-testid="exam-review-explanation">{{ question.explanation }}</p>
+              </section>
+            }
+          </div>
+          <div class="np-exam-review-card-footer">
+            <button
+              type="button"
+              data-testid="exam-review-prev"
+              [disabled]="currentIndex() === 0"
+              (click)="previous()"
+            >
+              {{ i18n.t('pagination.previous') }}
+            </button>
+            <button
+              type="button"
+              data-testid="exam-review-next"
+              [disabled]="currentIndex() + 1 >= loaded.items.length"
+              (click)="next()"
+            >
+              {{ i18n.t('pagination.next') }}
+            </button>
+          </div>
+        </article>
+      }
+    }
+  }
+</section>

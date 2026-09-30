@@ -1,0 +1,30 @@
+.np-profile-onboarding {
+  display: grid;
+  min-height: 100%;
+  padding: var(--np-page-gutter);
+  place-items: center;
+}
+
+.np-profile-onboarding-card {
+  inline-size: min(100%, 30rem);
+  padding: 2rem;
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: 1.25rem;
+  background: var(--np-color-surface, #fff);
+  box-shadow: 0 1rem 2.5rem rgb(23 59 87 / 10%);
+}
+
+.np-profile-onboarding-kicker,
+.np-profile-onboarding-instruction {
+  color: var(--np-color-text-muted, #52616b);
+}
+
+.np-profile-onboarding-form {
+  display: grid;
+  gap: 1rem;
+  margin-block-start: 1.5rem;
+}
+
+.np-profile-onboarding-error {
+  color: var(--np-color-error, #b3261e);
+}

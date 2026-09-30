@@ -1,0 +1,23 @@
+.np-language-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-4);
+}
+
+.np-language-switcher-option {
+  min-block-size: var(--np-space-44);
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--np-space-12);
+  border: 1px solid transparent;
+  border-radius: var(--np-space-12);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.np-language-switcher-option-active {
+  border-color: var(--np-color-brand-1);
+  background: var(--np-color-active-surface);
+}

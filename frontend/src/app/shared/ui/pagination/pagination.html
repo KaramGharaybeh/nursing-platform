@@ -1,0 +1,23 @@
+@if (isVisible) {
+  <nav class="np-pagination" [attr.aria-label]="ariaLabel">
+    <button
+      mat-button
+      type="button"
+      data-testid="pagination-previous"
+      [disabled]="isPreviousDisabled"
+      (click)="requestPrevious()"
+    >
+      {{ i18n.t('pagination.previous') }}
+    </button>
+    <span class="np-pagination-status">{{ statusText }}</span>
+    <button
+      mat-button
+      type="button"
+      data-testid="pagination-next"
+      [disabled]="isNextDisabled"
+      (click)="requestNext()"
+    >
+      {{ i18n.t('pagination.next') }}
+    </button>
+  </nav>
+}

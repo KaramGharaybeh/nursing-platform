@@ -1,0 +1,103 @@
+<section class="np-sign-up" aria-labelledby="auth-sign-up-title">
+  <header class="np-sign-up-public-header">
+    <span class="np-sign-up-brand">
+      <svg class="np-sign-up-brand-mark" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Nursing Platform
+    </span>
+    <nav [attr.aria-label]="i18n.t('auth.publicNav')">
+      <a [routerLink]="publicOffersPath">{{ i18n.t('auth.prepPackages') }}</a>
+      <a class="np-sign-up-nav-pill" [routerLink]="signInPath">{{ i18n.t('auth.signIn') }}</a>
+      <span class="np-sign-up-nav-solid" aria-current="page">{{ i18n.t('auth.signUp') }}</span>
+    </nav>
+    <np-language-switcher />
+    <np-language-switcher />
+  </header>
+  <div class="np-sign-up-composition">
+  <div class="np-sign-up-card">
+    <h1 id="auth-sign-up-title">{{ i18n.t('signup.title') }}</h1>
+    <p class="np-sign-up-instruction">{{ i18n.t('signup.instruction') }}</p>
+
+    @if (backendFailureMessage() === '') {
+      <np-form-validation-summary
+        [summaryTitle]="validationSummary().title"
+        [items]="validationSummary().items"
+        [formErrors]="validationSummary().formErrors"
+      />
+    }
+
+    @if (backendFailureMessage() !== '') {
+      <p class="np-sign-up-error" role="alert">{{ backendFailureMessage() }}</p>
+    }
+
+    <form class="np-sign-up-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <np-auth-text-field
+        controlId="auth-sign-up-email"
+        [label]="i18n.t('auth.emailLabel')"
+        type="email"
+        placeholder="name@example.com"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="emailValue"
+        [errorText]="emailError"
+        (valueChange)="updateEmail($event)"
+      />
+
+      <np-auth-text-field
+        controlId="auth-sign-up-username"
+        [label]="i18n.t('signup.usernameLabel')"
+        type="text"
+        [placeholder]="i18n.t('signup.usernamePlaceholder')"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="usernameValue"
+        [errorText]="usernameError"
+        (valueChange)="updateUsername($event)"
+      />
+
+      <div class="np-sign-up-password-field">
+        <np-auth-text-field
+          controlId="auth-sign-up-password"
+          [label]="i18n.t('auth.passwordLabel')"
+          type="password"
+          placeholder="••••••••"
+          [showVisibilityToggle]="true"
+          [helperText]="i18n.t('signup.passwordRule')"
+          [required]="true"
+          [disabled]="isSubmitting()"
+          [value]="passwordValue"
+          [errorText]="passwordError"
+          (valueChange)="updatePassword($event)"
+        />
+      </div>
+
+      <np-auth-text-field
+        controlId="auth-sign-up-confirm-password"
+        [label]="i18n.t('signup.confirmLabel')"
+        type="password"
+        placeholder="••••••••"
+        [showVisibilityToggle]="true"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="confirmPasswordValue"
+        [errorText]="confirmPasswordError"
+        (valueChange)="updateConfirmPassword($event)"
+      />
+
+      <button class="np-sign-up-submit" type="submit" mat-flat-button color="primary" [disabled]="isSubmitting()">
+        <span class="np-sign-up-submit-label">
+          {{ i18n.t('signup.submit') }}
+          <svg class="np-sign-up-submit-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </span>
+      </button>
+    </form>
+
+    <p class="np-sign-up-sign-in">{{ i18n.t('signup.haveAccount') }} <a [routerLink]="signInPath">{{ i18n.t('signup.signInLink') }}</a></p>
+  </div>
+  </div>
+</section>

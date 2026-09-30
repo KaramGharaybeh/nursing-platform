@@ -42,4 +42,24 @@ public class UpdateNurseSkillsCommandValidatorTests
 
         result.ShouldHaveValidationErrorFor("Skills[1]");
     }
+
+    [Fact]
+    public void UpdateSkills_100CharacterName_IsValid()
+    {
+        var command = new UpdateNurseSkillsCommand { Skills = [new string('a', 100)] };
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void UpdateSkills_101CharacterName_IsInvalid()
+    {
+        var command = new UpdateNurseSkillsCommand { Skills = ["Triage", new string('b', 101)] };
+
+        var result = _validator.TestValidate(command);
+
+        result.ShouldHaveValidationErrorFor("Skills[1]");
+    }
 }

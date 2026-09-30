@@ -5,10 +5,15 @@ obj/
 .vscode/
 
 node_modules/
+.angular/cache/
+frontend/node_modules/
+frontend/.angular/cache/
 
 dist/
+frontend/dist/
 
 coverage/
+frontend/coverage/
 
 TestResults/
 
@@ -31,11 +36,16 @@ TestResults/
 
 # Node
 node_modules/
+.angular/cache/
+frontend/node_modules/
+frontend/.angular/cache/
 dist/
+frontend/dist/
 
 # Tests
 TestResults/
 coverage/
+frontend/coverage/
 
 # Environment
 .env
@@ -44,3 +54,7 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local OpenCode goal/checkpoint state and delegation packets
+.agent/goal-state.md
+.agent/delegation-packet.json

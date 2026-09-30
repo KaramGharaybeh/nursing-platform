@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace NursingPlatform.Infrastructure.Persistence;
@@ -32,6 +33,14 @@ public class DatabaseInitializer
             }
 
             await Seed.ReferenceDataSeeder.SeedAsync(context);
+
+            // Resolved from the scope (not ctor-injected) so the existing
+            // 2-arg construction used by WebApiTestFactory mocks keeps working.
+            var environment = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
+            if (environment.IsDevelopment())
+            {
+                await Seed.DevelopmentExamSeeder.SeedAsync(context);
+            }
 
             var bootstrapAdmin = scope.ServiceProvider.GetRequiredService<BootstrapAdminService>();
             await bootstrapAdmin.BootstrapAsync();

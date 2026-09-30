@@ -1,0 +1,198 @@
+@use '../../../../styles/abstracts/mixins' as mixins;
+@use '../../../../styles/abstracts/responsive' as responsive;
+
+:host {
+  display: block;
+  font-family: 'Noto Sans', 'Noto Sans Arabic', system-ui, sans-serif;
+}
+
+.np-sign-in {
+  box-sizing: border-box;
+  min-block-size: 100dvh;
+  display: flex;
+  flex-direction: column;
+  color: var(--np-color-brand-2);
+  background: #f6fbfa;
+}
+
+.np-sign-in-public-header {
+  box-sizing: border-box;
+  min-block-size: var(--np-space-64);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-8);
+  padding-inline: var(--np-page-gutter);
+  border-block-end: 1px solid #c9ddda;
+  background: var(--np-color-surface);
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--np-space-16);
+    font-size: 0.875rem;
+  }
+
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--np-space-44);
+    color: #4f6473;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  nav a:first-child {
+    padding-inline: 0;
+    border: 0;
+  }
+
+  .np-sign-in-nav-current {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--np-space-44);
+    border-block-end: 2px solid var(--np-color-brand-1);
+    color: var(--np-color-brand-1);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .np-sign-in-nav-pill {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--np-space-44);
+    padding-inline: var(--np-space-16);
+    border: 1px solid #c9ddda;
+    border-radius: 9999px;
+    color: var(--np-color-brand-2);
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+.np-sign-in-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-8);
+  color: var(--np-color-brand-2);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.np-sign-in-brand-mark {
+  box-sizing: border-box;
+  inline-size: var(--np-space-32);
+  block-size: var(--np-space-32);
+  padding: var(--np-space-8);
+  border-radius: var(--np-space-8);
+  background: var(--np-color-brand-1);
+  color: #fff;
+}
+
+.np-sign-in-composition {
+  box-sizing: border-box;
+  inline-size: 100%;
+  display: grid;
+  flex: 1;
+  place-items: center;
+  padding: var(--np-space-48) var(--np-page-gutter);
+
+  @include responsive.respond-from(tablet) {
+    padding-block: var(--np-space-64);
+  }
+}
+
+.np-sign-in-card {
+  box-sizing: border-box;
+  inline-size: min(100%, 448px);
+  display: grid;
+  gap: var(--np-space-24);
+  padding: var(--np-space-24);
+  border: 1px solid #c9ddda;
+  border-radius: var(--np-space-16);
+  background: var(--np-color-surface);
+
+  @include responsive.respond-from(tablet) {
+    padding: var(--np-space-32);
+  }
+}
+
+.np-sign-in-header {
+  display: grid;
+  gap: var(--np-space-8);
+}
+
+.np-sign-in-subtitle {
+  margin: 0;
+  color: #4f6473;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+h1 {
+  margin: 0;
+  color: var(--np-color-brand-2);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.np-sign-in-form {
+  display: grid;
+  gap: var(--np-space-16);
+}
+
+.np-sign-in-password-field {
+  position: relative;
+}
+
+.np-sign-in-error {
+  margin: 0;
+  padding-block: var(--np-space-12);
+  padding-inline: var(--np-space-16);
+  border: 1px solid color-mix(in srgb, #b3261e 32%, transparent);
+  border-radius: var(--np-space-12);
+  color: #b3261e;
+  font-weight: 700;
+  background: color-mix(in srgb, #b3261e 7%, white);
+}
+
+.np-sign-in-submit {
+  --mdc-filled-button-container-color: var(--np-color-brand-1);
+  --mdc-filled-button-label-text-color: #fff;
+
+  justify-self: stretch;
+  min-block-size: var(--np-space-48);
+  font-weight: 600;
+
+  @include mixins.touch-target(true);
+}
+
+.np-sign-in-recovery,
+.np-sign-in-register {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.np-sign-in-recovery {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  z-index: 1;
+  text-align: end;
+}
+
+.np-sign-in-register {
+  padding-block-start: var(--np-space-20);
+  border-block-start: 1px solid #c9ddda;
+  color: #4f6473;
+  text-align: center;
+}
+
+.np-sign-in-recovery a,
+.np-sign-in-register a {
+  color: var(--np-color-brand-1);
+}

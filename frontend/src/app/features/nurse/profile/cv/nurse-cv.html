@@ -1,0 +1,136 @@
+<section class="np-nurse-cv" aria-labelledby="nurse-cv-title">
+  <np-live-region />
+
+  <p class="np-nurse-cv-kicker">{{ i18n.t('profile.kicker') }}</p>
+  <h1 id="nurse-cv-title">{{ i18n.t('cv.title') }}</h1>
+
+  @if (notice() !== '') {
+    <p class="np-nurse-cv-notice" role="status">{{ notice() }}</p>
+  }
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('cv.loading')"
+    [fallbackErrorTitle]="i18n.t('cv.loadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (!hasDocument) {
+      <div class="np-nurse-cv-empty">
+        <h2>{{ i18n.t('cv.title') }}</h2>
+        <p>{{ i18n.t('cv.emptyText') }}</p>
+      </div>
+    } @else if (document(); as cvDocument) {
+      <article class="np-nurse-cv-card" aria-labelledby="nurse-cv-document-title">
+        <h2 id="nurse-cv-document-title">{{ cvDocument.fileName }}</h2>
+        <p class="np-nurse-cv-meta">
+          {{ formatFileSize(cvDocument.fileSizeBytes) }} · {{ i18n.t('profile.uploadedAt') }} {{ cvDocument.uploadedAt | date: 'medium' }}
+        </p>
+        @if (!picking()) {
+          <div class="np-nurse-cv-card-actions">
+            <button mat-flat-button color="primary" type="button" data-testid="replace-cv" (click)="startPicking()">
+              {{ i18n.t('cv.replace') }}
+            </button>
+            @if (!isConfirmingDelete()) {
+              <button
+                mat-button
+                type="button"
+                class="np-nurse-cv-delete"
+                data-testid="delete-cv"
+                [disabled]="isDeleting()"
+                (click)="requestDelete()"
+              >
+                {{ i18n.t('cv.deleteCv') }}
+              </button>
+            }
+          </div>
+          @if (isConfirmingDelete()) {
+            <div class="np-nurse-cv-confirm">
+              <p role="status">{{ i18n.t('cv.deleteConfirm') }}</p>
+              <div class="np-nurse-cv-confirm-actions">
+                <button
+                  mat-flat-button
+                  color="warn"
+                  type="button"
+                  data-testid="confirm-delete-cv"
+                  [disabled]="isDeleting()"
+                  (click)="confirmDelete()"
+                >
+                  {{ i18n.t('cv.deleteVerb') }}
+                </button>
+                <button
+                  mat-button
+                  type="button"
+                  data-testid="keep-cv"
+                  [disabled]="isDeleting()"
+                  (click)="cancelDelete()"
+                >
+                  {{ i18n.t('cv.keep') }}
+                </button>
+              </div>
+              @if (deleteError(); as error) {
+                <p class="np-nurse-cv-error" role="alert">
+                  {{ i18n.t('cv.deleteError') }} {{ error.detail || i18n.t('cv.tryAgain') }}
+                </p>
+              }
+            </div>
+          }
+        }
+      </article>
+    }
+
+    @if (!hasDocument && !picking()) {
+      <div class="np-nurse-cv-actions">
+        <button mat-flat-button color="primary" type="button" data-testid="upload-cv" (click)="startPicking()">
+          {{ i18n.t('cv.upload') }}
+        </button>
+      </div>
+    }
+
+    @if (picking()) {
+      <div class="np-nurse-cv-picker">
+        <h2>{{ hasDocument ? i18n.t('cv.replaceTitle') : i18n.t('cv.uploadTitle') }}</h2>
+        <label class="np-nurse-cv-file-label" for="nurse-cv-file">{{ i18n.t('cv.fileLabel') }}</label>
+        <input
+          #fileInput
+          id="nurse-cv-file"
+          data-testid="cv-file-input"
+          type="file"
+          accept=".pdf,.doc,.docx"
+          [disabled]="isUploading()"
+          (change)="onFileSelected($event)"
+        />
+        @if (selectionError() !== '') {
+          <p class="np-nurse-cv-error" role="alert">{{ selectionError() }}</p>
+        }
+        @if (selectedFile(); as file) {
+          <p class="np-nurse-cv-selection" data-testid="cv-selection">
+            {{ file.name }} · {{ selectedFileSizeLabel }}
+          </p>
+        }
+        @if (uploadError(); as error) {
+          <p class="np-nurse-cv-error" role="alert">
+            {{ i18n.t('cv.uploadError') }} {{ error.detail || i18n.t('cv.tryAgain') }}
+          </p>
+        }
+        <div class="np-nurse-cv-picker-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            data-testid="confirm-upload-cv"
+            [disabled]="isUploading() || selectedFile() === undefined"
+            (click)="upload()"
+          >
+            {{ uploadLabel }}
+          </button>
+          <button mat-button type="button" [disabled]="isUploading()" (click)="cancelPicking()">{{ i18n.t('cv.cancel') }}</button>
+          @if (selectedFile() !== undefined) {
+            <button mat-button type="button" [disabled]="isUploading()" (click)="clearSelection()">{{ i18n.t('cv.clear') }}</button>
+          }
+        </div>
+      </div>
+    }
+  }
+</section>

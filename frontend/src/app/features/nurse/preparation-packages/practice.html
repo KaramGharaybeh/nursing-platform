@@ -1,0 +1,96 @@
+<section class="np-practice" aria-labelledby="practice-title">
+  <a [routerLink]="backPath" data-testid="practice-back-link">{{ i18n.t('npp.practiceBack') }}</a>
+
+  <h1 id="practice-title">{{ i18n.t('npp.practiceTitle') }}</h1>
+  <np-live-region />
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('npp.practiceLoading')"
+    [fallbackErrorTitle]="i18n.t('npp.practiceLoadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (notFound()) {
+      <p role="status" data-testid="practice-missing-notice">
+        {{ i18n.t('npp.practiceMissing') }}
+      </p>
+    } @else if (accessEnded()) {
+      <p role="status" data-testid="practice-access-ended-notice">
+        {{ i18n.t('npp.practiceAccessEnded') }}
+      </p>
+      @if (progress(); as endedProgress) {
+        <p data-testid="practice-progress-summary">
+          {{ i18n.tp('npp.progressSummary', { answered: endedProgress.answeredCount, total: endedProgress.totalItems }) }}
+        </p>
+      }
+    } @else if (isEmpty()) {
+      <np-empty-state
+        kind="empty"
+        [title]="i18n.t('npp.practiceEmptyTitle')"
+        [description]="i18n.t('npp.practiceEmptyText')"
+      />
+    } @else if (currentItem(); as item) {
+      @if (isComplete()) {
+        <p role="status" data-testid="practice-complete-notice">{{ i18n.t('npp.practiceComplete') }}</p>
+      }
+      <p data-testid="practice-position">{{ i18n.tp('npp.questionOf', { current: currentIndex() + 1, total: content()?.totalItems ?? 0 }) }}</p>
+      @if (progress(); as activeProgress) {
+        <p data-testid="practice-progress-summary">
+          {{ i18n.tp('npp.progressSummary', { answered: activeProgress.answeredCount, total: activeProgress.totalItems }) }}
+        </p>
+      }
+      <fieldset class="np-practice-question">
+        <legend data-testid="practice-prompt">{{ item.prompt }}</legend>
+        @for (option of item.answerOptions; track option.practiceAnswerOptionId) {
+          <label data-testid="practice-option">
+            <input
+              type="radio"
+              name="practice-option"
+              [value]="option.practiceAnswerOptionId"
+              [checked]="selectedOptionId() === option.practiceAnswerOptionId"
+              (change)="selectOption(option.practiceAnswerOptionId)"
+            />
+            {{ option.optionText }}
+          </label>
+        }
+      </fieldset>
+      @if (isAnswered() && isCorrect()) {
+        <p role="status" data-testid="practice-correct-notice">{{ i18n.t('npp.correct') }}</p>
+      }
+      @if (isAnswered() && !isCorrect()) {
+        <p role="status" data-testid="practice-incorrect-notice">{{ i18n.t('npp.incorrect') }}</p>
+      }
+      @if (feedback(); as itemFeedback) {
+        <p data-testid="practice-feedback">{{ itemFeedback }}</p>
+      }
+      <div class="np-practice-actions">
+        <button
+          type="button"
+          data-testid="practice-prev"
+          [disabled]="currentIndex() === 0 || submitting()"
+          (click)="previous()"
+        >
+          {{ i18n.t('npp.previous') }}
+        </button>
+        <button
+          type="button"
+          data-testid="practice-next"
+          [disabled]="currentIndex() + 1 >= (content()?.items.length ?? 0) || submitting()"
+          (click)="next()"
+        >
+          {{ i18n.t('npp.next') }}
+        </button>
+        <button
+          type="button"
+          data-testid="practice-submit"
+          [disabled]="selectedOptionId() === undefined || submitting()"
+          (click)="submit()"
+        >
+          {{ i18n.t('npp.submit') }}
+        </button>
+      </div>
+    }
+  }
+</section>

@@ -1,4 +1,5 @@
 using NursingPlatform.Domain.Payments;
+using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.Domain.Tests.Payments;
 
@@ -125,7 +126,7 @@ public class PaymentEntityTests
     }
 
     [Fact]
-    public void PaymentOrderItem_CreateSnapshot_CopiesProductFieldsAndLineTotal()
+    public void PaymentOrderItem_CreateExamAccessSnapshot_PreservesExistingStandaloneSnapshotFields()
     {
         var examId = Guid.NewGuid();
         var product = PaymentProduct.CreateExamAccess(examId, "Exam Access", "Description", "usd", 3500);
@@ -140,6 +141,47 @@ public class PaymentEntityTests
         Assert.Equal(3500, item.UnitAmountMinor);
         Assert.Equal(1, item.Quantity);
         Assert.Equal(3500, item.LineTotalAmountMinor);
+        Assert.Equal(PaymentOrderItemSourceType.ExamAccessProduct, item.SourceType);
+        Assert.Equal(product.Id, item.SourceId);
+        Assert.Null(item.PackageOrderItemSnapshot);
+    }
+
+    [Fact]
+    public void PaymentOrderItem_CreatePackageOfferSnapshot_CapturesImmutablePurchaseFacts()
+    {
+        var snapshot = CreatePackageSnapshot();
+
+        var item = PaymentOrderItem.CreatePackageOfferSnapshot(snapshot);
+
+        Assert.Equal(PaymentOrderItemSourceType.PreparationPackageOffer, item.SourceType);
+        Assert.Equal(snapshot.PackageOfferId, item.SourceId);
+        Assert.Equal("USD", item.Currency);
+        Assert.Equal(14900, item.UnitAmountMinor);
+        Assert.Equal(1, item.Quantity);
+        Assert.Equal(14900, item.LineTotalAmountMinor);
+        Assert.Same(snapshot, item.PackageOrderItemSnapshot);
+        Assert.Equal(item.Id, snapshot.PaymentOrderItemId);
+        Assert.Equal("NCLEX preparation", snapshot.PackageOfferTitle);
+        Assert.Equal("nclex-preparation", snapshot.PackageOfferSlug);
+        Assert.Equal("Focused preparation.", snapshot.PackageOfferSummary);
+        Assert.Equal("NCLEX Prep", snapshot.PackageDefinitionTitle);
+        Assert.Equal("nclex-prep", snapshot.PackageDefinitionSlug);
+        Assert.Equal(2, snapshot.PackageVersionNumber);
+        Assert.Equal("NCLEX RN", snapshot.IncludedExamTitle);
+        Assert.Equal([snapshot.StudyMaterialVersionIds[0], snapshot.StudyMaterialVersionIds[1]], snapshot.StudyMaterialVersionIds);
+        Assert.Equal(90, snapshot.AccessDurationDays);
+    }
+
+    [Fact]
+    public void PaymentOrderItem_CreatePackageOfferSnapshot_DoesNotSetExamAccessProductSemantics()
+    {
+        var item = PaymentOrderItem.CreatePackageOfferSnapshot(CreatePackageSnapshot());
+
+        Assert.Equal(PaymentOrderItemSourceType.PreparationPackageOffer, item.SourceType);
+        Assert.Equal(Guid.Empty, item.ProductId);
+        Assert.Equal(string.Empty, item.ProductNameSnapshot);
+        Assert.Equal(Guid.Empty, item.ExamIdSnapshot);
+        Assert.Null(item.Product);
     }
 
     [Fact]
@@ -393,6 +435,32 @@ public class PaymentEntityTests
             Quantity = 1,
             LineTotalAmountMinor = amount
         };
+    }
+
+    private static PackageOrderItemSnapshot CreatePackageSnapshot()
+    {
+        return PackageOrderItemSnapshot.Create(
+            packageOfferId: Guid.NewGuid(),
+            packageOfferTitle: "NCLEX preparation",
+            packageOfferSlug: "nclex-preparation",
+            packageOfferSummary: "Focused preparation.",
+            packageDefinitionId: Guid.NewGuid(),
+            packageDefinitionTitle: "NCLEX Prep",
+            packageDefinitionSlug: "nclex-prep",
+            countryId: Guid.NewGuid(),
+            examCategoryId: Guid.NewGuid(),
+            packageVersionId: Guid.NewGuid(),
+            packageVersionNumber: 2,
+            includedExamId: Guid.NewGuid(),
+            includedExamVersionId: Guid.NewGuid(),
+            includedExamTitle: "NCLEX RN",
+            reportingProfilePublicationId: Guid.NewGuid(),
+            practiceCollectionVersionId: Guid.NewGuid(),
+            studyMaterialVersionIds: [Guid.NewGuid(), Guid.NewGuid()],
+            priceAmountMinor: 14900,
+            currency: "usd",
+            accessDurationDays: 90,
+            orderCreatedAt: new DateTime(2026, 7, 28, 10, 0, 0, DateTimeKind.Utc));
     }
 
     private static PaymentCheckoutSession CreateCheckoutSession(DateTime createdAt)

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NursingPlatform.Domain.Payments;
+using NursingPlatform.Domain.PreparationPackages;
 using NursingPlatform.Infrastructure.Persistence;
 
 namespace NursingPlatform.Infrastructure.Tests.Persistence;
@@ -10,6 +11,7 @@ public class PaymentConfigurationTests
     [InlineData(typeof(PaymentProduct), "PaymentProducts")]
     [InlineData(typeof(PaymentOrder), "PaymentOrders")]
     [InlineData(typeof(PaymentOrderItem), "PaymentOrderItems")]
+    [InlineData(typeof(PackageOrderItemSnapshot), "PackageOrderItemSnapshots")]
     public void PaymentConfiguration_UsesExpectedTableNamesAndPrimaryKeys(Type entityType, string tableName)
     {
         var entity = CreateDbContext().Model.FindEntityType(entityType);
@@ -23,6 +25,7 @@ public class PaymentConfigurationTests
     [InlineData(typeof(PaymentProduct), nameof(PaymentProduct.Type))]
     [InlineData(typeof(PaymentOrder), nameof(PaymentOrder.Status))]
     [InlineData(typeof(PaymentOrderItem), nameof(PaymentOrderItem.ProductTypeSnapshot))]
+    [InlineData(typeof(PaymentOrderItem), nameof(PaymentOrderItem.SourceType))]
     public void PaymentConfiguration_StoresEnumsAsStringsWithMaxLength(Type entityType, string propertyName)
     {
         var property = CreateDbContext().Model.FindEntityType(entityType)!.FindProperty(propertyName)!;
@@ -73,6 +76,34 @@ public class PaymentConfigurationTests
 
         Assert.Contains(indexes, i => i.Properties.Select(p => p.Name).SequenceEqual(
             [nameof(PaymentOrderItem.OrderId), nameof(PaymentOrderItem.Id)]));
+    }
+
+    [Fact]
+    public void PaymentOrderItemConfiguration_ConfiguresSourceDiscriminatorAndSourceIdWithoutOverloadingStandaloneFields()
+    {
+        var entity = CreateDbContext().Model.FindEntityType(typeof(PaymentOrderItem))!;
+
+        Assert.NotNull(entity.FindProperty(nameof(PaymentOrderItem.SourceType)));
+        Assert.NotNull(entity.FindProperty(nameof(PaymentOrderItem.SourceId)));
+        Assert.NotNull(entity.FindProperty(nameof(PaymentOrderItem.ProductId)));
+        Assert.NotNull(entity.FindProperty(nameof(PaymentOrderItem.ExamIdSnapshot)));
+        Assert.NotNull(entity.FindProperty(nameof(PaymentOrderItem.ProductNameSnapshot)));
+        Assert.NotNull(entity.FindProperty(nameof(PaymentOrderItem.ProductTypeSnapshot)));
+    }
+
+    [Fact]
+    public void PackageOrderItemSnapshotConfiguration_ConfiguresOneToOnePackagePurchasedOfferSnapshotTable()
+    {
+        var entity = CreateDbContext().Model.FindEntityType(typeof(PackageOrderItemSnapshot))!;
+        var foreignKeys = entity.GetForeignKeys().ToList();
+
+        Assert.Equal("PackageOrderItemSnapshots", entity.GetTableName());
+        Assert.False(entity.FindProperty(nameof(PackageOrderItemSnapshot.PaymentOrderItemId))!.IsNullable);
+        Assert.Contains(entity.GetIndexes(), i => i.IsUnique && i.Properties.Select(p => p.Name).SequenceEqual(
+            [nameof(PackageOrderItemSnapshot.PaymentOrderItemId)]));
+        Assert.Contains(foreignKeys, fk => fk.PrincipalEntityType.ClrType == typeof(PaymentOrderItem)
+            && fk.Properties.Select(p => p.Name).SequenceEqual([nameof(PackageOrderItemSnapshot.PaymentOrderItemId)])
+            && fk.DeleteBehavior == DeleteBehavior.Restrict);
     }
 
     [Fact]

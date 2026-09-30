@@ -1,0 +1,45 @@
+<section class="np-profile-onboarding" aria-labelledby="onboarding-profile-title">
+  <div class="np-profile-onboarding-card">
+    <p class="np-profile-onboarding-kicker">{{ i18n.t('onboarding.kicker') }}</p>
+    <h1 id="onboarding-profile-title">{{ i18n.t('onboarding.title') }}</h1>
+    <p class="np-profile-onboarding-instruction">{{ i18n.t('onboarding.instruction') }}</p>
+
+    @if (backendFailureMessage() === '') {
+      <np-form-validation-summary
+        [summaryTitle]="validationSummary().title"
+        [items]="validationSummary().items"
+        [formErrors]="validationSummary().formErrors"
+      />
+    }
+
+    @if (backendFailureMessage() !== '') {
+      <p class="np-profile-onboarding-error" role="alert">{{ backendFailureMessage() }}</p>
+    }
+
+    <form class="np-profile-onboarding-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <np-text-input-control
+        controlId="onboarding-profile-first-name"
+        [label]="i18n.t('details.firstName')"
+        type="text"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="firstNameValue"
+        [errorText]="firstNameError"
+        (valueChange)="updateFirstName($event)"
+      />
+
+      <np-text-input-control
+        controlId="onboarding-profile-last-name"
+        [label]="i18n.t('details.lastName')"
+        type="text"
+        [required]="true"
+        [disabled]="isSubmitting()"
+        [value]="lastNameValue"
+        [errorText]="lastNameError"
+        (valueChange)="updateLastName($event)"
+      />
+
+      <button type="submit" mat-flat-button color="primary" [disabled]="isSubmitting()">{{ i18n.t('onboarding.submit') }}</button>
+    </form>
+  </div>
+</section>

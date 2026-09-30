@@ -150,6 +150,8 @@ Sensitive configuration includes:
 
 Production secrets should be managed using a secure secret management solution.
 
+A credential exposure in repository tooling configuration was identified during the 2026-09-29 independence audit. The human owner must separately authorize any credential or repository-history remediation. Do not copy its value into documentation or logs. This outstanding security operation does not block documentation preservation.
+
 ---
 
 # Database Deployment

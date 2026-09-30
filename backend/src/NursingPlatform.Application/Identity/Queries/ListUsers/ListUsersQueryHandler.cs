@@ -25,6 +25,7 @@ public class ListUsersQueryHandler : IRequestHandler<ListUsersQuery, PaginatedRe
             var search = request.Search.ToLowerInvariant();
             query = query.Where(u =>
                 u.Email.ToLower().Contains(search) ||
+                u.Username.ToLower().Contains(search) ||
                 u.FirstName.ToLower().Contains(search) ||
                 u.LastName.ToLower().Contains(search));
         }
@@ -45,6 +46,8 @@ public class ListUsersQueryHandler : IRequestHandler<ListUsersQuery, PaginatedRe
         {
             "email" => query.OrderBy(u => u.Email),
             "-email" => query.OrderByDescending(u => u.Email),
+            "username" => query.OrderBy(u => u.Username),
+            "-username" => query.OrderByDescending(u => u.Username),
             "firstname" => query.OrderBy(u => u.FirstName),
             "-firstname" => query.OrderByDescending(u => u.FirstName),
             "lastname" => query.OrderBy(u => u.LastName),
@@ -63,6 +66,7 @@ public class ListUsersQueryHandler : IRequestHandler<ListUsersQuery, PaginatedRe
             {
                 Id = u.Id,
                 Email = u.Email,
+                Username = u.Username,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 IsActive = u.IsActive,

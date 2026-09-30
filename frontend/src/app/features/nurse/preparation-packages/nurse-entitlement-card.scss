@@ -1,0 +1,48 @@
+.np-entitlement-card {
+  padding: var(--np-space-24);
+  background: var(--np-color-surface, #fff);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+
+  h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.np-entitlement-definition {
+  margin: var(--np-space-4) 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.np-entitlement-exam {
+  margin: var(--np-space-4) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.np-entitlement-status {
+  margin: var(--np-space-4) 0 0;
+  color: var(--np-color-text-muted, #52616b);
+}
+
+.np-entitlement-dates {
+  margin: var(--np-space-4) 0 0;
+  color: var(--np-color-text-muted, #52616b);
+}
+
+.np-entitlement-rights {
+  margin: var(--np-space-8) 0 0;
+  padding-inline-start: var(--np-space-16);
+  color: var(--np-color-text-muted, #52616b);
+
+  li {
+    overflow-wrap: anywhere;
+  }
+}
+
+.np-entitlement-card a {
+  display: inline-block;
+  margin-block-start: var(--np-space-16);
+}

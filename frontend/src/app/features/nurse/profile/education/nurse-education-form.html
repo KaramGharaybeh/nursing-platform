@@ -1,0 +1,111 @@
+<form class="np-nurse-education-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  @if (backendFailureMessage !== '') {
+    <p class="np-nurse-education-form-error" role="alert">{{ backendFailureMessage }}</p>
+  } @else {
+    <np-form-validation-summary
+      [summaryTitle]="validationSummary.title"
+      [items]="validationSummary.items"
+      [formErrors]="validationSummary.formErrors"
+    />
+  }
+
+  <fieldset class="np-nurse-education-form-group">
+    <legend>{{ i18n.t('eduForm.groupProgram') }}</legend>
+
+    <np-text-input-control
+      [controlId]="controlIds.Degree"
+      [label]="i18n.t('eduForm.degree')"
+      type="text"
+      [required]="true"
+      [disabled]="isSubmitting"
+      [value]="degreeValue"
+      [errorText]="degreeError"
+      [helperText]="i18n.t('eduForm.degreeHelper')"
+      (valueChange)="updateDegree($event)"
+    />
+
+    <np-text-input-control
+      [controlId]="controlIds.FieldOfStudy"
+      [label]="i18n.t('eduForm.fieldOfStudy')"
+      type="text"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="fieldOfStudyValue"
+      [errorText]="fieldOfStudyError"
+      [helperText]="i18n.t('eduForm.fieldHelper')"
+      (valueChange)="updateFieldOfStudy($event)"
+    />
+
+    <np-text-input-control
+      [controlId]="controlIds.InstitutionName"
+      [label]="i18n.t('eduForm.institutionName')"
+      type="text"
+      [required]="true"
+      [disabled]="isSubmitting"
+      [value]="institutionNameValue"
+      [errorText]="institutionNameError"
+      [helperText]="i18n.t('eduForm.institutionHelper')"
+      (valueChange)="updateInstitutionName($event)"
+    />
+  </fieldset>
+
+  <fieldset class="np-nurse-education-form-group">
+    <legend>{{ i18n.t('eduForm.groupPlace') }}</legend>
+
+    <np-select-control
+      [controlId]="controlIds.Country"
+      [label]="i18n.t('eduForm.country')"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="countryValue"
+      [options]="countryOptions"
+      [helperText]="i18n.t('eduForm.countryHelper')"
+      (valueChange)="updateCountry($event)"
+    />
+
+    <np-date-control
+      [controlId]="controlIds.StartDate"
+      [label]="i18n.t('eduForm.startDate')"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="startDateValue"
+      [errorText]="startDateError"
+      [helperText]="i18n.t('eduForm.startHelper')"
+      (valueChange)="updateStartDate($event)"
+    />
+
+    <np-date-control
+      [controlId]="controlIds.EndDate"
+      [label]="i18n.t('eduForm.endDate')"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="endDateValue"
+      [errorText]="endDateError"
+      [helperText]="i18n.t('eduForm.endHelper')"
+      (valueChange)="updateEndDate($event)"
+    />
+  </fieldset>
+
+  <fieldset class="np-nurse-education-form-group">
+    <legend>{{ i18n.t('eduForm.groupDetails') }}</legend>
+
+    <np-textarea-control
+      [controlId]="controlIds.Description"
+      [label]="i18n.t('eduForm.description')"
+      [rows]="4"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="descriptionValue"
+      [errorText]="descriptionError"
+      [helperText]="i18n.t('eduForm.descHelper')"
+      (valueChange)="updateDescription($event)"
+    />
+  </fieldset>
+
+  <div class="np-nurse-education-form-actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
+      {{ submitLabel }}
+    </button>
+    <button mat-button type="button" [disabled]="isSubmitting" (click)="cancel()">{{ i18n.t('details.cancel') }}</button>
+  </div>
+</form>

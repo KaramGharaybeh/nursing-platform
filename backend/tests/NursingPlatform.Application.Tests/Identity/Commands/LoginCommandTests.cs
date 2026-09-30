@@ -3,6 +3,7 @@ using MockQueryable.Moq;
 using Moq;
 using NursingPlatform.Application.Abstractions.Auth;
 using NursingPlatform.Application.Abstractions.Data;
+using NursingPlatform.Application.Common.Exceptions;
 using NursingPlatform.Application.Identity.Common;
 using NursingPlatform.Application.Identity.Commands.Login;
 using NursingPlatform.Domain.Identity;
@@ -33,7 +34,8 @@ public class LoginCommandTests
             PasswordHash = "hash",
             FirstName = "John",
             LastName = "Doe",
-            IsActive = true
+            IsActive = true,
+            EmailVerified = true
         };
 
         _inactiveUser = new User
@@ -43,7 +45,8 @@ public class LoginCommandTests
             PasswordHash = "hash",
             FirstName = "Jane",
             LastName = "Doe",
-            IsActive = false
+            IsActive = false,
+            EmailVerified = true
         };
 
         _roles = new List<Role> { new() { Id = _roleId, Name = "Nurse" } };
@@ -118,6 +121,31 @@ public class LoginCommandTests
     }
 
     [Fact]
+    public async Task Handle_InactiveAndUnverifiedUser_ThrowsUnauthorizedAccessException()
+    {
+        var inactiveAndUnverifiedUser = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = "inactive-unverified@test.com",
+            PasswordHash = "hash",
+            FirstName = "Inactive",
+            LastName = "Unverified",
+            IsActive = false,
+            EmailVerified = false
+        };
+        var users = new List<User> { inactiveAndUnverifiedUser }.AsQueryable().BuildMockDbSet();
+        _contextMock.Setup(c => c.Users).Returns(users.Object);
+
+        var handler = new LoginCommandHandler(
+            _contextMock.Object, _passwordHasherMock.Object, _jwtServiceMock.Object);
+
+        var command = new LoginCommand { Email = "inactive-unverified@test.com", Password = "CorrectPass1" };
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => handler.Handle(command, default));
+        _passwordHasherMock.Verify(p => p.Verify(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _jwtServiceMock.Verify(j => j.GenerateRefreshToken(), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_WrongPassword_ThrowsUnauthorizedAccessException()
     {
         var users = new List<User> { _activeUser }.AsQueryable().BuildMockDbSet();
@@ -129,6 +157,36 @@ public class LoginCommandTests
 
         var command = new LoginCommand { Email = "active@test.com", Password = "WrongPass1" };
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => handler.Handle(command, default));
+    }
+
+    [Fact]
+    public async Task Handle_UnverifiedEmailWithValidPassword_ThrowsEmailVerificationRequiredExceptionAfterPasswordVerification()
+    {
+        var unverifiedUser = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = "unverified@test.com",
+            PasswordHash = "hash",
+            FirstName = "Una",
+            LastName = "Verified",
+            IsActive = true,
+            EmailVerified = false
+        };
+        var users = new List<User> { unverifiedUser }.AsQueryable().BuildMockDbSet();
+        _contextMock.Setup(c => c.Users).Returns(users.Object);
+        _passwordHasherMock.Setup(p => p.Verify("CorrectPass1", "hash")).Returns(true);
+
+        var handler = new LoginCommandHandler(
+            _contextMock.Object, _passwordHasherMock.Object, _jwtServiceMock.Object);
+
+        var exception = await Assert.ThrowsAsync<EmailVerificationRequiredException>(() =>
+            handler.Handle(new LoginCommand { Email = "unverified@test.com", Password = "CorrectPass1" }, default));
+
+        Assert.Equal("email_verification_required", exception.Code);
+        _passwordHasherMock.Verify(p => p.Verify("CorrectPass1", "hash"), Times.Once);
+        _jwtServiceMock.Verify(j => j.GenerateAccessToken(It.IsAny<User>(), It.IsAny<IList<string>>()), Times.Never);
+        _jwtServiceMock.Verify(j => j.GenerateRefreshToken(), Times.Never);
+        _contextMock.Verify(c => c.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

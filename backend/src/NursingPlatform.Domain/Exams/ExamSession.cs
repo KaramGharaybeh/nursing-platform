@@ -10,6 +10,7 @@ public class ExamSession : AuditableEntity
     public Guid ExamId { get; set; }
     public Guid ExamVersionId { get; set; }
     public ExamSessionStatus Status { get; set; } = ExamSessionStatus.InProgress;
+    public ExamSessionSource Source { get; private set; } = ExamSessionSource.Free;
     public DateTime StartedAt { get; set; }
     public DateTime ExpiresAt { get; set; }
     public DateTime? SubmittedAt { get; set; }
@@ -33,6 +34,17 @@ public class ExamSession : AuditableEntity
         DateTime startedAt,
         int durationMinutes)
     {
+        return Create(nurseProfileId, examId, examVersionId, startedAt, durationMinutes, ExamSessionSource.Free);
+    }
+
+    public static ExamSession Create(
+        Guid nurseProfileId,
+        Guid examId,
+        Guid examVersionId,
+        DateTime startedAt,
+        int durationMinutes,
+        ExamSessionSource source)
+    {
         return new ExamSession
         {
             Id = Guid.NewGuid(),
@@ -40,6 +52,7 @@ public class ExamSession : AuditableEntity
             ExamId = examId,
             ExamVersionId = examVersionId,
             Status = ExamSessionStatus.InProgress,
+            Source = source,
             StartedAt = startedAt,
             ExpiresAt = startedAt.AddMinutes(durationMinutes)
         };

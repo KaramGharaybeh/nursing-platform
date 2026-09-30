@@ -11,6 +11,7 @@ public class ExamSessionQuestion : AuditableEntity
     public string QuestionTextSnapshot { get; set; } = string.Empty;
     public string? ExplanationSnapshot { get; set; }
     public int Points { get; set; }
+    public bool IsFlagged { get; set; }
     public ExamSession ExamSession { get; set; } = null!;
     public ExamQuestion ExamQuestion { get; set; } = null!;
 }

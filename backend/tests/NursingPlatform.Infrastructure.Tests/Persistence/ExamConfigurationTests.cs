@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using NursingPlatform.Domain.Exams;
 using NursingPlatform.Infrastructure.Persistence;
+using System.Reflection;
 
 namespace NursingPlatform.Infrastructure.Tests.Persistence;
 
@@ -14,6 +18,7 @@ public class ExamConfigurationTests
     [InlineData(typeof(ExamAnswerOption), "ExamAnswerOptions")]
     [InlineData(typeof(ExamAccessGrant), "ExamAccessGrants")]
     [InlineData(typeof(ExamSession), "ExamSessions")]
+    [InlineData(typeof(ExamSessionProvenance), "ExamSessionProvenances")]
     [InlineData(typeof(ExamSessionQuestion), "ExamSessionQuestions")]
     [InlineData(typeof(ExamSessionAnswerOption), "ExamSessionAnswerOptions")]
     [InlineData(typeof(ExamSessionAnswer), "ExamSessionAnswers")]
@@ -37,6 +42,90 @@ public class ExamConfigurationTests
 
         Assert.Equal(32, property.GetMaxLength());
         Assert.NotNull(property.GetTypeMapping().Converter);
+    }
+
+    [Fact]
+    public void ExamSessionConfiguration_PersistsSessionSourceAsRequiredString()
+    {
+        var property = CreateDbContext().Model.FindEntityType(typeof(ExamSession))!
+            .FindProperty(nameof(ExamSession.Source));
+
+        Assert.NotNull(property);
+        Assert.False(property.IsNullable);
+        Assert.Equal(32, property.GetMaxLength());
+        Assert.NotNull(property.GetTypeMapping().Converter);
+    }
+
+    [Fact]
+    public void ExamSessionConfiguration_BackfillsExistingRowsToLegacyInMigration()
+    {
+        var operations = GetMigrationOperations("AddExamSessionSourceAndPackageProvenance");
+
+        Assert.Contains(operations.OfType<AddColumnOperation>(), operation =>
+            operation.Table == "ExamSessions"
+            && operation.Name == "Source"
+            && operation.IsNullable);
+
+        Assert.Contains(operations.OfType<SqlOperation>(), operation =>
+            operation.Sql.Contains("UPDATE \"ExamSessions\"", StringComparison.Ordinal)
+            && operation.Sql.Contains("\"Source\" = 'Legacy'", StringComparison.Ordinal));
+
+        Assert.Contains(operations.OfType<AlterColumnOperation>(), operation =>
+            operation.Table == "ExamSessions"
+            && operation.Name == "Source"
+            && !operation.IsNullable
+            && operation.OldColumn.IsNullable);
+    }
+
+    [Fact]
+    public void ExamSessionProvenanceConfiguration_UsesOneToOneSessionRelationship()
+    {
+        var entity = CreateDbContext().Model.FindEntityType(typeof(ExamSessionProvenance));
+
+        Assert.NotNull(entity);
+        var foreignKey = entity.GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(ExamSession));
+        Assert.Equal([nameof(ExamSessionProvenance.ExamSessionId)], foreignKey.Properties.Select(p => p.Name).ToArray());
+        Assert.True(foreignKey.IsUnique);
+
+        var index = entity.GetIndexes().Single(i => i.Properties.Select(p => p.Name).SequenceEqual([nameof(ExamSessionProvenance.ExamSessionId)]));
+        Assert.True(index.IsUnique);
+    }
+
+    [Fact]
+    public void ExamSessionProvenanceConfiguration_UsesRestrictDeleteBehavior()
+    {
+        var foreignKeys = CreateDbContext().Model.FindEntityType(typeof(ExamSessionProvenance))!
+            .GetForeignKeys()
+            .ToList();
+
+        Assert.NotEmpty(foreignKeys);
+        Assert.All(foreignKeys, fk => Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior));
+    }
+
+    [Fact]
+    public void ExamSessionProvenanceConfiguration_IndexesPackageEntitlementAndBenefitRight()
+    {
+        var indexes = CreateDbContext().Model.FindEntityType(typeof(ExamSessionProvenance))!
+            .GetIndexes()
+            .ToList();
+
+        Assert.Contains(indexes, i => i.Properties.Select(p => p.Name).SequenceEqual(
+            [nameof(ExamSessionProvenance.PackagePurchaseEntitlementId)]));
+        Assert.Contains(indexes, i => i.Properties.Select(p => p.Name).SequenceEqual(
+            [nameof(ExamSessionProvenance.PackageBenefitRightId)]));
+        Assert.Contains(indexes, i => i.Properties.Select(p => p.Name).SequenceEqual(
+            [nameof(ExamSessionProvenance.IncludedExamVersionId)]));
+    }
+
+    [Fact]
+    public void ExamSessionConfiguration_EnforcesOneInProgressSessionPerNurseAndExamVersionAcrossSources()
+    {
+        var index = CreateDbContext().Model.FindEntityType(typeof(ExamSession))!.GetIndexes()
+            .Single(i => i.Properties.Select(p => p.Name).SequenceEqual(
+                [nameof(ExamSession.NurseProfileId), nameof(ExamSession.ExamVersionId)]));
+
+        Assert.True(index.IsUnique);
+        Assert.Equal("\"Status\" = 'InProgress'", index.GetFilter());
     }
 
     [Fact]
@@ -85,6 +174,16 @@ public class ExamConfigurationTests
     }
 
     [Fact]
+    public void ExamSessionQuestionConfiguration_PersistsFlagAsRequired()
+    {
+        var property = CreateDbContext().Model.FindEntityType(typeof(ExamSessionQuestion))!
+            .FindProperty(nameof(ExamSessionQuestion.IsFlagged));
+
+        Assert.NotNull(property);
+        Assert.False(property.IsNullable);
+    }
+
+    [Fact]
     public void ExamConfiguration_ConfiguresAnswerUniqueness()
     {
         var index = CreateDbContext().Model.FindEntityType(typeof(ExamSessionAnswer))!.GetIndexes()
@@ -126,6 +225,7 @@ public class ExamConfigurationTests
             typeof(ExamAnswerOption),
             typeof(ExamAccessGrant),
             typeof(ExamSession),
+            typeof(ExamSessionProvenance),
             typeof(ExamSessionQuestion),
             typeof(ExamSessionAnswerOption),
             typeof(ExamSessionAnswer)
@@ -146,5 +246,20 @@ public class ExamConfigurationTests
             .Options;
 
         return new ApplicationDbContext(options);
+    }
+
+    private static IReadOnlyList<MigrationOperation> GetMigrationOperations(string migrationTypeName)
+    {
+        var migrationType = typeof(ApplicationDbContext).Assembly.GetTypes()
+            .SingleOrDefault(type => type.Namespace == "NursingPlatform.Infrastructure.Persistence.Migrations"
+                && type.Name == migrationTypeName);
+
+        Assert.NotNull(migrationType);
+        var migration = (Migration)Activator.CreateInstance(migrationType)!;
+        var migrationBuilder = new MigrationBuilder("Npgsql.EntityFrameworkCore.PostgreSQL");
+        migrationType.GetMethod("Up", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(migration, [migrationBuilder]);
+
+        return migrationBuilder.Operations;
     }
 }

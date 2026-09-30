@@ -1,0 +1,91 @@
+<header class="np-auth-shell" data-testid="app-shell-header" [attr.inert]="mobileNavigationOpen() ? '' : null">
+  <a class="np-auth-shell-brand" data-testid="app-shell-brand" [routerLink]="'/'">
+    Nursing Platform
+  </a>
+
+  <nav class="np-auth-shell-nav" data-testid="app-shell-primary-nav" [attr.aria-label]="i18n.t('shell.navPrimary')">
+    @for (item of navigationItems(); track item.routeId) {
+      <a
+        class="np-auth-shell-nav-link"
+        [class.np-auth-shell-nav-link-active]="item.active"
+        [attr.aria-current]="item.active ? 'page' : null"
+        [routerLink]="item.path"
+      >
+        {{ navigationLabel(item.routeId, item.label) }}
+      </a>
+    }
+  </nav>
+
+  <a class="np-auth-shell-account" data-testid="app-shell-account" [routerLink]="accountPath">
+    {{ i18n.t('shell.account') }}
+  </a>
+
+  <button class="np-auth-shell-sign-out" data-testid="app-shell-sign-out" type="button" (click)="signOut()">
+    {{ i18n.t('shell.signOut') }}
+  </button>
+
+  <np-language-switcher />
+
+  <button
+    #menuTrigger
+    class="np-auth-shell-menu-trigger"
+    data-testid="app-shell-menu-trigger"
+    type="button"
+    [attr.aria-label]="i18n.t('shell.openMenu')"
+    [attr.aria-expanded]="mobileNavigationOpen()"
+    aria-controls="app-shell-mobile-menu"
+    (click)="openMobileNavigation()"
+  >
+    {{ i18n.t('shell.openMenu') }}
+  </button>
+</header>
+
+@if (mobileNavigationOpen()) {
+  <button
+    class="np-auth-shell-backdrop"
+    data-testid="app-shell-mobile-backdrop"
+    type="button"
+    [attr.aria-label]="i18n.t('shell.closeMenu')"
+    (click)="closeMobileNavigation()"
+  ></button>
+  <aside
+    id="app-shell-mobile-menu"
+    class="np-auth-shell-mobile-panel"
+    data-testid="app-shell-mobile-panel"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="i18n.t('shell.navMobile')"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
+  >
+    <button
+      #mobileClose
+      class="np-auth-shell-mobile-close"
+      type="button"
+      data-testid="app-shell-mobile-close"
+      (click)="closeMobileNavigation()"
+    >
+      {{ i18n.t('shell.closeMenu') }}
+    </button>
+
+    <nav [attr.aria-label]="i18n.t('shell.navMobile')">
+      @for (item of navigationItems(); track item.routeId) {
+        <a
+          class="np-auth-shell-mobile-link"
+          [class.np-auth-shell-mobile-link-active]="item.active"
+          [attr.aria-current]="item.active ? 'page' : null"
+          [routerLink]="item.path"
+        >
+          {{ navigationLabel(item.routeId, item.label) }}
+        </a>
+      }
+    </nav>
+
+    <a class="np-auth-shell-mobile-link" data-testid="app-shell-mobile-account" [routerLink]="accountPath">
+      {{ i18n.t('shell.account') }}
+    </a>
+    <button class="np-auth-shell-mobile-sign-out" type="button" (click)="signOut()">
+      {{ i18n.t('shell.signOut') }}
+    </button>
+  </aside>
+}

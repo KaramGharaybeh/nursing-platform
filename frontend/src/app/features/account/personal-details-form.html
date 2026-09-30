@@ -1,0 +1,38 @@
+<form class="np-personal-details-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  @if (backendFailureMessage !== '') {
+    <p class="np-personal-details-form-error" role="alert">{{ backendFailureMessage }}</p>
+  } @else {
+    <np-form-validation-summary
+      [summaryTitle]="validationSummary.title"
+      [items]="validationSummary.items"
+      [formErrors]="validationSummary.formErrors"
+    />
+  }
+
+  <np-text-input-control
+    [controlId]="controlIds.FirstName"
+    [label]="i18n.t('details.firstName')"
+    type="text"
+    [required]="true"
+    [disabled]="isSubmitting"
+    [value]="firstNameValue"
+    [errorText]="firstNameError"
+    (valueChange)="updateFirstName($event)"
+  />
+
+  <np-text-input-control
+    [controlId]="controlIds.LastName"
+    [label]="i18n.t('details.lastName')"
+    type="text"
+    [required]="true"
+    [disabled]="isSubmitting"
+    [value]="lastNameValue"
+    [errorText]="lastNameError"
+    (valueChange)="updateLastName($event)"
+  />
+
+  <div class="np-personal-details-form-actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">{{ i18n.t('details.save') }}</button>
+    <button mat-button type="button" [disabled]="isSubmitting" (click)="cancel()">{{ i18n.t('details.cancel') }}</button>
+  </div>
+</form>

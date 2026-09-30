@@ -6,6 +6,8 @@ Development must follow the phases in order.
 
 Do not start work on a later phase until the current phase is complete.
 
+The numbered phases remain historically accurate. The Preparation Package Workstream below is an explicitly authorized additive workstream; starting it does not mark, skip, or complete Phases 9–11. Within that workstream, Stage 1 -> Stage 2 -> Stage 3 -> Stage 4 order is mandatory, and no later preparation-package stage may start before the earlier stage is completed and approved.
+
 ---
 
 # Phase 1 — Project Foundation ✅
@@ -175,7 +177,7 @@ Do not start work on a later phase until the current phase is complete.
 
 - [x] Countries
 - [x] Categories
-- [x] Question bank
+- [x] Exam-version question bank (exam-version question content; distinct from the planned Practice Bank)
 - [x] Mock exams
 - [x] Exam sessions
 - [x] Timer
@@ -261,6 +263,191 @@ Do not start work on a later phase until the current phase is complete.
 - [ ] Performance testing
 - [ ] Load testing
 - [ ] Disaster recovery validation
+
+---
+
+# Preparation Package Workstream (Planned)
+
+This workstream introduces the paid preparation package product described in `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md`. It is an explicitly authorized additive workstream. Starting it does not mark, skip, or complete Phases 9–11. Stage 1 runtime practice progress is complete through nurse-owned entitlement-scoped progress tracking, active `PracticeAccess` writes, historical owner reads, persistence, nurse-owned APIs, retry/re-answer authorization verification, and Stage 4 compatibility verification. Stage 2 backend capabilities are complete through package offer payment order creation, Sandbox package completion, purchased-offer snapshots, package purchase entitlements, and benefit-right authorization/read models. Stage 3 backend capabilities are complete through package-attempt exam start, session provenance, atomic attempt consumption, PostgreSQL concurrency/idempotency coverage, WebApi endpoint coverage, and compatibility/scope guards. Stage 4 backend capabilities are complete through lazy/on-demand package analytical report generation, direct nurse-owned report access, report persistence/idempotency/concurrency recovery, purchased-content guidance references, and security/scope guards. Each remaining stage requires a separately reviewed staged specification and implementation plan before implementation begins.
+
+Existing standalone paid-exam, free-exam, and grant-authorized exam session behavior must be preserved throughout this workstream.
+
+## Specification Phase
+
+- [x] Umbrella architecture-decisions draft created
+- [x] Umbrella architecture-decisions specification reviewed and approved
+- [x] Stage 1 — Content, Package Catalog, and Reporting Profile staged specification
+- [x] Stage 2 — Commerce, Fulfillment, Entitlements, and Benefit Rights staged specification
+- [x] Stage 3 — Package-Attempt Authorization, Session Provenance, Concurrency, and Legacy Compatibility staged specification
+- [x] Stage 4 — Analytical-Report Generation and Access staged specification
+
+## Stage 1 — Content, Package Catalog, and Reporting Profile
+
+- [x] Stage 1 staged specification reviewed and approved
+- [x] Stage 1 implementation plan reviewed and approved
+- [x] Reporting-topic taxonomy authoring/publication rules: every Reporting Topic belongs to exactly one existing ExamCategory and inherits country scope through it; no global, exam-specific, cross-category, separate-skill, or separate-difficulty taxonomy in v1; difficulty-based report analysis remains outside v1
+- [x] Separate immutable reporting-profile publication bound to one exact published exam version
+- [x] Managed study-material authoring and immutable published versions (including material-version-to-Reporting-Topic mapping)
+- [x] Reusable Practice Collection authoring and immutable published versions (including practice-item-to-Reporting-Topic mapping)
+- [x] Practice Items remain logically distinct from ExamQuestion and are selected, published, accessed, and protected independently, even if lower-level authoring infrastructure is later reused
+- [x] Basic practice progress distinguishes unanswered from answered items and, for answered items, correct from incorrect; concrete persistence and counters remain deferred to Stage 1 design
+- [x] Practice retry/retraining allowed only while package access is active; retries never consume the package exam attempt; after expiry no further practice authorization is granted while historical progress may remain visible
+- [x] Practice runtime and package-publication isolation prevent practice content from reading, exposing, or revealing the included published Exam Version's protected question content, answer identifiers, options, explanations, rationales, answer keys, or snapshots
+- [x] Practice administration and material administration use dedicated permissions separate from existing exam-content permissions; concrete permission names remain deferred to Stage 1 design
+- [x] V1 material types: File, External link, Video, and Formatted text
+- [x] Material lifecycle: Draft versions editable; Published versions immutable; revisions create new versions; Retired versions excluded from newly published Package Versions and newly sellable offers while historical purchasers remain protected
+- [x] Material authorization ends with the package access window; no offline access in v1; storage, delivery, download, and file-provider policy remain deferred to Stage 1 design
+- [x] Draft material content is inaccessible to nurses and cannot be included in package publication; only published material versions and published Practice Collection versions may be included in a published Package Version
+- [x] Materials support managed metadata, publication visibility, ordering, and reuse; concrete metadata fields and visibility representation remain deferred to Stage 1 design
+- [x] Package definition, immutable package version, and offer lifecycle
+- [x] Package Version composition administration selects, validates, and freezes one exact published Exam Version, one compatible immutable reporting-profile publication, one ordered list of exact published material versions, and one exact published Practice Collection version
+- [x] Offer administration is separate from composition administration: each offer references one already-published Package Version and configures only that version, price, currency, and access duration; the offer does not independently select component content or Reporting Topics
+- [x] Package publication validation: reporting-topic taxonomy and reporting-profile publication are prerequisites for package-version publication, plus referenced exam version, material versions, and Practice Collection version; the Reporting Topic set is inherited from the reporting-profile publication
+- [x] Existing published Exam Versions opt into package eligibility only through a compatible published reporting profile plus the remaining publication requirements; no mandatory mutation or historical backfill; versions without a profile retain standalone use but are not package-eligible
+- [x] Retirement and ineligibility make dependent offers non-purchasable for new sales without mutating immutable Package Versions, purchased snapshots, entitlements, reports, or historically purchased composition; historical access follows the original entitlement window and benefit rules
+- [x] Package catalog administration (dedicated package permissions)
+- [x] Package catalog APIs
+- [x] Stage 1 migration
+- [x] Stage 1 tests
+
+Stage 1 runtime Practice Progress completed commits: `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, `cffc846`, `8b964ae`.
+
+Stage 1 runtime Practice Progress final verification: Domain full tests 139 passed; Application full tests 579 passed; Infrastructure focused practice-progress/configuration tests 42 passed; Infrastructure non-PostgreSQL tests 168 passed; WebApi full tests 337 passed; build succeeded with 0 warnings and 0 errors; EF reported no pending model changes; Stage 4 analytical reports do not read practice progress and practice progress is not report classification evidence.
+
+Practice retry/retraining authorization status was completed by verification of the existing Practice Progress implementation, not by new implementation. Verification evidence: Application focused PracticeProgress tests 20/20 passed; WebApi focused PracticeProgress tests 23/23 passed; Domain focused PackagePracticeProgress tests 9/9 passed; build succeeded with 0 warnings and 0 errors; Stage 4 reports do not read practice progress; practice retry/re-answer does not consume the package exam attempt.
+
+Practice runtime and package-publication exam-content isolation status was completed by verification of the existing Stage 1 runtime implementation and guard coverage, not by new implementation. Relevant evidence includes existing guard commit `695cfbf` plus Practice Progress implementation commits `a90074c`, `7f54e49`, `6c11e61`, `0454c0f`, and `cffc846`, followed by status commits `8b964ae` and `54c61a5`. Verification evidence: Domain focused tests 62/62 passed; Application focused tests 117/117 passed; Infrastructure focused tests 42/42 passed; WebApi focused tests 33/33 passed; build succeeded with 0 warnings and 0 errors; Stage 4 reports do not read `PracticeProgress`; practice runtime/package-publication isolation grep found no defect and showed only existing guard tests, official exam/report paths, migrations/model snapshots, and unrelated payment/package snapshot references.
+
+Dedicated administration permissions status was completed by verification of the existing implementation plus added WebApi test coverage in `17e38eb test: cover package administration dedicated permissions`. Verification evidence: WebApi focused permission tests 81/81 passed; Infrastructure permission/seeding tests 11/11 passed; Application focused tests 140/140 passed; build succeeded with 0 warnings and 0 errors; `StudyMaterials.Manage` and `PracticeCollections.Manage` are dedicated permissions; `Exams.Edit` and `Questions.Manage` do not authorize study material or practice collection administration.
+
+Reporting-topic taxonomy status was completed by verification of the existing implementation and tests, not by new implementation. Relevant implementation evidence is `3f3cd66 feat: lock reporting topics to exam category`. Verification evidence: Domain focused tests 62/62 passed; Application focused tests 117/117 passed; Infrastructure focused tests 42/42 passed; WebApi focused tests 81/81 passed; build retry succeeded with 0 warnings and 0 errors. Reporting Topics require one immutable `ExamCategoryId` and inherit country scope through `ExamCategory`; v1 has no global, exam-specific, cross-category, separate-skill, or separate-difficulty taxonomy, and no difficulty-based report analysis.
+
+Reporting-profile publication status was completed by verification of the existing implementation plus committed WebApi authorization coverage, not by new implementation. Relevant evidence includes `7cd06e9 feat: enforce reporting profile publication rules` and `16a3f4e test: cover reporting profile dedicated permission`. Verification evidence: Domain focused tests 63/63 passed; Application focused tests 118/118 passed; Infrastructure non-PostgreSQL fallback tests 43/43 passed; the PostgreSQL-only infrastructure test was blocked only by missing `NURSING_PLATFORM_TEST_POSTGRES_CONNECTION_STRING`; WebApi focused tests 86/86 passed; build succeeded with 0 warnings and 0 errors. The separate immutable publication is bound to one exact published `ExamVersion`; assignment and persistence constraints apply; reporting-profile administration requires `ReportingProfiles.Manage`; `Exams.Edit` and `Questions.Manage` do not authorize it.
+
+Study-material authoring status was completed by verification of the existing implementation and tests, not by new implementation. Relevant evidence includes `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Verification evidence: Domain focused tests 62/62 passed; Application focused tests 117/117 passed; Infrastructure focused tests 42/42 passed; WebApi focused tests 86/86 passed; build succeeded with 0 warnings and 0 errors. Study materials have stable identities and separate immutable published versions with active Reporting Topic mappings; `StudyMaterials.Manage` is required, while `Exams.Edit` and `Questions.Manage` do not authorize material administration.
+
+Practice collection authoring status was completed by verification of the existing implementation and tests, not by new implementation. Relevant evidence includes `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b311f1f`, `695cfbf`, and `17e38eb`. Verification evidence: Domain focused tests 62/62 passed; Application focused tests 117/117 passed; Infrastructure focused tests 42/42 passed; WebApi focused tests 86/86 passed; build succeeded with 0 warnings and 0 errors. Practice collections have stable identities and separate immutable published versions with independent practice items/options and active Reporting Topic mappings; `PracticeCollections.Manage` is required, while `Exams.Edit` and `Questions.Manage` do not authorize collection administration.
+
+Practice item independence status was completed by verification of the existing implementation and guard tests, not by new implementation. Relevant evidence includes `695cfbf`, `b311f1f`, `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, and `9a82ee7`. Verification evidence: Domain focused tests 63/63 passed; Application focused tests 118/118 passed; Infrastructure focused tests 42/42 passed; WebApi focused tests 33/33 passed; build succeeded with 0 warnings and 0 errors. Practice items/options are separate from official exam entities, carry no official question/option/snapshot/key/rationale/explanation references, and practice JSON does not expose protected official exam content.
+
+V1 material types status was completed by verification of the existing implementation and tests, not by new implementation. Relevant evidence includes `2789e76`, `2ecc0e1`, `5ce67c4`, `8ba4c2a`, `9a82ee7`, `b85059c`, and `17e38eb`. Verification evidence: Domain focused tests 62/62 passed; Application focused tests 117/117 passed; Infrastructure focused tests 42/42 passed; WebApi focused tests 86/86 passed; build succeeded with 0 warnings and 0 errors. `StudyMaterialType` contains exactly `File`, `ExternalLink`, `Video`, and `FormattedText`; validator and domain rules require exactly one matching `FileStorageKey`, `ExternalUrl`, `VideoUrl`, or `FormattedTextContent` field and reject incompatible combinations. Persistence and admin DTO/API contracts support these fields; material endpoints require `StudyMaterials.Manage`, while `Exams.Edit` and `Questions.Manage` do not authorize them. This item introduces no storage-provider, upload/download/delivery, entitlement-access, package-composition, workspace, or frontend behavior.
+
+Material lifecycle status was completed by verification of the existing implementation plus focused regression coverage in `1f31e88 fix: reject offers for retired package materials` and `a4b28bb test: cover material lifecycle guards`. Verification evidence: Domain focused tests 65/65 passed; Application focused tests 120/120 passed; WebApi focused tests 97/97 passed; Application full tests 582/582 passed; WebApi full tests 363/363 passed; build succeeded with 0 warnings and 0 errors. Draft material versions can be edited; published and retired versions reject mutation; revisions create the next draft without mutating published content; package publication rejects draft and retired material versions; offer activation rejects package versions whose referenced material is no longer published. Material retirement does not mutate published package versions, purchased snapshots, purchase entitlements, or benefit rights. Lifecycle endpoints require `StudyMaterials.Manage`, with `401`, `403`, and authorized-success coverage; `Exams.Edit` and `Questions.Manage` do not authorize lifecycle updates. This item does not introduce or complete storage, delivery, entitlement-access, workspace, frontend, or unrelated package behavior.
+
+Draft content package-publication guard status was completed by verification of the existing implementation plus `8b46581 test: cover draft package content guards`. Verification evidence: Application focused tests 121/121 passed; WebApi focused tests 99/99 passed; Application full tests 583/583 passed; WebApi full tests 365/365 passed; build succeeded with 0 warnings and 0 errors. Package publication rejects draft material versions and draft Practice Collection versions. The public catalog exposes safe offer summaries only, and the nonexistent nurse material-content path returns `404` for both anonymous and authenticated requests. No material delivery/download, storage-provider, file-provider, offline-access, entitlement-access, workspace, frontend, or unrelated package behavior is introduced or marked complete.
+
+Material authorization/access-window status was completed by verification of the existing entitlement and benefit-right implementation, not by new implementation. Verification evidence: Domain focused tests 65/65 passed; Application focused tests 86/86 passed; Infrastructure configuration tests 42/42 passed; WebApi focused tests 58/58 passed; build succeeded with 0 warnings and 0 errors. Each package entitlement creates a `MaterialsAccess` benefit right with the same access window; authorization allows it only while both the entitlement and right windows are active and rejects expired access. No nurse material delivery/download route exists, and the existing file-storage service is used only by nurse CV workflows. No storage-provider, file-provider, offline-access, workspace, frontend, or unrelated package behavior is introduced or marked complete.
+
+Materials metadata, visibility, ordering, and reuse status was completed by verification of the existing implementation plus `849a453 test: cover material version reuse`. Verification evidence: Application focused tests 122/122 passed; Application full tests 584/584 passed; Infrastructure focused tests 42/42 passed; WebApi focused tests 99/99 passed; build succeeded with 0 warnings and 0 errors. Study materials are stable managed records with title, slug, and optional description; versions have publication status, typed content fields, and reporting-topic mappings. One published material version can be referenced by two distinct published package versions without mutating or duplicating its content. Package material references have positive unique sort orders and deterministic ordering. The specification deliberately defers concrete metadata fields and visibility representation beyond these approved authoring and publication rules. No storage-provider, delivery, download, file-provider, offline-access, workspace, frontend, entitlement-access, or unrelated package behavior is introduced or marked complete.
+
+Package definition, immutable package version, and offer lifecycle status was completed by verification of the existing implementation plus `e95545c test: cover package offer deactivation` and `0381045 test: cover package version component persistence`. Verification evidence: Domain focused tests 68/68 passed; Application focused tests 134/134 passed; Infrastructure focused tests 44/44 passed; WebApi focused tests 105/105 passed; build succeeded with 0 warnings and 0 errors. Package definitions are stable country/category-scoped catalog identities. Published package versions reject composition mutation and preserve exact component references/order. The direct composition regression test persists and asserts the exact selected ExamVersion, ReportingProfilePublication, PracticeCollectionVersion, and ordered StudyMaterialVersion references without duplicating or mutating material or practice content. Offers carry only the package definition/version reference and commercial configuration, support draft update, activation, and deactivation, and enforce one active offer per definition. Deactivation transitions the offer to inactive without mutating the package definition or published package version content. Dedicated package and offer permissions protect the administration endpoints. No payment, entitlement, purchase, workspace, frontend, or unrelated behavior is introduced or marked complete.
+
+Package Version composition administration status was completed by verification of the existing implementation plus `0381045 test: cover package version component persistence`. Verification evidence: Domain focused tests 66/66 passed; Application focused tests 124/124 passed; Infrastructure focused tests 44/44 passed; WebApi focused tests 102/102 passed; build succeeded with 0 warnings and 0 errors. The create command persists one exact selected `ExamVersion`, compatible `ReportingProfilePublication`, one complete `PracticeCollectionVersion`, and an ordered list of exact `StudyMaterialVersion` references without duplicating or mutating component content. Publication validates that the exact referenced components are published, eligible, and compatible, including exact reporting-profile-to-exam-version binding; published package versions reject composition mutation. Package-version administration routes require dedicated package permissions. No offer/payment, entitlement, purchase, workspace, frontend, or unrelated behavior is introduced or marked complete.
+
+Practice Progress deferred items remain retry history, spaced repetition/retraining, adaptive practice, workspace/dashboard aggregation, employer visibility, practice progress in analytical report evidence, offline sync, progress export, and cross-package progress merging.
+
+## Stage 2 — Commerce, Fulfillment, Entitlements, and Benefit Rights
+
+- [x] Stage 2 staged specification reviewed and approved
+- [x] Stage 2 implementation plan reviewed and approved
+- [x] Slice 1 — domain model
+- [x] Slice 2 — payment order contracts
+- [x] Slice 3 — persistence/migration
+- [x] Slice 4 — fulfillment/idempotency
+- [x] Slice 5 — APIs/integration tests
+- [x] Slice 6 — authorization/read models
+- [x] Slice 7 — final verification
+- [x] Package offer snapshotting
+- [x] Package offer order creation through the existing payment order endpoint
+- [x] Sandbox package payment completion through the existing Sandbox completion endpoint
+- [x] Purchased-offer snapshot usage for fulfillment and read models
+- [x] Package purchase entitlement creation after successful payment completion
+- [x] Idempotent package fulfillment (paid order item to package purchase entitlement)
+- [x] Four benefit rights (materials, practice, exam attempt, report) with independent authorization
+- [x] Benefit-right authorization hooks and read models
+- [x] Active same-package entitlement blocking based on stable package definition
+- [x] Same exam in different package definitions allowed to coexist independently
+- [x] Standalone exam access product completion still creates `ExamAccessGrant`
+- [x] Package fulfillment does not create `ExamAccessGrant`
+- [x] Stage 2 migration
+- [x] Stage 2 tests
+- [x] Stage 2 final verification: Domain filtered 66/66 passed; Application filtered 100/100 passed; Infrastructure filtered 59/59 passed; WebApi filtered 72/72 passed; full Application 496/496 passed; full WebApi 284/284 passed; build succeeded with 0 warnings and 0 errors; EF had no pending model changes; final idempotent migration script generated at `/tmp/opencode/preparation-package-stage2-final.sql` with size 91141 bytes; Infrastructure migration/configuration diff was clean; no backend files remained modified.
+
+Stage 2 remains bounded to package fulfillment and entitlement/read-model behavior. Package exam start, package attempt consumption, exam session provenance, report generation/access, workspace runtime, and employer package data remain deferred to later approved stages.
+
+Stage 3 is complete. Stage 4 is also complete through package analytical report generation and direct access. Remaining non-Stage-4 work stays deferred until separately specified, planned, approved, implemented, and verified.
+
+## Stage 3 — Package-Attempt Authorization, Session Provenance, Concurrency, Legacy Compatibility
+
+- [x] Stage 3 staged specification reviewed and approved
+- [x] Stage 3 implementation plan reviewed and approved
+- [x] Package-attempt start operation where the client selects the Package Purchase identity/entitlement and the backend resolves the corresponding internal attempt right; no internal right identifier is client-selected
+- [x] Atomic attempt consumption with qualifying session creation
+- [x] Package start validates ownership, exact exam and exam-version match, active package window at creation, unused attempt, and immutable purchase provenance
+- [x] Same-source retries return/resume the same qualifying in-progress session idempotently, including when that session consumed the attempt; an attempt consumed by a terminal session returns a deterministic consumed outcome
+- [x] One package access window; access begins immediately at successful fulfillment; only duration configurable
+- [x] Package expiration after successful session creation does not invalidate the in-progress session; resume, submit, and automatic finalization remain allowed and the session remains report-eligible
+- [x] Session provenance recording
+- [x] Every new session has one immutable logical source (free, standalone grant-authorized, or one specific Package Purchase attempt); source and provenance cannot be rewritten after creation
+- [x] Existing isFree/canStart semantics remain backward compatible for free and standalone access; package availability and package-attempt eligibility are separate additive capability information, and canStart never silently includes or consumes package rights
+- [x] One in-progress session per nurse per exam version (across access sources)
+- [x] Source-mismatch conflict semantics
+- [x] Standalone/free start never consumes a package attempt; no silent entitlement selection, source switching, or provenance rewriting
+- [x] `ExamAccessGrant` kept as standalone authorization evidence; not part of effective-paid classification
+- [x] Standalone exam access and package rights coexist independently (same exam may be sold standalone and in a package; neither blocks the other; a standalone session does not consume or qualify the package attempt or report right; different packages containing the same exam coexist; one package cannot satisfy another package's rights; active repurchase of the same stable package is blocked; repurchase after expiration creates a new access window, attempt, and report right)
+- [x] Free and standalone session start behavior preserved
+- [x] Stage 3 migration
+- [x] Stage 3 tests
+
+Stage 3 final verification: Domain filtered 21/21 passed; Application filtered 97/97 passed; WebApi filtered 35/35 passed; Infrastructure filtered 15/15 passed with local PostgreSQL; build succeeded with 0 warnings and 0 errors; EF reported no pending model changes; final idempotent migration script generated at `/tmp/opencode/preparation-package-stage3-final.sql` with size 100156 bytes; `git diff --check` was clean. Stage 3 did not implement report generation/access, workspace/dashboard, employer package behavior, or frontend/design work.
+
+Stage 4 package report generation/recovery/access/guidance implementation is complete through the reviewed Stage 4 slices. Remaining non-Stage-4 work stays deferred until separately specified, planned, approved, implemented, and verified.
+
+## Stage 4 — Analytical-Report Generation and Access
+
+- [x] Stage 4 staged specification reviewed and approved
+- [x] Stage 4 implementation plan reviewed and approved
+- [x] Submitted and automatically finalized/scored package sessions qualify for the report; abandoned sessions do not qualify
+- [x] Report benefit right exists after fulfillment and remains dormant/unconsumed in v1 while qualifying package sessions can generate/read reports
+- [x] Immutable analytical-report snapshot captures package-purchase/session provenance, scored topic results, and mapped purchased material/practice content without performance bands or labels
+- [x] Generation recovery and retry (report-generation failure does not invalidate scoring, does not permanently consume the report right, and does not require an exam retake)
+- [x] Performance bands, labels, and weak/neutral/strong classifications remain deferred in v1; reports return counts and percentages only
+- [x] Report persistence after entitlement expiry (nurse-owned, remains readable)
+- [x] Nurse-owned report access only in v1; admin report access is deferred
+- [x] Deterministic guidance presentation restricted to the material versions and Practice Collection version included in the purchased Package Version (no question text, correct-answer identifiers, protected options, rationales, or per-question exam review exposed; deterministic, not an AI recommendation)
+- [x] Stage 4 migration
+- [x] Stage 4 tests
+
+Stage 4 completed commits: `b1a9c5b`, `3a8b84d`, `32451ec`, `12d247d`, `3058604`.
+
+Stage 4 final verification: WebApi package report tests passed; broader WebApi package tests passed; Application package/session tests passed; Infrastructure package report/configuration tests passed; PostgreSQL package report/concurrency tests passed; Domain report/right/session/provenance tests passed; build succeeded with 0 warnings and 0 errors; EF reported no pending model changes; final idempotent migration script generated successfully; `git diff --check` was clean. Stage 4 did not implement a report list endpoint, frontend/design work, workspace/dashboard runtime, employer report visibility, admin report access, AI guidance, performance bands/labels/classifications, or protected question/answer/correct option/rationale/key exposure.
+
+## Launch-Readiness Configuration
+
+These items must exist before the first commercial package can be published. They are split into per-offer configuration (chosen at each offer's publication) and required-once launch-readiness inputs (apply once across the first examination market).
+
+### Per-offer Configuration
+
+Made by the business at each package offer's publication time:
+
+- [ ] Price of the package offer
+- [ ] Currency of the package offer
+- [ ] Exact access duration of the package offer (the only configurable element of the access window; access always begins at successful fulfillment and runs for this configured duration; no first-use and no choice between fixed-length and rolling)
+- [ ] Exact already-published Package Version; its component composition and inherited Reporting Topic set are already frozen and are not independently selected by the offer
+
+### Required Before Publishing the First Commercial Package (Launch-Readiness Inputs)
+
+Apply once across the first examination market. No values invented in this document:
+
+- [ ] Initial Reporting Topics for the first examination market
+- [ ] Minimum scored-question representation required before a topic can be classified confidently
+- [ ] Weak / neutral / strong classification thresholds used by deterministic report guidance
+- [ ] The specific eligible published Package Version for the first commercial offer; its exact composition already satisfies Package Version publication requirements
+
+### Approved Business Invariants
+
+- The first commercial package cannot be published until all four staged specifications and their implementation plans have been reviewed, the underlying capabilities implemented, and the launch-readiness inputs above exist.
+- A package publication is a business action, not an engineering action. It uses already-approved capabilities.
 
 ---
 

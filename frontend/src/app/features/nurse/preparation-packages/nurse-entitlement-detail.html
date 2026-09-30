@@ -1,0 +1,58 @@
+<section class="np-nurse-entitlement-detail" aria-labelledby="nurse-entitlement-detail-title">
+  <a [routerLink]="backPath" data-testid="entitlement-back-link">{{ i18n.t('npp.backToPackages') }}</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('npp.detailLoading')"
+    [fallbackErrorTitle]="i18n.t('npp.detailLoadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (notFound()) {
+      <p role="status" data-testid="entitlement-missing-notice">
+        {{ i18n.t('npp.missing') }}
+      </p>
+    } @else if (entitlement(); as detail) {
+      <header class="np-nurse-entitlement-detail-header">
+        <p class="np-nurse-entitlement-detail-kicker">{{ i18n.t('npp.roleNurse') }}</p>
+        <h1 id="nurse-entitlement-detail-title">{{ detail.packageOfferTitle }}</h1>
+        <p class="np-nurse-entitlement-detail-definition">{{ detail.packageDefinitionTitle }}</p>
+        <p class="np-nurse-entitlement-detail-exam">{{ detail.includedExamTitle }}</p>
+      </header>
+
+      <dl class="np-nurse-entitlement-detail-facts">
+        <div><dt>{{ i18n.t('npp.statusLabel') }}</dt><dd>{{ statusText(detail.status) }}</dd></div>
+        <div><dt>{{ i18n.t('npp.accessStarts') }}</dt><dd>{{ detail.accessStartsAt | date: 'medium' }}</dd></div>
+        <div><dt>{{ i18n.t('npp.accessEnds') }}</dt><dd>{{ detail.accessEndsAt | date: 'medium' }}</dd></div>
+      </dl>
+
+      @if (hasSummary()) {
+        <p class="np-nurse-entitlement-detail-summary">{{ detail.purchasedSnapshot.packageOfferSummary }}</p>
+      }
+
+      @if (hasPracticeAccess()) {
+        <a [routerLink]="practicePath()" data-testid="entitlement-practice-link">{{ i18n.t('npp.practice') }}</a>
+      }
+
+      <np-package-exam-section
+        [entitlementId]="detail.id"
+        [rights]="detail.benefitRights"
+        [entitlementActive]="detail.status === 'Active'"
+      />
+
+      <h2>{{ i18n.t('npp.benefitRights') }}</h2>
+      @if (detail.benefitRights.length > 0) {
+        <ul class="np-nurse-entitlement-detail-rights">
+          @for (right of detail.benefitRights; track $index) {
+            <li>
+              <np-nurse-entitlement-right [right]="right" />
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="np-nurse-entitlement-detail-no-rights">{{ i18n.t('npp.noRights') }}</p>
+      }
+    }
+  }
+</section>

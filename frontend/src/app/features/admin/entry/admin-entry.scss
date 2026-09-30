@@ -1,0 +1,68 @@
+.np-admin-entry {
+  display: grid;
+  gap: 1.5rem;
+  padding: var(--np-page-gutter);
+}
+
+.np-admin-entry-hero {
+  display: grid;
+  gap: 0.5rem;
+  max-inline-size: 52rem;
+  padding: 1.5rem;
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: 1.5rem;
+  background: var(--np-color-surface, #fff);
+  box-shadow: var(--np-shadow-sm, 0 0.25rem 1rem rgb(15 23 42 / 8%));
+}
+
+.np-admin-entry-kicker,
+.np-admin-entry-hero p,
+.np-admin-entry-card-group,
+.np-admin-entry-card p,
+.np-admin-entry-empty {
+  color: var(--np-color-text-muted, #52616b);
+}
+
+.np-admin-entry-hero h1,
+.np-admin-entry-card h2 {
+  margin: 0;
+}
+
+.np-admin-entry-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.np-admin-entry-card {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  padding: 1.25rem;
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: 1rem;
+  background: var(--np-color-surface, #fff);
+}
+
+.np-admin-entry-card-group {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.np-admin-entry-card a {
+  justify-self: start;
+}
+
+@media (width >= 48rem) {
+  .np-admin-entry-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 72rem) {
+  .np-admin-entry-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

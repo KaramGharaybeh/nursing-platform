@@ -15,6 +15,7 @@ using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Identity;
 using NursingPlatform.Domain.Nurses;
 using NursingPlatform.Domain.Payments;
+using NursingPlatform.Domain.PreparationPackages;
 using NursingPlatform.Domain.Recruitment;
 using NursingPlatform.Domain.ReferenceData;
 
@@ -107,6 +108,220 @@ public class PaymentHandlerTests
         Assert.Equal(product.Id, item.ProductId);
         Assert.InRange(result.ExpiresAt!.Value, before.AddMinutes(30).AddSeconds(-1), after.AddMinutes(30).AddSeconds(1));
         Assert.Empty(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CreateOrder_WithProductId_PreservesExistingExamAccessOrderSnapshot()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var exam = CreateExam(ExamStatus.Published);
+        var product = PaymentProduct.CreateExamAccess(exam.Id, "Exam Access", "Description", "usd", 4999);
+        context.Exams.Add(exam);
+        context.PaymentProducts.Add(product);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { ProductId = product.Id }
+        }, default);
+
+        var item = Assert.Single(result.Items);
+        Assert.Equal(product.Id, item.ProductId);
+        Assert.Equal("Exam Access", item.ProductName);
+        Assert.Equal(PaymentProductType.ExamAccess.ToString(), item.ProductType);
+        Assert.Equal(exam.Id, item.ExamId);
+        Assert.Equal("ExamAccessProduct", item.SourceType);
+        Assert.Equal(product.Id, item.SourceId);
+        Assert.Null(item.PackageSnapshot);
+        Assert.Equal(PaymentOrderItemSourceType.ExamAccessProduct, Assert.Single(context.PaymentOrderItems).SourceType);
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_WithActiveSellableOffer_CreatesPendingOrderWithPurchasedOfferSnapshot()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default);
+
+        Assert.Equal("PendingPayment", result.Status);
+        Assert.Equal(package.Offer.PriceAmountMinor, result.TotalAmountMinor);
+        Assert.Equal(package.Offer.Currency, result.Currency);
+        var item = Assert.Single(result.Items);
+        Assert.Equal(Guid.Empty, item.ProductId);
+        Assert.Equal(string.Empty, item.ProductName);
+        Assert.Equal(Guid.Empty, item.ExamId);
+        Assert.Equal("PreparationPackageOffer", item.SourceType);
+        Assert.Equal(package.Offer.Id, item.SourceId);
+        Assert.Equal(package.Offer.Currency, item.Currency);
+        Assert.Equal(package.Offer.PriceAmountMinor, item.UnitAmountMinor);
+        Assert.Equal(package.Offer.PriceAmountMinor, item.LineTotalAmountMinor);
+        Assert.NotNull(item.PackageSnapshot);
+        Assert.Equal(package.Offer.Id, item.PackageSnapshot.PackageOfferId);
+        Assert.Equal(package.Offer.Title, item.PackageSnapshot.PackageOfferTitle);
+        Assert.Equal(package.Offer.Slug, item.PackageSnapshot.PackageOfferSlug);
+        Assert.Equal(package.Definition.Id, item.PackageSnapshot.PackageDefinitionId);
+        Assert.Equal(package.Definition.Title, item.PackageSnapshot.PackageDefinitionTitle);
+        Assert.Equal(package.Definition.Slug, item.PackageSnapshot.PackageDefinitionSlug);
+        Assert.Equal(package.Definition.CountryId, item.PackageSnapshot.CountryId);
+        Assert.Equal(package.Definition.ExamCategoryId, item.PackageSnapshot.ExamCategoryId);
+        Assert.Equal(package.Version.Id, item.PackageSnapshot.PackageVersionId);
+        // Stage 1 package versions do not yet expose a package version number/display version.
+        Assert.Equal(1, item.PackageSnapshot.PackageVersionNumber);
+        Assert.Equal(package.Exam.Id, item.PackageSnapshot.IncludedExamId);
+        Assert.Equal(package.ExamVersion.Id, item.PackageSnapshot.IncludedExamVersionId);
+        Assert.Equal(package.Exam.Title, item.PackageSnapshot.IncludedExamTitle);
+        Assert.Equal(package.ReportingProfile.Id, item.PackageSnapshot.ReportingProfilePublicationId);
+        Assert.Equal(package.PracticeCollectionVersion.Id, item.PackageSnapshot.PracticeCollectionVersionId);
+        Assert.Equal(package.MaterialVersionIds, item.PackageSnapshot.StudyMaterialVersionIds);
+        Assert.Equal(package.Offer.AccessDurationDays, item.PackageSnapshot.AccessDurationDays);
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_WithMissingOffer_ThrowsKeyNotFoundException()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = Guid.NewGuid() }
+        }, default));
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_WithInactiveOffer_ThrowsInvalidOperationException()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context, activateOffer: false);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default));
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_WithRetiredOffer_ThrowsInvalidOperationException()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        package.Offer.Retire(DateTime.UtcNow);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default));
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_WithUnsellableOfferComponents_ThrowsInvalidOperationException()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context, publishMaterial: false);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default));
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_UsesServerSideOfferPackageFacts()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default);
+
+        var item = Assert.Single(result.Items);
+        Assert.Equal(package.Offer.PriceAmountMinor, item.UnitAmountMinor);
+        Assert.Equal(package.Offer.Currency, item.Currency);
+        Assert.Equal(package.Offer.AccessDurationDays, item.PackageSnapshot!.AccessDurationDays);
+        Assert.Equal(package.Version.Id, item.PackageSnapshot.PackageVersionId);
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_DoesNotCreatePaymentProductOrExamAccessProductSnapshot()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        var result = await handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default);
+
+        Assert.Empty(context.PaymentProducts);
+        var persistedItem = Assert.Single(context.PaymentOrderItems);
+        Assert.Equal(PaymentOrderItemSourceType.PreparationPackageOffer, persistedItem.SourceType);
+        Assert.Equal(Guid.Empty, persistedItem.ProductId);
+        Assert.Equal(Guid.Empty, persistedItem.ExamIdSnapshot);
+        Assert.Equal("PreparationPackageOffer", Assert.Single(result.Items).SourceType);
+    }
+
+    [Fact]
+    public async Task Handle_CreatePackageOrder_DoesNotCreateGrantOrRuntimeRows()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var handler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+
+        await handler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = package.Offer.Id }
+        }, default);
+
+        Assert.Empty(context.ExamAccessGrants);
+        Assert.Empty(context.ExamSessions);
     }
 
     [Fact]
@@ -911,6 +1126,213 @@ public class PaymentHandlerTests
     }
 
     [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WithPackageOrder_CreatesPackageEntitlementRightsAndNoExamGrant()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var order = await CreatePendingPackagePaymentOrderAsync(context, userId, package.Offer.Id);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        var before = DateTime.UtcNow;
+        var result = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+        var after = DateTime.UtcNow;
+
+        Assert.Equal("Paid", result.OrderStatus);
+        Assert.NotNull(result.PaidAt);
+        Assert.InRange(result.PaidAt!.Value, before.AddSeconds(-1), after.AddSeconds(1));
+        Assert.Empty(context.ExamAccessGrants);
+        Assert.Empty(context.ExamSessions);
+        var entitlement = Assert.Single(context.Set<PackagePurchaseEntitlement>());
+        Assert.Equal(nurseProfileId, entitlement.NurseProfileId);
+        Assert.Equal(order.Id, entitlement.PaymentOrderId);
+        Assert.Equal(order.Items.Single().Id, entitlement.PaymentOrderItemId);
+        Assert.Equal(package.Definition.Id, entitlement.PreparationPackageDefinitionId);
+        Assert.Equal(package.Version.Id, entitlement.PreparationPackageVersionId);
+        Assert.Equal(package.Offer.Id, entitlement.PreparationPackageOfferId);
+        Assert.Equal(package.Exam.Id, entitlement.IncludedExamId);
+        Assert.Equal(package.ExamVersion.Id, entitlement.IncludedExamVersionId);
+        Assert.Equal(package.ReportingProfile.Id, entitlement.ReportingProfilePublicationId);
+        Assert.Equal(package.PracticeCollectionVersion.Id, entitlement.PracticeCollectionVersionId);
+        Assert.Equal(package.MaterialVersionIds, entitlement.StudyMaterialVersionIds);
+        Assert.Equal(package.Offer.PriceAmountMinor, entitlement.PriceAmountMinor);
+        Assert.Equal(package.Offer.Currency.ToUpperInvariant(), entitlement.Currency);
+        Assert.Equal(package.Offer.AccessDurationDays, entitlement.AccessDurationDays);
+        Assert.Equal(PackagePurchaseEntitlementStatus.Active, entitlement.Status);
+        Assert.Equal(result.PaidAt.Value, entitlement.FulfilledAt);
+        Assert.Equal(result.PaidAt.Value, entitlement.AccessStartsAt);
+        Assert.Equal(result.PaidAt.Value.AddDays(package.Offer.AccessDurationDays), entitlement.AccessEndsAt);
+        var rights = context.Set<PackageBenefitRight>().OrderBy(r => r.RightType).ToArray();
+        Assert.Equal(4, rights.Length);
+        Assert.Contains(rights, r => r.RightType == PackageBenefitRightType.MaterialsAccess && r.Status == PackageBenefitRightStatus.Available && r.AccessEndsAt == entitlement.AccessEndsAt);
+        Assert.Contains(rights, r => r.RightType == PackageBenefitRightType.PracticeAccess && r.Status == PackageBenefitRightStatus.Available && r.AccessEndsAt == entitlement.AccessEndsAt);
+        Assert.Contains(rights, r => r.RightType == PackageBenefitRightType.PackageExamAttemptEligibility && r.Status == PackageBenefitRightStatus.Available && r.AccessEndsAt == entitlement.AccessEndsAt);
+        Assert.Contains(rights, r => r.RightType == PackageBenefitRightType.ReportEligibility && r.Status == PackageBenefitRightStatus.Dormant && r.AccessEndsAt == null);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WithPackageOrder_RepeatedCompletionDoesNotDuplicateEntitlementOrRights()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var order = await CreatePendingPackagePaymentOrderAsync(context, userId, package.Offer.Id);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        var first = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+        var second = await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+
+        Assert.Equal(first.PaidAt, second.PaidAt);
+        Assert.Single(context.Set<PackagePurchaseEntitlement>());
+        Assert.Equal(4, context.Set<PackageBenefitRight>().Count());
+        Assert.Empty(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WithPackageOrderAndExistingActiveSamePackageEntitlement_ThrowsConflict()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var existingOrder = await CreatePendingPackagePaymentOrderAsync(context, userId, package.Offer.Id);
+        var existingSnapshot = existingOrder.Items.Single().PackageOrderItemSnapshot!;
+        var existingEntitlement = PackagePurchaseEntitlement.CreateFromSnapshot(
+            nurseProfileId,
+            existingOrder.Id,
+            existingOrder.Items.Single().Id,
+            existingSnapshot,
+            DateTime.UtcNow.AddDays(-1));
+        context.Set<PackagePurchaseEntitlement>().Add(existingEntitlement);
+        context.Set<PackageBenefitRight>().AddRange(existingEntitlement.Rights);
+        var order = await CreatePendingPackagePaymentOrderAsync(context, userId, package.Offer.Id);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default));
+
+        Assert.Equal(PaymentOrderStatus.PendingPayment, order.Status);
+        Assert.Single(context.Set<PackagePurchaseEntitlement>().Where(e => e.Status == PackagePurchaseEntitlementStatus.Active));
+        Assert.Empty(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WithPackageOrderSnapshotSourceMismatch_ThrowsConflictWithoutFulfillment()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var order = await CreatePendingPackagePaymentOrderAsync(context, userId, package.Offer.Id);
+        order.Items.Single().SourceId = Guid.NewGuid();
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default));
+
+        Assert.Equal(PaymentOrderStatus.PendingPayment, order.Status);
+        Assert.Empty(context.Set<PackagePurchaseEntitlement>());
+        Assert.Empty(context.Set<PackageBenefitRight>());
+        Assert.Empty(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WithActiveDifferentPackageEntitlementForSameExam_DoesNotBlockFulfillment()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var firstPackage = SeedSellablePackageOffer(context);
+        var secondPackage = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var firstOrder = await CreatePendingPackagePaymentOrderAsync(context, userId, firstPackage.Offer.Id);
+        var firstSession = CreateCheckoutSession(firstOrder, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        firstSession.MarkProviderPending("sandbox_session_first", null, "https://sandbox-payments.local/checkout/session/first", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentCheckoutSessions.Add(firstSession);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+        await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = firstSession.Id }, default);
+        var secondOrder = await CreatePendingPackagePaymentOrderAsync(context, userId, secondPackage.Offer.Id);
+        var secondSnapshot = secondOrder.Items.Single().PackageOrderItemSnapshot!;
+        SetPrivateProperty(secondSnapshot, nameof(PackageOrderItemSnapshot.IncludedExamId), firstPackage.Exam.Id);
+        SetPrivateProperty(secondSnapshot, nameof(PackageOrderItemSnapshot.IncludedExamVersionId), firstPackage.ExamVersion.Id);
+        var secondSession = CreateCheckoutSession(secondOrder, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        secondSession.MarkProviderPending("sandbox_session_second", null, "https://sandbox-payments.local/checkout/session/second", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentCheckoutSessions.Add(secondSession);
+        await context.SaveChangesAsync();
+
+        await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = secondSession.Id }, default);
+
+        Assert.NotEqual(firstPackage.Definition.Id, secondPackage.Definition.Id);
+        Assert.Equal(2, context.Set<PackagePurchaseEntitlement>().Count(e => e.Status == PackagePurchaseEntitlementStatus.Active));
+        Assert.Equal(2, context.Set<PackagePurchaseEntitlement>().Count(e => e.IncludedExamId == firstPackage.Exam.Id));
+        Assert.Equal(8, context.Set<PackageBenefitRight>().Count());
+        Assert.Empty(context.ExamAccessGrants);
+    }
+
+    [Fact]
+    public async Task Handle_CompleteSandboxCheckout_WithPackageOrder_ExpiresStaleSamePackageEntitlementBeforeCreatingNewOne()
+    {
+        var userId = Guid.NewGuid();
+        var nurseProfileId = Guid.NewGuid();
+        await using var context = CreateContext();
+        SeedNurse(context, userId, nurseProfileId);
+        var package = SeedSellablePackageOffer(context);
+        await context.SaveChangesAsync();
+        var existingOrder = await CreatePendingPackagePaymentOrderAsync(context, userId, package.Offer.Id);
+        var existingSnapshot = existingOrder.Items.Single().PackageOrderItemSnapshot!;
+        var existingEntitlement = PackagePurchaseEntitlement.CreateFromSnapshot(
+            nurseProfileId,
+            existingOrder.Id,
+            existingOrder.Items.Single().Id,
+            existingSnapshot,
+            DateTime.UtcNow.AddDays(-(package.Offer.AccessDurationDays + 1)));
+        context.Set<PackagePurchaseEntitlement>().Add(existingEntitlement);
+        context.Set<PackageBenefitRight>().AddRange(existingEntitlement.Rights);
+        var order = await CreatePendingPackagePaymentOrderAsync(context, userId, package.Offer.Id);
+        var session = CreateCheckoutSession(order, nurseProfileId, DateTime.UtcNow, providerName: "Sandbox");
+        session.MarkProviderPending("sandbox_session", null, "https://sandbox-payments.local/checkout/session", DateTime.UtcNow.AddMinutes(10));
+        context.PaymentCheckoutSessions.Add(session);
+        await context.SaveChangesAsync();
+        var handler = new CompleteSandboxPaymentCheckoutCommandHandler(context, CreateGuard(context, userId));
+
+        await handler.Handle(new CompleteSandboxPaymentCheckoutCommand { CheckoutSessionId = session.Id }, default);
+
+        Assert.Equal(PackagePurchaseEntitlementStatus.Expired, existingEntitlement.Status);
+        Assert.Equal(2, context.Set<PackagePurchaseEntitlement>().Count());
+        Assert.Single(context.Set<PackagePurchaseEntitlement>().Where(e => e.Status == PackagePurchaseEntitlementStatus.Active));
+        Assert.Equal(8, context.Set<PackageBenefitRight>().Count());
+        Assert.Empty(context.ExamAccessGrants);
+    }
+
+    [Fact]
     public async Task Handle_CompleteSandboxCheckout_RepeatedCompletionDoesNotDuplicateGrantOrChangePaidAt()
     {
         var userId = Guid.NewGuid();
@@ -1399,6 +1821,23 @@ public class PaymentHandlerTests
             requestFingerprintHash ?? StartMyPaymentCheckoutCommandHandler.ComputeRequestFingerprintHash(nurseProfileId, order.Id));
     }
 
+    private static async Task<PaymentOrder> CreatePendingPackagePaymentOrderAsync(
+        TestPaymentDbContext context,
+        Guid userId,
+        Guid packageOfferId)
+    {
+        var createOrderHandler = new CreateMyPaymentOrderCommandHandler(context, CreateGuard(context, userId));
+        var createdOrder = await createOrderHandler.Handle(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = packageOfferId }
+        }, default);
+
+        return await context.PaymentOrders
+            .Include(o => o.Items)
+            .ThenInclude(i => i.PackageOrderItemSnapshot)
+            .SingleAsync(o => o.Id == createdOrder.Id);
+    }
+
     private static void SeedNurse(TestPaymentDbContext context, Guid userId, Guid nurseProfileId)
     {
         var role = new Role { Id = Guid.NewGuid(), Name = "Nurse" };
@@ -1408,6 +1847,103 @@ public class PaymentHandlerTests
         context.Roles.Add(role);
         context.NurseProfiles.Add(new NurseProfile { Id = nurseProfileId, UserId = userId });
     }
+
+    private static SellablePackageFixture SeedSellablePackageOffer(
+        TestPaymentDbContext context,
+        bool activateOffer = true,
+        bool publishMaterial = true)
+    {
+        var categoryId = Guid.NewGuid();
+        var countryId = Guid.NewGuid();
+        var exam = CreateExam(ExamStatus.Published);
+        exam.CountryId = countryId;
+        exam.ExamCategoryId = categoryId;
+        var examVersion = new ExamVersion
+        {
+            Id = Guid.NewGuid(),
+            ExamId = exam.Id,
+            VersionNumber = 3,
+            Status = ExamVersionStatus.Published,
+            QuestionCount = 1,
+            TotalPoints = 1,
+            PublishedAt = DateTime.UtcNow
+        };
+
+        var topic = ReportingTopic.Create(categoryId, "Clinical judgment", "clinical-judgment", null);
+        var materialVersion = StudyMaterialVersion.CreateDraft(
+            Guid.NewGuid(),
+            StudyMaterialType.FormattedText,
+            "Study content",
+            null,
+            null,
+            null,
+            [topic.Id]);
+        if (publishMaterial)
+        {
+            materialVersion.Publish(DateTime.UtcNow);
+        }
+
+        var practiceCollectionVersion = PracticeCollectionVersion.CreateDraft(Guid.NewGuid(), 1);
+        var practiceItem = PracticeItem.Create(topic.Id, "Practice prompt", "Practice feedback", 1);
+        practiceItem.AddAnswerOption("Correct", true, 1);
+        practiceItem.AddAnswerOption("Incorrect", false, 2);
+        practiceCollectionVersion.AddPracticeItem(practiceItem);
+        practiceCollectionVersion.Publish(DateTime.UtcNow);
+
+        var reportingProfile = ReportingProfilePublication.CreateDraft(examVersion.Id, "Profile");
+        reportingProfile.AssignQuestion(Guid.NewGuid(), topic.Id);
+        reportingProfile.Publish(DateTime.UtcNow);
+
+        var definition = PreparationPackageDefinition.Create(countryId, categoryId, "NCLEX Prep", "nclex-prep", "Package definition");
+        var version = PreparationPackageVersion.CreateDraft(definition.Id, examVersion.Id, reportingProfile.Id, practiceCollectionVersion.Id);
+        version.AddMaterialVersion(materialVersion.Id, 1);
+        version.ConfirmContentIsolation();
+        version.Publish(DateTime.UtcNow);
+
+        var offer = PreparationPackageOffer.CreateDraft(
+            definition.Id,
+            version.Id,
+            "NCLEX preparation package",
+            "nclex-preparation-package",
+            "Focused preparation.",
+            14900,
+            "usd",
+            90);
+        if (activateOffer)
+        {
+            offer.Activate(DateTime.UtcNow);
+        }
+
+        context.Exams.Add(exam);
+        context.ExamVersions.Add(examVersion);
+        context.ReportingTopics.Add(topic);
+        context.StudyMaterialVersions.Add(materialVersion);
+        context.PracticeCollectionVersions.Add(practiceCollectionVersion);
+        context.ReportingProfilePublications.Add(reportingProfile);
+        context.PreparationPackageDefinitions.Add(definition);
+        context.PreparationPackageVersions.Add(version);
+        context.PreparationPackageOffers.Add(offer);
+
+        return new SellablePackageFixture(
+            offer,
+            definition,
+            version,
+            exam,
+            examVersion,
+            reportingProfile,
+            practiceCollectionVersion,
+            [materialVersion.Id]);
+    }
+
+    private sealed record SellablePackageFixture(
+        PreparationPackageOffer Offer,
+        PreparationPackageDefinition Definition,
+        PreparationPackageVersion Version,
+        Exam Exam,
+        ExamVersion ExamVersion,
+        ReportingProfilePublication ReportingProfile,
+        PracticeCollectionVersion PracticeCollectionVersion,
+        IReadOnlyList<Guid> MaterialVersionIds);
 
     private static NursingPlatform.Application.Nurses.Common.NurseRoleGuard CreateGuard(TestPaymentDbContext context, Guid userId)
     {
@@ -1425,6 +1961,11 @@ public class PaymentHandlerTests
         typeof(PaymentCheckoutSession)
             .GetProperty(nameof(PaymentCheckoutSession.ProviderCallLeaseExpiresAt))!
             .SetValue(session, leaseExpiresAt);
+    }
+
+    private static void SetPrivateProperty<T>(object instance, string propertyName, T value)
+    {
+        instance.GetType().GetProperty(propertyName)!.SetValue(instance, value);
     }
 
     private sealed class TestPaymentDbContext : DbContext, IApplicationDbContext
@@ -1467,6 +2008,23 @@ public class PaymentHandlerTests
         public DbSet<PaymentOrder> PaymentOrders => Set<PaymentOrder>();
         public DbSet<PaymentOrderItem> PaymentOrderItems => Set<PaymentOrderItem>();
         public DbSet<PaymentCheckoutSession> PaymentCheckoutSessions => Set<PaymentCheckoutSession>();
+        public DbSet<PackageOrderItemSnapshot> PackageOrderItemSnapshots => Set<PackageOrderItemSnapshot>();
+        public DbSet<PackagePurchaseEntitlement> PackagePurchaseEntitlements => Set<PackagePurchaseEntitlement>();
+        public DbSet<PackageBenefitRight> PackageBenefitRights => Set<PackageBenefitRight>();
+        public DbSet<PreparationPackageDefinition> PreparationPackageDefinitions => Set<PreparationPackageDefinition>();
+        public DbSet<PreparationPackageVersion> PreparationPackageVersions => Set<PreparationPackageVersion>();
+        public DbSet<PreparationPackageVersionMaterial> PreparationPackageVersionMaterials => Set<PreparationPackageVersionMaterial>();
+        public DbSet<PreparationPackageOffer> PreparationPackageOffers => Set<PreparationPackageOffer>();
+        public DbSet<StudyMaterial> StudyMaterials => Set<StudyMaterial>();
+        public DbSet<StudyMaterialVersion> StudyMaterialVersions => Set<StudyMaterialVersion>();
+        public DbSet<StudyMaterialVersionTopic> StudyMaterialVersionTopics => Set<StudyMaterialVersionTopic>();
+        public DbSet<PracticeCollection> PracticeCollections => Set<PracticeCollection>();
+        public DbSet<PracticeCollectionVersion> PracticeCollectionVersions => Set<PracticeCollectionVersion>();
+        public DbSet<PracticeItem> PracticeItems => Set<PracticeItem>();
+        public DbSet<PracticeAnswerOption> PracticeAnswerOptions => Set<PracticeAnswerOption>();
+        public DbSet<ReportingTopic> ReportingTopics => Set<ReportingTopic>();
+        public DbSet<ReportingProfilePublication> ReportingProfilePublications => Set<ReportingProfilePublication>();
+        public DbSet<ReportingProfileQuestionAssignment> ReportingProfileQuestionAssignments => Set<ReportingProfileQuestionAssignment>();
         public bool SimulateCheckoutInsertUniqueRace { get; set; }
         public Func<PaymentCheckoutSession, PaymentCheckoutSession>? WinningCheckoutSessionFactory { get; set; }
         public bool SimulateGrantPersistenceFailure { get; set; }
@@ -1569,6 +2127,8 @@ public class PaymentHandlerTests
             return exception.Message.Contains("unique effective grant", StringComparison.OrdinalIgnoreCase);
         }
 
+        public bool IsUniqueInProgressExamSessionViolation(DbUpdateException exception) => false;
+
         private void DetachAddedGrantEntries()
         {
             foreach (var entry in ChangeTracker.Entries<ExamAccessGrant>().Where(e => e.State == EntityState.Added).ToList())
@@ -1582,6 +2142,10 @@ public class PaymentHandlerTests
             modelBuilder.Entity<UserRole>().HasKey(ur => new { ur.UserId, ur.RoleId });
             modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });
             modelBuilder.Entity<PaymentOrder>().HasMany(o => o.Items).WithOne(i => i.Order).HasForeignKey(i => i.OrderId);
+            modelBuilder.Entity<PaymentOrderItem>().HasOne(i => i.PackageOrderItemSnapshot).WithOne().HasForeignKey<PackageOrderItemSnapshot>(s => s.PaymentOrderItemId);
+            modelBuilder.Entity<PackagePurchaseEntitlement>().HasMany(e => e.Rights).WithOne().HasForeignKey(r => r.PackagePurchaseEntitlementId);
+            modelBuilder.Entity<PackagePurchaseEntitlement>().Property<IReadOnlyList<Guid>>(nameof(PackagePurchaseEntitlement.StudyMaterialVersionIds));
+            modelBuilder.Entity<PackageOrderItemSnapshot>().Property<IReadOnlyList<Guid>>(nameof(PackageOrderItemSnapshot.StudyMaterialVersionIds));
         }
 
         public Task<int> ExecuteContactRequestTransitionAsync(Guid id, Guid ownerProfileId, bool isEmployerOwner, ContactRequestStatus status, DateTime timestamp, CancellationToken cancellationToken = default)

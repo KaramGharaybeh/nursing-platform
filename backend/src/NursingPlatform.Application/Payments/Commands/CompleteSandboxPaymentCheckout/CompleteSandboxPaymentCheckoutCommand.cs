@@ -7,6 +7,7 @@ using NursingPlatform.Application.Payments.Common;
 using NursingPlatform.Application.Payments.DTOs;
 using NursingPlatform.Domain.Exams;
 using NursingPlatform.Domain.Payments;
+using NursingPlatform.Domain.PreparationPackages;
 
 namespace NursingPlatform.Application.Payments.Commands.CompleteSandboxPaymentCheckout;
 
@@ -29,6 +30,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
     private const string SandboxProviderName = "Sandbox";
     private readonly IApplicationDbContext _context;
     private readonly NurseRoleGuard _nurseRoleGuard;
+    private readonly PackagePaymentFulfillmentService _packageFulfillmentService;
 
     public CompleteSandboxPaymentCheckoutCommandHandler(
         IApplicationDbContext context,
@@ -36,6 +38,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
     {
         _context = context;
         _nurseRoleGuard = nurseRoleGuard;
+        _packageFulfillmentService = new PackagePaymentFulfillmentService(context);
     }
 
     public async Task<PaymentCompletionDto> Handle(
@@ -51,6 +54,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
             var session = await _context.PaymentCheckoutSessions
                 .Include(s => s.PaymentOrder)
                 .ThenInclude(o => o.Items)
+                .ThenInclude(i => i.PackageOrderItemSnapshot)
                 .FirstOrDefaultAsync(s => s.Id == request.CheckoutSessionId && s.NurseProfileId == nurseProfileId, cancellationToken);
 
             ValidateOwnedSandboxProviderPendingSession(session, nurseProfileId);
@@ -92,6 +96,8 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
                 });
             }
 
+            await _packageFulfillmentService.FulfillPackageOrderItemsAsync(order, nurseProfileId, now, cancellationToken);
+
             try
             {
                 var paidRows = await _context.ExecutePaymentOrderPaidTransitionAsync(order.Id, nurseProfileId, now, cancellationToken);
@@ -102,7 +108,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
                     var paidOutcome = await LoadPaidOutcomeAsync(request.CheckoutSessionId, nurseProfileId, cancellationToken);
                     if (paidOutcome is not null)
                     {
-                        return ToCompletionDto(paidOutcome.Order, paidOutcome.GrantedExamIds);
+                        return await ToCompletionDtoAsync(paidOutcome.Order, paidOutcome.GrantedExamIds, cancellationToken);
                     }
 
                     throw new InvalidOperationException("Only pending payment orders can be completed.");
@@ -120,7 +126,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
                 var paidOutcome = await LoadPaidOutcomeAsync(request.CheckoutSessionId, nurseProfileId, cancellationToken);
                 if (paidOutcome is not null)
                 {
-                    return ToCompletionDto(paidOutcome.Order, paidOutcome.GrantedExamIds);
+                    return await ToCompletionDtoAsync(paidOutcome.Order, paidOutcome.GrantedExamIds, cancellationToken);
                 }
 
                 var pendingOutcome = await LoadPendingOutcomeAsync(request.CheckoutSessionId, nurseProfileId, cancellationToken);
@@ -173,7 +179,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
             throw new InvalidOperationException("Payment fulfillment could not be completed safely.");
         }
 
-        return ToCompletionDto(paidOutcome.Order, paidOutcome.GrantedExamIds);
+        return await ToCompletionDtoAsync(paidOutcome.Order, paidOutcome.GrantedExamIds, cancellationToken);
     }
 
     private async Task<CompletionOutcome?> LoadPaidOutcomeAsync(
@@ -222,6 +228,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
             .AsNoTracking()
             .Include(s => s.PaymentOrder)
             .ThenInclude(o => o.Items)
+            .ThenInclude(i => i.PackageOrderItemSnapshot)
             .FirstOrDefaultAsync(s => s.Id == checkoutSessionId
                 && s.NurseProfileId == nurseProfileId
                 && s.PaymentOrder.NurseProfileId == nurseProfileId
@@ -259,15 +266,60 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
             .OrderBy(id => id);
     }
 
-    private static PaymentCompletionDto ToCompletionDto(PaymentOrder order, IReadOnlyList<Guid> examIds)
+    private async Task<PaymentCompletionDto> ToCompletionDtoAsync(PaymentOrder order, IReadOnlyList<Guid> examIds, CancellationToken cancellationToken)
     {
+        var packageEntitlements = await LoadPackageEntitlementSummariesAsync(order.Id, cancellationToken);
+
         return new PaymentCompletionDto
         {
             PaymentOrderId = order.Id,
             OrderStatus = order.Status.ToString(),
             PaidAt = order.PaidAt,
-            GrantedExamIds = examIds
+            GrantedExamIds = examIds,
+            PackageEntitlements = packageEntitlements
         };
+    }
+
+    private async Task<IReadOnlyList<PaymentPackageEntitlementSummaryDto>> LoadPackageEntitlementSummariesAsync(
+        Guid paymentOrderId,
+        CancellationToken cancellationToken)
+    {
+        var entitlements = await _context.PackagePurchaseEntitlements
+            .AsNoTracking()
+            .Where(e => e.PaymentOrderId == paymentOrderId)
+            .OrderBy(e => e.AccessStartsAt)
+            .ThenBy(e => e.Id)
+            .ToListAsync(cancellationToken);
+
+        if (entitlements.Count == 0)
+        {
+            return [];
+        }
+
+        var snapshotIds = entitlements.Select(e => e.PurchasedOfferSnapshotId).Distinct().ToList();
+        var snapshots = await _context.PackageOrderItemSnapshots
+            .AsNoTracking()
+            .Where(s => snapshotIds.Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id, cancellationToken);
+
+        return entitlements.Select(e =>
+        {
+            snapshots.TryGetValue(e.PurchasedOfferSnapshotId, out var snapshot);
+            return new PaymentPackageEntitlementSummaryDto
+            {
+                Id = e.Id,
+                PackageOfferId = e.PreparationPackageOfferId,
+                PackageOfferTitle = snapshot?.PackageOfferTitle ?? string.Empty,
+                PackageDefinitionId = e.PreparationPackageDefinitionId,
+                PackageDefinitionTitle = snapshot?.PackageDefinitionTitle ?? string.Empty,
+                PackageVersionId = e.PreparationPackageVersionId,
+                IncludedExamId = e.IncludedExamId,
+                IncludedExamTitle = snapshot?.IncludedExamTitle ?? string.Empty,
+                AccessStartsAt = e.AccessStartsAt,
+                AccessEndsAt = e.AccessEndsAt,
+                Status = e.Status.ToString()
+            };
+        }).ToList();
     }
 
     private void DetachTrackedPaymentCompletionState()
@@ -278,7 +330,7 @@ public class CompleteSandboxPaymentCheckoutCommandHandler : IRequestHandler<Comp
         }
 
         var entries = dbContext.ChangeTracker.Entries()
-            .Where(e => e.Entity is ExamAccessGrant or PaymentOrder or PaymentCheckoutSession)
+            .Where(e => e.Entity is ExamAccessGrant or PaymentOrder or PaymentCheckoutSession or PackagePurchaseEntitlement or PackageBenefitRight)
             .ToList();
 
         foreach (var entry in entries)

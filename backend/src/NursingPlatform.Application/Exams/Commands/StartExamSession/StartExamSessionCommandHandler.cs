@@ -4,6 +4,7 @@ using NursingPlatform.Application.Abstractions.Data;
 using NursingPlatform.Application.Exams.Common;
 using NursingPlatform.Application.Exams.DTOs;
 using NursingPlatform.Application.Nurses.Common;
+using NursingPlatform.Application.PreparationPackages.ExamSessions.Exceptions;
 using NursingPlatform.Domain.Exams;
 
 namespace NursingPlatform.Application.Exams.Commands.StartExamSession;
@@ -47,7 +48,7 @@ public class StartExamSessionCommandHandler : IRequestHandler<StartExamSessionCo
             throw new KeyNotFoundException("Exam was not found.");
         }
 
-        await _examAccessPolicy.AuthorizeStartAsync(nurseProfileId, exam.Id, cancellationToken);
+        var sessionSource = await _examAccessPolicy.AuthorizeStartAndGetSourceAsync(nurseProfileId, exam.Id, cancellationToken);
 
         var existing = await _context.ExamSessions
             .Where(s => s.NurseProfileId == nurseProfileId
@@ -58,6 +59,13 @@ public class StartExamSessionCommandHandler : IRequestHandler<StartExamSessionCo
 
         if (existing is not null)
         {
+            if (existing.Source == ExamSessionSource.PackageAttempt)
+            {
+                throw new PackageExamSessionConflictException(
+                    "exam-session-source-conflict",
+                    "An in-progress exam session already exists for this exam version.");
+            }
+
             var existingBundle = await ExamHandlerHelpers.GetOwnedSessionBundleAsync(_context, nurseProfileId, existing.Id, cancellationToken);
             if (now < existing.ExpiresAt)
             {
@@ -90,7 +98,7 @@ public class StartExamSessionCommandHandler : IRequestHandler<StartExamSessionCo
 
         ValidatePublishedOptions(questions, options);
 
-        var session = ExamSession.Create(nurseProfileId, exam.Id, version.Id, now, exam.DurationMinutes);
+        var session = ExamSession.Create(nurseProfileId, exam.Id, version.Id, now, exam.DurationMinutes, sessionSource);
         _context.ExamSessions.Add(session);
 
         foreach (var question in questions)

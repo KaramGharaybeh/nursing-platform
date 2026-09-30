@@ -1,0 +1,164 @@
+<section class="np-nurse-overview" aria-labelledby="nurse-profile-overview-title">
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('profile.overviewLoading')"
+    [fallbackErrorTitle]="i18n.t('profile.overviewLoadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready' && !profile()) {
+    <div class="np-nurse-overview-first-time">
+      <div class="np-nurse-overview-first-time-card">
+        <p class="np-nurse-overview-kicker">{{ i18n.t('profile.kicker') }}</p>
+        <h1 id="nurse-profile-overview-title">{{ i18n.t('profile.overviewTitle') }}</h1>
+        <p class="np-nurse-overview-first-time-message">
+          {{ i18n.t('profile.firstTimeMessage') }}
+        </p>
+        <button mat-flat-button color="primary" type="button" [routerLink]="personalInformationPath">
+          {{ i18n.t('profile.addPersonalInfo') }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (state().kind === 'ready' && profile(); as profileData) {
+    <header class="np-nurse-overview-identity">
+      <p class="np-nurse-overview-kicker">{{ i18n.t('profile.kicker') }}</p>
+      <h1 id="nurse-profile-overview-title">{{ displayName }}</h1>
+      @if (profileData.headline) {
+        <p class="np-nurse-overview-headline">{{ profileData.headline }}</p>
+      }
+      @if (profileData.professionalSummary) {
+        <p class="np-nurse-overview-summary">{{ profileData.professionalSummary }}</p>
+      }
+      <p class="np-nurse-overview-license">
+        {{ i18n.t('profile.licenseNumberLabel') }}: {{ profileData.licenseNumber || i18n.t('profile.notProvided') }}
+      </p>
+      <div class="np-nurse-overview-identity-actions">
+        <a routerLink="{{ personalInformationPath }}">{{ i18n.t('profile.editPersonalInfo') }}</a>
+      </div>
+    </header>
+
+    <dl class="np-nurse-overview-facts">
+      <div class="np-nurse-overview-fact">
+        <dt>{{ i18n.t('profile.yearsOfExperience') }}</dt>
+        <dd>{{ profileData.yearsOfExperience }}</dd>
+      </div>
+      <div class="np-nurse-overview-fact">
+        <dt>{{ i18n.t('profile.licenseCountry') }}</dt>
+        <dd>{{ profileData.licenseCountryName || i18n.t('profile.notProvided') }}</dd>
+      </div>
+      <div class="np-nurse-overview-fact">
+        <dt>{{ i18n.t('profile.currentCountry') }}</dt>
+        <dd>{{ profileData.currentCountryName || i18n.t('profile.notProvided') }}</dd>
+      </div>
+      <div class="np-nurse-overview-fact">
+        <dt>{{ i18n.t('profile.recruitment') }}</dt>
+        <dd>{{ availabilityLabel }}</dd>
+      </div>
+    </dl>
+
+    <div class="np-nurse-overview-sections">
+      <article class="np-nurse-overview-section-card" aria-labelledby="nurse-overview-experience-title">
+        <h2 id="nurse-overview-experience-title">{{ i18n.t('profile.experience') }}</h2>
+        @if (latestExperience; as latest) {
+          <p class="np-nurse-overview-item-title">{{ latest.jobTitle }}</p>
+          <p class="np-nurse-overview-item-detail">{{ latest.facilityName }}</p>
+          @if (remainingExperienceCount > 0) {
+            <p class="np-nurse-overview-remaining">+ {{ remainingExperienceCount }} {{ i18n.t('profile.morePositions') }}</p>
+          }
+        } @else {
+          <p class="np-nurse-overview-empty">{{ i18n.t('profile.noPositions') }}</p>
+        }
+        <div class="np-nurse-overview-identity-actions">
+          <a routerLink="{{ experiencePath }}">{{ i18n.t('profile.manageExperience') }}</a>
+        </div>
+      </article>
+
+      <article class="np-nurse-overview-section-card" aria-labelledby="nurse-overview-education-title">
+        <h2 id="nurse-overview-education-title">{{ i18n.t('profile.education') }}</h2>
+        @if (latestEducation; as latest) {
+          <p class="np-nurse-overview-item-title">{{ latest.degree }}</p>
+          <p class="np-nurse-overview-item-detail">{{ latest.institutionName }}</p>
+          @if (remainingEducationCount > 0) {
+            <p class="np-nurse-overview-remaining">+ {{ remainingEducationCount }} {{ i18n.t('profile.moreRecords') }}</p>
+          }
+        } @else {
+          <p class="np-nurse-overview-empty">{{ i18n.t('profile.noEducation') }}</p>
+        }
+        <div class="np-nurse-overview-identity-actions">
+          <a routerLink="{{ educationPath }}">{{ i18n.t('profile.manageEducation') }}</a>
+        </div>
+      </article>
+
+      <article class="np-nurse-overview-section-card" aria-labelledby="nurse-overview-certificates-title">
+        <h2 id="nurse-overview-certificates-title">{{ i18n.t('profile.certificates') }}</h2>
+        @if (certificatePreviewItems.length > 0) {
+          <ul class="np-nurse-overview-certificate-list">
+            @for (certificate of certificatePreviewItems; track certificate.id) {
+              <li>
+                <span class="np-nurse-overview-item-title">{{ certificate.name }}</span>
+                <span class="np-nurse-overview-item-detail">{{ certificate.issuingOrganization }}</span>
+              </li>
+            }
+          </ul>
+          @if (remainingCertificateCount > 0) {
+            <p class="np-nurse-overview-remaining">+ {{ remainingCertificateCount }} {{ i18n.t('profile.moreCertificates') }}</p>
+          }
+        } @else {
+          <p class="np-nurse-overview-empty">{{ i18n.t('profile.noCertificates') }}</p>
+        }
+        <div class="np-nurse-overview-identity-actions">
+          <a routerLink="{{ certificatesPath }}">{{ i18n.t('profile.manageCertificates') }}</a>
+        </div>
+      </article>
+
+      <article class="np-nurse-overview-section-card" aria-labelledby="nurse-overview-skills-title">
+        <h2 id="nurse-overview-skills-title">{{ i18n.t('profile.skills') }}</h2>
+        @if (skills().length > 0) {
+          <ul class="np-nurse-overview-skills">
+            @for (skill of skills(); track skill.id) {
+              <li class="np-nurse-overview-skill-chip">{{ skill.name }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="np-nurse-overview-empty">{{ i18n.t('profile.noSkills') }}</p>
+        }
+        <div class="np-nurse-overview-identity-actions">
+          <a routerLink="{{ skillsPath }}">{{ i18n.t('profile.manageSkills') }}</a>
+        </div>
+      </article>
+
+      <article class="np-nurse-overview-section-card" aria-labelledby="nurse-overview-languages-title">
+        <h2 id="nurse-overview-languages-title">{{ i18n.t('profile.languages') }}</h2>
+        @if (languages().length > 0) {
+          <ul class="np-nurse-overview-languages">
+            @for (language of languages(); track language.id) {
+              <li>{{ language.name }} · {{ language.proficiency }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="np-nurse-overview-empty">{{ i18n.t('profile.noLanguages') }}</p>
+        }
+        <div class="np-nurse-overview-identity-actions">
+          <a routerLink="{{ languagesPath }}">{{ i18n.t('profile.manageLanguages') }}</a>
+        </div>
+      </article>
+
+      <article class="np-nurse-overview-section-card" aria-labelledby="nurse-overview-cv-title">
+        <h2 id="nurse-overview-cv-title">{{ i18n.t('profile.cv') }}</h2>
+        @if (cv(); as cvDocument) {
+          <p class="np-nurse-overview-item-title">{{ cvDocument.fileName }}</p>
+          <p class="np-nurse-overview-item-detail">
+            {{ cvFileSizeLabel(cvDocument.fileSizeBytes) }} · {{ i18n.t('profile.uploadedAt') }} {{ cvDocument.uploadedAt | date: 'medium' }}
+          </p>
+        } @else {
+          <p class="np-nurse-overview-empty">{{ i18n.t('profile.noCv') }}</p>
+        }
+        <div class="np-nurse-overview-identity-actions">
+          <a routerLink="{{ cvPath }}">{{ i18n.t('profile.manageCv') }}</a>
+        </div>
+      </article>
+    </div>
+  }
+</section>

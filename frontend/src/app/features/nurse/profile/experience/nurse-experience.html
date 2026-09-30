@@ -1,0 +1,153 @@
+<section class="np-nurse-experience" aria-labelledby="nurse-experience-title">
+  <np-live-region />
+
+  <p class="np-nurse-experience-kicker">{{ i18n.t('profile.kicker') }}</p>
+  <h1 id="nurse-experience-title">{{ i18n.t('exp.title') }}</h1>
+
+  @if (notice() !== '') {
+    <p class="np-nurse-experience-notice" role="status">{{ notice() }}</p>
+  }
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('exp.loading')"
+    [fallbackErrorTitle]="i18n.t('exp.loadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (view() === 'list') {
+      <div class="np-nurse-experience-list-header">
+        <p class="np-nurse-experience-hint">{{ i18n.t('exp.hint') }}</p>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          data-testid="add-experience"
+          (click)="startCreate()"
+        >
+          {{ i18n.t('exp.add') }}
+        </button>
+      </div>
+
+      @if (experiences().length === 0) {
+        <div class="np-nurse-experience-empty">
+          <h2>{{ i18n.t('exp.title') }}</h2>
+          <p>{{ i18n.t('exp.emptyText') }}</p>
+        </div>
+      } @else {
+        <ul class="np-nurse-experience-list">
+          @for (experience of experiences(); track experience.id) {
+            <li>
+              <article class="np-nurse-experience-card" data-testid="experience-card">
+                <h3>{{ experience.jobTitle }}</h3>
+                <p class="np-nurse-experience-facility">{{ experience.facilityName }}</p>
+                @if (experience.countryName) {
+                  <p class="np-nurse-experience-country">{{ experience.countryName }}</p>
+                }
+                <p class="np-nurse-experience-dates">
+                  {{ formatDate(experience.startDate) }} →
+                  @if (experience.endDate) {
+                    {{ formatDate(experience.endDate) }}
+                  } @else {
+                    {{ i18n.t('exp.present') }}
+                  }
+                </p>
+                @if (experience.isCurrent) {
+                  <p class="np-nurse-experience-current">{{ i18n.t('exp.current') }}</p>
+                }
+                @if (experience.description) {
+                  <p
+                    class="np-nurse-experience-description"
+                    [class.np-nurse-experience-description-clamped]="
+                      needsDescriptionToggle(experience.description) && !isDescriptionExpanded(experience.id)
+                    "
+                  >
+                    {{ experience.description }}
+                  </p>
+                  @if (needsDescriptionToggle(experience.description)) {
+                    <button
+                      mat-button
+                      type="button"
+                      data-testid="experience-toggle-description"
+                      (click)="toggleDescription(experience.id)"
+                    >
+                      {{ isDescriptionExpanded(experience.id) ? i18n.t('exp.showLess') : i18n.t('exp.showMore') }}
+                    </button>
+                  }
+                }
+
+                @if (isConfirmingDelete(experience.id)) {
+                  <div class="np-nurse-experience-confirm">
+                    <p role="status">
+                      {{ i18n.t('exp.deleteVerb') }} "{{ experience.jobTitle }} at {{ experience.facilityName }}"{{ i18n.t('exp.deleteSuffix') }}
+                    </p>
+                    <div class="np-nurse-experience-confirm-actions">
+                      <button
+                        mat-flat-button
+                        color="warn"
+                        type="button"
+                        data-testid="experience-confirm-delete"
+                        [disabled]="isDeleting(experience.id)"
+                        (click)="confirmDelete()"
+                      >
+                        {{ i18n.t('exp.deleteVerb') }}
+                      </button>
+                      <button
+                        mat-button
+                        type="button"
+                        data-testid="experience-keep"
+                        [disabled]="isDeleting(experience.id)"
+                        (click)="cancelDelete()"
+                      >
+                        {{ i18n.t('exp.keep') }}
+                      </button>
+                    </div>
+                    @if (deleteErrorFor(experience.id); as error) {
+                      <p class="np-nurse-experience-delete-error" role="alert">
+                        {{ i18n.t('exp.deleteError') }} {{ error.detail || i18n.t('exp.tryAgain') }}
+                      </p>
+                    }
+                  </div>
+                } @else {
+                  <div class="np-nurse-experience-card-actions">
+                    <button
+                      mat-button
+                      type="button"
+                      data-testid="experience-edit"
+                      [disabled]="isDeleting(experience.id)"
+                      (click)="startEdit(experience)"
+                    >
+                      {{ i18n.t('exp.edit') }}
+                    </button>
+                    <button
+                      mat-button
+                      type="button"
+                      class="np-nurse-experience-delete"
+                      data-testid="experience-delete"
+                      [disabled]="isDeleting(experience.id)"
+                      (click)="requestDelete(experience)"
+                    >
+                      {{ i18n.t('exp.deleteVerb') }}
+                    </button>
+                  </div>
+                }
+              </article>
+            </li>
+          }
+        </ul>
+      }
+    } @else {
+      <h2 class="np-nurse-experience-form-title">{{ formTitle }}</h2>
+      <np-nurse-experience-form
+        [mode]="view() === 'edit' ? 'edit' : 'create'"
+        [initial]="formInitial"
+        [countries]="countries()"
+        [isSubmitting]="isSubmitting()"
+        [backendError]="formError()"
+        (save)="view() === 'edit' ? submitEdit($event) : submitCreate($event)"
+        (cancelled)="cancelForm()"
+      />
+    }
+  }
+</section>

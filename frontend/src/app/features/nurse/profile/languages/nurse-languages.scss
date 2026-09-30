@@ -1,0 +1,81 @@
+.np-nurse-languages {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+}
+
+.np-nurse-languages-kicker {
+  margin: 0 0 var(--np-space-4);
+  color: var(--np-color-brand-1);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.np-nurse-languages h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-nurse-languages-notice {
+  margin: var(--np-space-16) 0 0;
+  padding: var(--np-space-12) var(--np-space-16);
+  background: var(--np-color-surface, #fff);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-8);
+}
+
+.np-nurse-languages-error {
+  margin: var(--np-space-16) 0 0;
+  padding: var(--np-space-12) var(--np-space-16);
+  background: color-mix(in srgb, var(--np-color-error, #b3261e) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--np-color-error, #b3261e) 32%, transparent);
+  border-radius: var(--np-space-8);
+  color: var(--np-color-error, #b3261e);
+}
+
+.np-nurse-languages-empty {
+  margin: var(--np-space-16) 0 0;
+  color: var(--np-color-text-muted, #52616b);
+  line-height: 1.6;
+}
+
+.np-nurse-languages-list {
+  display: grid;
+  gap: var(--np-space-16);
+  margin: var(--np-space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.np-nurse-languages-row {
+  display: grid;
+  gap: var(--np-space-12);
+  padding: var(--np-space-16);
+  background: var(--np-color-surface, #fff);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+}
+
+.np-nurse-languages-add {
+  margin-block-start: var(--np-space-24);
+}
+
+.np-nurse-languages-cap {
+  margin: var(--np-space-8) 0 0;
+  color: var(--np-color-text-muted, #52616b);
+}
+
+.np-nurse-languages-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-16);
+  margin-block-start: var(--np-space-24);
+}

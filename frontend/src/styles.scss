@@ -1,0 +1,13 @@
+@use 'styles/tokens';
+@use 'styles/accessibility';
+@use 'styles/responsive';
+@use 'styles/material-theme-bridge';
+@use 'styles/controls';
+
+body {
+  margin: 0;
+}
+
+html[lang='ar'] body {
+  font-family: 'Noto Sans Arabic', 'Noto Sans', system-ui, sans-serif;
+}

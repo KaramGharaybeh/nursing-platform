@@ -1,0 +1,109 @@
+<form class="np-nurse-experience-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  @if (backendFailureMessage !== '') {
+    <p class="np-nurse-experience-form-error" role="alert">{{ backendFailureMessage }}</p>
+  } @else {
+    <np-form-validation-summary
+      [summaryTitle]="validationSummary.title"
+      [items]="validationSummary.items"
+      [formErrors]="validationSummary.formErrors"
+    />
+  }
+
+  <fieldset class="np-nurse-experience-form-group">
+    <legend>{{ i18n.t('expForm.groupRole') }}</legend>
+
+    <np-text-input-control
+      [controlId]="controlIds.JobTitle"
+      [label]="i18n.t('expForm.jobTitle')"
+      type="text"
+      [required]="true"
+      [disabled]="isSubmitting"
+      [value]="jobTitleValue"
+      [errorText]="jobTitleError"
+      [helperText]="i18n.t('expForm.jobHelper')"
+      (valueChange)="updateJobTitle($event)"
+    />
+
+    <np-text-input-control
+      [controlId]="controlIds.FacilityName"
+      [label]="i18n.t('expForm.facilityName')"
+      type="text"
+      [required]="true"
+      [disabled]="isSubmitting"
+      [value]="facilityNameValue"
+      [errorText]="facilityNameError"
+      [helperText]="i18n.t('expForm.facilityHelper')"
+      (valueChange)="updateFacilityName($event)"
+    />
+  </fieldset>
+
+  <fieldset class="np-nurse-experience-form-group">
+    <legend>{{ i18n.t('expForm.groupPlace') }}</legend>
+
+    <np-select-control
+      [controlId]="controlIds.Country"
+      [label]="i18n.t('expForm.country')"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="countryValue"
+      [options]="countryOptions"
+      [helperText]="i18n.t('expForm.countryHelper')"
+      (valueChange)="updateCountry($event)"
+    />
+
+    <np-date-control
+      [controlId]="controlIds.StartDate"
+      [label]="i18n.t('expForm.startDate')"
+      [required]="true"
+      [disabled]="isSubmitting"
+      [value]="startDateValue"
+      [errorText]="startDateError"
+      [helperText]="i18n.t('expForm.startHelper')"
+      (valueChange)="updateStartDate($event)"
+    />
+
+    <np-checkbox-control
+      [controlId]="controlIds.Current"
+      [label]="i18n.t('expForm.currentCheck')"
+      [checked]="isCurrentValue"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [helperText]="i18n.t('expForm.currentHelper')"
+      (checkedChange)="updateIsCurrent($event)"
+    />
+
+    <np-date-control
+      [controlId]="controlIds.EndDate"
+      [label]="i18n.t('expForm.endDate')"
+      [required]="false"
+      [disabled]="isSubmitting || isCurrentValue"
+      [value]="endDateValue"
+      [errorText]="endDateError"
+      [helperText]="i18n.t('expForm.endHelper')"
+      (valueChange)="updateEndDate($event)"
+    />
+  </fieldset>
+
+  <fieldset class="np-nurse-experience-form-group">
+    <legend>{{ i18n.t('expForm.groupDetails') }}</legend>
+
+    <np-textarea-control
+      [controlId]="controlIds.Description"
+      [label]="i18n.t('expForm.description')"
+      [rows]="4"
+      [required]="false"
+      [disabled]="isSubmitting"
+      [value]="descriptionValue"
+      [errorText]="descriptionError"
+      [helperText]="i18n.t('expForm.descHelper')"
+      (valueChange)="updateDescription($event)"
+    />
+  </fieldset>
+
+  <div class="np-nurse-experience-form-actions">
+    <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
+      {{ submitLabel }}
+    </button>
+    <button mat-button type="button" [disabled]="isSubmitting" (click)="cancel()">{{ i18n.t('details.cancel') }}</button>
+  </div>
+</form>

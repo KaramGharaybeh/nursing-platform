@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using MediatR;
 using Moq;
+using NursingPlatform.Application.Common.Exceptions;
 using NursingPlatform.Application.Identity.Commands.Login;
 using NursingPlatform.Application.Identity.Commands.RotateRefreshToken;
 using NursingPlatform.Application.Identity.Common;
@@ -62,6 +63,34 @@ public class AuthEndpointTests
 
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal("Unauthorized", body.GetProperty("title").GetString());
+        var json = body.GetRawText();
+        Assert.DoesNotContain("email_verification_required", json, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Login_UnverifiedEmailWithValidCredentials_Returns403CodedProblemDetailsWithoutTokenMaterial()
+    {
+        _senderMock
+            .Setup(s => s.Send(It.IsAny<LoginCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new EmailVerificationRequiredException());
+
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/login",
+            new { email = "unverified@test.com", password = "CorrectPass1" });
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.Contains("email_verification_required", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("accessToken", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("refreshToken", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("session", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("currentUser", json, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("passwordHash", json, StringComparison.OrdinalIgnoreCase);
+
+        using var document = JsonDocument.Parse(json);
+        var root = document.RootElement;
+        Assert.Equal("Forbidden", root.GetProperty("title").GetString());
+        Assert.Equal("email_verification_required", root.GetProperty("code").GetString());
     }
 
     [Fact]

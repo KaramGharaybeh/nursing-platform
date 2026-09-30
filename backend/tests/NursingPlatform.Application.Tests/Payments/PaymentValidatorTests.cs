@@ -49,6 +49,76 @@ public class PaymentValidatorTests
     }
 
     [Fact]
+    public void Validate_CreateOrder_WithNeitherProductIdNorPackageOfferId_ShouldHaveError()
+    {
+        var validator = new CreateMyPaymentOrderCommandValidator();
+
+        var result = validator.Validate(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest()
+        });
+
+        Assert.False(result.IsValid);
+    }
+
+    [Fact]
+    public void Validate_CreateOrder_WithBothProductIdAndPackageOfferId_ShouldHaveError()
+    {
+        var validator = new CreateMyPaymentOrderCommandValidator();
+
+        var result = validator.Validate(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest
+            {
+                ProductId = Guid.NewGuid(),
+                PackageOfferId = Guid.NewGuid()
+            }
+        });
+
+        Assert.False(result.IsValid);
+    }
+
+    [Fact]
+    public void Validate_CreateOrder_WithOnlyProductId_ShouldBeValid()
+    {
+        var validator = new CreateMyPaymentOrderCommandValidator();
+
+        var result = validator.Validate(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { ProductId = Guid.NewGuid() }
+        });
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void Validate_CreateOrder_WithOnlyPackageOfferId_ShouldBeValid()
+    {
+        var validator = new CreateMyPaymentOrderCommandValidator();
+
+        var result = validator.Validate(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = Guid.NewGuid() }
+        });
+
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void Validate_CreateOrder_WithEmptyPackageOfferId_ShouldHaveError()
+    {
+        var validator = new CreateMyPaymentOrderCommandValidator();
+
+        var result = validator.Validate(new CreateMyPaymentOrderCommand
+        {
+            Request = new CreatePaymentOrderRequest { PackageOfferId = Guid.Empty }
+        });
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName.Contains(nameof(CreatePaymentOrderRequest.PackageOfferId)));
+    }
+
+    [Fact]
     public void StartCheckoutValidator_WithEmptyOrderId_ShouldHaveError()
     {
         var validator = new StartMyPaymentCheckoutCommandValidator();

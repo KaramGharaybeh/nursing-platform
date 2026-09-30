@@ -1,0 +1,97 @@
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { CommercePaymentsApi } from '../../core/api/commerce-payments-api';
+import type { CommerceProduct } from '../../core/api/commerce-payments-api';
+import { normalizeProblemDetails } from '../../core/api/problem-details';
+import type { NormalizedProblemDetails } from '../../core/api/problem-details';
+import type { TranslationKey } from '../../core/i18n/translations';
+import { LocalizationService } from '../../core/i18n/localization.service';
+import { canonicalRoutePath } from '../../core/routing/canonical-routes';
+import { formatMoney } from '../../shared/money';
+import { LoadingErrorRetry } from '../../shared/ui/loading-error-retry';
+import type { LoadingErrorRetryState } from '../../shared/ui/loading-error-retry';
+
+@Component({
+  selector: 'np-product-detail',
+  imports: [LoadingErrorRetry, RouterLink],
+  templateUrl: './product-detail.html',
+  styleUrl: './product-detail.scss',
+})
+export class ProductDetailScreen implements OnInit {
+  private readonly api = inject(CommercePaymentsApi);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  protected readonly i18n = inject(LocalizationService);
+
+  protected readonly state = signal<LoadingErrorRetryState>({ kind: 'loading' });
+  protected readonly product = signal<CommerceProduct | undefined>(undefined);
+  protected readonly unavailable = signal(false);
+
+  protected readonly backPath = canonicalRoutePath('COMMERCE_PRODUCTS');
+
+  ngOnInit(): void {
+    void this.load();
+  }
+
+  protected t(key: TranslationKey): string {
+    return this.i18n.t(key);
+  }
+
+  protected async retry(): Promise<void> {
+    await this.load();
+  }
+
+  protected async purchase(): Promise<void> {
+    await this.router.navigate([canonicalRoutePath('COMMERCE_CHECKOUT')], {
+      queryParams: { productId: this.productId() },
+    });
+  }
+
+  protected price(): string {
+    const current = this.product();
+    if (current === undefined) {
+      return '';
+    }
+    return formatMoney(current.unitAmountMinor, current.currency);
+  }
+
+  private productId(): string {
+    return this.route.snapshot.paramMap.get('productId') ?? '';
+  }
+
+  private async load(): Promise<void> {
+    this.state.set({ kind: 'loading' });
+    this.product.set(undefined);
+    this.unavailable.set(false);
+    try {
+      const loaded = await firstValueFrom(this.api.getProduct(this.productId()));
+      this.product.set(loaded);
+      this.state.set({ kind: 'ready' });
+    } catch (error: unknown) {
+      if (this.isNotFound(error)) {
+        this.unavailable.set(true);
+        this.state.set({ kind: 'ready' });
+      } else {
+        this.state.set({ kind: 'error', error: this.retryableError(error), canRetry: true });
+      }
+    }
+  }
+
+  private isNotFound(error: unknown): boolean {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'status' in error &&
+      (error as { status?: unknown }).status === 404
+    );
+  }
+
+  private retryableError(error: unknown): NormalizedProblemDetails {
+    const normalized =
+      typeof error === 'object' && error !== null && 'error' in error
+        ? normalizeProblemDetails((error as { error?: unknown }).error)
+        : normalizeProblemDetails(error);
+    return { ...normalized, title: this.i18n.t('com.productLoadError'), detail: '' };
+  }
+}

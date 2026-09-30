@@ -1,0 +1,128 @@
+<section class="np-nurse-personal-information" aria-labelledby="nurse-personal-information-title">
+  <div class="np-nurse-personal-information-card">
+    <p class="np-nurse-personal-information-kicker">{{ i18n.t('profile.kicker') }}</p>
+    <h1 id="nurse-personal-information-title">{{ title }}</h1>
+    <p class="np-nurse-personal-information-instruction">
+      {{ i18n.t('pi.instruction') }}
+    </p>
+
+    <np-loading-error-retry
+      [state]="state()"
+      [loadingLabel]="i18n.t('pi.loading')"
+      [fallbackErrorTitle]="i18n.t('pi.loadError')"
+      (retryRequested)="retry()"
+    />
+
+    @if (state().kind === 'ready') {
+      @if (backendFailureMessage !== '') {
+        <p class="np-nurse-personal-information-error" role="alert">{{ backendFailureMessage }}</p>
+      } @else {
+        <np-form-validation-summary
+          [summaryTitle]="validationSummary.title"
+          [items]="validationSummary.items"
+          [formErrors]="validationSummary.formErrors"
+        />
+      }
+
+      <form class="np-nurse-personal-information-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <fieldset class="np-nurse-personal-information-group">
+          <legend>{{ i18n.t('pi.groupIdentity') }}</legend>
+
+          <np-text-input-control
+            controlId="nurse-personal-information-headline"
+            [label]="i18n.t('profile.headlineLabel')"
+            type="text"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [value]="headlineValue"
+            [errorText]="headlineError"
+            [helperText]="i18n.t('pi.headlineHelper')"
+            (valueChange)="updateHeadline($event)"
+          />
+
+          <np-textarea-control
+            controlId="nurse-personal-information-professional-summary"
+            [label]="i18n.t('profile.summaryLabel')"
+            [rows]="5"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [value]="professionalSummaryValue"
+            [errorText]="professionalSummaryError"
+            [helperText]="i18n.t('pi.summaryHelper')"
+            (valueChange)="updateProfessionalSummary($event)"
+          />
+        </fieldset>
+
+        <fieldset class="np-nurse-personal-information-group">
+          <legend>{{ i18n.t('pi.groupLicense') }}</legend>
+
+          <np-text-input-control
+            controlId="nurse-personal-information-license-number"
+            [label]="i18n.t('profile.licenseNumberLabel')"
+            type="text"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [value]="licenseNumberValue"
+            [errorText]="licenseNumberError"
+            [helperText]="i18n.t('pi.licenseHelper')"
+            (valueChange)="updateLicenseNumber($event)"
+          />
+
+          <np-select-control
+            controlId="nurse-personal-information-license-country"
+            [label]="i18n.t('profile.licenseCountry')"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [value]="licenseCountryValue"
+            [options]="countryOptions"
+            (valueChange)="updateLicenseCountry($event)"
+          />
+
+          <np-select-control
+            controlId="nurse-personal-information-current-country"
+            [label]="i18n.t('profile.currentCountry')"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [value]="currentCountryValue"
+            [options]="countryOptions"
+            (valueChange)="updateCurrentCountry($event)"
+          />
+        </fieldset>
+
+        <fieldset class="np-nurse-personal-information-group">
+          <legend>{{ i18n.t('pi.groupExperience') }}</legend>
+
+          <np-text-input-control
+            controlId="nurse-personal-information-years-of-experience"
+            [label]="i18n.t('profile.yearsOfExperience')"
+            type="number"
+            [required]="true"
+            [disabled]="isSubmitting()"
+            [value]="yearsOfExperienceValue"
+            [errorText]="yearsOfExperienceError"
+            (valueChange)="updateYearsOfExperience($event)"
+          />
+        </fieldset>
+
+        <fieldset class="np-nurse-personal-information-group">
+          <legend>{{ i18n.t('pi.groupRecruitment') }}</legend>
+
+          <np-checkbox-control
+            controlId="nurse-personal-information-availability"
+            [label]="i18n.t('profile.available')"
+            [checked]="availabilityValue"
+            [required]="false"
+            [disabled]="isSubmitting()"
+            [helperText]="i18n.t('pi.availabilityHelper')"
+            (checkedChange)="updateAvailability($event)"
+          />
+        </fieldset>
+
+        <div class="np-nurse-personal-information-actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting()">{{ i18n.t('pi.save') }}</button>
+          <a [routerLink]="overviewPath">{{ i18n.t('pi.cancel') }}</a>
+        </div>
+      </form>
+    }
+  </div>
+</section>

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace NursingPlatform.Application.Payments.DTOs;
 
 public class PaymentCheckoutSessionDto
@@ -8,6 +10,7 @@ public class PaymentCheckoutSessionDto
     public string ProviderName { get; set; } = string.Empty;
     public string? CheckoutUrl { get; set; }
     public string Currency { get; set; } = string.Empty;
+    [JsonNumberHandling(JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString)]
     public long AmountMinor { get; set; }
     public DateTime ExpiresAt { get; set; }
     public DateTime CreatedAt { get; set; }

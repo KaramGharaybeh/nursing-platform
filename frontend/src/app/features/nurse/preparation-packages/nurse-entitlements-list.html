@@ -1,0 +1,39 @@
+<section class="np-nurse-entitlements-list" aria-labelledby="nurse-entitlements-title">
+  <np-live-region />
+
+  <p class="np-nurse-entitlements-list-kicker">{{ i18n.t('contact.kicker') }}</p>
+  <h1 id="nurse-entitlements-title">{{ i18n.t('shell.navPreparationPackages') }}</h1>
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('npp.listLoading')"
+    [fallbackErrorTitle]="i18n.t('npp.listLoadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (listState() === 'empty') {
+      <np-empty-state
+        kind="empty"
+        [title]="i18n.t('npp.emptyTitle')"
+        [description]="i18n.t('npp.emptyText')"
+      />
+    } @else {
+      <ul class="np-nurse-entitlements-list-items">
+        @for (entitlement of result()?.items ?? []; track entitlement.id) {
+          <li>
+            <np-nurse-entitlement-card [entitlement]="entitlement" />
+          </li>
+        }
+      </ul>
+      <np-pagination
+        [page]="page()"
+        [totalPages]="result()?.totalPages ?? 0"
+        [totalCount]="result()?.totalCount ?? 0"
+        [itemLabel]="i18n.t('contact.itemLabel')"
+        [ariaLabel]="i18n.t('npp.paginationLabel')"
+        (pageRequested)="loadPage($event)"
+      />
+    }
+  }
+</section>

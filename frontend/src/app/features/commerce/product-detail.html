@@ -1,0 +1,35 @@
+<section class="np-product-detail" aria-labelledby="product-detail-heading">
+  <a [routerLink]="backPath" data-testid="product-detail-back">{{ t('com.productBack') }}</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="t('com.productLoading')"
+    [fallbackErrorTitle]="t('com.productLoadError')"
+    [retryLabel]="t('com.productRetry')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (unavailable()) {
+      <p role="status" data-testid="product-detail-unavailable">
+        {{ t('com.productUnavailable') }}
+      </p>
+    } @else if (product(); as detail) {
+      <h1 id="product-detail-heading" data-testid="product-detail-heading">{{ detail.name }}</h1>
+      @if (detail.description !== null) {
+        <p data-testid="product-detail-description">{{ detail.description }}</p>
+      }
+      @if (detail.examTitle !== null) {
+        <p>{{ detail.examTitle }}</p>
+      }
+      <p>{{ price() }}</p>
+      @if (detail.isActive) {
+        <button type="button" data-testid="product-detail-purchase" (click)="purchase()">
+          {{ t('com.purchase') }}
+        </button>
+      } @else {
+        <p role="status" data-testid="product-detail-unavailable">{{ t('com.unavailableState') }}</p>
+      }
+    }
+  }
+</section>

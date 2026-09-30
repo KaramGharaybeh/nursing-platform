@@ -1,0 +1,52 @@
+.np-contact-request-card {
+  padding: var(--np-space-24);
+  background: var(--np-color-surface, #fff);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+
+  h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.np-contact-request-context {
+  margin: var(--np-space-4) 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.np-contact-request-status {
+  margin: var(--np-space-4) 0 0;
+  color: var(--np-color-text-muted, #52616b);
+}
+
+.np-contact-request-dates {
+  margin: var(--np-space-4) 0 0;
+  color: var(--np-color-text-muted, #52616b);
+}
+
+.np-contact-request-actions,
+.np-contact-request-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-8);
+  margin-block-start: var(--np-space-16);
+}
+
+.np-contact-request-reject {
+  color: var(--np-color-error, #b3261e);
+}
+
+.np-contact-request-confirm {
+  margin-block-start: var(--np-space-16);
+  padding: var(--np-space-16);
+  border: 1px solid color-mix(in srgb, var(--np-color-error, #b3261e) 32%, transparent);
+  border-radius: var(--np-space-8);
+}
+
+.np-contact-request-error {
+  margin: var(--np-space-12) 0 0;
+  color: var(--np-color-error, #b3261e);
+}

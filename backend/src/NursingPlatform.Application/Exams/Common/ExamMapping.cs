@@ -75,6 +75,7 @@ internal static class ExamMapping
             ExamId = session.ExamId,
             ExamTitle = examTitle,
             Status = session.Status.ToString(),
+            Source = session.Source.ToString(),
             StartedAt = session.StartedAt,
             ExpiresAt = session.ExpiresAt,
             RemainingSeconds = Math.Max(0, (int)Math.Floor((session.ExpiresAt - now).TotalSeconds)),
@@ -88,6 +89,7 @@ internal static class ExamMapping
                     Text = q.QuestionTextSnapshot,
                     Points = q.Points,
                     SelectedExamSessionAnswerOptionId = selectedByQuestion.GetValueOrDefault(q.Id),
+                    IsFlagged = q.IsFlagged,
                     Options = optionsByQuestion.GetValueOrDefault(q.Id, [])
                         .Select(o => new ExamSessionAnswerOptionDto
                         {

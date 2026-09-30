@@ -5,11 +5,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using NursingPlatform.Application.Common.Exceptions;
 using NursingPlatform.Application.Payments.Abstractions;
+using NursingPlatform.Application.PreparationPackages.ExamSessions.Exceptions;
+using NursingPlatform.Application.PreparationPackages.Reports.Generation;
+using NursingPlatform.WebApi.Contracts;
 
 namespace NursingPlatform.WebApi.Middleware;
 
 public class ExceptionMiddleware
 {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionMiddleware> _logger;
 
@@ -40,7 +45,10 @@ public class ExceptionMiddleware
             ValidationException => (StatusCodes.Status400BadRequest, "Validation failed"),
             KeyNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
             PaymentCheckoutProviderUnavailableException => (StatusCodes.Status503ServiceUnavailable, "Service unavailable"),
+            PackageExamSessionConflictException => (StatusCodes.Status409Conflict, "Conflict"),
+            PackageReportConflictException => (StatusCodes.Status409Conflict, "Conflict"),
             CheckoutInitializationInProgressException => (StatusCodes.Status409Conflict, "Conflict"),
+            EmailVerificationRequiredException => (StatusCodes.Status403Forbidden, "Forbidden"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflict"),
             ForbiddenAccessException => (StatusCodes.Status403Forbidden, "Forbidden"),
             UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
@@ -54,32 +62,87 @@ public class ExceptionMiddleware
             ? "An unexpected error occurred."
             : exception.Message;
 
-        var problem = new Dictionary<string, object?>
+        var problem = new ProblemDetailsContract
         {
-            ["type"] = $"https://httpstatuses.com/{statusCode}",
-            ["title"] = title,
-            ["status"] = statusCode,
-            ["detail"] = detail,
-            ["traceId"] = context.TraceIdentifier
+            Type = $"https://httpstatuses.com/{statusCode}",
+            Title = title,
+            Status = statusCode,
+            Detail = detail,
+            TraceId = context.TraceIdentifier
         };
 
         if (exception is ValidationException validationException)
         {
-            problem["errors"] = validationException.Errors
-                .GroupBy(e => e.PropertyName)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Select(e => e.ErrorMessage).ToArray());
+            problem = new ValidationProblemDetailsContract
+            {
+                Type = problem.Type,
+                Title = problem.Title,
+                Status = problem.Status,
+                Detail = problem.Detail,
+                TraceId = problem.TraceId,
+                Errors = validationException.Errors
+                    .GroupBy(e => e.PropertyName)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(e => e.ErrorMessage).ToArray())
+            };
         }
 
         if (exception is CheckoutInitializationInProgressException checkoutInitializationInProgressException)
         {
             var retryAfterSeconds = (int)Math.Ceiling(checkoutInitializationInProgressException.RetryAfter.TotalSeconds);
             context.Response.Headers.RetryAfter = retryAfterSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            problem["retryAfterSeconds"] = retryAfterSeconds;
+            problem = new RetryableProblemDetailsContract
+            {
+                Type = problem.Type,
+                Title = problem.Title,
+                Status = problem.Status,
+                Detail = problem.Detail,
+                TraceId = problem.TraceId,
+                RetryAfterSeconds = retryAfterSeconds
+            };
         }
 
-        var json = JsonSerializer.Serialize(problem);
+        if (exception is PackageExamSessionConflictException packageExamSessionConflictException)
+        {
+            problem = new CodedProblemDetailsContract
+            {
+                Type = problem.Type,
+                Title = problem.Title,
+                Status = problem.Status,
+                Detail = problem.Detail,
+                TraceId = problem.TraceId,
+                Code = packageExamSessionConflictException.Code
+            };
+        }
+
+        if (exception is PackageReportConflictException packageReportConflictException)
+        {
+            problem = new CodedProblemDetailsContract
+            {
+                Type = problem.Type,
+                Title = problem.Title,
+                Status = problem.Status,
+                Detail = problem.Detail,
+                TraceId = problem.TraceId,
+                Code = packageReportConflictException.Code
+            };
+        }
+
+        if (exception is EmailVerificationRequiredException emailVerificationRequiredException)
+        {
+            problem = new CodedProblemDetailsContract
+            {
+                Type = problem.Type,
+                Title = problem.Title,
+                Status = problem.Status,
+                Detail = problem.Detail,
+                TraceId = problem.TraceId,
+                Code = emailVerificationRequiredException.Code
+            };
+        }
+
+        var json = JsonSerializer.Serialize(problem, problem.GetType(), JsonOptions);
         await context.Response.WriteAsync(json);
     }
 }

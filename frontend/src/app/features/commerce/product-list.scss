@@ -1,0 +1,46 @@
+@use '../../../styles/abstracts/mixins' as mixins;
+
+.np-product-list {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+  overflow-wrap: anywhere;
+}
+
+.np-product-list h1 {
+  margin: var(--np-space-16) 0 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-product-list-rows {
+  display: grid;
+  gap: var(--np-space-8);
+  margin: var(--np-space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.np-product-list-rows li {
+  display: grid;
+  gap: var(--np-space-4);
+  padding-block: var(--np-space-8);
+  padding-inline: var(--np-space-12);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+}
+
+.np-product-list-rows h2 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.np-product-list-rows a {
+  @include mixins.touch-target;
+}

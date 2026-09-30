@@ -1,0 +1,11 @@
+.np-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--np-space-8) var(--np-space-16);
+}
+
+.np-pagination-status {
+  color: var(--np-color-text-muted, #52616b);
+  line-height: 1.6;
+}

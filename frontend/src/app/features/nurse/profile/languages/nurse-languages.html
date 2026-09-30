@@ -1,0 +1,94 @@
+<section class="np-nurse-languages" aria-labelledby="nurse-languages-title">
+  <np-live-region />
+
+  <p class="np-nurse-languages-kicker">{{ i18n.t('profile.kicker') }}</p>
+  <h1 id="nurse-languages-title">{{ i18n.t('lang.title') }}</h1>
+
+  @if (notice() !== '') {
+    <p class="np-nurse-languages-notice" role="status">{{ notice() }}</p>
+  }
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('lang.loading')"
+    [fallbackErrorTitle]="i18n.t('lang.loadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (backendFailureMessage !== '') {
+      <p class="np-nurse-languages-error" role="alert">{{ backendFailureMessage }}</p>
+    } @else {
+      <np-form-validation-summary
+        [summaryTitle]="validationSummary.title"
+        [items]="validationSummary.items"
+        [formErrors]="validationSummary.formErrors"
+      />
+    }
+
+    @if (rows().length === 0) {
+      <p class="np-nurse-languages-empty">{{ i18n.t('lang.empty') }}</p>
+    } @else {
+      <ul class="np-nurse-languages-list">
+        @for (row of rows(); track $index) {
+          <li class="np-nurse-languages-row" data-testid="language-row">
+            <np-select-control
+              [controlId]="'nurse-languages-language-' + $index"
+              [label]="rowLanguageLabel($index)"
+              [required]="true"
+              [disabled]="isSaving()"
+              [value]="row.languageId"
+              [options]="languageOptions"
+              [placeholder]="i18n.t('lang.selectLanguage')"
+              [errorText]="rowError($index)"
+              (valueChange)="updateRowLanguage($index, $event)"
+            />
+            <np-select-control
+              [controlId]="'nurse-languages-proficiency-' + $index"
+              [label]="rowProficiencyLabel($index)"
+              [required]="true"
+              [disabled]="isSaving()"
+              [value]="row.proficiency"
+              [options]="proficiencyOptions"
+              [placeholder]="i18n.t('lang.selectProficiency')"
+              (valueChange)="updateRowProficiency($index, $event)"
+            />
+            <button mat-button type="button" [disabled]="isSaving()" (click)="removeRow($index)">
+              {{ i18n.t('lang.remove') }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    <div class="np-nurse-languages-add">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        data-testid="add-language"
+        [disabled]="isSaving() || rows().length >= maxLanguages"
+        (click)="addRow()"
+      >
+        {{ i18n.t('lang.add') }}
+      </button>
+    </div>
+    @if (rows().length >= maxLanguages) {
+      <p class="np-nurse-languages-cap">{{ i18n.tp('lang.cap', { max: maxLanguages }) }}</p>
+    }
+
+    <div class="np-nurse-languages-actions">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        data-testid="save-languages"
+        [disabled]="isSaving()"
+        (click)="save()"
+      >
+        {{ i18n.t('lang.save') }}
+      </button>
+      <button mat-button type="button" [disabled]="isSaving()" (click)="cancel()">{{ i18n.t('lang.cancel') }}</button>
+    </div>
+  }
+</section>

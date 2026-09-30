@@ -10,7 +10,13 @@ The documentation is organized by topic, with each document acting as the author
 
 # Reading Order
 
-When starting work on the project, review the documentation in the following order:
+When starting work on the project, use targeted reads instead of ingesting every document:
+load the explicit human task, `PROJECT_RULES.md`, `AGENTS.md`, the compact `PROGRESS.md` handoff,
+and current Git branch/HEAD/status; then read only the task-relevant authority from this index
+and the owning execution ledger. The historical record
+(`PROGRESS_HISTORY.md`, old design-program files, superseded packets) is on-demand evidence only.
+
+The topic map below identifies current authorities and explicitly labeled historical references:
 
 1. Product Vision
 2. System Architecture
@@ -64,6 +70,16 @@ Location:
 
 ```
 docs/backend/backend-architecture.md
+```
+
+### execution/backend-implementation-ledger.md
+
+Defines backend Task → Subtask → Verification Gate ownership and execution status for backend implementation work.
+
+Location:
+
+```
+docs/backend/execution/backend-implementation-ledger.md
 ```
 
 ---
@@ -152,6 +168,20 @@ docs/deployment/deployment.md
 
 ---
 
+## Specifications
+
+### preparation-package-architecture-decisions.md
+
+Approved umbrella architecture-decisions specification for the planned paid preparation package product. The umbrella approval covers the recorded architecture decisions, including DA1–DA10 and the reporting-profile transition, but does not implement any preparation-package capability. Staged specifications and implementation plans remain separate and unapproved, and Stage 1 has not begun. The specification records approved business invariants and architectural directions, explicitly deferred features, design details reserved for staged specifications, and launch-time configuration decisions.
+
+Location:
+
+```
+docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md
+```
+
+---
+
 # Documentation Principles
 
 Every document in this directory has a single responsibility.
@@ -176,6 +206,8 @@ The following repository-level documents complement the documentation in this di
 | `AGENTS.md` | Instructions for AI coding agents |
 | `CURRENT_TASK.md` | Active implementation milestone |
 | `TASKS.md` | Long-term project roadmap |
+| `PROGRESS.md` | Compact current-state / session handoff (not history) |
+| `PROGRESS_HISTORY.md` | Historical evidence, read-on-demand, non-authoritative |
 
 ---
 

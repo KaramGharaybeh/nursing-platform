@@ -1,0 +1,22 @@
+<section class="np-admin-entry" aria-labelledby="admin-entry-title">
+  <header class="np-admin-entry-hero">
+    <p class="np-admin-entry-kicker">{{ t('adm.entryKicker') }}</p>
+    <h1 id="admin-entry-title">{{ t('adm.entryTitle') }}</h1>
+    <p>{{ t('adm.entryLead') }}</p>
+  </header>
+
+  @if (destinations().length === 0) {
+    <p class="np-admin-entry-empty">{{ t('adm.entryEmpty') }}</p>
+  } @else {
+    <div class="np-admin-entry-grid" [attr.aria-label]="t('adm.workspaces')">
+      @for (destination of destinations(); track destination.routeId) {
+        <article class="np-admin-entry-card">
+          <p class="np-admin-entry-card-group">{{ t(destination.groupKey) }}</p>
+          <h2>{{ t(destination.titleKey) }}</h2>
+          <p>{{ t(destination.descriptionKey) }}</p>
+          <a mat-button [routerLink]="destinationPath(destination.routeId)">{{ t('adm.open') }}</a>
+        </article>
+      }
+    </div>
+  }
+</section>

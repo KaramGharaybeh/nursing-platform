@@ -1,0 +1,38 @@
+<section class="np-session-expired" aria-labelledby="auth-session-expired-title">
+  <header class="np-session-expired-public-header">
+    <span class="np-session-expired-product">
+      <svg class="np-session-expired-brand-mark" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Nursing Platform
+    </span>
+    <nav [attr.aria-label]="i18n.t('auth.publicNav')">
+      <a [routerLink]="publicOffersPath">{{ i18n.t('auth.prepPackages') }}</a>
+      <a [routerLink]="signInPath">{{ i18n.t('auth.signIn') }}</a>
+      <a class="np-session-expired-nav-solid" [routerLink]="signUpPath">{{ i18n.t('auth.signUp') }}</a>
+    </nav>
+    <np-language-switcher />
+  </header>
+  <div class="np-session-expired-composition">
+    <article class="np-session-expired-card">
+      <span class="np-session-expired-icon">
+        <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" />
+        </svg>
+      </span>
+      <h1 id="auth-session-expired-title">{{ i18n.t('sessionExpired.title') }}</h1>
+      <p class="np-session-expired-description">{{ i18n.t('sessionExpired.description') }}</p>
+      <p class="np-session-expired-action">
+        <a [routerLink]="signInPath">
+          {{ i18n.t('sessionExpired.signInAgain') }}
+          <svg class="np-session-expired-action-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </a>
+      </p>
+      <span class="np-session-expired-home">{{ i18n.t('sessionExpired.goHome') }}</span>
+    </article>
+  </div>
+</section>

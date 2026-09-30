@@ -1,0 +1,102 @@
+.np-nurse-cv {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+}
+
+.np-nurse-cv-kicker {
+  margin: 0 0 var(--np-space-4);
+  color: var(--np-color-brand-1);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.np-nurse-cv h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-nurse-cv-notice {
+  margin: var(--np-space-16) 0 0;
+  padding: var(--np-space-12) var(--np-space-16);
+  background: var(--np-color-surface, #fff);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-8);
+}
+
+.np-nurse-cv-empty,
+.np-nurse-cv-card,
+.np-nurse-cv-picker {
+  margin-block-start: var(--np-space-24);
+  padding: var(--np-space-24);
+  background: var(--np-color-surface, #fff);
+  border: 1px solid var(--np-color-border, #d9e2e7);
+  border-radius: var(--np-space-12);
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin: var(--np-space-12) 0 0;
+    line-height: 1.6;
+  }
+}
+
+.np-nurse-cv-meta {
+  color: var(--np-color-text-muted, #52616b);
+  overflow-wrap: anywhere;
+}
+
+.np-nurse-cv-actions {
+  margin-block-start: var(--np-space-24);
+}
+
+.np-nurse-cv-card-actions,
+.np-nurse-cv-confirm-actions,
+.np-nurse-cv-picker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--np-space-8);
+  margin-block-start: var(--np-space-16);
+}
+
+.np-nurse-cv-delete {
+  color: var(--np-color-error, #b3261e);
+}
+
+.np-nurse-cv-confirm {
+  margin-block-start: var(--np-space-16);
+  padding: var(--np-space-16);
+  border: 1px solid color-mix(in srgb, var(--np-color-error, #b3261e) 32%, transparent);
+  border-radius: var(--np-space-8);
+}
+
+.np-nurse-cv-error {
+  color: var(--np-color-error, #b3261e);
+}
+
+.np-nurse-cv-file-label {
+  display: block;
+  margin-block-start: var(--np-space-16);
+  font-weight: 600;
+}
+
+.np-nurse-cv-picker input[type='file'] {
+  margin-block-start: var(--np-space-8);
+  max-inline-size: 100%;
+}
+
+.np-nurse-cv-selection {
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}

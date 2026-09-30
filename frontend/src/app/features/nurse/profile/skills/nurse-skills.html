@@ -1,0 +1,90 @@
+<section class="np-nurse-skills" aria-labelledby="nurse-skills-title">
+  <np-live-region />
+
+  <p class="np-nurse-skills-kicker">{{ i18n.t('profile.kicker') }}</p>
+  <h1 id="nurse-skills-title">{{ i18n.t('skills.title') }}</h1>
+
+  @if (notice() !== '') {
+    <p class="np-nurse-skills-notice" role="status">{{ notice() }}</p>
+  }
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('skills.loading')"
+    [fallbackErrorTitle]="i18n.t('skills.loadError')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    @if (backendFailureMessage !== '') {
+      <p class="np-nurse-skills-error" role="alert">{{ backendFailureMessage }}</p>
+    } @else {
+      <np-form-validation-summary
+        [summaryTitle]="validationSummary.title"
+        [items]="validationSummary.items"
+        [formErrors]="validationSummary.formErrors"
+      />
+    }
+
+    @if (draftSkills().length === 0) {
+      <p class="np-nurse-skills-empty">{{ i18n.t('skills.empty') }}</p>
+    } @else {
+      <ul class="np-nurse-skills-list">
+        @for (skill of draftSkills(); track skill) {
+          <li class="np-nurse-skills-chip" data-testid="skill-chip">
+            <span>{{ skill }}</span>
+            <button
+              mat-button
+              type="button"
+              [attr.aria-label]="i18n.tp('skills.removeSkill', { skill: skill })"
+              [disabled]="isSaving()"
+              (click)="removeSkill(skill)"
+            >
+              {{ i18n.t('skills.remove') }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    <form class="np-nurse-skills-add" (ngSubmit)="addSkill()" novalidate>
+      <np-text-input-control
+        controlId="nurse-skills-input"
+        [label]="i18n.t('skills.addLabel')"
+        type="text"
+        [required]="false"
+        [disabled]="isSaving() || draftSkills().length >= maxSkills"
+        [value]="skillInput()"
+        [errorText]="addError()"
+        [helperText]="i18n.t('skills.addHelper')"
+        (valueChange)="updateInput($event)"
+      />
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        data-testid="add-skill"
+        [disabled]="isSaving() || draftSkills().length >= maxSkills"
+      >
+        {{ i18n.t('skills.addAction') }}
+      </button>
+    </form>
+    @if (draftSkills().length >= maxSkills) {
+      <p class="np-nurse-skills-cap">{{ i18n.tp('skills.cap', { max: maxSkills }) }}</p>
+    }
+
+    <div class="np-nurse-skills-actions">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        data-testid="save-skills"
+        [disabled]="isSaving()"
+        (click)="save()"
+      >
+        {{ i18n.t('skills.save') }}
+      </button>
+      <button mat-button type="button" [disabled]="isSaving()" (click)="cancel()">{{ i18n.t('skills.cancel') }}</button>
+    </div>
+  }
+</section>

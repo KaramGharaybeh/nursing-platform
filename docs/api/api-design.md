@@ -278,6 +278,42 @@ Public endpoints should remain explicitly documented.
 
 Authentication configuration is defined separately.
 
+## V1 public self-registration
+
+V1 public self-registration is an additive authentication contract and must not repurpose the existing administrative user-registration endpoint.
+
+The existing `POST /api/v1/auth/register` endpoint remains a permission-protected administrative operation. It must continue to require the authorized user-management permission and must not become anonymous/public.
+
+The public V1 self-registration endpoints are:
+
+- `POST /api/v1/auth/register/nurse`
+- `POST /api/v1/auth/register/employer`
+
+Both public endpoints accept only:
+
+- `email`
+- `password`
+- `firstName`
+- `lastName`
+
+Public clients must not submit `roleIds`, administrative role identifiers, permission identifiers, company/organization details, nurse profile details, session state, or token material during V1 registration.
+
+Role assignment is server-owned:
+
+- `POST /api/v1/auth/register/nurse` assigns only the `Nurse` role.
+- `POST /api/v1/auth/register/employer` assigns only the `Employer` role.
+- `Admin`, `SuperAdmin`, and any privileged role must not be anonymously assignable.
+
+Successful public registration returns HTTP `202 Accepted` with no response body and does not authenticate the user. It must not return `AuthResult`, access tokens, refresh tokens, frontend session bootstrap data, current-user data, or any other session-establishing payload. Newly registered accounts start with `IsActive = true` and `EmailVerified = false`; V1 public registration creates only `User` and `UserRole`, not NurseProfile, EmployerProfile, CV/profile records, company/organization records, onboarding rows, or profile-completion rows. The backend initiates the initial verification email for genuinely new accounts only.
+
+Login with correct credentials for an otherwise authenticatable unverified account must not issue tokens and must return HTTP `403 Forbidden` using the existing coded Problem Details mechanism with code `email_verification_required`. Wrong credentials must preserve the existing generic invalid-credentials behavior and must not return `email_verification_required`.
+
+Duplicate-email public registration responses must be externally indistinguishable from successful new public registrations: HTTP `202 Accepted` with no response body. Duplicate public registration must not disclose whether the email exists, reveal role/account details, mutate the existing account or roles, create a second account, issue tokens, establish a session, or implicitly resend a verification email. A concurrent registration race that is positively identified as the existing user-email uniqueness constraint must preserve the same `202 Accepted` empty response; unrelated database failures must retain normal failure semantics.
+
+Public registration uses the same email comparison and persistence semantics as the existing user/auth model; do not introduce endpoint-local competing email normalization. Public endpoints resolve the server-owned roles from canonical seeded role names `Nurse` and `Employer`, fail closed if the expected role cannot be resolved, and never accept client role IDs or names.
+
+If account persistence succeeds but initial verification-email delivery fails, the public response remains `202 Accepted` with no response body. The failure must be logged through existing observability and must not be disclosed to the anonymous client, must not roll back/delete the created account, and must not introduce public resend semantics. Verification-email retry/resilience and anonymous public-registration rate limiting are deferred production hardening unless an existing approved mechanism can be reused without new infrastructure or dependencies.
+
 ---
 
 # Authorization
@@ -350,6 +386,20 @@ These endpoints are intended for monitoring and orchestration.
 # Payment And Exam Access APIs
 
 This section documents the backend payment and purchased-exam-access contracts currently implemented for local frontend development. Sandbox payment behavior is Development/Test-only and must not be presented as a production payment provider.
+
+## Planned Preparation Package APIs
+
+A paid preparation package product is approved as an architecture decision but is not yet implemented. No preparation package API is implemented today. The planned package will introduce, at minimum:
+
+- Package catalog endpoints for browsing purchasable package offers.
+- Package-attempt exam session start as a distinct operation from standalone exam session start, with explicit package purchase entitlement selection and atomic attempt consumption.
+- Benefit-right-enforced access to managed study materials, the practice question bank, the package-scoped exam attempt, and the immutable analytical report.
+
+The package will be introduced as an additive extension of existing payment and exam-access contracts. In particular, this is expected to include additive extension of order-item snapshots to cover package offers, extension of checkout and payment completion to package offers, package purchase entitlements as a new entitlement type distinct from `ExamAccessGrant`, and authorized materials/practice/report access endpoints gated by the four package benefit rights. No concrete routes or DTOs are approved at this stage.
+
+Every new exam session has one immutable logical source: free, standalone grant-authorized, or one specific Package Purchase attempt. Session source and provenance cannot be rewritten after creation. Existing `isFree` and `canStart` semantics remain backward compatible for free and standalone access; package availability and package-attempt eligibility are represented as separate additive capability information. Existing `canStart` must not silently include, select, or consume package rights.
+
+The umbrella architecture-decisions specification is reviewed and approved, but concrete capability response fields, endpoint paths, request/response DTOs, status codes, error codes, pagination, authorization requirements, and persistence are not approved. They remain subject to separately authorized and reviewed staged specifications and implementation plans; Stage 1 has not begun. Existing standalone paid-exam, free-exam, and grant-authorized exam session contracts remain observably unchanged. See `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md` for the recorded decisions, deferred features, and staged-specification boundaries.
 
 ## Payment Product Catalog
 

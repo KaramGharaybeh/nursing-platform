@@ -1,0 +1,113 @@
+<section class="np-exam-history" aria-labelledby="exam-history-heading">
+  <a class="np-exam-history-back" [routerLink]="backPath" data-testid="exam-history-back">{{ i18n.t('exams.backToExams') }}</a>
+
+  <np-loading-error-retry
+    [state]="state()"
+    [loadingLabel]="i18n.t('exams.historyLoading')"
+    [fallbackErrorTitle]="i18n.t('exams.historyLoadError')"
+    [retryLabel]="i18n.t('exams.historyRetry')"
+    (retryRequested)="retry()"
+  />
+
+  @if (state().kind === 'ready') {
+    <header class="np-exam-history-header">
+      <h1 id="exam-history-heading" data-testid="exam-history-heading">{{ i18n.t('exams.historyTitle') }}</h1>
+      <p>{{ i18n.t('exams.historyIntro') }}</p>
+    </header>
+
+    <div class="np-exam-history-filter-panel">
+      <np-select-control
+        controlId="exam-history-status-filter"
+        [label]="i18n.t('exams.historyStatusFilter')"
+        data-testid="exam-history-status-filter"
+        [options]="statusOptions()"
+        [value]="filter()"
+        (valueChange)="applyStatusFilter($event)"
+      />
+      <p data-testid="exam-history-total">{{ page()?.totalCount }} {{ i18n.t('exams.historyItemLabel') }}</p>
+    </div>
+
+    @if ((page()?.items.length ?? 0) === 0) {
+      @if (filter() === '') {
+        <div data-testid="exam-history-empty">
+          <np-empty-state
+            kind="empty"
+            [title]="i18n.t('exams.historyEmptyTitle')"
+            [description]="i18n.t('exams.historyEmptyText')"
+          />
+          <a [routerLink]="backPath">{{ i18n.t('exams.browseExams') }}</a>
+        </div>
+      } @else {
+        <div data-testid="exam-history-filtered-empty">
+          <np-empty-state
+            kind="no-results"
+            [title]="i18n.t('exams.historyNoMatchTitle')"
+            [description]="i18n.t('exams.historyNoMatchText')"
+          />
+          <button type="button" data-testid="exam-history-clear" (click)="clearFilter()">
+            {{ i18n.t('exams.historyClear') }}
+          </button>
+        </div>
+      }
+    } @else {
+      <ul class="np-exam-history-rows">
+        @for (attempt of page()?.items ?? []; track attempt.sessionId) {
+          <li class="np-exam-history-card" data-testid="exam-history-row">
+            <div class="np-exam-history-card-content">
+              <div class="np-exam-history-card-header">
+                <h2>{{ attempt.examTitle }}</h2>
+                <p role="status">{{ statusLabel(attempt.status) }}</p>
+                @if (attempt.passed === true) {
+                  <p>{{ i18n.t('exams.passed') }}</p>
+                } @else if (attempt.passed === false) {
+                  <p>{{ i18n.t('exams.notPassed') }}</p>
+                }
+              </div>
+              <div class="np-exam-history-card-meta">
+                <p>{{ i18n.t('exams.started') }} {{ attempt.startedAt | date: 'medium' }}</p>
+                @if (attempt.status === 'InProgress' && attempt.expiresAt !== null) {
+                  <p>{{ i18n.t('exams.ends') }} {{ attempt.expiresAt | date: 'medium' }}</p>
+                }
+                @if (attempt.percentage !== null) {
+                  <p>{{ i18n.t('result.percentage') }}: {{ attempt.percentage }}%</p>
+                }
+              </div>
+            </div>
+            <div class="np-exam-history-card-actions">
+              @if (attempt.status === 'InProgress') {
+                <a
+                  [routerLink]="resumePath(attempt.examId, attempt.sessionId)"
+                  data-testid="exam-history-resume"
+                >
+                  {{ i18n.t('exams.resumeExam') }}
+                </a>
+              } @else if (isFinalizedStatus(attempt.status)) {
+                <a
+                  [routerLink]="resultPath(attempt.examId, attempt.sessionId)"
+                  data-testid="exam-history-result"
+                >
+                  {{ i18n.t('exams.viewResult') }}
+                </a>
+                <a
+                  [routerLink]="reviewPath(attempt.examId, attempt.sessionId)"
+                  data-testid="exam-history-review"
+                >
+                  {{ i18n.t('exams.reviewAnswers') }}
+                </a>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+      <np-pagination
+        data-testid="exam-history-pagination"
+        [page]="page()?.page ?? 1"
+        [totalPages]="page()?.totalPages ?? 0"
+        [totalCount]="page()?.totalCount ?? 0"
+        [itemLabel]="i18n.t('exams.historyItemLabel')"
+        [ariaLabel]="i18n.t('exams.historyPagination')"
+        (pageRequested)="loadHistoryPage($event)"
+      />
+    }
+  }
+</section>

@@ -1,0 +1,55 @@
+<section class="np-account" aria-labelledby="account-title">
+  <np-live-region />
+
+  <p class="np-account-kicker">{{ i18n.t('account.kicker') }}</p>
+  <h1 id="account-title">{{ i18n.t('account.title') }}</h1>
+
+  <np-loading-error-retry
+    [state]="state"
+    [loadingLabel]="i18n.t('account.loading')"
+    [fallbackErrorTitle]="i18n.t('account.loadError')"
+  />
+
+  @if (user; as accountUser) {
+    @if (!isEditing()) {
+      <dl class="np-account-facts">
+        <div class="np-account-fact">
+          <dt>{{ i18n.t('account.name') }}</dt>
+          <dd>{{ displayName }}</dd>
+        </div>
+        <div class="np-account-fact">
+          <dt>{{ i18n.t('account.username') }}</dt>
+          <dd>{{ accountUser.username }}</dd>
+        </div>
+        <div class="np-account-fact">
+          <dt>{{ i18n.t('account.email') }}</dt>
+          <dd>{{ accountUser.email }}</dd>
+        </div>
+        <div class="np-account-fact">
+          <dt>{{ i18n.t('account.emailVerification') }}</dt>
+          <dd>{{ verificationLabel }}</dd>
+        </div>
+      </dl>
+      <div class="np-account-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          data-testid="edit-personal-details"
+          (click)="startEdit()"
+        >
+          {{ i18n.t('account.edit') }}
+        </button>
+      </div>
+    } @else {
+      <h2 class="np-account-form-title">{{ i18n.t('account.edit') }}</h2>
+      <np-personal-details-form
+        [initial]="formInitial"
+        [isSubmitting]="isSubmitting()"
+        [backendError]="saveError()"
+        (save)="submitEdit($event)"
+        (cancelled)="cancelEdit()"
+      />
+    }
+  }
+</section>

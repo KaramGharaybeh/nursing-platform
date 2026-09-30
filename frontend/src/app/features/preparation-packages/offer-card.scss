@@ -1,0 +1,24 @@
+.np-offer-card {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  padding-block: var(--np-space-16);
+  padding-inline: var(--np-space-16);
+  overflow-wrap: anywhere;
+}
+
+.np-offer-card h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+.np-offer-summary,
+.np-offer-country,
+.np-offer-category,
+.np-offer-exam,
+.np-offer-counts,
+.np-offer-duration {
+  margin: var(--np-space-8) 0 0;
+}

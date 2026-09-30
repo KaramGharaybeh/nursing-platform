@@ -1,0 +1,33 @@
+.np-nurse-entitlements-list {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 44rem;
+  margin-inline: auto;
+  padding-block: var(--np-space-24);
+  padding-inline: var(--np-page-gutter);
+}
+
+.np-nurse-entitlements-list-kicker {
+  margin: 0 0 var(--np-space-4);
+  color: var(--np-color-brand-1);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.np-nurse-entitlements-list h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.np-nurse-entitlements-list-items {
+  display: grid;
+  gap: var(--np-space-16);
+  margin: var(--np-space-24) 0 0;
+  padding: 0;
+  list-style: none;
+}

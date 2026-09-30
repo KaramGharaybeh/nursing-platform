@@ -126,6 +126,8 @@ public sealed class SandboxPaymentCompletionPostgreSqlTests : IAsyncLifetime
         {
             Id = foreignUserId,
             Email = $"foreign-nurse-{Guid.NewGuid():N}@example.com",
+            Username = $"user-{foreignUserId}",
+            NormalizedUsername = $"USER-{foreignUserId}",
             PasswordHash = "hash",
             FirstName = "Foreign",
             LastName = "Nurse",
@@ -404,6 +406,8 @@ public sealed class SandboxPaymentCompletionPostgreSqlTests : IAsyncLifetime
         {
             Id = userId,
             Email = $"nurse-{Guid.NewGuid():N}@example.com",
+            Username = $"user-{userId}",
+            NormalizedUsername = $"USER-{userId}",
             PasswordHash = "hash",
             FirstName = "Test",
             LastName = "Nurse",
@@ -595,6 +599,8 @@ public sealed class SandboxPaymentCompletionPostgreSqlTests : IAsyncLifetime
         {
             Id = userId,
             Email = $"nurse-{Guid.NewGuid():N}@example.com",
+            Username = $"user-{userId}",
+            NormalizedUsername = $"USER-{userId}",
             PasswordHash = "hash",
             FirstName = "Test",
             LastName = "Nurse",

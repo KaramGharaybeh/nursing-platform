@@ -1,0 +1,30 @@
+.np-app-shell {
+  box-sizing: border-box;
+  display: block;
+  min-block-size: 100dvh;
+  inline-size: 100%;
+  background: transparent;
+  color: var(--np-color-brand-2);
+}
+
+.np-app-shell-skip-link {
+  position: absolute;
+  inset-block-start: var(--np-space-8);
+  inset-inline-start: var(--np-space-8);
+  z-index: 20;
+  padding-block: var(--np-space-8);
+  padding-inline: var(--np-space-12);
+  border-radius: var(--np-space-8);
+  background: var(--np-color-surface);
+  color: var(--np-color-brand-1);
+  font-weight: 700;
+  transform: translateY(-150%);
+}
+
+.np-app-shell-skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+main {
+  padding-inline: var(--np-page-gutter);
+}

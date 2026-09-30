@@ -1,0 +1,842 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ReplaySubject, Subject, of, throwError } from 'rxjs';
+import { routes } from '../../app.routes';
+import { ExamsApi } from '../../core/api/exams-api';
+import type { ExamSession, ExamSessionResult } from '../../core/api/exams-api';
+import { ExamSessionScreen } from './exam-session';
+
+function question(
+  id: string,
+  order: number,
+  selected: string | null,
+  flagged = false,
+  options: { id: string; text: string }[] = [
+    { id: `${id}-a`, text: `${id} option one` },
+    { id: `${id}-b`, text: `${id} option two` },
+  ],
+) {
+  return {
+    examSessionQuestionId: id,
+    text: `${id} prompt`,
+    points: 1,
+    displayOrder: order,
+    selectedExamSessionAnswerOptionId: selected,
+    isFlagged: flagged,
+    options: options.map((option, index) => ({
+      examSessionAnswerOptionId: option.id,
+      text: option.text,
+      displayOrder: index + 1,
+    })),
+  };
+}
+
+function session(overrides: Partial<ExamSession> = {}): ExamSession {
+  return {
+    id: 'session-9',
+    examId: 'exam-1',
+    examTitle: 'Exam',
+    status: 'InProgress',
+    startedAt: '2026-09-18T00:00:00Z',
+    expiresAt: '2999-01-01T00:00:00Z',
+    remainingSeconds: 3600,
+    items: [
+      question('q-1', 1, null),
+      question('q-2', 2, 'q-2-a'),
+    ],
+    ...overrides,
+  };
+}
+
+class ExamsApiStub {
+  current: ExamSession = session();
+  sessionError: unknown = undefined;
+  saved: { sessionId: string; answers: { examSessionQuestionId: string; selectedExamSessionAnswerOptionId: string }[] }[] = [];
+  cleared: { sessionId: string; questionId: string }[] = [];
+  flagged: { sessionId: string; questionId: string; isFlagged: boolean }[] = [];
+  submitCalls: string[] = [];
+  submitError: unknown = undefined;
+  submitResult: ExamSessionResult = {
+    score: 1,
+    maxScore: 2,
+    percentage: 50,
+    passed: false,
+    correctCount: 1,
+    questionCount: 2,
+  };
+
+  listExams() {
+    return throwError(() => ({ status: 500 }));
+  }
+
+  getExam() {
+    return throwError(() => ({ status: 404 }));
+  }
+
+  listCountries() {
+    return of([]);
+  }
+
+  getExamSession() {
+    if (this.sessionError !== undefined) {
+      return throwError(() => this.sessionError);
+    }
+    if (this.submitCalls.length > 0) {
+      return of({ ...this.current, status: 'Submitted', remainingSeconds: 0 });
+    }
+    return of(this.current);
+  }
+
+  saveExamSessionAnswers(
+    sessionId: string,
+    answers: { examSessionQuestionId: string; selectedExamSessionAnswerOptionId: string }[],
+  ) {
+    this.saved.push({ sessionId, answers });
+    const [answer] = answers;
+    this.current = {
+      ...this.current,
+      items: this.current.items.map((item) =>
+        item.examSessionQuestionId === answer.examSessionQuestionId
+          ? { ...item, selectedExamSessionAnswerOptionId: answer.selectedExamSessionAnswerOptionId }
+          : item,
+      ),
+    };
+    return of(this.current);
+  }
+
+  clearExamSessionAnswer(sessionId: string, questionId: string) {
+    this.cleared.push({ sessionId, questionId });
+    this.current = {
+      ...this.current,
+      items: this.current.items.map((item) =>
+        item.examSessionQuestionId === questionId
+          ? { ...item, selectedExamSessionAnswerOptionId: null }
+          : item,
+      ),
+    };
+    return of(this.current);
+  }
+
+  setExamSessionQuestionFlag(sessionId: string, questionId: string, isFlagged: boolean) {
+    this.flagged.push({ sessionId, questionId, isFlagged });
+    this.current = {
+      ...this.current,
+      items: this.current.items.map((item) =>
+        item.examSessionQuestionId === questionId ? { ...item, isFlagged } : item,
+      ),
+    };
+    return of(this.current);
+  }
+
+  submitExamSession(sessionId: string) {
+    this.submitCalls.push(sessionId);
+    if (this.submitError !== undefined) {
+      return throwError(() => this.submitError);
+    }
+    return of(this.submitResult);
+  }
+}
+
+async function setup(stub?: ExamsApiStub): Promise<{
+  fixture: ComponentFixture<ExamSessionScreen>;
+  api: ExamsApiStub;
+}> {
+  const api = stub ?? new ExamsApiStub();
+  TestBed.resetTestingModule();
+  await TestBed.configureTestingModule({
+    imports: [ExamSessionScreen],
+    providers: [
+      provideRouter([]),
+      { provide: ExamsApi, useValue: api },
+      {
+        provide: ActivatedRoute,
+        useValue: {
+          snapshot: { paramMap: convertToParamMap({ examId: 'exam-1', sessionId: 'session-9' }) },
+        },
+      },
+    ],
+  }).compileComponents();
+  const fixture = TestBed.createComponent(ExamSessionScreen);
+  fixture.detectChanges();
+  await settle(fixture);
+  return { fixture, api };
+}
+
+async function settle(fixture: ComponentFixture<ExamSessionScreen>): Promise<void> {
+  await fixture.whenStable();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  fixture.detectChanges();
+}
+
+function text(fixture: ComponentFixture<ExamSessionScreen>): string {
+  return ((fixture.nativeElement as HTMLElement).textContent ?? '');
+}
+
+function byTestId(fixture: ComponentFixture<ExamSessionScreen>, id: string): HTMLElement | null {
+  return (fixture.nativeElement as HTMLElement).querySelector(`[data-testid="${id}"]`);
+}
+
+const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+
+describe('ExamSession screen (T-FE-069)', () => {
+  it('loads by sessionId and resumes at the first unanswered question', async () => {
+    const { fixture } = await setup();
+
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 1 of 2');
+    expect(byTestId(fixture, 'session-prompt')?.textContent).toContain('q-1 prompt');
+  });
+
+  it('restores persisted answers when navigating', async () => {
+    const { fixture } = await setup();
+    const component = fixture.componentInstance as unknown as { next(): Promise<void> };
+
+    await component.next();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    const checked = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input:checked',
+    ) as HTMLInputElement | null;
+    expect(checked?.value).toBe('q-2-a');
+  });
+
+  it('renders one question with backend-ordered options and no correctness leakage', async () => {
+    const { fixture } = await setup();
+    const element = fixture.nativeElement as HTMLElement;
+    const options = [...element.querySelectorAll('[data-testid="session-option"]')].map((o) =>
+      o.textContent?.trim(),
+    );
+
+    expect(options).toEqual(['q-1 option one', 'q-1 option two']);
+    expect(element.querySelectorAll('fieldset').length).toBe(1);
+    expect(text(fixture)).not.toMatch(UUID_PATTERN);
+    expect(text(fixture)).not.toMatch(/correct answer|answer key|rationale|explanation/i);
+  });
+
+  it('selecting an option auto-persists without any Save answer action', async () => {
+    const { fixture, api } = await setup();
+
+    expect(byTestId(fixture, 'session-save')).toBeNull();
+
+    ((fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input',
+    ) as HTMLInputElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.saved).toEqual([
+      { sessionId: 'session-9', answers: [{ examSessionQuestionId: 'q-1', selectedExamSessionAnswerOptionId: 'q-1-a' }] },
+    ]);
+    expect(text(fixture)).toContain('Answer saved.');
+  });
+
+  it('re-answer auto-persists the overwrite via the backend contract', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({
+      items: [question('q-1', 1, 'q-1-a'), question('q-2', 2, null)],
+    });
+    const { fixture, api } = await setup(stub);
+    const component = fixture.componentInstance as unknown as { previous(): Promise<void> };
+
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 2 of 2');
+
+    await component.previous();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    ((fixture.nativeElement as HTMLElement).querySelectorAll(
+      '[data-testid="session-option"] input',
+    )[1] as HTMLInputElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.saved).toEqual([
+      { sessionId: 'session-9', answers: [{ examSessionQuestionId: 'q-1', selectedExamSessionAnswerOptionId: 'q-1-b' }] },
+    ]);
+  });
+
+  it('Previous and Next send no requests when nothing is pending', async () => {
+    const { fixture, api } = await setup();
+    const component = fixture.componentInstance as unknown as { next(): Promise<void>; previous(): Promise<void> };
+
+    await component.next();
+    fixture.detectChanges();
+    await settle(fixture);
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 2 of 2');
+
+    await component.previous();
+    fixture.detectChanges();
+    await settle(fixture);
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 1 of 2');
+    expect(api.saved).toEqual([]);
+    expect(api.cleared).toEqual([]);
+    expect(api.flagged).toEqual([]);
+    expect((byTestId(fixture, 'session-prev') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('navigation waits for the pending autosave before moving', async () => {
+    const stub = new ExamsApiStub();
+    // Replay so the value emitted below still reaches the serialized mutation
+    // queue, which subscribes one microtask after enqueue.
+    const pending = new ReplaySubject<ExamSession>(1);
+    stub.saveExamSessionAnswers = (
+      sessionId: string,
+      answers: { examSessionQuestionId: string; selectedExamSessionAnswerOptionId: string }[],
+    ) => {
+      stub.saved.push({ sessionId, answers });
+      return pending.asObservable();
+    };
+    const { fixture, api } = await setup(stub);
+    const component = fixture.componentInstance as unknown as { next(): Promise<void> };
+
+    ((fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input',
+    ) as HTMLInputElement).click();
+    fixture.detectChanges();
+
+    const navigation = component.next();
+    fixture.detectChanges();
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 1 of 2');
+
+    pending.next(stub.current);
+    pending.complete();
+    await navigation;
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.saved).toHaveLength(1);
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 2 of 2');
+  });
+
+  it('navigation stays put when the pending save fails and retains the choice', async () => {
+    const stub = new ExamsApiStub();
+    stub.saveExamSessionAnswers = (
+      sessionId: string,
+      answers: { examSessionQuestionId: string; selectedExamSessionAnswerOptionId: string }[],
+    ) => {
+      stub.saved.push({ sessionId, answers });
+      return throwError(() => ({ status: 500 }));
+    };
+    const { fixture, api } = await setup(stub);
+    const component = fixture.componentInstance as unknown as { next(): Promise<void> };
+
+    ((fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input',
+    ) as HTMLInputElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-save-error')).not.toBeNull();
+
+    await component.next();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 1 of 2');
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="session-option"] input:checked',
+      ),
+    ).not.toBeNull();
+    expect(api.saved).toHaveLength(1);
+  });
+
+  it('renders a numbered Question Navigation with current, answered and flagged states', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({
+      items: [question('q-1', 1, 'q-1-a', true), question('q-2', 2, null), question('q-3', 3, 'q-3-a')],
+    });
+    const { fixture } = await setup(stub);
+    const nav = byTestId(fixture, 'session-nav') as HTMLElement;
+    const items = [...nav.querySelectorAll('[data-testid="session-nav-item"]')];
+
+    expect(nav.getAttribute('aria-label')).toContain('Question navigation');
+    expect(items).toHaveLength(3);
+    expect(items.map((item) => item.textContent?.trim())).toEqual(['1', '2', '3']);
+    expect(items[0].getAttribute('aria-label')).toMatch(/question 1.*answered.*flagged/i);
+    expect(items[1].getAttribute('aria-label')).toMatch(/question 2.*unanswered/i);
+    // The screen resumes at the first unanswered question (q-2, index 1), so the
+    // current marker belongs there, not on the first item.
+    expect(items[0].getAttribute('aria-current')).toBeNull();
+    expect(items[1].getAttribute('aria-current')).toBe('true');
+  });
+
+  it('direct navigation moves to the chosen question after pending persistence settles', async () => {
+    const { fixture } = await setup();
+    const component = fixture.componentInstance as unknown as { goToQuestion(index: number): Promise<void> };
+
+    await component.goToQuestion(1);
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 2 of 2');
+    expect(byTestId(fixture, 'session-prompt')?.textContent).toContain('q-2 prompt');
+  });
+
+  it('Clear selection persists a true unanswered state through DELETE', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({
+      items: [question('q-1', 1, 'q-1-a'), question('q-2', 2, 'q-2-a')],
+    });
+    const { fixture, api } = await setup(stub);
+
+    expect(byTestId(fixture, 'session-position')?.textContent).toContain('Question 1 of 2');
+
+    (byTestId(fixture, 'session-clear') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.cleared).toEqual([{ sessionId: 'session-9', questionId: 'q-1' }]);
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="session-option"] input:checked',
+      ),
+    ).toBeNull();
+  });
+
+  it('hides Clear selection when the question has no local or persisted selection', async () => {
+    const { fixture, api } = await setup();
+
+    expect(byTestId(fixture, 'session-clear')).toBeNull();
+    expect(api.cleared).toEqual([]);
+  });
+
+  it('Flag persists the review marker independently of the answer', async () => {
+    const { fixture, api } = await setup();
+    const flag = byTestId(fixture, 'session-flag') as HTMLButtonElement;
+
+    expect(flag.textContent).toContain('Flag');
+    expect(flag.getAttribute('aria-pressed')).toBe('false');
+
+    flag.click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.flagged).toEqual([{ sessionId: 'session-9', questionId: 'q-1', isFlagged: true }]);
+    expect(api.saved).toEqual([]);
+    expect((byTestId(fixture, 'session-flag') as HTMLButtonElement).getAttribute('aria-pressed')).toBe(
+      'true',
+    );
+  });
+
+  it('Unflag persists desired false state without touching the answer', async () => {
+    const stub = new ExamsApiStub();
+    // Both answered so resume lands on index 0 (q-1, flagged); otherwise the
+    // screen resumes on the unanswered q-2 and the click would flag that one.
+    stub.current = session({ items: [question('q-1', 1, 'q-1-a', true), question('q-2', 2, 'q-2-a')] });
+    const { fixture, api } = await setup(stub);
+
+    (byTestId(fixture, 'session-flag') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.flagged).toEqual([{ sessionId: 'session-9', questionId: 'q-1', isFlagged: false }]);
+    expect(api.saved).toEqual([]);
+    expect(api.cleared).toEqual([]);
+  });
+
+  it('initializes the countdown from RemainingSeconds without announcing every tick', async () => {
+    const { fixture } = await setup();
+
+    expect(byTestId(fixture, 'session-timer')?.textContent).toContain('60:00');
+  });
+
+  it('shows the near-expiry warning immediately when loaded at or below 300 seconds', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({ remainingSeconds: 299 });
+    const { fixture } = await setup(stub);
+
+    expect(byTestId(fixture, 'session-expiry-warning')?.textContent).toContain(
+      'Time is almost up. Submit your exam soon.',
+    );
+  });
+
+  it('decrements the displayed countdown on tick without backend calls', async () => {
+    const { fixture, api } = await setup();
+    const component = fixture.componentInstance as unknown as { tick(): void };
+    let loads = 0;
+    const original = api.getExamSession.bind(api);
+    api.getExamSession = () => {
+      loads += 1;
+      return original();
+    };
+
+    component.tick();
+    fixture.detectChanges();
+
+    expect(byTestId(fixture, 'session-timer')?.textContent).toContain('59:59');
+    expect(loads).toBe(0);
+  });
+
+  it('reconciles through Get on zero without auto-submit and leaves answering on expiry', async () => {
+    const stub = new ExamsApiStub();
+    let calls = 0;
+    const fresh = stub.current;
+    stub.getExamSession = () => {
+      calls += 1;
+      if (calls === 1) {
+        return of({ ...fresh, remainingSeconds: 1 });
+      }
+      return of({ ...fresh, status: 'Expired', remainingSeconds: 0 });
+    };
+    const { fixture, api } = await setup(stub);
+    const component = fixture.componentInstance as unknown as { tick(): void };
+
+    component.tick();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(calls).toBe(2);
+    expect(byTestId(fixture, 'session-terminal-notice')?.textContent).toContain(
+      'The exam session has expired.',
+    );
+    expect(byTestId(fixture, 'session-clear')).toBeNull();
+    expect(byTestId(fixture, 'session-flag')).toBeNull();
+    expect(byTestId(fixture, 'session-nav')).toBeNull();
+    expect(byTestId(fixture, 'session-submit-open')).toBeNull();
+    expect(api.submitCalls).toEqual([]);
+  });
+
+  it('cleans up the timer on destroy', async () => {
+    const cleared: unknown[] = [];
+    const originalClear = globalThis.clearInterval;
+    globalThis.clearInterval = ((handle?: unknown) => {
+      cleared.push(handle);
+      return undefined;
+    }) as typeof clearInterval;
+    try {
+      const { fixture } = await setup();
+      fixture.destroy();
+      expect(cleared.length).toBeGreaterThan(0);
+    } finally {
+      globalThis.clearInterval = originalClear;
+    }
+  });
+
+  it('reconciles an expired autosave without claiming success', async () => {
+    const stub = new ExamsApiStub();
+    let loads = 0;
+    stub.saveExamSessionAnswers = () => throwError(() => ({ status: 409 }));
+    stub.getExamSession = () => {
+      loads += 1;
+      if (loads === 1) {
+        return of(stub.current);
+      }
+      return of(session({ status: 'Expired', remainingSeconds: 0 }));
+    };
+    const { fixture } = await setup(stub);
+
+    ((fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input',
+    ) as HTMLInputElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-terminal-notice')).not.toBeNull();
+    expect(text(fixture)).not.toContain('Answer saved.');
+  });
+
+  it('reconciles expiry to the factual expired state without auto-submit', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({ status: 'Expired', remainingSeconds: 0 });
+    const { fixture, api } = await setup(stub);
+
+    expect(byTestId(fixture, 'session-terminal-notice')).not.toBeNull();
+    expect(byTestId(fixture, 'session-clear')).toBeNull();
+    expect(byTestId(fixture, 'session-flag')).toBeNull();
+    expect(byTestId(fixture, 'session-submit-open')).toBeNull();
+    expect(api.saved).toEqual([]);
+    expect(api.submitCalls).toEqual([]);
+  });
+
+  it('submit opens a modal dialog with persisted facts and Cancel sends zero POST', async () => {
+    const { fixture, api } = await setup();
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    const dialog = byTestId(fixture, 'session-confirm') as HTMLElement;
+    expect(dialog.getAttribute('role')).toBe('dialog');
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(text(fixture)).toContain('1 questions are unanswered');
+
+    (byTestId(fixture, 'session-confirm-cancel') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.submitCalls).toEqual([]);
+    expect(byTestId(fixture, 'session-confirm')).toBeNull();
+  });
+
+  it('submit waits for a pending autosave so facts reflect settled persistence', async () => {
+    const stub = new ExamsApiStub();
+    // Replay so the value emitted below still reaches the serialized mutation
+    // queue, which subscribes one microtask after enqueue.
+    const pending = new ReplaySubject<ExamSession>(1);
+    stub.saveExamSessionAnswers = (
+      sessionId: string,
+      answers: { examSessionQuestionId: string; selectedExamSessionAnswerOptionId: string }[],
+    ) => {
+      stub.saved.push({ sessionId, answers });
+      return pending.asObservable();
+    };
+    const { fixture } = await setup(stub);
+
+    ((fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input',
+    ) as HTMLInputElement).click();
+    fixture.detectChanges();
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-confirm')).toBeNull();
+
+    pending.next({
+      ...stub.current,
+      items: stub.current.items.map((item) =>
+        item.examSessionQuestionId === 'q-1'
+          ? { ...item, selectedExamSessionAnswerOptionId: 'q-1-a' }
+          : item,
+      ),
+    });
+    pending.complete();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-confirm')).not.toBeNull();
+    expect(text(fixture)).toContain('All questions have a saved answer.');
+  });
+
+  it('submit stays put when the pending save fails', async () => {
+    const stub = new ExamsApiStub();
+    stub.saveExamSessionAnswers = () => throwError(() => ({ status: 500 }));
+    const { fixture, api } = await setup(stub);
+
+    ((fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="session-option"] input',
+    ) as HTMLInputElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-confirm')).toBeNull();
+    expect(byTestId(fixture, 'session-save-error')).not.toBeNull();
+    expect(api.submitCalls).toEqual([]);
+  });
+
+  it('submit modal blocks background interaction and restores trigger focus on Cancel', async () => {
+    const { fixture } = await setup();
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-body')?.hasAttribute('inert')).toBe(true);
+    expect(document.activeElement).toBe(byTestId(fixture, 'session-confirm-cancel'));
+
+    (byTestId(fixture, 'session-confirm-cancel') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-body')?.hasAttribute('inert')).toBe(false);
+    expect(document.activeElement).toBe(byTestId(fixture, 'session-submit-open'));
+  });
+
+  it('Escape closes the submit modal without submitting', async () => {
+    const { fixture, api } = await setup();
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+    expect(byTestId(fixture, 'session-confirm')).not.toBeNull();
+
+    (byTestId(fixture, 'session-confirm') as HTMLElement).dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(byTestId(fixture, 'session-confirm')).toBeNull();
+    expect(api.submitCalls).toEqual([]);
+    expect(document.activeElement).toBe(byTestId(fixture, 'session-submit-open'));
+  });
+
+  it('confirming submit posts once and renders backend transient aggregates', async () => {
+    const { fixture, api } = await setup();
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+    (byTestId(fixture, 'session-confirm-go') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    expect(api.submitCalls).toEqual(['session-9']);
+    expect(byTestId(fixture, 'session-result')).not.toBeNull();
+    expect(text(fixture)).toContain('Not passed');
+    expect(text(fixture)).not.toMatch(/correct answer|answer key|rationale|explanation/i);
+  });
+
+  it('shows a contextual missing notice on 404', async () => {
+    const stub = new ExamsApiStub();
+    stub.sessionError = { status: 404 };
+    const { fixture } = await setup(stub);
+
+    expect(byTestId(fixture, 'session-missing-notice')).not.toBeNull();
+    expect(byTestId(fixture, 'session-back-link')).not.toBeNull();
+  });
+
+  it('renders a factual terminal state for a directly loaded submitted session', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({ status: 'Submitted', remainingSeconds: 0 });
+    const { fixture } = await setup(stub);
+
+    expect(byTestId(fixture, 'session-terminal-notice')).not.toBeNull();
+    expect(byTestId(fixture, 'session-save')).toBeNull();
+    expect(byTestId(fixture, 'session-submit-open')).toBeNull();
+    expect(byTestId(fixture, 'session-result')).toBeNull();
+    expect(byTestId(fixture, 'session-timer')).toBeNull();
+  });
+
+  it('renders a backend-backed session header, navigation, one question card and no save control', async () => {
+    const { fixture } = await setup();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.querySelector('.np-exam-session-header h1')?.textContent).toContain('Exam session');
+    expect(root.querySelector('.np-exam-session-context')?.textContent).toContain('Exam');
+    expect(root.querySelector('.np-exam-session-header [data-testid="session-timer"]')?.textContent).toContain('60:00');
+    expect(root.querySelectorAll('.np-exam-session-card fieldset')).toHaveLength(1);
+    expect(root.querySelectorAll('.np-exam-session-card [data-testid="session-option"]')).toHaveLength(2);
+    expect(byTestId(fixture, 'session-save')).toBeNull();
+    expect(byTestId(fixture, 'session-nav')).not.toBeNull();
+    expect(byTestId(fixture, 'session-flag')).not.toBeNull();
+    expect(byTestId(fixture, 'session-confirm')).toBeNull();
+  });
+
+  it('shows a saving state while autosaving, then the persisted saved status', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({ items: [question('q-1', 1, 'q-1-a')] });
+    const { fixture } = await setup(stub);
+    expect(byTestId(fixture, 'session-saved-status')).not.toBeNull();
+
+    ((fixture.nativeElement as HTMLElement).querySelectorAll('[data-testid="session-option"] input')[1] as HTMLInputElement).click();
+    fixture.detectChanges();
+    expect(byTestId(fixture, 'session-saving')).not.toBeNull();
+
+    await settle(fixture);
+    expect(byTestId(fixture, 'session-saving')).toBeNull();
+    expect(byTestId(fixture, 'session-saved-status')).not.toBeNull();
+    expect(stub.saved).toEqual([
+      { sessionId: 'session-9', answers: [{ examSessionQuestionId: 'q-1', selectedExamSessionAnswerOptionId: 'q-1-b' }] },
+    ]);
+  });
+
+  it('shows a modal submit dialog with persisted total/unanswered facts and one confirm action', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({ examTitle: 'Clinical Skills', items: [question('q-1', 1, null), question('q-2', 2, 'q-2-a'), question('q-3', 3, 'q-3-a')] });
+    const { fixture, api } = await setup(stub);
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    const confirm = byTestId(fixture, 'session-confirm') as HTMLElement;
+    expect(confirm.getAttribute('role')).toBe('dialog');
+    expect(confirm.getAttribute('aria-modal')).toBe('true');
+    expect(confirm.textContent).toContain('Clinical Skills');
+    expect([...confirm.querySelectorAll('.np-exam-session-confirm-facts > div')].map((fact) => [
+      fact.querySelector('dt')?.textContent?.trim(), fact.querySelector('dd')?.textContent?.trim(),
+    ])).toEqual([['Total questions', '3'], ['Answered', '2'], ['Unanswered', '1']]);
+    expect(confirm.querySelectorAll('[data-testid="session-confirm-go"]')).toHaveLength(1);
+    expect(api.submitCalls).toEqual([]);
+  });
+
+  it('shows the persisted flagged count in the submit dialog only when flags exist', async () => {
+    const stub = new ExamsApiStub();
+    stub.current = session({
+      items: [question('q-1', 1, 'q-1-a', true), question('q-2', 2, null)],
+    });
+    const { fixture } = await setup(stub);
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+
+    const confirm = byTestId(fixture, 'session-confirm') as HTMLElement;
+    expect(confirm.textContent).toContain('Flagged');
+    expect(confirm.textContent).toContain('1');
+  });
+
+  it('keeps confirmation facts visible and disables actions during the single in-flight submit', async () => {
+    const stub = new ExamsApiStub();
+    const pending = new Subject<ExamSessionResult>();
+    stub.submitExamSession = (id: string) => {
+      stub.submitCalls.push(id);
+      return pending.asObservable();
+    };
+    const { fixture } = await setup(stub);
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+    (byTestId(fixture, 'session-confirm-go') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(byTestId(fixture, 'session-confirm')?.getAttribute('aria-busy')).toBe('true');
+    expect(byTestId(fixture, 'session-confirm')?.textContent).toContain('Submitting');
+    expect((byTestId(fixture, 'session-confirm-cancel') as HTMLButtonElement).disabled).toBe(true);
+    expect((byTestId(fixture, 'session-confirm-go') as HTMLButtonElement).disabled).toBe(true);
+    expect(stub.submitCalls).toEqual(['session-9']);
+
+    pending.next(stub.submitResult);
+    pending.complete();
+    await settle(fixture);
+    expect(stub.submitCalls).toEqual(['session-9']);
+  });
+});
+
+describe('ExamSession transient result View full result entry (T-FE-071)', () => {
+  async function submitSuccessfully(): Promise<{
+    fixture: ComponentFixture<ExamSessionScreen>;
+  }> {
+    const { fixture } = await setup();
+
+    (byTestId(fixture, 'session-submit-open') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+    (byTestId(fixture, 'session-confirm-go') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await settle(fixture);
+    return { fixture };
+  }
+
+  it('keeps the transient result visible first and offers View full result', async () => {
+    const { fixture } = await submitSuccessfully();
+
+    expect(byTestId(fixture, 'session-result')).not.toBeNull();
+    expect(text(fixture)).toContain('Not passed');
+    expect(byTestId(fixture, 'session-view-result')?.textContent).toContain('View full result');
+  });
+
+  it('links View full result to the canonical EXAMS_RESULT path without auto-navigating', async () => {
+    const { fixture } = await submitSuccessfully();
+    const link = byTestId(fixture, 'session-view-result') as HTMLAnchorElement | null;
+
+    expect(link?.getAttribute('href')).toBe('/exams/exam-1/sessions/session-9/result');
+    expect(byTestId(fixture, 'session-result')).not.toBeNull();
+    expect(text(fixture)).not.toMatch(/Review answers/i);
+  });
+});
+
+describe('ExamSession route', () => {
+  it('mounts /exams/:examId/sessions/:sessionId with the three-guard pattern and routeId', () => {
+    const route = routes.find((entry) => entry.path === 'exams/:examId/sessions/:sessionId');
+
+    expect(route).toBeDefined();
+    expect(typeof route?.loadComponent).toBe('function');
+    expect(route?.canActivate?.length).toBe(3);
+    expect(route?.data).toEqual({ routeId: 'EXAMS_SESSION' });
+  });
+});

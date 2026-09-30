@@ -70,6 +70,30 @@ public class RegisterUserCommandTests
     }
 
     [Fact]
+    public void Validator_WhitespaceUsername_ReturnsError()
+    {
+        var v = new RegisterUserCommandValidator();
+        var c = new RegisterUserCommand { Email = "t@t.com", Username = "   ", Password = "Password1", FirstName = "John", LastName = "Doe", RoleIds = new List<Guid> { Guid.NewGuid() } };
+        Assert.False(v.Validate(c).IsValid);
+    }
+
+    [Fact]
+    public void Validator_WhitespaceFirstName_ReturnsError()
+    {
+        var v = new RegisterUserCommandValidator();
+        var c = new RegisterUserCommand { Email = "t@t.com", Username = "test-user", Password = "Password1", FirstName = "   ", LastName = "Doe", RoleIds = new List<Guid> { Guid.NewGuid() } };
+        Assert.False(v.Validate(c).IsValid);
+    }
+
+    [Fact]
+    public void Validator_WhitespaceLastName_ReturnsError()
+    {
+        var v = new RegisterUserCommandValidator();
+        var c = new RegisterUserCommand { Email = "t@t.com", Username = "test-user", Password = "Password1", FirstName = "John", LastName = "   ", RoleIds = new List<Guid> { Guid.NewGuid() } };
+        Assert.False(v.Validate(c).IsValid);
+    }
+
+    [Fact]
     public void Validator_DuplicateRoleIds_ReturnsError()
     {
         var id = Guid.NewGuid();

@@ -15,8 +15,8 @@ public class NurseEducationConfiguration : IEntityTypeConfiguration<NurseEducati
         builder.HasIndex(e => e.CountryId);
 
         builder.Property(e => e.InstitutionName).IsRequired().HasMaxLength(200);
-        builder.Property(e => e.Degree).IsRequired().HasMaxLength(160);
-        builder.Property(e => e.FieldOfStudy).HasMaxLength(160);
+        builder.Property(e => e.Degree).IsRequired().HasMaxLength(200);
+        builder.Property(e => e.FieldOfStudy).HasMaxLength(200);
         builder.Property(e => e.Description).HasMaxLength(2000);
 
         builder.HasOne(e => e.NurseProfile)

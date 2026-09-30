@@ -42,11 +42,39 @@ public class PaymentDtoSecurityTests
     }
 
     [Fact]
-    public void Validate_CreateOrder_RequestContainsOnlyProductId()
+    public void Validate_CreateOrder_RequestContainsOnlyPurchaseSourceIds()
     {
         var properties = typeof(CreatePaymentOrderRequest).GetProperties().Select(p => p.Name).ToArray();
 
-        Assert.Equal(["ProductId"], properties);
+        Assert.Equal(["ProductId", "PackageOfferId"], properties);
+    }
+
+    [Fact]
+    public void PaymentPackageSnapshotDto_ShouldNotExposeProtectedExamContentCorrectAnswersSecretsOrInternalAuthorizationState()
+    {
+        var forbidden = new[]
+        {
+            "ExamQuestionText",
+            "CorrectOption",
+            "CorrectAnswer",
+            "AnswerKey",
+            "Rationale",
+            "PaymentProvider",
+            "ProviderSession",
+            "AccessToken",
+            "RefreshToken",
+            "PasswordHash",
+            "Secret",
+            "Token",
+            "InternalAuthorizationState"
+        };
+
+        var properties = typeof(PaymentPackageSnapshotDto).GetProperties().Select(p => p.Name).ToList();
+
+        foreach (var field in forbidden)
+        {
+            Assert.DoesNotContain(properties, p => p.Contains(field, StringComparison.OrdinalIgnoreCase));
+        }
     }
 
     [Fact]

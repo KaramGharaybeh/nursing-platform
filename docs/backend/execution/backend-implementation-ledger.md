@@ -2,7 +2,7 @@
 
 This ledger is the authoritative detailed execution record for backend Task → Subtask → Verification Gate work.
 
-It is a governance and tracking document only. It does not authorize implementation by itself. Implementation may proceed only through explicit technical-lead authorization, the task/gate ownership recorded here, and the repository-wide rules in `AGENTS.md`, `PROJECT_RULES.md`, and `docs/development/model-orchestration.md`.
+It is a governance and tracking document only. It does not authorize implementation by itself. Implementation may proceed only through explicit technical-lead authorization, the task/gate ownership recorded here, and the repository-wide rules in `AGENTS.md` and `PROJECT_RULES.md`.
 
 `PROGRESS.md` remains the concise current-state and handoff memory.
 

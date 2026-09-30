@@ -213,7 +213,7 @@ This project is licensed under a private license.
 
 # AI Development Workflow
 
-This project is designed to be developed with AI coding assistants such as OpenCode, BigPickle, Claude, and GPT.
+This project can be developed with AI coding assistants that follow the current project rules and task-specific authorities.
 
 Before implementing any feature, AI agents must follow the workflow defined in:
 

@@ -59,6 +59,14 @@ Architectural decisions must follow the documentation in:
 
 ---
 
+# Protected Product Truth
+
+Backend/API contracts and server-confirmed state are authoritative for authentication, authorization, permissions, ownership, payment or purchase success, fulfillment, entitlements and access rights, official exam scoring and results, and protected user or candidate data. Frontend state, mocks, fixtures, stubs, sandboxes, and Development/Test substitutes must not establish these protected facts as production truth.
+
+Development/Test substitutes may be used only behind the appropriate production-facing boundary or interface and must be replaceable by the production implementation. Production must fail closed if its real protected-state authority is unavailable; it must never silently fall back to a substitute. Detailed domain rules remain with the owning backend, API, security, and frontend documents.
+
+---
+
 # Documentation Authority
 
 Project documentation is part of the codebase.
@@ -136,6 +144,14 @@ Never commit:
 
 Keep commits focused and easy to review.
 
+Before editing a dirty working tree, identify pre-existing tracked and untracked changes. Preserve unrelated hunks, coordinate writes to shared files, and inspect the final diff before staging or committing. Scope each change to the authorized task; staging, committing, and pushing require their own authorization.
+
+Map acceptance claims to source, tests, and observed results. Choose focused and broader verification according to the risk and reach of the change; documentation-only work requires scope, consistency, and diff checks rather than unrelated product suites. Obtain review independent of the author where consequential correctness or an approved gate requires it. A reviewer reports evidence and findings; review does not create product, security, or design authority. Correct findings within the authorized scope and reverify before claiming completion.
+
+Material review findings must identify the affected requirement and file or symbol, explain the impact, state the needed correction, and cite supporting evidence.
+
+Reuse earlier verification evidence only when the checked source, dependencies, configuration, command environment, and contracts are unchanged. Otherwise rerun the affected checks before relying on that evidence.
+
 ---
 
 # AI Agent Compliance
@@ -190,6 +206,8 @@ Before implementation:
 Project documentation defines what should be built, while AI skills define how implementation should be carried out.
 
 Generic skills, including design, brand, design-system, ui-styling, ui-ux-pro-max, brainstorming, or similar capabilities, are subordinate to Nursing Platform repository governance, approved design evidence, backend/API contracts, business rules, security, accessibility, and task scope. A generic skill must never silently introduce Tailwind, shadcn, a second UI library, new design tokens, new business behavior, new architecture, or a conflicting visual decision.
+
+Before retiring a development tool, inventory project-used Skill content and MCP capabilities, including locally ignored files. Preserve the capabilities that remain authorized and their project authority boundaries before removing the hosting runtime. Tool availability alone never grants implementation or design authority.
 ---
 
 # Definition of Quality
@@ -212,12 +230,17 @@ A change is considered complete only when:
   worktree notes, next authorized action; target ~1-3 KB). It is not historical storage.
 * `PROGRESS_HISTORY.md` is the append-oriented historical record: non-authoritative,
   read-on-demand only, never mandatory startup context.
-* Agents use targeted reads (explicit GOAL, compact entry requirements, compact handoff, active
-  goal state, branch/HEAD/status, then only task-relevant authority) instead of ingesting whole
+* Agents use targeted reads (explicit task, compact entry requirements, compact handoff, owning
+  execution record when relevant, branch/HEAD/status, then only task-relevant authority) instead of ingesting whole
   ledgers, histories, or unrelated domain documents.
 * Related eligible Low/Medium Tasks may execute as one coherent batch under one authorized GOAL
-  with independent verifier review at the batch boundary; Task/Gate IDs remain the traceability
-  units (see `docs/development/model-orchestration.md`).
+  with independent read-only review at the batch boundary; Task/Gate IDs remain the traceability
+  units. Split the batch when risk materially changes, a protected trust boundary or distinct
+  authority is reached, the diff is no longer independently reviewable, one branch is blocked
+  while another can continue, or a human decision is required.
+* A blocked task stops only dependent work. An independently eligible branch may continue only
+  within its own authorization and gates; an external production-only blocker still blocks
+  release claims.
 * Broad staging (`git add .`) is prohibited. Exact-scope staging/committing is allowed only when
   the active GOAL explicitly authorizes that exact action; push remains separately authorized
   (default: prohibited).

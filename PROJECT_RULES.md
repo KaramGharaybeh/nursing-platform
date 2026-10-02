@@ -6,7 +6,7 @@ This document defines the mandatory repository-wide rules that every contributor
 
 These rules apply to all source code, documentation, infrastructure, configuration, and future development.
 
-When a more detailed rule exists inside the documentation under `/docs`, that document becomes the authoritative reference (Single Source of Truth).
+Use `docs/index.md` to locate the authoritative owner for a Product, Architecture, technical, Testing, Operations, Delivery, or engineering-convention question. A more detailed document is authoritative only for the responsibility assigned to it by that router.
 
 ---
 
@@ -39,23 +39,7 @@ Prototype-quality code is never acceptable.
 
 # Architecture Rules
 
-The backend must follow Clean Architecture.
-
-Allowed layers:
-
-- Domain
-- Application
-- Infrastructure
-- Presentation (Web API)
-
-Dependencies must always point inward.
-
-Business rules must never depend on infrastructure or presentation.
-
-Architectural decisions must follow the documentation in:
-
-- docs/architecture/system-architecture.md
-- docs/backend/backend-architecture.md
+The backend must follow the approved Clean Architecture boundaries. `docs/architecture/architecture-overview.md` owns the approved architectural direction and rationale; `docs/backend/backend-architecture.md` owns its backend implementation. Do not redefine those boundaries here.
 
 ---
 
@@ -73,17 +57,17 @@ Project documentation is part of the codebase.
 
 Each document has a single responsibility.
 
-The documentation inside `/docs` is the authoritative source for its respective topic.
+The owners routed by `docs/index.md` are authoritative for their assigned responsibilities.
 
 Do not duplicate detailed technical guidance across multiple documents.
 
-Whenever implementation changes architecture, behavior, or development workflow:
+Whenever authorized implementation changes architecture, behavior, a technical contract, or development workflow:
 
 - Update the relevant documentation.
-- Keep documentation synchronized with implementation.
+- Update Delivery current state when implementation or status changes materially.
 - Never allow documentation to become outdated.
 
-Documentation should always describe the current implementation.
+Approved target truth remains with Product, Architecture, and the relevant technical owner. Current repository implementation and status remain with `docs/delivery/current-state.md`. Do not rewrite approved intent to match implementation drift.
 
 Architectural, business, design, API, security, or exception decisions that affect future implementation must be persisted in repository-backed documentation. Chat history alone is not a durable project decision record.
 
@@ -95,17 +79,7 @@ All source code must follow the standards defined in:
 
 - docs/standards/engineering-standards.md
 
-That document defines:
-
-- Coding conventions
-- Naming conventions
-- Validation
-- DTO usage
-- Error handling
-- Logging
-- Testing
-- Database practices
-- API design guidelines
+That document owns shared repository-wide implementation conventions. Domain-specific rules remain with the Frontend, Backend, API, Security, Testing, Operations, or other specialist owner routed by `docs/index.md`.
 
 Do not redefine those standards in this document.
 
@@ -115,14 +89,14 @@ Do not redefine those standards in this document.
 
 Before implementing any feature:
 
-1. Read CURRENT_TASK.md.
-2. Read AGENTS.md.
-3. Read the relevant documentation inside `/docs`.
-4. Understand the affected architecture.
-5. Implement the smallest complete change.
-6. Verify the solution builds successfully.
-7. Run the applicable tests.
-8. Update documentation if necessary.
+1. Read `AGENTS.md` and this file.
+2. Use `docs/index.md` to locate the task's authoritative owner.
+3. Read `docs/delivery/current-state.md` when current implementation or status matters.
+4. Read the relevant `CURRENT_TASK.md` scope only when this file or the explicit task requires that bounded feature scope.
+5. Understand the affected architecture and technical contracts.
+6. Implement the smallest complete authorized change.
+7. Run task-appropriate verification.
+8. Update the authoritative documentation owner when necessary.
 
 ---
 
@@ -159,8 +133,9 @@ Reuse earlier verification evidence only when the checked source, dependencies, 
 All AI coding agents must follow:
 
 - AGENTS.md
-- CURRENT_TASK.md
-- All relevant documentation inside `/docs`
+- This file
+- The task-specific owners routed by `docs/index.md`
+- The relevant `CURRENT_TASK.md` scope only when required for bounded feature work
 
 AI agents must never:
 
@@ -176,13 +151,7 @@ When requirements are ambiguous, implementation must stop until clarification is
 
 # Project Scope
 
-Only implement features that belong to the current project milestone.
-
-The active milestone is always defined in:
-
-- CURRENT_TASK.md
-
-Features outside the current milestone must not be implemented.
+Only implement explicitly authorized work. `docs/delivery/roadmap.md` owns approved remaining work and `docs/delivery/release-plan.md` owns release or milestone assignment. `CURRENT_TASK.md` may narrow a feature's current scope when this governance or the explicit task requires it; it does not own general repository status, roadmap, or release truth.
 
 Every implementation task has an authorized scope. Agents may modify only the files/modules explicitly listed by the task plus directly necessary dependency files. Discovery of a desirable broader refactor does not authorize that refactor; stop for explicit approval before widening scope.
 
@@ -226,7 +195,7 @@ A change is considered complete only when:
 
 # Memory Bank Governance
 
-* `/PROGRESS.md` is the compact current-state handoff (active GOAL, live blockers, protected
+* `/PROGRESS.md` is the compact active-GOAL/session handoff (live blockers, protected
   worktree notes, next authorized action; target ~1-3 KB). It is not historical storage.
 * `PROGRESS_HISTORY.md` is the append-oriented historical record: non-authoritative,
   read-on-demand only, never mandatory startup context.

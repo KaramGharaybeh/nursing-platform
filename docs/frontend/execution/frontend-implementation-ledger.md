@@ -8,14 +8,17 @@ It is a governance and tracking document only. It does not authorize implementat
 
 Authoritative frontend rules remain in:
 
-- `docs/frontend/frontend-project-rules.md`
 - `docs/frontend/frontend-architecture.md`
+- `docs/frontend/routing-and-permissions.md`
+- `docs/frontend/design-system.md`
+- `docs/frontend/accessibility.md`
+- `docs/frontend/rtl-localization.md`
+- `docs/frontend/screen-contracts/`
 - `docs/frontend/design/frontend-design-foundation-reference.md`
-- approved Storybook visual workflow governance in active frontend architecture/project rules; Storybook tooling is not installed until separately authorized
-- approved design specifications under `docs/frontend/design/specs/`
-- canonical backend/OpenAPI contracts under `docs/frontend/design/integration/openapi/`
+- approved Storybook visual workflow governance in the active frontend architecture; Storybook tooling is not installed until separately authorized
+- canonical backend and `docs/api/openapi.yaml` contracts
 
-`PROGRESS.md` remains the concise current-state and handoff memory. This ledger is the detailed implementation roadmap authority.
+`PROGRESS.md` remains the concise active-GOAL/session handoff memory. This ledger owns bounded `GOAL-FE-001` Task/Gate eligibility, execution governance, and historical execution evidence. It does not replace `docs/delivery/current-state.md` for repository status or `docs/delivery/roadmap.md` for the general roadmap.
 
 ### Task, batch, and GOAL boundaries
 
@@ -36,16 +39,16 @@ screen is never marked implemented merely because its classification Gate is `VE
 
 ### Execution authority precedence
 
-When frontend sources conflict, use this precedence for implementation execution and status decisions:
+For work authorized under `GOAL-FE-001`, use this precedence for bounded Task/Gate eligibility and execution decisions:
 
 1. Current explicit user or technical-lead decisions.
 2. Current execution state and task/gate authority in this ledger, with `PROGRESS.md` as the concise current-session handoff.
-3. Current frontend architecture and project rules in `docs/frontend/frontend-architecture.md` and `docs/frontend/frontend-project-rules.md`.
-4. `docs/frontend/design/frontend-design-foundation-reference.md`, approved visual foundations, approved design specifications, task-required approved Penpot/design evidence, and approved Storybook workflow governance.
+3. Current frontend architecture and specialist owners under `docs/frontend/`.
+4. `docs/frontend/design/frontend-design-foundation-reference.md`, approved visual foundations, task-required approved design evidence, and approved Storybook workflow governance.
 5. Canonical backend/OpenAPI authority for API, validation, auth, authorization, security, and business behavior.
 6. Historical planning, design inventory, evidence packets, trackers, and older prose.
 
-Historical documents remain preserved as evidence, but they do not override newer verified execution state or current repository facts. Older statements such as “frontend workspace is not initialized” are stale for execution once the ledger and repository evidence show a later verified state. If the above precedence cannot resolve a conflict deterministically, STOP and escalate instead of guessing.
+Historical documents remain preserved in Git as evidence, but they do not override newer verified execution state or current repository facts. Older statements such as “frontend workspace is not initialized” are stale for execution once the ledger and repository evidence show a later verified state. Historical rows below retain the repository paths that originally governed or informed their Task/Gate decisions; deleted legacy paths are provenance, not live navigation or current authority. Their durable current knowledge is owned by the frontend documents listed above. If the above precedence cannot resolve a conflict deterministically, STOP and escalate instead of guessing.
 
 ### Standing Implementation Authorization
 
@@ -309,7 +312,7 @@ Rules:
 
 ## 10.1 Angular Component File Separation Governance
 
-The frontend architecture now explicitly requires ordinary production Angular components under `frontend/src/app` to separate component TypeScript, rendered markup, and component styling into colocated `.ts`, `.html`, and `.scss` files, with focused colocated `.spec.ts` coverage where behavior or rendering is testable. Inline component `template:`, inline component `styles:`, and template-local `<style>` blocks are prohibited for ordinary production components; Angular allowing these forms is not project authority to use them. The canonical architecture rule lives in `docs/frontend/frontend-architecture.md`, concrete enforcement and exception boundaries live in `docs/frontend/frontend-project-rules.md`, and compact agent enforcement lives in `AGENTS.md`.
+The frontend architecture now explicitly requires ordinary production Angular components under `frontend/src/app` to separate component TypeScript, rendered markup, and component styling into colocated `.ts`, `.html`, and `.scss` files, with focused colocated `.spec.ts` coverage where behavior or rendering is testable. Inline component `template:`, inline component `styles:`, and template-local `<style>` blocks are prohibited for ordinary production components; Angular allowing these forms is not project authority to use them. The canonical architecture, enforcement, and exception boundaries live in `docs/frontend/frontend-architecture.md`; compact agent workflow enforcement lives in `AGENTS.md`.
 
 This governance correction is forward-looking and does not retroactively invalidate already-VERIFIED task evidence. Existing source requiring later bounded structural remediation under the newly explicit rule was recorded as:
 
@@ -1281,7 +1284,7 @@ This is a sequencing recommendation, not permission to implement. It remains sub
 - blocker_types: `DESIGN`
 - evidence_date: 2026-09-09
 - scope_summary: Implemented the bounded shared standard form-control foundation only under `frontend/src/app/shared/ui/form-controls/`. Added standalone Angular Material wrapper components for standard text-like inputs (`text`, `email`, `password`, `search`, `number`), textarea, select, checkbox, and radio group, plus a barrel export and focused source/behavior tests. No switch, autocomplete, date picker, file upload, password visibility toggle, search clear button, feature form, screen, route, validation policy, backend/OpenAPI/generated API, package/dependency, or Material theme bridge changes were made.
-- design_contract_summary: The implementation consumes the verified runtime tokens, Material bridge, accessibility foundation, direction/locale foundation, and responsive helpers. Field styling records the approved 64px field foundation, 12px radius, 16px logical inline padding, stable support row, logical start alignment, explicit 44px touch-target baseline, and 48px mobile selection-control target. The stylesheet uses existing approved tokens only and no hardcoded parallel brand color values.
+- design_contract_summary: At this Task's historical closure, the implementation consumed the then-verified runtime tokens, Material bridge, accessibility foundation, direction/locale foundation, and responsive helpers. Field styling recorded the then-approved 64px field foundation, 12px radius, 16px logical inline padding, stable support row, logical start alignment, explicit 44px touch-target baseline, and 48px mobile selection-control target. The current visual owner, `docs/frontend/design-system.md`, now specifies an 8px standard input/select radius; this row preserves implementation-at-the-time evidence and is not current visual authority. The stylesheet used the approved tokens present at closure and no hardcoded parallel brand color values.
 - accessibility_summary: Controls keep visible labels; placeholders remain supplementary. Helper and structural error text are associated through stable IDs and `aria-describedby` without defining timing, business validation, backend field mapping, or Problem Details behavior. Required, optional, disabled, and readonly semantics are preserved distinctly where applicable. Selection controls rely on Angular Material checkbox/radio primitives for native keyboard-focusable inputs.
 - component_separation_summary: All new production Angular components use the project-required external `templateUrl: './standard-form-controls.html'` and `styleUrl: './standard-form-controls.scss'` metadata, with no inline component templates, no inline component styles, and no template-local `<style>` block. Focused colocated tests live in `standard-form-controls.spec.ts`.
 - orchestration_note: Initial T-FE-013 implementation routing used Muse/free-worker-first attempts that stopped before edits because of repository command permission failure; Big Pickle fallback also stopped before edits because of command permission failure. The focused TDD red failed before `standard-form-controls.ts` existed (`Could not resolve "./standard-form-controls"` / `TS2307`), and focused green passed after implementation and targeted compile/test fixes. Resumed run used free-route verification only: Big Pickle verifier API failure, MiMo timeout, Muse verifier PASS; no direct OpenAI implementation or verification fallback was needed in this resumed run.

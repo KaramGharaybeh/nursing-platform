@@ -4,29 +4,29 @@
 
 This document is the authoritative source for permanent frontend engineering rules in the Nursing Platform repository.
 
-It defines the approved frontend technology foundation, architectural boundaries, state-management approach, API integration rules, authentication and token-handling rules, accessibility target, testing principles, trust boundaries, performance rules, and implementation guardrails.
+It owns the Angular application structure, component separation, state/data-flow conventions, and frontend implementation boundaries. [Routing and permissions](routing-and-permissions.md) owns route and guard behavior; [Design system](design-system.md) owns the visual-system implementation authority chain; [Accessibility](accessibility.md) and [RTL/localization](rtl-localization.md) own their specialist frontend obligations. [Screen contracts](screen-contracts/README.md) map approved screen states and source boundaries. Product, Architecture, API, and Security remain the owners of their respective higher-level facts.
 
 This document does not define temporary phase scope, visual design, acceptance criteria, execution steps, or phase task lists.
 
 Separate documents own those decisions:
 
 - The 2026-09-20 human decision starts a system-wide visual redesign in Google Stitch. For that redesign, approved Stitch screens own new visual composition after human approval; existing Penpot artifacts are legacy/reference evidence unless explicitly re-approved. Approved frontend visual foundations and approved design specifications remain visual constraints within the security, accessibility, and architecture constraints in this document.
-- Storybook is the approved intended frontend visual development and review tooling model for production Angular components and production screen states after separate tooling installation/configuration authorization. Storybook is not requirements authority and is not currently installed.
+- Storybook is the approved intended frontend visual development and review tooling model for production Angular components and production screen states. Storybook is not requirements authority; installation evidence alone does not authorize a screen or visual decision.
 - `docs/frontend/design/frontend-design-foundation-reference.md` is the canonical textual implementation mapping of the approved frontend foundation and MUST be consulted before Angular UI, SCSS, Angular Material theme, component, or screen work.
 - Figma is non-authoritative unless Karam explicitly records a future decision changing that rule.
 - Future approved frontend design specifications own phase scope, behavior, and acceptance criteria.
 - Future approved implementation plans own execution steps, task sequencing, verification commands, and commit strategy.
-- `CURRENT_TASK.md` and `TASKS.md` are updated only when explicitly approved.
+- `CURRENT_TASK.md` and bounded execution ledgers are updated only when explicitly approved.
 
 Frontend work MUST follow this architecture unless a later reviewer-approved architecture decision explicitly changes it.
 
-This document describes the intended frontend architecture. It MUST NOT be read as evidence that the Angular application already exists.
+This document describes intended frontend implementation constraints. Current Angular source establishes current implementation only; neither a source file nor a package dependency independently approves new Product or visual behavior.
 
 ## Source Authority Policy
 
-Implemented backend source and the generated Development OpenAPI document are the current runtime contract authority for frontend integration. When they disagree with prose documentation, implementation work MUST stop and the discrepancy MUST be resolved rather than guessed around.
+Implemented backend source and the verified [OpenAPI contract](../api/openapi.yaml) establish current runtime/API behavior for frontend integration. [Product](../product/requirements.md) owns approved behavior; [Security](../security/security-overview.md) owns protected enforcement. A code/prose disagreement must be reported and resolved within that ownership chain rather than guessed around.
 
-Approved Stitch redesign artifacts are authoritative for new visual-composition decisions only after human approval. Legacy approved Penpot artifacts remain reference evidence unless explicitly re-approved for the redesign. Backend source and the canonical OpenAPI are authoritative for routes, DTOs, nullability, enums, validation, authentication, authorization, permissions, status codes, server errors, business behavior, sensitive-data exposure, and payment/exam/entitlement trust boundaries. A design example never creates backend business behavior.
+Approved Stitch redesign artifacts own new visual-composition decisions only within their human approval scope. Legacy Penpot artifacts remain reference evidence unless explicitly re-approved. [Frontend routing](routing-and-permissions.md) owns client route identity and guard UX; OpenAPI owns HTTP paths, DTOs, and declared responses; Security owns protected enforcement. Backend code proves current behavior and trust-boundary implementation, not independent Product intent. A design example never creates backend or Product behavior.
 
 Official Angular documentation and Angular-maintained AI guidance matching the Angular version pinned in the workspace are the preferred authority for Angular APIs, compatibility, defaults, tooling, and recommended patterns. Relevant official framework guidance includes `https://angular.dev/ai/develop-with-ai`, `https://angular.dev/ai/agent-skills`, `https://angular.dev/ai/mcp`, and `https://angular.dev/cli/new`.
 
@@ -34,7 +34,7 @@ Official Angular guidance is framework guidance only. It is subordinate to expli
 
 Endpoint fields, validation limits, content types, status behavior, and other volatile contract details MUST be verified against the implemented backend and generated Development OpenAPI during each feature design and implementation phase.
 
-Permanent trust-boundary, security, ownership, and architectural rules belong in this document. Short-lived endpoint values and mutable request or response details belong in API documentation or approved feature specifications.
+This document owns frontend implementation response to trust boundaries. Permanent system boundary rationale belongs to Architecture; protected security and ownership enforcement belongs to Security; endpoint values and request/response shapes belong to API.
 
 Historical reviews and cached documentation do not guarantee future compatibility. Every implementation phase MUST use current sources for the pinned workspace and current backend revision.
 
@@ -95,7 +95,7 @@ Filenames MUST use hyphens between words. Tests MUST use the same base filename 
 
 The initial Angular CLI scaffold MUST use the 2025 file-name style guide. Expected generated root filenames may use forms such as `app.ts`, `app.html`, `app.scss`, and `app.spec.ts`. Do not rename generated files to older `app.component.ts` style merely from historical convention. Future generated Angular artifacts SHOULD follow the approved workspace naming convention unless repository architecture explicitly defines a different name.
 
-Ordinary production Angular components under `frontend/src/app` MUST keep component TypeScript, rendered markup, and component styling separated into dedicated colocated files. The component class, imports, inputs/outputs, and metadata belong in the component `.ts` file; rendered component markup belongs in a colocated external `.html` file referenced through `templateUrl`; component styling belongs in a colocated external `.scss` file referenced through `styleUrl` or another explicitly approved external style metadata form. Focused component tests SHOULD remain colocated in a matching `.spec.ts` file whenever behavior or rendering is testable. Inline `template:`, inline `styles:`, `<style>` blocks inside component templates, and embedding component HTML or SCSS inside TypeScript merely because Angular permits it are prohibited for ordinary production components. A trivial template is not a default exception. Angular concepts that do not render component UI, generated API code, test-only host templates, and explicitly approved styleless or templateless component exceptions are governed by `docs/frontend/frontend-project-rules.md`.
+Ordinary production Angular components under `frontend/src/app` MUST keep component TypeScript, rendered markup, and component styling separated into dedicated colocated files. The component class, imports, inputs/outputs, and metadata belong in the component `.ts` file; rendered component markup belongs in a colocated external `.html` file referenced through `templateUrl`; component styling belongs in a colocated external `.scss` file referenced through `styleUrl` or another explicitly approved external style metadata form. Focused component tests SHOULD remain colocated in a matching `.spec.ts` file whenever behavior or rendering is testable. Inline `template:`, inline `styles:`, `<style>` blocks inside component templates, and embedding component HTML or SCSS inside TypeScript merely because Angular permits it are prohibited for ordinary production components. A trivial template is not a default exception. Directives, pipes, services, guards, interceptors, and other non-rendering Angular code do not require artificial template or stylesheet files. Generated API code is not manually edited to satisfy component structure. Test-only host templates may remain inline in their `.spec.ts` fixture. An intentionally styleless production component may omit its SCSS file only with a task-recorded rationale; a production component rendering markup without an external HTML template requires explicit architecture or task approval. Do not invent other exceptions.
 
 Code MUST be organized by feature or domain rather than global type-only folders. Vague catch-all files such as `helpers.ts`, `utils.ts`, and `common.ts` MUST NOT be introduced; files MUST communicate focused ownership.
 
@@ -455,7 +455,7 @@ Repeated arbitrary colors, spacing, typography, radii, shadows, or z-index value
 
 Canonical keyboard focus ring: `focus.ring.width = 2px`, `focus.ring.offset = 4px`, and `focus.ring.shadow = 0 0 0 4 #006B66`. `border.focus = #4F46B8` is a distinct focused-border/accent token and MUST NOT be substituted for the keyboard focus ring unless a component contract explicitly uses it.
 
-Canonical standard form-field/select foundation: `height = 64px`, `radius = 12px`, and minimum trailing action target `48 × 48px`. The 48px Preparation Package filter draft does not establish a compact control variant. A compact field/select variant may be created only through a later explicit design-system decision.
+The canonical standard form-field/select foundation retains the documented `height = 64px` and minimum trailing action target `48 × 48px`. [Design System](design-system.md) owns the current visual radius from `DESIGN.md`: `8px` for standard inputs and selects. The 48px Preparation Package filter draft does not establish a compact control variant. A compact field/select variant may be created only through a later explicit design-system decision.
 
 There are currently no approved canonical project motion duration/easing tokens. Do not invent or hard-code project-authored motion duration or easing values. Until canonical motion tokens are approved, prefer no custom decorative transition over arbitrary animation. Required state meaning must remain complete without animation. Framework-internal behavior is not visual authority and must not be copied into project tokens.
 

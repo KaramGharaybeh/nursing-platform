@@ -2,14 +2,7 @@
 
 ## Overview
 
-Nursing Platform is a production-ready SaaS application for the nursing industry.
-
-The platform provides two primary capabilities:
-
-- Realistic mock examinations for nursing licensing exams.
-- A recruitment platform connecting qualified nurses with healthcare employers.
-
-The project is designed with a strong focus on scalability, maintainability, security, and long-term sustainability.
+Nursing Platform supports nursing licensing-examination preparation and healthcare recruitment. Approved scope is owned by [Product Overview](docs/product/product-overview.md); current implementation and operational gaps are owned by [Delivery Current State](docs/delivery/current-state.md).
 
 ---
 
@@ -60,7 +53,6 @@ nursing-platform/
 ├── AGENTS.md
 ├── CURRENT_TASK.md
 ├── PROJECT_RULES.md
-├── TASKS.md
 └── README.md
 ```
 
@@ -68,37 +60,7 @@ nursing-platform/
 
 # Quick Start
 
-Clone the repository.
-
-```bash
-git clone <repository-url>
-
-cd nursing-platform
-```
-
-Start the development infrastructure.
-
-```bash
-docker compose up -d
-```
-
-Build the backend.
-
-```bash
-cd backend
-
-dotnet restore
-
-dotnet build
-```
-
-Run the Web API.
-
-```bash
-dotnet run --project src/NursingPlatform.WebApi
-```
-
-The frontend workspace has not been initialized. Frontend scaffold and run commands will be documented only after an approved Frontend Foundation specification and implementation plan are executed.
+Use the [Deployment Runbook](docs/operations/deployment-runbook.md) for the verified local backend and frontend startup procedure and its prerequisites. The repository does not currently contain a runnable Docker Compose deployment procedure. Current implementation and operational status are owned by [Delivery Current State](docs/delivery/current-state.md).
 
 ---
 
@@ -110,21 +72,22 @@ Start with:
 
 | Document | Purpose |
 |----------|---------|
-| index.md | Documentation entry point and navigation |
+| [docs/index.md](docs/index.md) | Documentation entry point and navigation |
 
 Core documentation:
 
 | Document | Purpose |
 |----------|---------|
-| product/vision.md | Product vision and business goals |
-| architecture/system-architecture.md | Overall system architecture |
-| backend/backend-architecture.md | Backend architecture |
-| frontend/frontend-architecture.md | Frontend architecture |
-| database/database-design.md | Database design |
-| api/api-design.md | API standards |
-| standards/engineering-standards.md | Engineering standards |
-| development/development-guide.md | Local development workflow |
-| deployment/deployment.md | Deployment strategy |
+| [docs/product/product-overview.md](docs/product/product-overview.md) | Product purpose and scope |
+| [docs/architecture/architecture-overview.md](docs/architecture/architecture-overview.md) | Approved system architecture |
+| [docs/backend/backend-architecture.md](docs/backend/backend-architecture.md) | Backend implementation architecture |
+| [docs/frontend/frontend-architecture.md](docs/frontend/frontend-architecture.md) | Frontend implementation architecture |
+| [docs/backend/storage-and-database.md](docs/backend/storage-and-database.md) | Storage and database implementation |
+| [docs/api/openapi.yaml](docs/api/openapi.yaml) | Current HTTP contract |
+| [docs/api/api-guidelines-and-errors.md](docs/api/api-guidelines-and-errors.md) | API conventions and errors |
+| [docs/standards/engineering-standards.md](docs/standards/engineering-standards.md) | Engineering standards |
+| [docs/operations/environments.md](docs/operations/environments.md) | Verified environment boundaries |
+| [docs/operations/deployment-runbook.md](docs/operations/deployment-runbook.md) | Verified local deployment procedure |
 
 ---
 
@@ -132,66 +95,24 @@ Core documentation:
 
 Before implementing any feature:
 
-1. Read `docs/index.md`.
-2. Read `CURRENT_TASK.md`.
-3. Read `PROJECT_RULES.md`.
-4. Read `AGENTS.md`.
-5. Read any additional documents referenced by `docs/index.md`.
+1. Read `AGENTS.md`.
+2. Read `PROJECT_RULES.md`.
+3. Read `docs/index.md`.
+4. Read `docs/delivery/current-state.md` when current implementation matters.
+5. Read only the task-specific owners routed by `docs/index.md`.
 
-Only implement work that belongs to the current milestone.
+Authorization and bounded task rules are owned by `AGENTS.md` and `PROJECT_RULES.md`.
 ---
 
 # Current Status
 
-Current status:
-
-**Backend local MVP substantially implemented**
-
-Implemented backend capabilities include:
-
-- Identity, JWT authentication, refresh tokens, email verification, password reset, RBAC, and permission-based authorization.
-- Nurse profiles, experience, education, certificates, skills, languages, and CV upload.
-- Employer profiles, organization management, candidate search/filtering, and recruitment contact requests.
-- Exams, admin content management, versions, questions, sessions, scoring, results, attempts, and analytics.
-- Payment products, nurse-owned payment orders, immutable order snapshots, checkout sessions, and provider-neutral checkout abstraction.
-- Development/Test Sandbox checkout and fulfillment from order checkout to `Paid` order and `ExamAccessGrant` issuance.
-- Purchased exam access enforcement for paid exams before exam session start.
-
-Frontend implementation has not started. The Sandbox payment provider is for Development/Test only and is not a production payment integration. A production payment provider has not been selected.
-
-## Backend Verification
-
-Latest synchronized backend verification after `1ec2efa feat: enforce purchased exam access`:
-
-- Domain: 69 passed.
-- Application: 434 passed.
-- Infrastructure: 119 passed.
-- WebApi: 252 passed.
-- Total: 874 passed.
-- Build: 0 warnings, 0 errors.
-- EF: no pending model changes.
-- PostgreSQL Sandbox tests: 6 passed, 0 skipped.
+Current repository implementation and verified gaps are owned by [docs/delivery/current-state.md](docs/delivery/current-state.md). Historical test totals and milestone statements in Git history do not replace that snapshot.
 
 ---
 
 # Development Principles
 
-The project follows these engineering principles:
-
-- Clean Architecture
-- SOLID
-- DRY
-- KISS
-- YAGNI
-- Domain-Driven Design (where appropriate)
-
-Every implementation should prioritize:
-
-- Correctness
-- Maintainability
-- Scalability
-- Security
-- Testability
+Shared conventions are owned by [Engineering Standards](docs/standards/engineering-standards.md). Architecture and domain-specific implementation rules are routed through [docs/index.md](docs/index.md).
 
 ---
 
@@ -219,13 +140,13 @@ Before implementing any feature, AI agents must follow the workflow defined in:
 
 - AGENTS.md
 - PROJECT_RULES.md
-- CURRENT_TASK.md
+- docs/index.md
+- docs/delivery/current-state.md when current implementation matters
+- the relevant `CURRENT_TASK.md` scope only when repository governance requires it for bounded feature work
 
 ## Superpowers
 
-The development workflow integrates the Superpowers skill system.
-
-Available skills are loaded from the global Superpowers installation and are used automatically by compatible AI agents.
+The development workflow integrates the Superpowers skill system. Agents discover and load applicable installed skills through the available skill mechanism as `AGENTS.md` requires; repository and human authority remain controlling.
 
 Typical workflow:
 

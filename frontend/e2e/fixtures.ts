@@ -1,5 +1,5 @@
 // Step 9 Tranche 1 shared E2E helpers (AUTH family).
-// Canonical identities: test-identity-registry.md (single hardware source here;
+// Test-data owner: docs/testing/test-data-catalog.md (single source here;
 // specs reference these constants, never password literals).
 // Token retrieval: local MailPit HTTP API (test mechanism only, never UI scraping,
 // never production mail). Secrets are never logged.

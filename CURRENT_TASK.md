@@ -27,7 +27,7 @@ Production payment-provider selection remains intentionally deferred (company co
 
 ## Preparation Package Architecture Decisions
 
-Decisions 1 through 10 (DA1–DA10) plus the reporting-profile transition are approved decisions and recorded in the approved umbrella specification at `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md`.
+Decisions 1 through 10 (DA1–DA10) plus the reporting-profile transition remain approved. Their durable Product rules are owned by `docs/product/`, and their architectural structure and rationale are owned by `docs/architecture/` and its ADRs. The original umbrella specification is preserved in Git history as historical approval provenance.
 
 Approved decisions summary:
 
@@ -542,12 +542,14 @@ Before implementing anything, read:
 
 - PROJECT_RULES.md
 - AGENTS.md
-- TASKS.md
 - README.md
-- docs/product/vision.md
-- docs/architecture/system-architecture.md
+- docs/product/product-overview.md
+- docs/product/requirements.md
+- docs/product/business-rules.md
+- docs/architecture/architecture-overview.md
 - docs/backend/backend-architecture.md
 - docs/frontend/frontend-architecture.md
-- docs/database/database-design.md
-- docs/api/api-design.md
+- docs/backend/storage-and-database.md
+- docs/api/api-guidelines-and-errors.md
+- docs/api/openapi.yaml
 - docs/standards/engineering-standards.md

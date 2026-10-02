@@ -1,5 +1,5 @@
 // Step 9 Tranche 1 — fail-closed environment guard contract tests.
-// Canonical: docs/testing/test-environment-provisioning-contract.md §4.
+// Current owners: docs/testing/test-data-catalog.md and docs/operations/environments.md.
 // Pure-logic tests for ../test-env-guard.mjs (TDD RED first).
 import { describe, expect, it } from 'vitest';
 import {

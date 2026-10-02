@@ -1,0 +1,14 @@
+# Threat Model
+
+This model is bounded to evidenced assets and trust edges in [System Context](../architecture/system-context.md), [Security Overview](security-overview.md), server implementation, and focused tests. It records existing controls rather than approving an unverified remediation plan.
+
+| Asset and boundary | Threat to examine | Evidenced control | Residual evidence limit |
+|---|---|---|---|
+| Account and token boundary | An invalid, expired, or replayed credential obtains a protected response. | JWT validation checks issuer, audience, lifetime, and signature. Refresh tokens are hashed and rotated; revoked-token reuse revokes active tokens. Authentication endpoint tests exercise invalid credentials and refresh tokens. | No wider production key-rotation or incident procedure is established here. |
+| Recovery and verification email boundary | A recovery token is reused or disclosed through persistence/response. | Recovery and verification handlers store hashes, enforce use/expiry, and send raw tokens through the email service. Endpoint tests inspect responses for token leakage. | Email-provider operational controls are outside the inspected technical contract. |
+| API authorization boundary | A client bypasses a frontend guard or claims an administrative capability. | Server endpoint authorization metadata and role-derived permission checks enforce protected operations. Frontend guards remain UX controls. | Permission meaning remains with Product; per-operation metadata remains with API. |
+| Nurse-owned resource boundary | One nurse reads another nurse's purchase, entitlement, attempt, or report. | Application ownership checks and integration tests for package entitlements and reports reject non-owned resources without disclosing another nurse's facts. | Each new protected endpoint needs its own authorization and raw-response verification. |
+| Payment/provider boundary | A client or substitute asserts purchase success or creates access rights. | `PROJECT_RULES.md` reserves protected purchase/fulfillment truth for server-confirmed authority and requires Development/Test substitutes behind replaceable interfaces. Package fulfillment uses order-item evidence rather than client claims. | A production provider and its callback/reconciliation controls are not selected in this architectural boundary. |
+| Exam and report boundary | Protected question/answer material or internal entitlement data leaks in learner output. | Package-report and payment endpoint tests inspect raw JSON for forbidden fields; report generation uses safe output rather than protected exam review content. | Future response shapes need the same raw-payload checks. |
+
+This table does not assert a compliance regime, quantified risk score, or mitigation for infrastructure that is not established by repository evidence.

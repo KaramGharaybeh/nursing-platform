@@ -6,7 +6,7 @@ status: APPROVED_T_FE_030_AUTH_ROUTING_CONTRACT_AND_T_FE_031_ROUTE_UX_PERMISSION
 created_at: 2026-09-10
 scope: documentation_contract_definition_only
 implementation_authorization: false
-source_route_authority: docs/frontend/design/inventory/page-registry.md
+source_route_authority: docs/frontend/routing-and-permissions.md
 implemented_route_registry: frontend/src/app/core/routing/canonical-routes.ts
 accepted_route_authority_commit: de6bc16 docs(frontend): approve canonical route contract
 accepted_route_registry_commit: 47b38dc feat(frontend): add canonical route registry
@@ -14,11 +14,12 @@ accepted_route_registry_commit: 47b38dc feat(frontend): add canonical route regi
 
 ## 1. Purpose and authority
 
-This document is the approved route-access documentation owner for generic frontend route authentication behavior used by `T-FE-030`.
+This file is the approved structured route-access fixture used by `T-FE-030` and current frontend source-contract tests. The permanent current routing and frontend UX-access owner is `docs/frontend/routing-and-permissions.md`.
 
-It consumes route identity and path/path-template authority from:
+It consumes current route identity and path/path-template authority from:
 
-- `docs/frontend/design/inventory/page-registry.md`; and
+- `docs/frontend/routing-and-permissions.md`;
+- the paired structured fixture `docs/frontend/design/inventory/page-registry.md`; and
 - `frontend/src/app/core/routing/canonical-routes.ts`.
 
 This document does not redefine, duplicate, or change canonical route IDs or paths. The canonical route registry remains the source for executable route identity/path values.

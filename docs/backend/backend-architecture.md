@@ -1,316 +1,35 @@
 # Backend Architecture
 
-## Overview
+## Authority and structure
 
-The backend is implemented using Clean Architecture.
+This is the Backend technical entry point. [Architecture Overview](../architecture/architecture-overview.md) owns the approved Clean Architecture direction and rationale; [Product](../product/requirements.md) owns required behavior. This document describes backend implementation boundaries and conventions. [Domain Model](domain-model.md), [Storage and Database](storage-and-database.md), and [Background Workers](background-workers.md) own their specialist detail. HTTP shapes belong to [OpenAPI](../api/openapi.yaml), protected enforcement to [Security](../security/security-overview.md), and general verification methodology to the [Testing Strategy](../testing/testing-strategy.md).
 
-The solution is organized into four primary projects:
+The solution has four source projects: `NursingPlatform.Domain`, `NursingPlatform.Application`, `NursingPlatform.Infrastructure`, and `NursingPlatform.WebApi`. Domain is the business core. Application organizes use cases, DTOs, validators, authorization services, and external abstractions. Infrastructure supplies persistence, cache, authentication, email, payment, and file-storage adapters. WebApi composes the runtime and maps HTTP requests to use cases. The approved dependency rule remains inward; current `.csproj` references additionally show Application using EF Core and ASP.NET authorization packages, and WebApi referencing Domain directly. Those observed dependencies must not be mistaken for a change in approved Architecture.
 
-```
-NursingPlatform.Domain
-NursingPlatform.Application
-NursingPlatform.Infrastructure
-NursingPlatform.WebApi
-```
+## Implementation organization
 
-Each project has a clearly defined responsibility.
+Application use cases are grouped by domain and command/query responsibility. MediatR dispatches handlers; FluentValidation validators are registered by Application dependency injection. Business logic belongs in Domain and Application, while WebApi endpoint mapping and middleware remain presentation concerns. Infrastructure implements interfaces used by Application. `Program.cs` composes Application, Infrastructure, and Presentation registrations; startup database initialization is separately invoked outside OpenAPI capture mode.
 
----
+Implemented domain areas include identity/authorization, reference data, nurses, employers, recruitment, examinations, payments, and Preparation Packages. The older statement that Preparation Packages are only planned is superseded by current source and migrations. This is an implementation observation, not evidence of production deployment or a new Product requirement.
 
-# Solution Structure
+The current exam finalization service scores snapshot questions by summing the points of questions whose selected snapshot option is correct. It divides that score by the snapshot maximum points, rounds the percentage to two decimals away from zero, and compares the result with the exam's passing percentage; a zero-point maximum yields zero percent. `StartMyPaymentCheckoutCommand` persists a checkout session with a stable provider client reference and acquires a time-bounded database lease before the provider call. Concurrent creation/retry paths use the persisted session and lease to avoid competing provider calls; provider-outcome persistence checks lease ownership. A definitive provider rejection may mark the session `CreationRejected`; a timeout, network failure, crash, or unknown result leaves a recoverable `Created` session so a later lease holder retries with the same provider client reference. These are current Application/Infrastructure mechanisms verified in source, not additional Product or provider-choice requirements.
 
-```
-backend/
+The current Sandbox payment-completion handler runs the paid transition and package-item fulfillment in one database transaction. `PackagePaymentFulfillmentService` validates each purchased item snapshot, returns an existing entitlement only when its immutable purchase facts and four expected rights match, expires stale same-definition entitlements, and rejects an active same-definition entitlement from another order. A mismatched or incomplete existing entitlement fails validation rather than silently changing purchased facts or repairing missing rights. This describes the implemented Sandbox path; it does not establish a production-provider or recovery-worker contract.
 
-├── src/
-│
-├── NursingPlatform.Domain
-├── NursingPlatform.Application
-├── NursingPlatform.Infrastructure
-└── NursingPlatform.WebApi
-│
-└── tests/
-    ├── NursingPlatform.Domain.Tests
-    └── NursingPlatform.Application.Tests
-```
+The current package report generator orders purchased-content guidance by reporting-topic order, source type, purchased material order, title, and source version ID before assigning report sort orders. This deterministic implementation detail is distinct from the Product rule limiting guidance to the purchased package content and from any qualitative performance classification.
 
----
+Standalone exam analytics currently count all owned sessions in attempt volume, including `InProgress` and `Abandoned`, but calculate pass and score metrics only from `Submitted` and `Expired` sessions. `PassRatePercentage` divides passed counted attempts by all counted attempts and is null when there are none; average, best, and latest score percentages are likewise null without counted attempts. The latest score breaks equal `StartedAt` timestamps by descending session ID. Trends use UTC day, Monday-start week, or calendar-month buckets. These are current `ExamAnalyticsMetricCalculator` mechanics, not newly approved Product scoring requirements or Preparation Package report classifications.
 
-# Domain Layer
+Current exam-session handlers select a published version and look for an existing in-progress session for the nurse and version. A reusable same-source session is returned while its server-side expiry has not passed; an expired session is finalized before another can start. Finalization uses saved session-question/option snapshots and answers, including zero points for missing or incorrect selections, and persists a terminal result. Session response projection withholds answer correctness and explanation until result/review projection. This is current handler behavior, not a newly approved Product lifecycle requirement.
 
-The Domain project represents the business core.
+The current nurse CV upload handler validates a nonempty PDF/DOC/DOCX file using both filename extension and declared content type with a 5 MiB size ceiling. It stores the replacement file, persists sanitized metadata for the owning nurse profile, and deletes the previous stored file after persistence succeeds; on persistence failure it makes a best-effort cleanup of the new file. These are current implementation limits and failure handling, not Product-approved format or size policy.
 
-It contains only business concepts.
+## Boundaries and references
 
-## Contains
+- [Domain Model](domain-model.md) maps implemented Domain concepts without restating Product rules.
+- [Storage and Database](storage-and-database.md) owns EF Core, PostgreSQL, cache/storage adapters, and schema conventions.
+- [Background Workers](background-workers.md) identifies registered background processing, if any.
+- [API guidelines](../api/api-guidelines-and-errors.md) own HTTP status and error conventions.
+- [Authentication and Authorization](../security/authentication-authorization.md) own protected enforcement.
 
-- Entities
-- Value Objects
-- Enumerations
-- Domain Events (future)
-- Domain Exceptions
-- Domain Interfaces (only when required)
-
-## Must NOT contain
-
-- Entity Framework
-- ASP.NET Core
-- HTTP
-- Database code
-- Logging
-- File system
-- External services
-
-The Domain must be completely independent.
-
----
-
-# Application Layer
-
-The Application project contains all business use cases.
-
-## Contains
-
-- Commands
-- Queries
-- CQRS Handlers
-- DTOs
-- Interfaces
-- Validators
-- Application Services
-- Mapping
-- Authorization Requirements
-
-## Responsibilities
-
-- Execute business workflows
-- Coordinate Domain objects
-- Validate requests
-- Return DTOs
-
-The Application layer depends only on the Domain.
-
----
-
-# Infrastructure Layer
-
-Infrastructure contains all external implementations.
-
-## Contains
-
-- EF Core
-- PostgreSQL
-- Redis
-- Authentication
-- Email
-- File Storage
-- Repository implementations
-- External APIs
-
-Infrastructure implements interfaces defined inside the Application layer.
-
-Business rules never belong here.
-
----
-
-# Web API Layer
-
-The Web API project is responsible only for HTTP.
-
-## Contains
-
-- Program.cs
-- Endpoint registration
-- Middleware
-- Dependency Injection
-- Authentication configuration
-- Authorization configuration
-- Health Checks
-- Swagger/OpenAPI (when enabled)
-
-The Web API should never contain business logic.
-
----
-
-# Dependency Rules
-
-Allowed dependencies:
-
-```
-WebApi
-    ↓
-
-Application
-    ↓
-
-Domain
-
-Infrastructure
-    ↓
-
-Application
-    ↓
-
-Domain
-```
-
-Forbidden:
-
-- Domain → Infrastructure
-- Domain → WebApi
-- Application → WebApi
-- Domain → EF Core
-- Domain → ASP.NET Core
-
----
-
-# CQRS Organization
-
-Each feature should be organized by feature instead of technical type.
-
-Example:
-
-```
-Application/
-
-Identity/
-
-    Commands/
-
-        Register/
-
-            RegisterCommand.cs
-
-            RegisterCommandHandler.cs
-
-            RegisterCommandValidator.cs
-
-    Queries/
-
-        Login/
-
-            LoginQuery.cs
-
-            LoginQueryHandler.cs
-
-Exam/
-
-Recruitment/
-
-Employer/
-
-Nurse/
-```
-
-Feature-based organization is preferred over large shared folders.
-
----
-
-# Dependency Injection
-
-All services must be registered through extension methods.
-
-Example:
-
-```
-builder.Services
-    .AddApplication()
-    .AddInfrastructure()
-    .AddPresentation();
-```
-
-Program.cs should remain small.
-
----
-
-# Validation
-
-Validation should be implemented using FluentValidation.
-
-Validation must execute before business logic.
-
-Business rules are not validation rules.
-
----
-
-# Mapping
-
-DTO mapping should be centralized.
-
-Avoid manual mapping spread across the project.
-
-Mapping strategy will be defined later.
-
----
-
-# Error Handling
-
-Global exception handling should be implemented.
-
-Endpoints should return consistent error responses.
-
-Unexpected exceptions should be logged.
-
----
-
-# Logging
-
-Logging should use Microsoft's ILogger abstraction.
-
-Sensitive information must never be logged.
-
-Logs should be structured.
-
----
-
-# Testing Strategy
-
-Domain
-
-- Unit Tests
-
-Application
-
-- Unit Tests
-- Integration Tests (future)
-
-Infrastructure
-
-- Integration Tests (future)
-
-Web API
-
-- Endpoint Tests (future)
-
----
-
-# Future Modularization
-
-As the platform grows, each business module will evolve independently.
-
-Examples:
-
-- Identity
-- Nurses
-- Employers
-- Exams
-- Recruitment
-- Administration
-- Preparation Packages (planned, currently in the documentation/specification phase)
-
-The architecture should allow adding new modules through backward-compatible extension, without unnecessary redesign or breaking the observable behavior of existing modules.
-
-Approved architectural direction for the planned Preparation Packages module: it is additive at the architectural level, preserves existing standalone-exam behavior, and is introduced through separately reviewed staged specifications. The linked umbrella architecture-decisions specification is reviewed and approved, and the underlying DA1–DA10 decisions plus the reporting-profile transition remain approved. This approval covers architecture decisions only; no preparation-package capability is implemented, staged specifications and implementation plans remain separate and unapproved, and Stage 1 has not begun. See `docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md` for the recorded decisions and staged-specification boundaries.
-
----
-
-# Backend Goals
-
-The backend should always remain:
-
-- Modular
-- Testable
-- Secure
-- Easy to extend
-- Easy to maintain
-- Production-ready
+The legacy backend document mixed API, security, testing, future mapping, and dated delivery claims. Those subjects now belong to the specialist owners above or to [Delivery](../delivery/current-state.md), rather than being copied here.

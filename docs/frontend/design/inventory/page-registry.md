@@ -2,7 +2,7 @@
 
 ```yaml
 document_id: NPS-DES-INV-PAGE-REGISTRY
-status: APPROVED_CANONICAL_ROUTE_AUTHORITY
+status: RETAINED_STRUCTURED_ROUTE_FIXTURE
 created_at: 2026-09-10
 scope: documentation_contract_definition_only
 implementation_authorization: false
@@ -10,14 +10,16 @@ implementation_authorization: false
 
 ## 1. Purpose and authority
 
-This document is the approved canonical documentation authority for frontend page and route identity decisions. It records:
+This document preserves the technical-lead-approved route policy and structured inventory consumed by frontend source-contract tests. The permanent current owner for route identity and UX access is `docs/frontend/routing-and-permissions.md`.
+
+The fixture records:
 
 1. the **approved route design policy** supplied by the technical lead for documentation and contract-definition work; and
 2. the **approved canonical route inventory** accepted by the technical lead.
 
-The policy in Section 2 is approved. The exact route table in Section 4 is now the **APPROVED CANONICAL ROUTE AUTHORITY** for route IDs and path/path-template identity. This contract approval does not authorize Angular implementation.
+The policy and exact table remain verified source-fixture inputs. They do not form a second prose authority, establish current route activation, or authorize Angular implementation. Executable route identities remain in `frontend/src/app/core/routing/canonical-routes.ts` and activated routes remain in `frontend/src/app/app.routes.ts`.
 
-This document does not implement Angular routes. `frontend/src/app/app.routes.ts` remains the current runtime route configuration and still exports an empty `Routes` array. `T-FE-029`, `ST-FE-029`, and `GATE-FE-T029` must not be marked `VERIFIED` from this documentation checkpoint.
+The original documentation checkpoint did not implement Angular routes or close `T-FE-029`, `ST-FE-029`, or `GATE-FE-T029`. Later implementation status belongs to the bounded Frontend ledger and Delivery, not this fixture.
 
 ## 2. Approved route design policy
 
@@ -51,7 +53,7 @@ Use query parameters for view state over the same route-level resource, includin
 
 ### 2.8 Locale
 
-For current V1 route authority, locale changes must not change the canonical application path. Canonical routes remain language-neutral stable English identifiers. Do not introduce `/en`, `/ar`, translated Arabic URLs, or locale-dependent route identity unless separately approved later.
+The retained V1 route policy keeps canonical application paths language-neutral and stable. Do not introduce `/en`, `/ar`, translated Arabic URLs, or locale-dependent route identity unless separately approved later.
 
 ### 2.9 Trailing slash
 
@@ -89,7 +91,7 @@ Angular wildcard/catch-all mechanics are implementation concerns. `SYS-002` is a
 
 ### 2.16 Canonical documentation ownership
 
-This `docs/frontend/design/inventory/page-registry.md` document owns the frontend page and canonical route inventory contract. `docs/frontend/design/inventory/route-permission-matrix.md` owns generic route authentication classification for `T-FE-030` and later route/actor/access/permission relationships for downstream work. Do not duplicate access or guard responsibility here.
+This file is the structured route-inventory fixture consumed by frontend source-contract tests. The permanent current route and UX-access owner is `docs/frontend/routing-and-permissions.md`; `docs/frontend/design/inventory/route-permission-matrix.md` remains the paired structured fixture for generic route authentication classification. Do not duplicate access or guard responsibility here.
 
 ## 3. Route identifier and table conventions
 
@@ -99,9 +101,9 @@ This `docs/frontend/design/inventory/page-registry.md` document owns the fronten
 - `—` in the path column means the destination is intentionally non-routable or blocked/deferred until more authority exists.
 - Access classification is intentionally absent from the canonical route table. Generic authentication classification and later actor/access/permission mapping belong in the separate route-permission matrix and `T-FE-030`/`T-FE-031` work.
 
-## 4. Approved canonical route inventory
+## 4. Retained canonical route fixture
 
-Every route with an exact path in this table is part of the **APPROVED CANONICAL ROUTE AUTHORITY**. Rows with `—` are explicitly non-routable, blocked, or deferred as recorded in their status and rationale. This is route-contract authority only; Angular source implementation remains unauthorized until a separate `T-FE-029` implementation approval.
+Every exact path in this table records the accepted route-contract input used by the current source fixture. Rows with `—` record the non-routable, blocked, or deferred classification accepted at that checkpoint. Use `docs/frontend/routing-and-permissions.md` and current source for present route identity, access policy, and activation.
 
 | Route ID | Screen/Page ID | Destination | Approved path/template | Family | Dynamic params | Evidence reference | Status | Rationale |
 |---|---|---|---|---|---|---|---|---|
@@ -278,7 +280,7 @@ Query parameters are approved for filters, search, sorting, pagination, return-u
 
 ## 9. T-FE-029 and downstream ownership boundary
 
-`T-FE-029` may consume this approved document only after a separate implementation authorization to implement the canonical route ID/path/path-builder source. It must not implement guard execution, permission checks, redirects, return-url validation, navigation menus, page titles, breadcrumbs, screen components, or feature workflows.
+`T-FE-029` consumed this fixture under its separate implementation authorization to implement the canonical route ID/path/path-builder source. The fixture did not authorize guard execution, permission checks, redirects, return-url validation, navigation menus, page titles, breadcrumbs, screen components, or feature workflows.
 
 `T-FE-030` consumes approved route identities plus `docs/frontend/design/inventory/route-permission-matrix.md` as the generic authentication/public guard contract. `T-FE-031` consumes approved route identities plus later access/permission matrix decisions for UX permission policy. `T-FE-032` consumes those later decisions for navigation presentation.
 
@@ -299,7 +301,7 @@ Screen implementation tasks consume approved route identities only after their f
 - Transient states are not automatically promoted to routes.
 - Known backend/design/runtime blockers remain explicit.
 - Preparation Package draft route examples are historical/draft evidence only; approved canonical offer paths use `/preparation-packages` and `/preparation-packages/:offerSlug`.
-- `frontend/src/app/app.routes.ts` remains unchanged by this documentation contract and still exports an empty `Routes` array until `T-FE-029` implementation is separately authorized and verified.
+- Current Angular route activation must be checked in `frontend/src/app/app.routes.ts` and summarized by `docs/frontend/routing-and-permissions.md`; this historical fixture does not report activation status.
 
 ## 11. Implementation authorization
 

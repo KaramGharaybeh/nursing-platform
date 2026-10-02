@@ -177,7 +177,7 @@ Penpot token set `Spacing Shape` is active and contains these verified values:
 | `radius.none` | `0px` | Strict square alignment only. |
 | `radius.xs` | `4px` | Tiny badges. |
 | `radius.sm` | `8px` | Inputs, selects, compact controls. |
-| `radius.md` | `12px` | Buttons and standard form-field foundation. |
+| `radius.md` | `12px` | Buttons. |
 | `radius.lg` | `16px` | Cards. |
 | `radius.xl` | `24px` | Dialogs. |
 | `radius.full` | `9999px` | Badges, chips, intentional pill-like controls. |
@@ -238,7 +238,7 @@ Evidenced component requirements include:
 
 - Buttons: `48px` control examples, `16/24px` inline padding, stable loading width, focus-visible distinct from hover/pressed, icon-only buttons require documented accessible names, actual targets at least `44 × 44px` and preferred `48 × 48px` on mobile.
 - Button anatomy: optional `20px` icon, `16px` icon-to-label gap, `24px` logical inline padding, `12px` component radius.
-- Inputs: standard foundation remains `64px` field height, `12px` radius, `16px` inline padding, stable support row, distinct read-only/disabled/validation/loading states.
+- Inputs: standard foundation uses `64px` field height, the active `8px` input/select radius from `stitch/DESIGN.md`, `16px` inline padding, a stable support row, and distinct read-only/disabled/validation/loading states.
 - Textareas: support message uses logical inline-start; counter uses logical inline-end; stack safely on narrow layouts without overlap.
 - Selection controls: selected, checked, indeterminate, current, and active are distinct and must not rely on color alone.
 

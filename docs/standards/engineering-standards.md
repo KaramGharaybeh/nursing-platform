@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the engineering standards that every contributor and AI coding agent must follow.
+This document owns shared repository-wide engineering conventions that every contributor and AI coding agent must follow. `docs/index.md` routes domain-specific Product, Architecture, Frontend, Backend, API, Security, Testing, Operations, and Delivery rules to their specialist owners.
 
 These standards are mandatory and apply to every feature, bug fix, refactoring, and architectural change.
 
@@ -26,18 +26,7 @@ Code should be easy to understand before it is optimized.
 
 # Clean Architecture
 
-The backend follows Clean Architecture.
-
-Layers:
-
-- Domain
-- Application
-- Infrastructure
-- Presentation (Web API)
-
-Dependencies always point inward.
-
-Outer layers must never introduce business rules.
+Follow the approved structure and rationale in [Architecture](../architecture/architecture-overview.md). Backend layer responsibilities and dependency implementation rules belong to [Backend Architecture](../backend/backend-architecture.md).
 
 ---
 
@@ -113,46 +102,25 @@ Use exceptions only for exceptional situations.
 
 Validation errors should not rely on exceptions.
 
-API responses should return meaningful HTTP status codes.
+HTTP status and error-response conventions belong to [API Guidelines and Errors](../api/api-guidelines-and-errors.md).
 
 ---
 
 # Validation
 
-All external input must be validated.
-
-Use FluentValidation.
-
-Business validation belongs inside the Application layer.
+Validate external input at the appropriate boundary. Backend validation placement and implementation belong to [Backend Architecture](../backend/backend-architecture.md); request and error representation belong to [API Guidelines and Errors](../api/api-guidelines-and-errors.md).
 
 ---
 
 # DTOs
 
-Never expose database entities.
-
-Always expose DTOs.
-
-Separate:
-
-- Request models
-- Response models
-- Domain models
+Keep transport, domain, and persistence representations separated according to [Backend Architecture](../backend/backend-architecture.md), [Backend Domain Model](../backend/domain-model.md), and the [OpenAPI contract](../api/openapi.yaml).
 
 ---
 
 # Entity Framework Core
 
-Always use:
-
-- EF Core
-- LINQ
-- Async methods
-
-Never:
-
-- Build SQL manually unless absolutely necessary.
-- Expose DbContext outside Infrastructure.
+Persistence implementation, DbContext boundaries, query conventions, and provider-specific rules belong to [Storage and Database](../backend/storage-and-database.md).
 
 ---
 
@@ -183,90 +151,43 @@ Errors should include enough context for debugging.
 
 # Security
 
-Passwords:
-
-- Hash only.
-- Never store plain text.
-
-Authentication:
-
-- JWT
-
-Authorization:
-
-- Policy/Permission based.
-
-Always validate user input.
+Security controls and authentication/authorization enforcement belong to [Security](../security/security-overview.md). Follow [Data Protection](../security/data-protection.md) for sensitive-data and credential handling.
 
 ---
 
 # Testing
 
-Business logic must be unit tested.
-
-Critical workflows require integration tests.
-
-Tests should be deterministic.
-
-Avoid flaky tests.
+Verification layers, determinism, isolation, and evidence expectations belong to the [Testing Strategy](../testing/testing-strategy.md).
 
 ---
 
 # API Design
 
-Use RESTful principles.
-
-Endpoints should be predictable.
-
-Return consistent response structures.
-
-HTTP status codes should follow standards.
+HTTP conventions and error behavior belong to [API Guidelines and Errors](../api/api-guidelines-and-errors.md); endpoint and schema specifics belong to [OpenAPI](../api/openapi.yaml).
 
 ---
 
 # Database
 
-Database changes must use EF Core migrations.
-
-Never edit production schema manually.
-
-Foreign keys should enforce integrity.
+Database implementation and migration conventions belong to [Storage and Database](../backend/storage-and-database.md). Operational database procedure belongs to [Operations](../operations/deployment-runbook.md).
 
 ---
 
 # Git
 
-Commit often.
-
-Each commit should represent one logical change.
-
-Commit messages should be meaningful.
-
-Never commit generated files unnecessarily.
+Repository-wide Git constraints belong to [PROJECT_RULES.md](../../PROJECT_RULES.md); AI-agent Git behavior belongs to [AGENTS.md](../../AGENTS.md).
 
 ---
 
 # Documentation
 
-Architecture changes require documentation updates.
-
-Documentation should evolve together with implementation.
+Update the authoritative owner routed by [docs/index.md](../index.md), cross-reference rather than duplicate, and update Delivery when implementation or status changes materially.
 
 ---
 
 # AI Agent Requirements
 
-Before writing code, the AI agent must read:
-
-- README.md
-- PROJECT_RULES.md
-- AGENTS.md
-- CURRENT_TASK.md
-- Relevant documentation inside `/docs`
-
-The AI must never invent requirements.
-
-If requirements are incomplete, it must stop and request clarification.
+AI-agent workflow, evidence discipline, skill use, task boundaries, and stop conditions belong to [AGENTS.md](../../AGENTS.md). Repository constraints remain in [PROJECT_RULES.md](../../PROJECT_RULES.md).
 
 ---
 

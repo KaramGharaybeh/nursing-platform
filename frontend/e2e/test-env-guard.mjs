@@ -1,5 +1,5 @@
 // Step 9 Tranche 1 — fail-closed test environment guard.
-// Contract: docs/testing/test-environment-provisioning-contract.md §4.
+// Current owners: docs/testing/test-data-catalog.md and docs/operations/environments.md.
 // Pure functions only (no I/O, no secrets in outputs). Used by global-setup and
 // the orchestration script BEFORE any migration, seeding, or provisioning.
 

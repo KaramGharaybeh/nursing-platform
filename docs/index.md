@@ -1,218 +1,44 @@
 # Documentation Index
 
-## Purpose
+This index routes questions to their authoritative owner. It does not define Product behavior, technical contracts, implementation status, or project governance.
 
-This document serves as the entry point to the Nursing Platform documentation.
+## Start here
 
-The documentation is organized by topic, with each document acting as the authoritative source for its respective area. Contributors and AI coding agents should consult the relevant documentation before making implementation decisions.
+For a new contribution, follow this reading path:
 
----
+1. [AGENTS.md](../AGENTS.md) — AI-agent operating rules and task workflow.
+2. [PROJECT_RULES.md](../PROJECT_RULES.md) — repository governance and hard constraints.
+3. This index — choose the owner for the task.
+4. [Current State](delivery/current-state.md) — read when the task depends on what the repository implements now.
+5. Read only the relevant owner documents below, then inspect source, tests, and configuration as needed to verify the task.
 
-# Reading Order
+Do not read every document by default. An active task's explicit human instructions remain essential context; this index does not authorize implementation.
 
-When starting work on the project, use targeted reads instead of ingesting every document:
-load the explicit human task, `PROJECT_RULES.md`, `AGENTS.md`, the compact `PROGRESS.md` handoff,
-and current Git branch/HEAD/status; then read only the task-relevant authority from this index
-and the owning execution ledger. The historical record
-(`PROGRESS_HISTORY.md`, old design-program files, superseded packets) is on-demand evidence only.
+## Find the authoritative owner
 
-The topic map below identifies current authorities and explicitly labeled historical references:
+| Question or task | Start with | Specialist owners |
+|---|---|---|
+| What is the approved Product purpose or feature scope? | [Product Overview](product/product-overview.md) | [Feature Catalog](product/feature-catalog.md), [Glossary](product/glossary.md) |
+| What must the product do, and under which business or actor rules? | [Requirements](product/requirements.md) | [Business Rules](product/business-rules.md), [Roles and Permissions](product/roles-and-permissions.md) |
+| How is the approved system structured, and why? | [Architecture Overview](architecture/architecture-overview.md) | [System Context](architecture/system-context.md), [Containers](architecture/containers.md), [Runtime Flows](architecture/runtime-flows.md), [Data Model](architecture/data-model.md), [Integrations](architecture/integrations.md), [Deployment Architecture](architecture/deployment-architecture.md), [Quality Attributes](architecture/quality-attributes.md), [Risks and Technical Debt](architecture/risks-and-technical-debt.md), and the overview's ADR inventory. For Preparation Package composition rationale, use the [composition ADR](architecture/adrs/preparation-package-composition.md). |
+| How does the Angular client work? | [Frontend Architecture](frontend/frontend-architecture.md) | [Routing and Permissions](frontend/routing-and-permissions.md), [Design System](frontend/design-system.md), [Accessibility](frontend/accessibility.md), [RTL and Localization](frontend/rtl-localization.md) |
+| Which current screen contract applies? | [Screen Index](frontend/screen-contracts/screen-index.md) | [Screen Contracts](frontend/screen-contracts/README.md); for package reporting, the [Preparation Package family](frontend/screen-contracts/preparation-packages.md) |
+| How is the backend implemented? | [Backend Architecture](backend/backend-architecture.md) | [Domain Model](backend/domain-model.md), [Storage and Database](backend/storage-and-database.md), [Background Workers](backend/background-workers.md) |
+| What is the HTTP operation or schema? | [OpenAPI](api/openapi.yaml) | [API Guidelines and Errors](api/api-guidelines-and-errors.md) for conventions and error behavior |
+| How are protected access and data handled? | [Security Overview](security/security-overview.md) | [Authentication and Authorization](security/authentication-authorization.md), [Threat Model](security/threat-model.md), [Data Protection](security/data-protection.md), [Security Verification](security/security-verification.md). Frontend guards are UX controls; protected server enforcement belongs to Security and server/API contracts. |
+| How is required behavior or a contract verified? | [Testing Strategy](testing/testing-strategy.md) | [Acceptance Criteria](testing/acceptance-criteria.md), [End-to-End Scenarios](testing/end-to-end-scenarios.md), [Test Data Catalog](testing/test-data-catalog.md), [Verification Dependency Graph](testing/dependency-graph.md). Testing does not define the behavior it verifies. |
+| How are environments and the system operated? | [Environments](operations/environments.md) | [Deployment Runbook](operations/deployment-runbook.md) for verified procedures, [Monitoring and Alerts](operations/monitoring-and-alerts.md) for established signals. These documents do not establish a runnable Staging or Production procedure where one is unverified. |
+| What exists or remains incomplete now? | [Current State](delivery/current-state.md) | Follow its links to the affected domain owner for detail. |
+| What approved work remains, or what is blocked? | [Roadmap](delivery/roadmap.md) | Read the relevant task's authority only when executing that task. A current gap is not automatically planned work. |
+| Which release or milestone contains the work? | [Release Plan](delivery/release-plan.md) | `RELEASE_ASSIGNMENT_NOT_ESTABLISHED` is the recorded answer where authority establishes no assignment. |
+| What conventions apply across technical domains? | [Engineering Standards](standards/engineering-standards.md) | Domain-specific rules stay with their Frontend, Backend, API, Security, Testing, or other specialist owner. |
 
-1. Product Vision
-2. System Architecture
-3. Backend Architecture
-4. Frontend Architecture
-5. Database Design
-6. API Design
-7. Engineering Standards
-8. Development Guide
-9. Deployment Guide
+## Keep authority and status separate
 
----
+[Product](product/product-overview.md) owns what the system must do; [Architecture](architecture/architecture-overview.md) owns approved structure and rationale. [Frontend](frontend/frontend-architecture.md), [Backend](backend/backend-architecture.md), [API](api/openapi.yaml), and [Security](security/security-overview.md) own technical contracts and enforcement. [Testing](testing/testing-strategy.md) owns verification, and [Operations](operations/environments.md) owns operating knowledge. [Delivery](delivery/current-state.md) owns current implementation status; its [Roadmap](delivery/roadmap.md) owns approved remaining work and its [Release Plan](delivery/release-plan.md) owns release placement. [Engineering Standards](standards/engineering-standards.md) owns shared engineering conventions. [PROJECT_RULES.md](../PROJECT_RULES.md) owns repository governance; [AGENTS.md](../AGENTS.md) owns AI-agent behavior.
 
-# Documentation Structure
+Update the document that owns a fact and link to it from other domains. Keep approved target behavior separate from current implementation status. Existing code establishes implementation evidence, not Product intent; historical text is evidence, not automatically current authority. Preserve verified architectural rationale with its Architecture owner or ADR. Update Delivery when implementation or status changes materially. If two sources of equal authority conflict without an established rule, seek the human owner's decision rather than selecting one here.
 
-## Product
+## Historical and bounded governance material
 
-### vision.md
-
-Defines the product vision, business goals, target users, and long-term roadmap.
-
-Location:
-
-```
-docs/product/vision.md
-```
-
----
-
-## Architecture
-
-### system-architecture.md
-
-Provides the high-level architecture of the platform, system boundaries, modules, and overall design principles.
-
-Location:
-
-```
-docs/architecture/system-architecture.md
-```
-
----
-
-## Backend
-
-### backend-architecture.md
-
-Defines the backend architecture, Clean Architecture implementation, project structure, dependency rules, and application organization.
-
-Location:
-
-```
-docs/backend/backend-architecture.md
-```
-
-### execution/backend-implementation-ledger.md
-
-Defines backend Task → Subtask → Verification Gate ownership and execution status for backend implementation work.
-
-Location:
-
-```
-docs/backend/execution/backend-implementation-ledger.md
-```
-
----
-
-## Frontend
-
-### frontend-architecture.md
-
-Defines the Angular application architecture, feature organization, state management, routing, and frontend design principles.
-
-Location:
-
-```
-docs/frontend/frontend-architecture.md
-```
-
----
-
-## Database
-
-### database-design.md
-
-Defines the database architecture, persistence strategy, entity design principles, naming conventions, migrations, and performance considerations.
-
-Location:
-
-```
-docs/database/database-design.md
-```
-
----
-
-## API
-
-### api-design.md
-
-Defines REST API conventions, endpoint design, versioning, validation, authentication, response models, and error handling.
-
-Location:
-
-```
-docs/api/api-design.md
-```
-
----
-
-## Standards
-
-### engineering-standards.md
-
-Defines the mandatory engineering standards for coding style, architecture, testing, logging, validation, security, and documentation.
-
-Location:
-
-```
-docs/standards/engineering-standards.md
-```
-
----
-
-## Development
-
-### development-guide.md
-
-Explains how to set up the local development environment, build the solution, run the application, and follow the recommended development workflow.
-
-Location:
-
-```
-docs/development/development-guide.md
-```
-
----
-
-## Deployment
-
-### deployment.md
-
-Defines the deployment strategy, infrastructure, environments, monitoring, backups, CI/CD pipeline, and operational practices.
-
-Location:
-
-```
-docs/deployment/deployment.md
-```
-
----
-
-## Specifications
-
-### preparation-package-architecture-decisions.md
-
-Approved umbrella architecture-decisions specification for the planned paid preparation package product. The umbrella approval covers the recorded architecture decisions, including DA1–DA10 and the reporting-profile transition, but does not implement any preparation-package capability. Staged specifications and implementation plans remain separate and unapproved, and Stage 1 has not begun. The specification records approved business invariants and architectural directions, explicitly deferred features, design details reserved for staged specifications, and launch-time configuration decisions.
-
-Location:
-
-```
-docs/superpowers/specs/2026-07-25-preparation-package-architecture-decisions.md
-```
-
----
-
-# Documentation Principles
-
-Every document in this directory has a single responsibility.
-
-When implementation changes:
-
-- Update the relevant documentation.
-- Keep documentation synchronized with the codebase.
-- Avoid duplicating detailed information across multiple documents.
-- Treat each document as the single source of truth for its topic.
-
----
-
-# Related Repository Documents
-
-The following repository-level documents complement the documentation in this directory:
-
-| Document | Purpose |
-|----------|---------|
-| `README.md` | Project overview and entry point |
-| `PROJECT_RULES.md` | Repository-wide development rules |
-| `AGENTS.md` | Instructions for AI coding agents |
-| `CURRENT_TASK.md` | Active implementation milestone |
-| `TASKS.md` | Long-term project roadmap |
-| `PROGRESS.md` | Compact current-state / session handoff (not history) |
-| `PROGRESS_HISTORY.md` | Historical evidence, read-on-demand, non-authoritative |
-
----
-
-# Documentation Philosophy
-
-Documentation is an integral part of the project.
-
-Every architectural, implementation, or workflow decision should be reflected in the appropriate documentation to ensure consistency, maintainability, and long-term project sustainability.
+Historical plans, reports, retired design programs, and deleted duplicate documentation remain recoverable in Git history. They are evidence, not normal active authority. The bounded execution and handoff files that remain are read only when an explicit task or repository rule requires them; their dated “current,” “next,” or “blocked” statements do not override the owners above. Normal reading starts with this router and the active owner.
